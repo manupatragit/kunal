@@ -1,0 +1,143 @@
+﻿@{
+    Layout = null;
+}
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'bn,en,gu,hi,kn,ml,mr,pa,ta,te,ur,ne', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL }, 'google_translate_element');
+    }
+</script>
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+<link href="/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        var ffilename = "@ViewBag.filepath";
+        var hostname = window.location.hostname;
+        var pather = window.location.protocol + "//" + hostname + "//" + ffilename;
+        $("#iframeset").attr("src", pather);
+        loadocrcontentlist();
+        function loadocrcontentlist() {
+            var typeid = "@ViewBag.token";
+            var formData = new FormData();
+            formData.append("token", typeid);
+            try {
+                $.ajax({  async: true,
+                    type: "POST",
+                    url: "/api/OcrInvoiceApi/LoadOcrContent",
+                    dataType: 'json',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        var datas1 = JSON.stringify(data);
+                        if (data.Data == "") {
+                            $('#causeliststatus').append("No Cause list Available.");
+                        }
+                        $("#contentdata").html(String(data.Data).replace(/\\n|\\r\\n|\\r/g, '<br/>').slice(1, -1).slice(1, -1));
+                    },
+                    failure: function (data) {
+                        alert(data.responseText);
+                    },
+                    error: function (data) {
+                        alert(data.responseText);
+                    }
+                });
+            }
+            catch (err) {
+                alert(err.message);
+            }
+        }
+    });
+</script>
+<div class="modal-header btn-primary">
+    <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        File  OCR Content
+    </h4>
+</div>
+<div class="modal-body ">
+    <aside class="">
+        <section class="content">
+            <div id="page-wrapper">
+                <div class="container-fluid showcontent" id="showcontent">
+                    <div class="">
+                        <div class="box-header">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /.box-header -->
+        <!-- /.panel-heading -->
+        <!-- Main content -->
+        <!-- Main content -->
+        <section class="content">
+            <div id="google_translate_element"></div>
+            <button id="btn-export" class="btn  btn-info pull-right" onclick="exportHTML();">
+                <i class="fa fa-file-word-o"></i> Export to docx
+            </button>
+            <br /><br />
+            <div class="col-lg-12">
+                <div id="exTab1">
+                    <ul class="nav nav-pills">
+                        <li class="active">
+                            <a href="#4a11" data-toggle="tab">OCR Content</a>
+                        </li>
+                        <li>
+                            <a href="#3a11" data-toggle="tab">Original Content</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content clearfix">
+                        <div class="tab-pane active" id="4a11">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="contentdata" class="translate"></div>
+                                    <center><div id="causeliststatus"></div></center>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane " id="3a11">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <iframe class="ocroriginaliframe" id="iframeset" src="#"
+                                            width="550px" height="600px" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row (nested) -->
+            </div>
+        </section>
+        <!-- /.content -->
+        <!-- /.content -->
+    </aside>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+</div>

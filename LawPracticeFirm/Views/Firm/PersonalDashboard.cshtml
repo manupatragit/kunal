@@ -1,0 +1,3277 @@
+﻿
+@{
+    /**/
+
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    var userid = Session["sessionuserid"];
+
+
+
+}
+<script>
+
+    var userid = "@userid";
+    var roleids = "@Session["sessionroleid"]";
+    var isPartner = "@Session["IsPartner"]";
+    var packid = @Session["sessionpackmodule"];
+
+    localStorage.setItem("invcheckshideshow", "");
+
+</script>
+@*FOR MODAL RIGHT*@
+<style>
+    .modal.right .modal-dialog {
+        position: fixed;
+        margin: auto;
+        width: 320px;
+        height: 100%;
+        -webkit-transform: translate3d(0%, 0, 0);
+        -ms-transform: translate3d(0%, 0, 0);
+        -o-transform: translate3d(0%, 0, 0);
+        transform: translate3d(0%, 0, 0);
+    }
+
+    .modal.right .modal-content {
+        height: 100%;
+        overflow-y: auto;
+        padding: 15px 25px;
+    }
+    /*Right*/
+    .modal.right.fade .modal-dialog {
+        right: -320px;
+        -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+        -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+        -o-transition: opacity 0.3s linear, right 0.3s ease-out;
+        transition: opacity 0.3s linear, right 0.3s ease-out;
+    }
+
+    .modal.right.fade.in .modal-dialog {
+        right: 0;
+    }
+
+    .modal-content .form-group {
+        margin: 13px 0 0 0;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #E9EAEB !important;
+        margin-top: 8px;
+        text-align: left;
+        padding: 16px 0 0 0;
+    }
+
+    .modal-body {
+        position: relative;
+        padding: 0px;
+    }
+
+    .clsTas {
+        background: #DCFCE7;
+        border: 1px solid #c2e8cf;
+        border-radius: 6px;
+        font-size: 12px;
+        color: #16A34A;
+        font-weight: 600;
+        display: block;
+        padding: 3px 5px;
+    }
+
+    .clsOrder {
+        background: #FDF2F8;
+        border: 1px solid #FCE7F3;
+        border-radius: 6px;
+        font-size: 12px;
+        color: #DB2777;
+        font-weight: 600;
+        display: block;
+        padding: 3px 5px;
+    }
+
+    .clshearing {
+        background: #FFEDD5;
+        border: 1px solid #f1dcc0;
+        border-radius: 6px;
+        font-size: 12px;
+        color: #F97316;
+        font-weight: 600;
+        display: block;
+        padding: 3px 5px;
+    }
+
+    .clsEvent {
+        background: rgba(239, 248, 255, 1);
+        border: rgba(178, 221, 255, 1);
+        border-radius: 6px;
+        font-size: 12px;
+        color: rgba(23, 92, 211, 1);
+        font-weight: 600;
+        display: block;
+        padding: 8px 8px;
+    }
+
+    .viewmore {
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(83, 88, 98, 1);
+        text-align: center;
+        padding: 5px 0 0 0;
+    }
+    #myModalcauselist panel1 {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+    }
+</style>
+@*END MODAL RIGHT*@
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Dashboard</p> <input type="text" id="searchdata" style="display:none">
+        </div>
+
+        <div class="tabs-and-filters">
+            <div class="button-group">
+                @if (role.ToString() == "1")
+                {
+                    <a href="#" title="Company" id="btnCmp" class="button-group-base" onclick="filterselect(0)" style="background:#f3f3f3;"><img class="plus-icon" alt="" src="~/newassets/img/building-icon.png"> Company</a>
+                    <a href="#" class="button-group-base1" id="btnInd" title="Individual" onclick="filterselect(1)"><img class="plus-icon" alt="" src="~/newassets/img/user-icon.png"> Individual</a>
+                }
+                else
+                {
+                    @*<select id="filterselect" class="pull-left" style="margin-right: 17px; margin-top: -34px; display: none;">
+                            <option value="0">Please select</option>
+                        </select>*@
+                }
+            </div>
+            <div style="position:relative;">
+                <div class="button13" id="dashboardcostomize">
+                    <img class="plus-icon" alt="" src="~/newassets/img/settings-icon.png">
+
+                    <div class="text-padding">
+                        @*<div class="text1">Customize</div>*@
+                        <a href="javascript:void()">
+                            <span class="text1">Customize</span>
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="cause-list-parent">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="cause-list shadow">
+
+                    <div class="frame-parent">
+                        <div class="frame-wrapper">
+                            <div class="todays-cause-list-wrapper">
+                                <b class="todays-cause-list">Today’s Cause List</b>
+                            </div>
+                        </div>
+                        @*<div class="dropdown">
+                                <select class="buttonsbutton" id="ddlCauselist">
+                                    <option value="1" selected="selected">Supreme Court</option>
+                                    <option value="2">High Court</option>
+                                    <option value="3">District Court</option>
+                                    <option value="4">Tribunals</option>
+                                </select>
+                            </div>*@
+                    </div>
+                    <div class="group-parent">
+                        <div class="frame-container">
+                            <div class="frame-div">
+                                <div id="divcauselistdata">
+
+                                </div>
+                            </div>
+                            <div class="viewmore" id="opentodaycauselist" style="display:none;cursor:pointer;">View more <img src="~/newassets/img/viewmore-arrow.png" /></div>
+                        </div>
+                        <div class="badge-parent" style="display:none;">
+                            <div class="badge-base">
+                                <div class="text1">Litigation</div>
+                            </div>
+                            <div class="badge1">
+                                <div class="badge-base1">
+                                    <div class="text1">Dairy No-4/202...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="frame-group">
+                    <div class="metric-item-parent">
+                        <a class="metric-item shadow1" href="/@ViewBag.firmcode/firm/StandardCaseList">
+                            <div class="featured-icon">
+                                <img alt="" src="~/newassets/img/briefcase-icon.png">
+                            </div>
+                            <div class="heading-and-number">
+                                <div class="heading">Active Matters</div>
+                                <div class="number-and-badge">
+                                    <div class="number" id="lblmattercountcount">@ViewBag.mattercount</div>
+                                </div>
+                            </div>
+                            <div class="metric-item-child">
+                            </div>
+                        </a>
+                        <a class="metric-item shadow1" href="/@ViewBag.firmcode/firm/contactslist">
+                            <div class="featured-icon">
+                                <img alt="" src="~/newassets/img/user-icon.png" style="width: auto;height: auto;padding: 3px 0 0 0;">
+                            </div>
+
+                            <div class="heading-and-number">
+                                <div class="heading">My Clients</div>
+                                <div class="number-and-badge">
+                                    <div class="number" id="lblclientcount">@ViewBag.clientcount</div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="metric-item-parent">
+                        <a class="metric-item shadow1" href="/@ViewBag.firmcode/firm/ArchiveMatterList">
+                            <div class="featured-icon">
+                                <img alt="" src="~/newassets/img/archivematter1.png" style="width: auto; height: auto;padding: 4px 0 0 0;">
+                            </div>
+                            <div class="heading-and-number">
+                                <div class="heading">Archived Matters</div>
+                                <div class="number-and-badge">
+                                    <div class="number" id="lblarchivecount">@ViewBag.Archivemattercount</div>
+                                </div>
+                            </div>
+                        </a>
+                        <a class="metric-item shadow1" href="/@ViewBag.firmcode/firm/usertask?type=today">
+                            <div class="featured-icon">
+                                <img alt="" src="~/newassets/img/list.png">
+                            </div>
+                            <div class="heading-and-number">
+                                <div class="heading">Tasks Due Today</div>
+                                <div class="number-and-badge">
+                                    <div class="number" id="lbltaskduecount">@ViewBag.taskduecount</div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="cause-list1 shadow">
+                <div class="cause-list-inner">
+                    <div class="head">
+                        Matter Tracking Status
+                    </div>
+                    <div class="metric-item" style="width: 100%; height: 55px; margin: 0 0 5px 0; ">
+                        <div class="heading-and-icon">
+                            <div class="thumbs-up-parent">
+                                <img class="thumbs-up-icon" alt="" src="~/newassets/img/thumbs-up.png">
+
+                                <div class="heading">Tracking</div>
+                            </div>
+                        </div>
+                        <div class="number-and-badge">
+                            <b class="number">@ViewBag.livetracking</b>
+                        </div>
+                    </div>
+                    <div class="metric-item" style="width: 100%; height: 55px; margin: 0 0 5px 0; ">
+                        <div class="heading-and-icon">
+                            <div class="thumbs-up-parent">
+                                <img class="thumbs-up-icon" alt="" src="~/newassets/img/hourglass-03.png">
+
+                                <div class="heading">Not marked for Tracking</div>
+                            </div>
+                        </div>
+                        <div class="number-and-badge">
+                            <b class="number">@ViewBag.pendingtracking</b>
+                        </div>
+                    </div>
+                    <div class="metric-item" style="width:100%; height:50px;">
+                        <div class="heading-and-icon">
+                            <div class="thumbs-up-parent">
+                                <img class="thumbs-up-icon" alt="" src="~/newassets/img/thumbs-down.png">
+
+                                <div class="heading">Case Not Found</div>
+                            </div>
+                        </div>
+                        <div class="number-and-badge">
+                            <b class="number">@ViewBag.failedtracking</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="cause-list1 shadow">
+                <div class="cause-list-inner">
+                    <div class="head">
+                        Case Distribution Stats
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4" id="chart_51" style="display:none;">
+                            Matter Type <a href="javascript:void()" id="Chart_51front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+                            <div class="graph-wrapper" id="canvas-holder">
+                                <canvas id="matter-type-chart-area" />
+                            </div>
+                            <div class="canvas-content" style="display:none;" id="id_mattertypeback">
+                                Matter Type <a href="javascript:void()" id="Chart_51back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="bindmattertypechart"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4" id="chart_231" style="display:none;">
+                            Court Status <a href="javascript:void()" id="chart_2311front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+                            <div class="graph-wrapper" id="canvas-holder-CourtStatus">
+                                <canvas id="chart-area-CourtStatus" />
+                            </div>
+                            <div class="canvas-content" style="display:none;" id="id_courtstatusback">
+                                Court Status <a href="javascript:void()" id="chart_2311back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="bindCourtchartstatus"></tbody>
+                                </table>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-4" id="chart_52" style="display:none;">
+                            Internal Status <a href="javascript:void()" id="chart_52front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+                            <div class="graph-wrapper" id="canvas-holder-2">
+                                <canvas id="chart-area-case-2" />
+                            </div>
+                            <div class="canvas-content" style="display:none;" id="id_internalssback">
+                                Internal Status <a href="javascript:void()" id="Chart_52back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="bindcasechartstatus"></tbody>
+                                </table>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-4" id="chart_53" style="display:none;">
+                            My Task <a href="javascript:void()" id="chart_53front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+                            <div class="graph-wrapper" id="canvas-holder-3">
+                                <canvas id="chart-area-case-3" />
+                            </div>
+                            <div class="canvas-content" id="id_tasksback" style="display:none;">
+                                My Task <a href="javascript:void()" id="chart_53back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="bindpendingtaskchartstatus"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4" id="chart_54" style="display:none;">
+                            Time Analysis <a href="javascript:void()" id="chart_54front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+                            <div class="graph-wrapper" id="canvas-holder-4">
+                                <canvas id="chart-area-case-4" />
+                                <div id="legend"></div>
+                            </div>
+                            <div class="canvas-content" id="id_timeanlasisback" style="display:none;">
+                                Time Analysis <a href="javascript:void()" id="chart_54back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="bindtimespendchartstatus"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-4" id="chart_55" style="display:none;">
+                            Subject Type <a href="javascript:void()" id="chart_55front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+
+                            <div class="graph-wrapper" id="canvas-holder">
+                                <canvas id="subject-type-chart-area" />
+                            </div>
+
+                            <div class="canvas-content" style="display:none;" id="id_subjecttypeback">
+                                Subject Type <a href="javascript:void()" id="chart_55back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="bindSubjectypechart"></tbody>
+                                </table>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-4" id="chart_56" style="display:none;">
+
+                            Invoice <a href="javascript:void()" id="chart_56front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+
+                            <div class="graph-wrapper" id="canvas-holder">
+                                <canvas id="invioce-chart-area" />
+                            </div>
+
+                            <div class="canvas-content" style="display:none;" id="id_invoiceback">
+                                Invoice <a href="javascript:void()" id="chart_56back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="bindInvoicechart"></tbody>
+                                </table>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-4" id="chart_155" style="display:none;">
+                            Notice  Matter <a href="javascript:void()" id="chart_155front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+
+                            <div class="graph-wrapper" id="canvas-holder-notice">
+                                <canvas id="chart-area-notice" />
+                            </div>
+
+                            <div class="canvas-content" style="display:none;" id="id_noticematterback">
+                                Notice  Matter <a href="javascript:void()" id="chart_155back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="bindpendingnoticechartstatus"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-4" id="chart_227" style="display:none;">
+                            Court Wise Case <a href="javascript:void()" id="chart_227front"><img src="~/newassets/img/dashboardfile-icon.png" style="margin-bottom: 10px;" /></a>
+
+                            <div class="graph-wrapper" id="canvas-holder-6">
+
+                                <canvas id="chart-area-courttype"></canvas>
+                            </div>
+
+                            <div class="canvas-content" style="display:none;" id="id_courtwisecaseback">
+                                Court Wise Case <a href="javascript:void()" id="chart_227back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="tblbodyCourtType"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-4" id="chart_228" style="display:none;">
+                            Department Wise <a href="javascript:void()" id="chart_228front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+                            <div class="graph-wrapper" id="canvas-holder-6">
+                                <canvas id="chart-area-departmentwise"></canvas>
+                            </div>
+
+                            <div class="canvas-content" id="id_departmentwiseback" style="display:none;">
+                                Department Wise <a href="javascript:void()" id="chart_228back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="tblbodydepartment"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!--Division chart Start-->
+                        <div class="col-md-4" id="chart_230" style="display:none;">
+                            Division <a href="javascript:void()" id="chart_230front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+
+                            <div class="graph-wrapper" id="canvas-holder-division">
+                                <canvas id="chart-area-case-division" />
+                            </div>
+
+
+                            <div class="canvas-content" style="display:none;" id="id_divisionback">
+                                Division <a href="javascript:void()" id="chart_230back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th width="20%">Division</th>
+                                            <th width="5%">Cases</th>
+                                            <th width="10%">Valuation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="binddivisionchartstatus"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+                        <!--Custom Case type chart BPCL Start-->
+                        <div class="col-md-4" id="chart_2311" style="display:none;">
+                            Case Type <a href="javascript:void()" id="chart_231front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+
+                            <div class="graph-wrapper" id="canvas-holder-CaseType">
+                                <canvas id="chart-area-casetype" />
+                            </div>
+
+
+                            <div class="canvas-content" style="display:none;" id="id_casetypesback">
+                                Case Type <a href="javascript:void()" id="chart_231back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table ">
+
+                                    <tbody id="bindcucasetypechartstatus"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!--Custom State type chart For Syngenta Client Start-->
+                        <div class="col-md-4" id="chart_232" style="display:none;">
+
+                            State <a href="javascript:void()" id="chart_232front"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+
+                            <div class="graph-wrapper" id="canvas-holder-StateType">
+                                <canvas id="chart-area-statetype" />
+                            </div>
+
+                            <div class="canvas-content" style="display:none;" id="id_Statesback">
+                                State <a href="javascript:void()" id="chart_232back"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                <table cellpadding="0" cellspacing="0" class="table">
+
+                                    <tbody id="bindstatetypechartstatus"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section style="margin:20px 0;">
+    <div class="row">
+        <div class="col-md-4">
+            @*<div class="frame-group">
+                    <div class="frame-wrapper">
+                        <div class="traning-videos-wrapper">
+                            <b class="head">Training Videos</b>
+                        </div>
+                    </div>
+                    <div class="cta-parent">
+                        <div class="cta">
+                            <div class="blog-post-card">
+                                <img class="image-icon" alt="" src="~/newassets/img/training-video.png">
+
+                                <div class="content">
+                                    <div class="text-and-supporting-text">
+                                        <div class="text">How to add a matter</div>
+                                        <div class="supporting-text">Add yourself or import from CSV</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cta">
+                            <div class="blog-post-card">
+                                <img class="image-icon" alt="" src="~/newassets/img/training-video.png">
+
+                                <div class="content">
+                                    <div class="text-and-supporting-text">
+                                        <div class="text">How to manage users</div>
+                                        <div class="supporting-text">Add yourself or import from CSV</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cta">
+                            <div class="blog-post-card">
+                                <img class="image-icon" alt="" src="~/newassets/img/training-video.png">
+
+                                <div class="content">
+                                    <div class="text-and-supporting-text">
+                                        <div class="text">How to add a matter</div>
+                                        <div class="supporting-text">Add yourself or import from CSV</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+        </div>
+        <div class="col-md-8 calendar">
+            <div class="cause-list1">
+                <div class="cause-list-inner">
+
+                    <div class="head">Calendar</div>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="selected-date-parent">
+                                <div id="divcalendardata"></div>
+                                @*<div class="selected-date">
+                                        <div class="text58">Friday Oct 10, 2024</div>
+                                        <div class="events">
+                                            <div class="calendar-eventmonth-view">
+                                                <div class="text-and-time">
+                                                    <div class="event">Review Document</div>
+                                                    <div class="time">9:00 AM</div>
+                                                </div>
+                                            </div>
+                                            <div class="calendar-eventmonth-view1">
+                                                <div class="text-and-time">
+                                                    <div class="event">Order hearing</div>
+                                                    <div class="time1">12:00 PM</div>
+                                                </div>
+                                            </div>
+                                            <div class="calendar-eventmonth-view2">
+                                                <div class="text-and-time">
+                                                    <div class="event">Document Review</div>
+                                                    <div class="time2">1:30 PM</div>
+                                                </div>
+                                            </div>
+                                            <div class="calendar-eventmonth-view2">
+                                                <div class="text-and-time">
+                                                    <div class="event">Document Review</div>
+                                                    <div class="time2">1:30 PM</div>
+                                                </div>
+                                            </div>
+                                            <div class="calendar-eventmonth-view4">
+                                                <div class="text-and-time">
+                                                    <div class="event">Product demo</div>
+                                                    <div class="time2">1:30 PM</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>*@
+
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div id="demo3"></div>
+                            <div class="name-colour-parent">
+                                <div class="name-colour">
+                                    <div class="colour">
+                                    </div>
+                                    <div class="title">Court Hearing</div>
+                                </div>
+                                <div class="name-colour">
+                                    <div class="colour1">
+                                    </div>
+                                    <div class="title">Event</div>
+                                </div>
+                                <div class="name-colour">
+                                    <div class="colour2">
+                                    </div>
+                                    <div class="title">Order</div>
+                                </div>
+                                <div class="name-colour">
+                                    <div class="colour3">
+                                    </div>
+                                    <div class="title">Task</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="wrapper">
+    <div class="container-main showcontent" id="showcontent">
+        @*<div class="row">
+                <div class="col-md-6">
+                    <h2 class="title">My Dashboard</h2>
+                </div>
+                <div class="col-md-6">
+                    <div>
+                        <div class="pull-right">
+                            <button type="button" id="opentodaycauselist" style="display:none" class="sbtbtn">Today CauseList</button>
+                        </div>
+                        @if (role.ToString() == "1")
+                        {
+                            <div class="pull-right" style="margin-right: 17px;">
+                                Data Filter
+                                <select class="select_new" style="width:100px;" id="filterselect">
+
+                                    <option value="1">Personal</option>
+                                    <option value="0" selected>Firm</option>
+                                </select>
+
+                            </div>
+                        }
+                        else
+
+                        {
+                            <select id="filterselect" class="pull-right" style="margin-right: 17px;margin-top: -34px;display:none">
+                                <option value="0">Please select </option>
+
+                            </select>
+                        }
+
+                    </div>
+                </div>
+            </div>*@
+        @*<div class="row dashboard_top_panel">
+
+                <div class="col-md-3">
+                    <div class="dbox">
+                        <div class="iconwrapper"><img src="/newassets/images/matter_icon.png" width="40"></div>
+                        <div class="txtwrapper">
+                            <p><label id="lblmattercountcount">@ViewBag.mattercount</label></p>
+                            <p><a href="/@ViewBag.firmcode/firm/caselist">Active Matters</a></p>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dbox">
+                        <div class="iconwrapper"><img src="/newassets/images/task_icon.png" width="30"></div>
+                        <div class="txtwrapper">
+                            <p><label id="lblclientcount">@ViewBag.clientcount</label></p>
+                            <p><a href="/@ViewBag.firmcode/firm/contactslist">My Clients </a></p>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2a">
+                        <div class="dbox">
+                            <div class="iconwrapper"><img src="/newassets/images/mycommunication_icon.png" width="40"></div>
+                            <div class="txtwrapper">
+                                <p><label id="lblcommreceivedcount">@ViewBag.commreceivedcount</label></p>
+                                <p><a href="javascript:void()" id="redirecttocommuniction">Communication</a></p>
+
+                            </div>
+                        </div>
+                    </div>
+                <div class="col-md-3">
+                    <div class="dbox">
+                        <div class="iconwrapper"><img src="/newassets/images/task_icon.png" width="30"></div>
+                        <div class="txtwrapper">
+                            <p><label id="lbltaskduecount">@ViewBag.taskduecount</label></p>
+                            <p><a href="/@ViewBag.firmcode/firm/usertask?type=today">Tasks Due Today</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dbox">
+                        <div class="iconwrapper"><img src="/newassets/images/Matter_ArchiveList_icon.png" width="40"></div>
+                        <div class="txtwrapper">
+                            <p><label id="lblarchivecount">@ViewBag.Archivemattercount</label></p>
+                            <p><a href="/@ViewBag.firmcode/firm/ArchiveMatterList">Archived Matters </a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+                @*<div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                &nbsp;
+                            </a>
+
+                        </h4>
+
+                    </div>*@
+                @*<div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                            <div class="btn-group pull-right" style="margin:0 0 0 8px;">
+                                <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-cog" style="font-size: 22px !important;color: #4d95dd;padding:0 5px 0 0;"></span>
+
+                                </a>
+                                <ul class="dropdown-menu settingshowhide" id="chartsetting" title="Chart Setting" style="height:auto;min-width:190px;"></ul>
+
+                            </div>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                &nbsp;
+                            </a>
+                        </h4>
+                    </div>*@
+                @*<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+
+                        <div class="panel-body">
+                            <div class="row">
+
+                                <div class="col-md-3" id="chart_51" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Matter Type  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder">
+                                                        <canvas id="matter-type-chart-area" />
+                                                    </div>
+                                                </div>
+
+
+                                            </div> <!-- end front panel -->
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Matter Type
+                                                    <span id="oexcel" style="cursor:pointer" title="Export to Excel"><i class="fa fa-file-excel-o" style="font-size:17px;margin-left:30px" aria-hidden="true"></i></span>
+                                                    <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+
+                                                                <th width="30%">Type</th>
+                                                                <th width="5%">&nbsp;Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bindmattertypechart"></tbody>
+                                                    </table>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div> <!-- end card-container -->
+                                </div>
+                                <div class="col-md-3" id="chart_231" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+
+                                                    Court Status  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder-CourtStatus">
+                                                        <canvas id="chart-area-CourtStatus" />
+                                                    </div>
+                                                </div>
+
+
+                                            </div> <!-- end front panel -->
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+
+                                                    Court Status
+                                                    <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content" style="overflow-x:scroll">
+                                                    <table cellpadding="0" cellspacing="0" class="table " style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+
+                                                                <th width="30%">Status</th>
+                                                                <th width="5%">&nbsp;Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bindCourtchartstatus"></tbody>
+                                                    </table>
+
+                                                </div>
+
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+                                <div class="col-md-3" id="chart_52" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+
+                                                    Internal Status  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder-2">
+                                                        <canvas id="chart-area-case-2" />
+                                                    </div>
+                                                </div>
+
+
+                                            </div> <!-- end front panel -->
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+
+                                                    Internal Status
+                                                    <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content" style="overflow-x:scroll">
+                                                    <table cellpadding="0" cellspacing="0" class="table " style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+
+                                                                <th width="30%">Status</th>
+                                                                <th width="5%">&nbsp;Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bindcasechartstatus"></tbody>
+                                                    </table>
+
+                                                </div>
+
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+                                <div class="col-md-3" id="chart_53" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    My Task  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder-3">
+                                                        <canvas id="chart-area-case-3" />
+                                                    </div>
+                                                </div>
+
+
+                                            </div> <!-- end front panel -->
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    My Task <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+
+                                                                <th width="30%">Name</th>
+                                                                <th width="5%">&nbsp;Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bindpendingtaskchartstatus"></tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+                                <div class="col-md-3" id="chart_54" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Time Analysis  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder-4">
+                                                        <canvas id="chart-area-case-4" />
+                                                        <div id="legend"></div>
+                                                    </div>
+
+                                                </div>
+
+                                            </div> <!-- end front panel -->
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Time Analysis <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content" style="overflow-y:scroll; height:221px;">
+                                                    <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+
+                                                                <th width="30%">Name</th>
+                                                                <th width="5%">&nbsp;Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bindtimespendchartstatus"></tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+
+                                <div class="col-md-3" id="chart_55" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Subject Type
+
+                                                    <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder">
+                                                        <canvas id="subject-type-chart-area" />
+                                                    </div>
+                                                </div>
+
+
+                                            </div> <!-- end front panel -->
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Subject Type
+                                                    <span id="oexcel" style="cursor:pointer" title="Export to Excel"><i class="fa fa-file-excel-o" style="font-size:17px;margin-left:30px" aria-hidden="true"></i></span>
+                                                    <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content" style="overflow-x:scroll;">
+                                                    <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+
+                                                                <th width="30%">Type</th>
+                                                                <th width="5%">&nbsp;Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bindSubjectypechart"></tbody>
+                                                    </table>
+
+                                                </div>
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+
+                                <div class="col-md-3" id="chart_56" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Invoice  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder">
+                                                        <canvas id="invioce-chart-area" />
+                                                    </div>
+                                                </div>
+
+
+                                            </div> <!-- end front panel -->
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Invoice  <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+
+                                                                <th width="30%">Invoice</th>
+                                                                <th width="5%">&nbsp;Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bindInvoicechart"></tbody>
+                                                    </table>
+
+                                                </div>
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+                                <div class="col-md-3" id="chart_155" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Notice  Matter  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder-notice">
+                                                        <canvas id="chart-area-notice" />
+                                                    </div>
+                                                </div>
+
+
+                                            </div> <!-- end front panel -->
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Notice  Matter  <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+
+                                                                <th width="70%">Name</th>
+                                                                <th width="30%">&nbsp;Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bindpendingnoticechartstatus"></tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+
+                                <div class="col-md-3" id="chart_227" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Court Wise Case  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder-6">
+
+                                                        <canvas id="chart-area-courttype"></canvas>
+                                                    </div>
+                                                </div>
+
+                                            </div> <!-- end front panel -->
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Court Wise Case  <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="30%">Type</th>
+                                                                <th width="5%">&nbsp;Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tblbodyCourtType"></tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+                                <div class="col-md-3" id="chart_228" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Department Wise <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder-6">
+
+                                                        <canvas id="chart-area-departmentwise"></canvas>
+                                                    </div>
+                                                </div>
+
+                                            </div> <!-- end front panel -->
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Department Wise  <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content" style="height: 280px;overflow-y:scroll;">
+                                                    <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="30%">Type</th>
+                                                                <th width="5%">&nbsp;Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tblbodydepartment"></tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+                                <div class="col-md-3" id="chart_152" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">Calendar  </div>
+                                                <div class="content" style="margin-top:-15px;">
+                                                    <div id="canvas-holder">
+                                                        <div id="demo3"></div>
+                                                        <div class="box-header" style="margin-top:0px;">
+                                                            <div style="float:left;width:20%;">
+                                                                <div class="rectangle"><span class="colorlbl">Task</span></div>
+                                                            </div>
+                                                            <div style="float:left">
+                                                                <div class="rectangle1"><span class="colorlbl">Hearing</span></div>
+                                                            </div>
+
+                                                            <div style="float:left;width:20%;margin-left:58px;">
+                                                                <div class="rectangle2"><span class="colorlbl">Event</span></div>
+                                                            </div>
+                                                            <div style="float:left;width:20%;margin-left:8px;">
+                                                                <div class="rectangle3"><span class="colorlbl">Order</span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div id="demo3loader" style="margin-left: 10px;text-align: center;margin-top: 10px;">Loading...</div>
+
+                                                    </div>
+                                                </div>
+
+
+                                            </div> <!-- end front panel -->
+
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+
+                                <!--Division chart Transrail Lighting Start-->
+                                <div class="col-md-3" id="chart_230" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Division  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder-division">
+                                                        <canvas id="chart-area-case-division" />
+                                                    </div>
+                                                </div>
+                                            </div> <!-- end front panel -->
+
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Division
+                                                    <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content" style="overflow-x:scroll;overflow-y:scroll">
+                                                    <table cellpadding="0" cellspacing="0" class="table " style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="20%">Division</th>
+                                                                <th width="5%">Cases</th>
+                                                                <th width="10%">Valuation</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="binddivisionchartstatus"></tbody>
+                                                    </table>
+                                                </div>
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+                                <!--Division chart End-->
+                                <!--Custom Case type chart BPCL Start-->
+                                <div class="col-md-3" id="chart_231" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Case Type  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder-CaseType">
+                                                        <canvas id="chart-area-casetype" />
+                                                    </div>
+                                                </div>
+                                            </div> <!-- end front panel -->
+
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    Case Type
+                                                    <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <table cellpadding="0" cellspacing="0" class="table " style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="20%">Type of Case</th>
+                                                                <th width="5%">No. of Cases</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bindcucasetypechartstatus"></tbody>
+                                                    </table>
+                                                </div>
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+                                <!--Custom State type chart For Syngenta Client Start-->
+                                <div class="col-md-3" id="chart_232" style="margin:0 0 20px 0;display:none;">
+                                    <div class="card-container manual-flip">
+                                        <div class="card">
+                                            <div class="front">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    State  <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                        <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                            <defs>
+                                                                <style>
+                                                                    .a {
+                                                                        fill: none;
+                                                                        stroke: #0961b8;
+                                                                        stroke-linecap: round;
+                                                                        stroke-miterlimit: 10;
+                                                                        stroke-width: 2px;
+                                                                    }
+                                                                </style>
+                                                            </defs>
+                                                            <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="content">
+                                                    <div id="canvas-holder-StateType">
+                                                        <canvas id="chart-area-statetype" />
+                                                    </div>
+                                                </div>
+                                            </div> <!-- end front panel -->
+
+                                            <div class="back">
+                                                <div style="border-bottom: none !important;" class="header">
+                                                    State
+                                                    <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                        <img src="/newassets/images/flip_back_btn.png">
+                                                    </button>
+                                                </div>
+                                                <div class="content" style="overflow-x:scroll;">
+                                                    <table cellpadding="0" cellspacing="0" class="table " style="font-size:small;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="20%">State</th>
+                                                                <th width="5%">No. of Cases</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bindstatetypechartstatus"></tbody>
+                                                    </table>
+                                                </div>
+                                            </div> <!-- end back panel -->
+                                        </div> <!-- end card -->
+                                    </div> <!-- end card-container -->
+                                </div>
+                                <!--Division chart End-->
+                            </div>
+                        </div>
+                    </div>*@
+            </div>
+
+        </div>
+        @*<div class="r-activitypanel">
+                <h2 class="title">Recent Activity</h2>
+                <div class="r-activitywrapper">
+
+                </div>
+
+                <div id="loadractivity">
+                    <center><div id="loadactivityfooter"></div></center> <div id="loadactivitydata"></div>
+
+
+                </div>
+                <div id="footeractivitydata" class="col-md-10" style="clear:both;"></div>
+                <div class="col-md-2" style="position: relative; margin-left: -160px; ">
+                    <table style="width:100%">
+                        <tr>
+                            <td><label>START</label><input class="form-control inputbg" id="daterecentfrom" onkeypress="return false;" type="date" style="height:24px !important;width: 130px;border-bottom: 1px solid #ccc !important;" placeholder="yyyy-mm-dd"></td>
+                            <td><label>END</label> <input class="form-control inputbg" id="daterecentto" onkeypress="return false;" type="date" style="height:24px !important;width: 130px;border-bottom: 1px solid #ccc !important;" placeholder="yyyy-mm-dd"></td>
+                            <td><button type="button" class="sbtbtn" id="searchrecentdatas" style="margin-top:22px;">Search</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <table width="100%" style="display:none;">
+                <thead>
+                    <tr>
+                        <th width="15%">
+
+                        </th>
+                        <th width="2%">&nbsp;</th>
+                        <th width="15%;" align="left">
+                            <input type="date" id="filterdate" placeholder="Select Date" class="form-control" style="width:150px;border-bottom: 1px solid #ccc !important; ">
+
+                        </th>
+
+                        <th align="left">
+                            <span class="glyphicon glyphicon-remove" id="cleardate" title="Click here to clear date" style="display:none;width: 7%;cursor:pointer;"></span>
+
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="col-md-12" style="display:none">
+                <div class="row">
+                    <ul class="nav nav-tabs" id="filterbox" style="border-bottom:transparent !important;">
+
+                        <li class="active"><a data-toggle="tab" href="#ftoday" id="ftoday" style="color: gray;font-size:14px;font-weight: 400;">today </a></li>
+
+                        <li><a data-toggle="tab" href="#ftomorrow" id="ftomorrow" style="color: gray;font-size:14px;font-weight: 400;">tomorrow</a></li>
+
+                        <li><a data-toggle="tab" href="#fweek" id="fweek" style="color:gray;font-size:14px;font-weight: 400;">week </a></li>
+                        <li>
+                            <a data-toggle="tab" href="#frange" id="frange" style="color:gray;font-size:14px;font-weight: 400;overflow:hidden">
+
+
+                                <p style="float:left">range</p>
+
+
+
+                            </a>
+                            <ul class="rangediv" id="prangediv" style="float: left;margin: -27px 0 0 38px;position: relative;z-index: 999; display:none; border-bottom:transparent !important;">
+                                <li style="padding:1px 9px 0px 20px">
+                                    From
+                                </li>
+
+                                <li style="padding: 0px 9px 0 0 !IMPORTANT;">
+                                    <input type="date" id="rangesearchfrom" class="form-control">
+                                </li>
+                                <li style="padding:1px 9px 0px 20px">
+                                    To
+                                </li>
+                                <li style="padding: 0px 9px 0 0 !IMPORTANT;">
+                                    <input type="date" id="rangesearchto" class="form-control">
+                                </li>
+                                <li style="padding:0px 9px 0px 0px">
+                                    <button type="button" id="rangebtn" value="Go">Go</button>
+                                </li>
+
+                            </ul>
+                        </li>
+
+                        <p id="fuser" class="pull-right" style="color:gray;font-size:12px;font-weight: 400; padding:4px 16px 4px 0 !important;">
+                            <select id="filteruserschedule" class="form-control" style="width:150px !important;">
+                                <option value="" selected>Select User </option>
+                            </select>
+                        </p>
+
+
+
+                    </ul>
+                </div>
+            </div>
+            <div class="table-panel table-responsive" style="padding:10px 0 0 0; clear:both;display:none" data-example-id="hoverable-table" id="home">
+
+                <table class="table ">
+
+                    <thead>
+                        <tr>
+
+                            <th width="14%">
+                                <select id="filtertask" class="form-control col_b">
+                                    <option value="" selected>Task</option>
+
+                                </select>
+                            </th>
+                            <th width="16%">
+                                <select id="filterclient" class="form-control col_b">
+                                    <option value="" selected>Client</option>
+                                </select>
+                            </th>
+                            <th width="13%">Matter</th>
+                            <th width="20%">Brief</th>
+                            <th width="14%">Assign By/To</th>
+                            <th width="10%">Action By Date</th>
+                            <th width="8%">Due Date</th>
+
+                            <th width="13%">Status</th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="bindcasetask"></tbody>
+                </table>
+                <center><div id="dataescstatus"></div></center>
+
+
+                <div class="table-panel">
+                    <div class="row settingpanel">
+                        <div class="col-md-6">
+
+
+                            <div id="tfooter">
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="pull-right">
+
+
+
+
+
+
+                                <li>
+
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="margin-top:5px; display:none;">
+                <div class="row">
+                    <div>
+
+                        <ul class="nav nav-tabs" id="parentnbox">
+                            <li><a data-toggle="tab" href="#inboxtab" class="inboxtab" style="color: gray;font-size:22px;font-weight: 300;">task inbox <span class="badge badge-light" style="background-color:#20c620;display:none" id="inboxevt">0</span></a></li>
+                            <li style="margin-top:10px;font-size:22px">|</li>
+                            <li><a data-toggle="tab" href="#overduetab" class="overduetab" style="color: gray;font-size:22px;font-weight: 300;">overdue <span class="glyphicon glyphicon-star-empty"></span></a></li>
+                            <li style="margin-top:10px;font-size:22px">|</li>
+                            <li><a data-toggle="tab" href="#outboxtab" class="outboxtab" style="color:gray;font-size:22px;font-weight: 300;"> task outbox <span class="badge badge-light" id="outboxevt" style="display:none">0</span></a></li>
+
+                        </ul>
+
+                        <div class="tab-content">
+
+                            <div id="inboxtab" class="tab-pane fade">
+
+                                <br>
+                                <table width="100%">
+                                    <thead>
+                                        <tr>
+
+                                            <th width="15%;" align="left">
+
+                                                <input type="date" id="ifilterdate" placeholder="Select Date" class="form-control" style="width:150px;border-bottom: 1px solid #ccc !important;">
+
+                                            </th>
+
+                                            <th align="left">
+                                                <span class="glyphicon glyphicon-remove" id="icleardate" title="Click here to clear date" style="display:none;width: 7%;cursor:pointer;"></span>
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+
+                                        <div class="table-panel table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th width="10%">Action By Date</th>
+                                                        <th width="10%">
+                                                            <select id="ifiltertask" class="form-control col_b">
+                                                                <option value="" selected>Task</option>
+
+                                                            </select>
+                                                        </th>
+                                                        <th width="16%">
+                                                            <select id="ifilterclient" class="form-control col_b">
+                                                                <option value="" selected>Client</option>
+                                                            </select>
+                                                        </th>
+                                                        <th width="15%">Matter</th>
+                                                        <th width="19%">Brief</th>
+                                                        <th width="10%">Assign By</th>
+
+                                                        <th width="8%">Due Date</th>
+                                                        <th width="20%">Request Action</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="ibindcasetask"></tbody>
+                                            </table>
+
+                                            <center><div id="idataescstatus"></div></center>
+
+
+
+                                            <div class="table-panel">
+                                                <div class="row settingpanel">
+                                                    <div class="col-md-6">
+
+
+                                                        <div id="itfooter">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <ul class="pull-right">
+
+
+
+
+
+
+                                                            <li>
+
+
+                                                            </li>
+
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div id="outboxtab" class="tab-pane fade">
+                                <br>
+                                <table width="100%">
+                                    <thead>
+                                        <tr>
+
+                                            <th width="15%;" align="left">
+
+                                                <input type="date" id="ofilterdate" placeholder="Select Date" class="form-control" style="width:150px;border-bottom: 1px solid #ccc !important;">
+
+                                            </th>
+
+                                            <th align="left">
+                                                <span class="glyphicon glyphicon-remove" id="ocleardate" title="Click here to clear date" style="display:none;width: 7%;cursor:pointer;"></span>
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+
+                                        <div class="table-panel table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+
+                                                        <th class="ttime" width="10%">Action By Date</th>
+                                                        <th class="ttask" width="12%">
+                                                            <select id="ofiltertask" class="form-control col_b">
+                                                                <option value="" selected>Task</option>
+
+                                                            </select>
+                                                        </th>
+                                                        <th class="tclient" width="16%">
+                                                            <select id="ofilterclient" class="form-control col_b">
+                                                                <option value="" selected>Client</option>
+                                                            </select>
+                                                        </th>
+                                                        <th class="tcase" width="15%">Matter</th>
+                                                        <th class="tbrief" width="22%">Brief</th>
+                                                        <th class="tassigntoby" width="13%">Assign By/To</th>
+
+                                                        <th class="tduedate" width="8%">Due Date</th>
+                                                        <th width="14%">Request Action</th>
+                                                        <th width="7%">Status</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="obindcasetask"></tbody>
+                                            </table>
+                                            <center><div id="odataescstatus"></div></center>
+                                            <div class="table-panel">
+                                                <div class="row settingpanel">
+                                                    <div class="col-md-6">
+
+                                                        <div style="float: left;padding: 0 10px 0 0;">
+                                                            <ul>
+                                                                <li>
+                                                                    <div class="btn-group dropup">
+                                                                        <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                            <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                                            customize field <span class="glyphicon glyphicon-chevron-down"></span>
+                                                                        </a>
+                                                                        <ul class="dropdown-menu settingshowhide" id="od">
+                                                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ttime" checked><a href="#">Action By Date</a></li>
+                                                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ttype" checked><a href="#">Task Type</a></li>
+                                                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tclient"><a href="#" class="dropdown-item">Client</a></li>
+                                                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tcase" checked><a href="#" class="dropdown-item">Matter</a></li>
+                                                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tbrief"><a href="#" class="dropdown-item">Brief</a></li>
+                                                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tassigntoby" checked><a href="#" class="dropdown-item">Assign By/To</a></li>
+                                                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tduedate" checked><a href="#" class="dropdown-item">Due Date</a></li>
+
+
+                                                                        </ul>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div id="otfooter">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <ul class="pull-right">
+
+
+
+
+
+
+                                                            <li>
+
+                                                            </li>
+
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div id="overduetab" class="tab-pane fade">
+
+                                <br>
+                                <table width="100%">
+                                    <thead>
+                                        <tr>
+
+                                            <th width="15%;" align="left">
+
+                                                <input type="date" id="dfilterdate" placeholder="Select Date" class="form-control" style="width:150px;border-bottom: 1px solid #ccc !important;">
+
+                                            </th>
+
+                                            <th align="left">
+                                                <span class="glyphicon glyphicon-remove" id="dcleardate" title="Click here to clear date" style="display:none;width: 7%;cursor:pointer;"></span>
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+
+                                        <div class="table-panel table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th width="10%">Action By Date</th>
+                                                        <th width="14%">
+                                                            <select id="dfiltertask" class="form-control col_b">
+                                                                <option value="" selected>Task</option>
+
+                                                            </select>
+                                                        </th>
+                                                        <th width="16%">
+                                                            <select id="dfilterclient" class="form-control col_b">
+                                                                <option value="" selected>Client</option>
+                                                            </select>
+                                                        </th>
+                                                        <th width="15%">Matter</th>
+                                                        <th width="22%">Brief</th>
+                                                        <th width="14%">Assign By</th>
+                                                        <th width="8%">Due Date</th>
+                                                        <th width="7%">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="dbindcasetask"></tbody>
+                                            </table>
+                                            <center><div id="ddataescstatus"></div></center>
+                                            <div class="table-panel">
+                                                <div class="row settingpanel">
+                                                    <div class="col-md-6">
+                                                        <div id="dtfooter">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <ul class="pull-right">
+
+                                                            <li>
+
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div><center><span id="datastatus"></span></center></div>
+                <div class="box-footer clearfix">
+                    <ul class="pagination pagination-sm no-margin pull-right"></ul>
+                </div>
+            </div>*@
+    </div>
+
+</section>
+<div id="myOverlay" class="overlay" style="z-index: 999;">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+@*<style>
+        .overlay {
+            height: 100%;
+            width: 100%;
+            display: none;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0, 0.4);
+        }
+
+        .overlay-content {
+            position: relative;
+            top: 46%;
+            width: 80%;
+            text-align: center;
+            margin-top: 30px;
+            margin: auto;
+            color: white;
+        }
+
+        .overlay .closebtn {
+            position: absolute;
+            top: 20px;
+            right: 45px;
+            font-size: 60px;
+            cursor: pointer;
+            color: white;
+        }
+
+            .overlay .closebtn:hover {
+                color: #ccc;
+            }
+    </style>*@
+
+
+
+<div class="modal fade" id="rmyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">reassign task </h4>
+            </div>
+            <div class="modal-body ">
+
+
+                <!-- Main content -->
+
+                <form method="post" id="resavetaskform" enctype="multipart/form-data" novalidate="novalidate">
+
+                    <!-- Start About boxes -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Due Date<span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-9">
+                                    <input type="date" name="rduedate" class="form-control" id="rduedate" required="">
+
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Team Member<span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-9">
+                                    <select name="rmember" class="form-control" id="rmember" required="">
+                                        <option value="" selected="selected">Select</option>
+
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- /.content -->
+
+                    <input type="hidden" id="hidratoken">
+                    <div class="modal-footer">
+
+                        <button type="button" class="sbtbtn" id="rSaveCaseTask">Save</button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="rjctmyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="closereject" aria-label="Close"><span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Reject task </h4>
+            </div>
+            <div class="modal-body ">
+                <!-- Main content -->
+                <form method="post" id="rejectsavetaskform" enctype="multipart/form-data" novalidate="novalidate">
+                    <!-- Start About boxes -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Reject Reason:<span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-9">
+                                    <textarea rows="5" cols="14" maxlength="2000" id="rdetails" style="width: 389px;height: 70px !important;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.content -->
+                    <input type="hidden" id="hidrjctatoken">
+                    <div class="modal-footer">
+                        <button type="button" class="sbtbtn" id="rinbox">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="edittmyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="editclose"> <span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">edit task </h4>
+            </div>
+            <div class="modal-body ">
+
+
+                <!-- Main content -->
+                <input type="hidden" id="thideditatoken">
+                <form method="post" id="esavetaskform" enctype="multipart/form-data" novalidate="novalidate">
+
+                    <div style="background:#fafafa;">
+                        <table cellpadding="0" cellspacing="0" width="100%">
+
+                            <tbody>
+                                <tr>
+                                    <td align="left">
+                                        <label>Client</label>
+                                        <select class="form-control" id="econtact" name="econtact">
+                                            <option value="" selected="">Select</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left">
+                                        <label>Matter Name </label>
+                                        <select class="form-control" id="ematter" name="ematter">
+                                            <option value="" selected="">Select</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left">
+                                        <table align="center" width="100%" cellspacing="0" cellpadding="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td align="left" width="42%">
+                                                        <label>Task Type <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                        <select class="form-control" id="etasktype" name="etasktype">
+                                                            <option value="" selected="">Select</option>
+                                                        </select>
+                                                    </td>
+                                                    <td align="center" width="6%">&nbsp;</td>
+                                                    <td align="left" width="42%">
+                                                        <label>Team Member<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                        <select class="form-control" id="emember" name="emember">
+                                                            <option value="" selected="">Select</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left">
+                                        <table align="center" width="100%" cellspacing="0" cellpadding="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td align="left" width="40%">
+                                                        <label>DUE DATE <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                        <input type="date" id="etaskduedate" class="form-control">
+                                                    </td>
+                                                    <td align="center" width="6%">&nbsp;</td>
+                                                    <td align="left" width="40%">
+                                                        <label>ACTION BY DATE <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+
+                                                        <input type="date" autocomplete="off" id="eactionbydate" class="form-control">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr class="taskdes">
+                                    <td align="left">
+                                        <label>NOTE</label>
+                                        <textarea cols="25" id="etaskdetails" class="form-control" style="min-height:100px;" maxlength="2000"></textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table align="center" width="100%" cellspacing="0" cellpadding="0" style="margin-top:5px;">
+                            <tbody>
+                                <tr>
+                                    <td align="right" width="42%"></td>
+                                    <td align="center" width="6%"></td>
+                                    <td align="left" width="12%"><button type="button" id="EditCaseTask" class="sbtbtn">save task</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<span class="" data-toggle="modal" data-target="#myModaltest">.</span>
+
+<!-- Modal -->
+<div class="modal fade" id="myModaltest" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalcauselist" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog " style="min-width:80%; margin-top:60px;">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="closecauselist">&times;</button>
+                <h4 class="modal-title">
+                    My Daily Causelist (@DateTime.Now.ToString("dd MMM yyyy"))
+                </h4>
+            </div>
+            
+            <div class="modal-body" style="margin-top:20px;">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div style="clear:both;display:none;" id="emaildiv">
+                            <input placeholder="Enter Email" style="width:200px;float:left;" type="text" id="emailCauseList" class="form-control inputFormat">
+                            <button class="btn btn-primary" id="SendPDF" style="float:left;margin-left:20px;">Send</button>
+                            <button class="btn btn-secondary" id="Canceldiv" style="float:left;margin-left:10px;">Cancel</button>
+                        </div>
+                    </div>
+                    <div class="col-md-5 text-right">
+                        <button class="btn btn-primary" id="DownloadPDF">Download Pdf</button>
+                        <button class="btn btn-primary" id="emailPDF">Send Email</button>
+                    </div>
+                        <div style="clear:both;">
+                            <div id="loading">
+                                <div class="loader"></div>
+                                <div style="margin-top:72px;margin-left:-57px"> Please wait...</div>
+                            </div>
+                            <form method="post" role="form" id="editfile">
+                                <div class="userinfoform" style="height:350px; overflow-y:auto;">
+                                    <div class="panel1">
+                                        <div class="col-md-12">
+                                            <div style="font-weight: 500; margin: 10px 0 3px 0;">Supreme Court/High Court</div>
+                                            <table id="questionLIst" class="table-panel" cellspacing="0" border="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="Case10" style=" width:20%" align="center"><div class="thbg">Court</div></th>
+                                                        <th class="Case10" style=" width:15%" align="center"><div class="thbg">Case Type</div></th>
+                                                        <th class="Court10" style=" width:10%" align="center"><div class="thbg">Case no</div></th>
+                                                        <th class="CourtNo10" style=" width:10%" align="center"><div class="thbg">Case Year</div></th>
+                                                        <th class="SessionTime10" style=" width:10%" align="center"><div class="thbg">Court No</div></th>
+                                                        <th class="JudgeName10" style="width:35%;" align="center"><div class="thbg">Causelist Detail</div></th>
+                                                        <th class="Court10" style=" width:10%" align="center"><div class="thbg">Diary no</div></th>
+                                                        <th class="CourtNo10" style=" width:10%" align="center"><div class="thbg">Diary Year</div></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="Tbody"></tbody>
+                                            </table>
+                                            <div id="Tbodystatus" style="text-align:center;display:none;">No result found...</div>
+                                        </div>
+                                    </div>
+                                    <div class="panel1">
+                                        <div class="col-md-12">
+                                            <div style="font-weight: 500; margin: 10px 0 3px 0;">District Court</div>
+                                            <table id="Table1" class="table-panel">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="SessionTime10" style=" width:20%;"><div class="thbg">Case</div></th>
+                                                        <th class="BenchName10" style="width: 10%;"><div class="thbg">State</div></th>
+                                                        <th class="SessionTime10" style="width: 10%;"><div class="thbg">District</div></th>
+                                                        <th class="CauselistDate10" style="width: 10%;"><div class="thbg">JudgName</div></th>
+
+                                                        <th class="SessionTime10" style="width:15%;"><div class="thbg">Court Details</div></th>
+                                                        <th class="JudgeName10" style="width:35%;"><div class="thbg">Causelist Detail</div></th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="Tbody1"></tbody>
+                                            </table>
+                                            <div id="Tbody1status" style="text-align:center;display:none;">No result found...</div>
+                                        </div>
+                                    </div>
+                                    <div class="panel1">
+                                        <div class="col-md-12">
+                                            <div style="font-weight: 500; margin: 10px 0 3px 0;">Tribunals Court</div>
+                                            <table id="Table2" class="table-panel" border="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="Case10" style=" width:20%"><div class="thbg">Court</div></th>
+                                                        <th class="Case10" style=" width:15%;"><div class="thbg">Case Type</div></th>
+                                                        <th class="Court10" style=" width:10%;"><div class="thbg">Case No</div></th>
+                                                        <th class="CourtNo10" style="width:10%;"><div class="thbg">Case Year</div></th>
+                                                        <th class="BenchName10" style="width:12%;"><div class="thbg">Bench Name</div></th>
+                                                        <th class="JudgeName10" style="width:33%"><div class="thbg">Causelist Detail</div></th>
+                                                        <th class="Court10" style=" width:10%" align="center"><div class="thbg">Diary no</div></th>
+                                                        <th class="CourtNo10" style=" width:10%" align="center"><div class="thbg">Diary Year</div></th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="Tbody2"></tbody>
+                                            </table>
+                                            <div id="Tbody2status" style="text-align:center;display:none;">No result found...</div>
+                                        </div>
+                                    </div>
+                                    <div class="panel1">
+                                        <div class="col-md-12">
+                                            <div style="font-weight: 500; margin: 10px 0 3px 0;">Rera</div>
+                                            <table id="Table3" class="table-panel" border="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="Case10" style=" width:20%"><div class="thbg">Court</div></th>
+                                                        <th class="Case10" style=" width:15%;"><div class="thbg">Case Type</div></th>
+                                                        <th class="Court10" style=" width:10%;"><div class="thbg">Case No</div></th>
+                                                        <th class="CourtNo10" style="width:10%;"><div class="thbg">Case Year</div></th>
+                                                        <th class="BenchName10" style="width:12%;"><div class="thbg">Bench Name</div></th>
+                                                        <th class="JudgeName10" style="width:33%"><div class="thbg">Causelist Detail</div></th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="Tbody3"></tbody>
+                                            </table>
+                                            <div id="Tbody3status" style="text-align:center;display:none;">No result found...</div>
+                                        </div>
+                                    </div>
+                                    <div class="panel1">
+                                        <div class="col-md-12">
+                                            <div style="font-weight: 500; margin: 10px 0 3px 0;">Revenue Court</div>
+                                            <table id="tableRevRERH" class="table-panel" cellspacing="0" border="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="Case10" style=" width:20%" align="center"><div class="thbg">Case Name</div></th>
+                                                        <th class="Case10" style=" width:15%" align="center"><div class="thbg">Court</div></th>
+                                                        <th class="Court10" style=" width:10%" align="center"><div class="thbg">Causelist Date</div></th>
+                                                        <th class="CourtNo10" style=" width:10%" align="center"><div class="thbg">AppealNo</div></th>
+                                                        <th class="SessionTime10" style=" width:10%" align="center"><div class="thbg">Court Name</div></th>
+                                                        <th class="JudgeName10" style="width:35%;" align="center"><div class="thbg">Status</div></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="RevRERHData"></tbody>
+                                            </table>
+                                            <div id="TbodyRevRERHstatus" style="text-align:center;display:none;">No result found...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+</div>
+
+<ul class="dropdown-menu settingshowhide" id="od" style="width:275px; height: 420px !important;display:none; overflow-y:scroll;">
+    <li><input type="checkbox" value="StartDate" class="shcheckbox1 chkdhide" name="casestartdate" checked><a href="#">Start Date</a></li>
+    <li><input type="checkbox" value="MatterName" class="shcheckbox1 chkdhide" name="casecasename" checked><a href="#">Matter Name</a></li>
+    <li><input type="checkbox" value="ClientName" class="shcheckbox1 chkdhide" name="caseclientname"><a href="#" class="dropdown-item">Client</a></li>
+    <li><input type="checkbox" value="Court" class="shcheckbox1 chkdhide" name="casecourtname"><a href="#" class="dropdown-item">Court</a></li>
+    <li><input type="checkbox" value="CourtName" class="shcheckbox1 chkdhide" name="caseothercourtname"><a href="#" class="dropdown-item">Court Name</a></li>
+    <li><input type="checkbox" value="CompanyName" class="shcheckbox1 chkdhide" name="companyname" checked><a href="#" class="dropdown-item">Company</a></li>
+    <li class="casecasedetails1"><input type="checkbox" value="" class="shcheckbox1 chkdhide" name="casecasedetails" checked><a href="#" class="dropdown-item">Court Hearing</a></li>
+    <li><input type="checkbox" value="Status" class="shcheckbox1 chkdhide" name="casestatus" checked><a href="#" class="dropdown-item">Court Status</a></li>
+    <li><input type="checkbox" value="CreatedBy" class="shcheckbox1 chkdhide" name="casecreatedby" checked><a href="#" class="dropdown-item">Created By</a></li>
+    <li><input type="checkbox" value="TeamMembers" class="shcheckbox1 chkdhide" name="caseteammembers" checked><a href="#" class="dropdown-item">Team Members</a></li>
+
+    <li><input type="checkbox" value="ClientContact" class="shcheckbox1 chkdhide" name="caseclientcontact" checked><a href="#" class="dropdown-item">Client Contact</a></li>
+
+    <li><input type="checkbox" value="MatterType" class="shcheckbox1 chkdhide" name="MatterType" checked><a href="#" class="dropdown-item">Matter Type</a></li>
+    <li><input type="checkbox" value="CopyAppliedOn" class="shcheckbox1 chkdhide" name="CertifiedCopyAppliedon"><a href="#" class="dropdown-item">Copy Applied On</a></li>
+    <li><input type="checkbox" value="CopyReceivedOn" class="shcheckbox1 chkdhide" name="CertifiedCopyReceivedon"><a href="#" class="dropdown-item">Copy Received On</a></li>
+    <li><input type="checkbox" value="ValuationofSuit" class="shcheckbox1 chkdhide" name="ValuationofSuit"><a href="#" class="dropdown-item">Valuation of Suit</a></li>
+    <li><input type="checkbox" value="CourtFee" class="shcheckbox1 chkdhide" name="Courtfee"><a href="#" class="dropdown-item">Court Fee</a></li>
+    <li><input type="checkbox" value="OppositePartyCounselName" class="shcheckbox1 chkdhide" name="OppositePartyCounselname"><a href="#" class="dropdown-item">Opposite Party Counsel Name</a></li>
+    <li><input type="checkbox" value="OppositePartyCounselEmail" class="shcheckbox1 chkdhide" name="OppositePartyCounselemail"><a href="#" class="dropdown-item">Opposite Party Counsel Email</a></li>
+    <li><input type="checkbox" value="OppositePartyCounselPhone" class="shcheckbox1 chkdhide" name="OppositePartyCounselphone"><a href="#" class="dropdown-item">Opposite Party Counsel Phone</a></li>
+    <li><input type="checkbox" value="MatterNumberInternal" class="shcheckbox1 chkdhide" name="CasenumberInternal"><a href="#" class="dropdown-item">Matter Number Internal</a></li>
+    @* <li><input type="checkbox" class="shcheckbox1 chkdhide" name="IsCourtFeePaid"><a href="#" class="dropdown-item">IsCourtFeePaid</a></li>*@
+    <li style="display:none"><input type="checkbox" class="shcheckbox1 chkdhide" name="PoliceStation"><a href="#" class="dropdown-item">Police Station</a></li>
+    <li style="display:none"><input type="checkbox" class="shcheckbox1 chkdhide" name="FIRNo"><a href="#" class="dropdown-item">FIR No</a></li>
+
+
+    <li><input type="checkbox" value="CloseDate" class="shcheckbox1 chkdhide" name="caseclosedate"><a href="#" class="dropdown-item">Close Date</a></li>
+    <li><input type="checkbox" value="" class="shcheckbox1 chkdhide" name="linkedcase"><a href="#" class="dropdown-item">Linked Matters</a></li>
+
+    <li><input type="checkbox" value="SubjectType" class="shcheckbox1 chkdhide" name="subjecttype"><a href="#" class="dropdown-item">Subject Type</a></li>
+    <li><input type="checkbox" value="Notes" class="shcheckbox1 chkdhide" name="notes"><a href="#" class="dropdown-item"> Notes</a></li>
+    <li><input type="checkbox" value="MatterTeamLead" class="shcheckbox1 chkdhide" name="teamleadname"><a href="#" class="dropdown-item"> Matter Team Lead</a></li>
+    <li><input type="checkbox" value="EditDate" class="shcheckbox1 chkdhide" name="caseeditdate"><a href="#" class="dropdown-item"> Edit Date</a></li>
+    <li><input type="checkbox" value="CaseType" class="shcheckbox1 chkdhide" name="CaseType"><a href="#" class="dropdown-item">  Case Type</a></li>
+    <li><input type="checkbox" value="MatterDescription" class="shcheckbox1 chkdhide" name="CaseDetails"><a href="#" class="dropdown-item"> Matter Description</a></li>
+    <li><input type="checkbox" value="MatterNumberCourtReference" class="shcheckbox1 chkdhide" name="mtrno"><a href="#" class="dropdown-item">  Matter Number-External Reference</a></li>
+    <li><input type="checkbox" value="CNRNumber" class="shcheckbox1 chkdhide" name="cnrno"><a href="#" class="dropdown-item"> CNR Number</a></li>
+
+
+</ul>
+
+<style>
+
+    #loading {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        /*opacity: 0.7;*/
+        background-color: #fff;
+        z-index: 99;
+    }
+
+    #loading-image {
+        z-index: 100;
+    }
+
+    .loader {
+        border: 5px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 5px solid #3498db;
+        width: 40px;
+        height: 40px;
+        -webkit-animation: spin 2s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+    }
+
+    /* Safari */
+    @@-webkit-keyframes spin {
+        0% {
+            -webkit-transform: rotate(0deg);
+        }
+
+        100% {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<style>
+    td.highlightEvent > a {
+        background: #36bffa !important;
+        color: #fff !important;
+    }
+
+        td.highlightEvent > a:hover {
+            background: #0369A1 !important;
+            color: #fff !important;
+        }
+
+    td.highlightTask > a {
+        background: #095c37 !important;
+        color: #fff !important;
+    }
+
+        td.highlightTask > a:hover {
+            background: #0369A1 !important;
+            color: #fff !important;
+        }
+
+    html .ui-button.ui-state-disabled:hover,
+    html .ui-button.ui-state-disabled:active {
+        border: 1px solid #c5c5c5;
+        background: #ffffff;
+        font-weight: normal;
+        color: #454545;
+    }
+
+    td.highlight > a {
+        /*background: #0369A1 !important;*/
+        background-color: #ff692e !important;
+        color: #fff !important;
+    }
+
+        td.highlight > a:hover {
+            background: #0369A1 !important;
+            color: #fff !important;
+        }
+
+    td.highlightOrder > a {
+        background: #9d174d !important;
+        color: #fff !important;
+    }
+
+        td.highlightOrder > a:hover {
+            background: #0369A1 !important;
+            color: #fff !important;
+        }
+
+
+    .ui-datepicker-inline {
+        width: 100%;
+    }
+
+    .rectangle {
+        height: 12px;
+        width: 11px;
+        background-color: #3aa0d4;
+        float: left;
+        border-radius: 3px;
+    }
+
+    .rectangle1 {
+        height: 12px;
+        width: 11px;
+        background-color: #47a447;
+        float: left;
+        clear: both;
+        border-radius: 3px;
+    }
+
+    .rectangle2 {
+        height: 12px;
+        width: 11px;
+        background-color: #a97516;
+        float: left;
+        clear: both;
+        border-radius: 3px;
+    }
+
+    .rectangle3 {
+        height: 12px;
+        width: 11px;
+        background-color: #dc6479;
+        float: left;
+        clear: both;
+        border-radius: 3px;
+    }
+
+    .colorlbl {
+        margin: -2px 0 0 13px;
+        float: left;
+        font-size: 12px;
+    }
+</style>
+<style>
+    /* Corner radius */
+    .ui-corner-all,
+    .ui-corner-top,
+    .ui-corner-left,
+    .ui-corner-tl {
+        border-top-left-radius: 9px !important;
+    }
+
+    .ui-corner-all,
+    .ui-corner-top,
+    .ui-corner-right,
+    .ui-corner-tr {
+        border-top-right-radius: 9px !important;
+    }
+
+    .ui-corner-all,
+    .ui-corner-bottom,
+    .ui-corner-left,
+    .ui-corner-bl {
+        border-bottom-left-radius: 9px !important;
+    }
+
+    .ui-corner-all,
+    .ui-corner-bottom,
+    .ui-corner-right,
+    .ui-corner-br {
+        border-bottom-right-radius: 9px !important;
+    }
+
+    .ui-datepicker th {
+        padding: .7em .3em;
+        text-align: center;
+        font-weight: 500;
+        border: 0;
+        color: #414651;
+    }
+
+    .ui-state-hover,
+    .ui-widget-content .ui-state-hover,
+    .ui-widget-header .ui-state-hover,
+    .ui-state-focus,
+    .ui-widget-content .ui-state-focus,
+    .ui-widget-header .ui-state-focus,
+    .ui-button:hover,
+    .ui-button:focus {
+        border: none !important;
+        background: #ffffff !important;
+        font-weight: normal;
+        color: #2b2b2b;
+    }
+
+    .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+        border: 1px solid #c5c5c5;
+        background: #ffffff;
+        font-weight: normal;
+        color: #454545;
+    }
+
+    .ui-datepicker table {
+        font-size: 14px !important;
+    }
+
+    .ui-widget.ui-widget-content {
+        border: 1px solid #c5c5c5;
+        padding: 10px;
+    }
+
+    .ui-datepicker td span, .ui-datepicker td a {
+        display: block;
+        padding: .2em;
+        text-align: center !important;
+        text-decoration: none;
+    }
+
+    .ui-datepicker td {
+        border: 0;
+        padding: 3px !important;
+        text-align: center !important;
+        height: 45px;
+    }
+
+    .ui-datepicker {
+        width: 100% !important;
+    }
+
+    .ui-widget-header {
+        border: none !important;
+        background: #ffffff !important;
+        color: #414651 !important;
+        font-weight: 600 !important;
+        border-radius: 50px !important;
+        font-size: 16px;
+    }
+
+
+        .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+            border: none !important;
+            font-weight: normal !important;
+            border-radius: 50px;
+            display: inline-block;
+            width: 30px;
+        }
+        /*.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+        border: 1px solid #dad55e;
+        background: #4D95DD !important;
+        color: #ffffff !important;
+    }*/
+        .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html
+        .ui-datepicker td span, .ui-datepicker td a {
+            padding: 6px !important;
+        }
+
+        .ui-widget-header .ui-icon {
+            background-image: url(/newassets/images/ui-icons_444444_256x240.png) !important;
+        }
+
+    .dhx_cal_header {
+        background-image: none !important;
+    }
+
+    .dhx_scale_bar {
+        background-image: none !important;
+    }
+
+    .dhx_scale_bar {
+        color: #020202 !important;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .ui-icon {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .ui-icon-circle-triangle-w {
+        background-position: -80px -191px !important;
+    }
+
+    .ui-icon-circle-triangle-e {
+        background-position: -47px -191px !important;
+    }
+
+    .ui-datepicker .ui-datepicker-prev-hover,
+    .ui-datepicker .ui-datepicker-next-hover {
+        top: 2px !important;
+    }
+
+    .ui-datepicker .ui-datepicker-prev-hover {
+        left: 2px !important;
+    }
+
+    .ui-datepicker .ui-datepicker-next-hover {
+        right: 2px !important;
+    }
+</style>
+<style>
+
+    /*td.highlightTask > a {
+        background: #3aa0d4 !important;
+        color: #fff !important;
+    }*/
+
+
+    .ui-datepicker-inline {
+        width: 100%;
+    }
+
+    .ui-datepicker {
+        width: 100% !important;
+        padding: .2em .2em 0;
+        display: none;
+    }
+
+    .rectangle {
+        height: 13px;
+        width: 15px;
+        background-color: #3aa0d4;
+        float: left;
+    }
+
+    .rectangle1 {
+        height: 13px;
+        width: 15px;
+        background-color: #47a447;
+        float: left;
+        clear: both;
+    }
+
+    .colorlbl {
+        margin-left: 20px;
+        float: left;
+    }
+</style>
+<style>
+    .todo-list {
+        float: left;
+        width: 131px;
+        background: #f4f4f4;
+        padding: 11px;
+        margin: 0 20px 20px 0;
+        border-radius: 8px;
+    }
+
+    .breadcrumb {
+        padding: 2px 4px;
+        margin: 0;
+        background-color: #f4f4f4;
+        border-radius: 50px;
+        overflow: hidden;
+        width: 90px;
+    }
+
+    .paginationsection ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+        .paginationsection ul li {
+            margin: 0 12px 0 0;
+            padding: 0;
+            float: left;
+        }
+
+    #matter-type-chart-area {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #chart-area-case-division {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #form-type-chart-area {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #chart-area-case-2 {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #chart-area-CourtStatus {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #chart-area-courttype {
+        position: relative;
+        height: 169px !important;
+        width: auto !important;
+        top: -32px;
+    }
+
+    #chart-area-case-3 {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #chart-area-case-4 {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #subject-type-chart-area {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #invioce-chart-area {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #chart-area-notice {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #chart-area-departmentwise {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #chart-area-casetype {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #chart-area-statetype {
+        position: relative;
+        height: 138px !important;
+        margin: 5px 0 0 0px;
+        width: auto !important;
+    }
+
+    #legend > ul {
+        display: flex;
+        justify-content: center;
+    }
+
+    #legend li {
+        cursor: pointer;
+        margin: 10px 10px;
+        display: flex;
+    }
+
+        #legend li span {
+            padding-left: 8px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+        }
+
+
+
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+
+
+    #parentnbox {
+        border-bottom: 0px !important;
+    }
+
+        #parentnbox > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+            border: 0px !important
+        }
+
+        #parentnbox > li > a:hover, .nav > li > a:focus {
+            background-color: white !important;
+        }
+
+        #parentnbox > li > a:hover {
+            border-color: white !important;
+        }
+
+    #filterbox li.active > a {
+        color: #555;
+        cursor: default;
+        background-color: #ccc !important;
+        border: transparent;
+    }
+
+        #filterbox li.active > a:hover {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+        #filterbox li.active > a:focus {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+    .rangediv {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+        .rangediv li {
+            margin: 0;
+            padding: 6px 10px 0 0;
+            float: left;
+        }
+
+    .alertbox li > a {
+        color: #555 !important;
+        cursor: default;
+    }
+
+    .alertbox li.active > a {
+        color: #555;
+        cursor: default;
+        background-color: #ccc !important;
+        border: transparent;
+    }
+
+        .alertbox li.active > a:hover {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+        .alertbox li.active > a:focus {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+    .panel-group .panel {
+        margin-bottom: 0;
+        overflow: hidden;
+        border-radius: 8px;
+        background-color: #ebebeb;
+        border: none;
+        box-shadow: none;
+    }
+
+    .panel-group .panel-heading + .panel-collapse .panel-body {
+        border-top: none;
+    }
+
+    .panel-heading {
+        position: relative;
+        padding: 6px 15px !important;
+    }
+
+
+    .panel-default > .panel-heading {
+        background-color: #ebebeb !important;
+    }
+
+    .panel-title {
+        font-size: 11px !important;
+        padding: 3px 0 !important;
+    }
+
+        .panel-title > a:before {
+            float: right !important;
+            font-family: FontAwesome;
+            content: "\f068";
+            padding: 4px 5px 1px 5px;
+            border-radius: 50px;
+            margin: 1px 0 0 0;
+            background: #4d95dd;
+            color: #ffffff;
+        }
+
+        .panel-title > a.collapsed:before {
+            float: right !important;
+            content: "\f067";
+        }
+
+        .panel-title > a:hover,
+        .panel-title > a:active,
+        .panel-title > a:focus {
+            text-decoration: none;
+            color: #000000;
+        }
+
+    .dashboard_top_panel {
+        margin: 10px 0 20px 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+        .dashboard_top_panel .dbox {
+            margin: 0;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: #020202;
+            background: #ebebeb;
+            overflow: hidden;
+        }
+
+            .dashboard_top_panel .dbox .iconwrapper {
+                margin: 0;
+                padding: 5px 0 0 0;
+                float: left;
+            }
+
+            .dashboard_top_panel .dbox .txtwrapper {
+                margin: 0;
+                padding: 0;
+                float: right;
+                text-align: right;
+            }
+
+                .dashboard_top_panel .dbox .txtwrapper p {
+                }
+
+                    .dashboard_top_panel .dbox .txtwrapper p a {
+                        color: #020202;
+                        text-decoration: none;
+                        font-weight: 600;
+                        font-size: 15px;
+                    }
+
+                        .dashboard_top_panel .dbox .txtwrapper p a:hover {
+                            color: #4D95DD;
+                            text-decoration: none;
+                        }
+
+
+
+            .dashboard_top_panel .dbox p label {
+                color: #4D95DD !important;
+                font-size: 31px !important;
+                font-weight: 600 !important;
+            }
+
+
+    .r-activitypanel {
+        margin: 10px 0 0 0;
+        padding: 0;
+    }
+
+    .r-activitywrapper {
+        margin: 0 0 30px 0;
+        padding: 5px 0;
+        border-bottom: 0.5px solid #e2e2e2;
+        opacity: 1;
+        height: auto;
+    }
+
+        .r-activitywrapper p {
+            margin: 0;
+            padding: 0;
+            color: #B5B1B1;
+            font-size: 16px;
+            letter-spacing: 0.68px;
+        }
+
+            .r-activitywrapper p span {
+                color: #020202;
+                letter-spacing: 0.68px;
+                font-weight: 500;
+            }
+
+
+    .recent {
+        margin: 0;
+        padding: 0;
+        /* border-bottom: 1px solid #c8c8c8; */
+        font-size: 16px;
+        color: #020202;
+        height: 155px;
+    }
+
+    .canvas-content {
+        border-radius: 12px;
+        padding: 16px !important;
+        border: 1px solid #e9eaeb;
+        box-shadow: 0 1px 10px 0 rgb(82 63 105 / 10%);
+        top: 30px;
+        position: absolute;
+        background: #ffffff;
+        z-index: 999;
+        height: 250px;
+        overflow-y: scroll;
+        width: 98%;
+    }
+
+        .canvas-content table {
+            margin: 5px 0;
+            border: none;
+        }
+
+            .canvas-content table td {
+                padding: 3px 0px !important;
+                line-height: 1.428571429 !important;
+                vertical-align: top !important;
+                border-top: none !important;
+            }
+
+                .canvas-content table td span {
+                    cursor: pointer;
+                    color: #165dbf;
+                }
+
+    .graph-wrapper {
+        margin: 15px 0 0 0;
+    }
+
+    .canvas-content a img {
+        float: right;
+        width: 11px;
+    }
+
+    .ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+        background: #0369A1 !important;
+        color: #ffffff !important;
+    }
+
+    .partyname {
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        text-transform: uppercase;
+    }
+
+    .courtname {
+        font-size: 12px;
+        font-weight: 500;
+        color: #6B7280;
+        margin: 0 0 10px 0;
+    }
+
+    .dairyno {
+        font-size: 12px;
+        font-weight: 500;
+        color: #414651;
+        background: #f5f5f5;
+        text-align: center;
+        border-radius: 50px;
+        padding: 3px;
+    }
+
+    .notfound {
+        padding: 40px 0 0 0;
+    }
+
+    .notfoundhead {
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .notfoundpara {
+        font-size: 14px;
+        font-weight: 400;
+        text-align: center;
+        color: #4B5563;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/PersonalDashboardGraph.js?11.1" type="text/javascript" defer language="javascript"></script>
+@*<script src="~/Scripts/Firm/Pages/CreateActivityReminders.js"></script>*@
+
+<script src="~/Manupanel/Chart/Chart.min.js"></script>
+
+<div id="myModalDashboardCustomized" class="modal right fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="chartsetting" title="Chart Setting"></div>
+                    </div>
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                    <button class="btn btn-secondary" id="ClearCustomSelection">Clear</button>
+                    <button class="btn btn-primary sbtbtn" id="savematter">Save</button>
+                </div>*@
+        </div>
+    </div>
+</div>

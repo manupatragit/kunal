@@ -1,0 +1,369 @@
+﻿
+@{
+    Layout = null;
+    var role = Session["sessionroleid"];
+}
+<script src="~/Scripts/Firm/Pages/MatterReport.js?10.2"></script>
+<script>
+    var roleids = "@Session["sessionroleid"]";
+</script>
+<style>
+
+
+    a.morelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span {
+        display: none;
+    }
+
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+</style>
+<section class="wrapper">
+    <div class="row" style="margin-bottom:15px;">
+        <div class="col-md-4"></div>
+
+        <div class="col-md-2">
+            <input checked type="radio" id="rdadded" name="rdadded" onclick="fn_IsAddedMatter(1);"> &nbsp;&nbsp;Added
+
+        </div>
+        <div class="col-md-2">
+            <input type="radio" id="rdassigned" name="rdadded" onclick="fn_IsAddedMatter(0);"> &nbsp;&nbsp;Assigned
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+  
+  <div class="ec_bg">
+    <div class="row">
+
+
+        <input type="hidden" id="hdnisaddedval" value="1" />
+        <div class="col-md-3">
+            <label class="formLabel colorDark">User</label>
+            @if (role.ToString() == "1")
+            {
+                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpUser" name="ddlExpUser"></select>
+            }
+            else
+            {
+                <span style="display:none" id="ddlExpUser" name="ddlExpUser"></span>
+            }
+        </div>
+        <div class="col-md-3" style="display:none">
+            <label class="formLabel colorDark">Matter Type</label>
+            <select class="form-control col_b selctInputFormat" style="background-color: white !important;" id="rptmfmattertype"></select>
+        </div>
+        <div class="col-md-3">
+            <label class="formLabel colorDark">Matter Name</label>
+            <input type="text" id="casefiltercasename" placeholder="Matter Name" class="form-control inputFormat">
+
+
+        </div>
+        <div class="col-md-3" style="display:none">
+           
+            <label class="formLabel colorDark">Case Type</label>
+            <select id="ddlCasetype" class="form-control col_b selctInputFormat" style="background-color: white !important;">
+                <option value="" selected="">Select</option>
+                <option value="Original">Original</option>
+                <option value="Appeal">Appeal</option>
+                <option value="Application">Application</option>
+            </select>
+        </div>
+        <div class="col-md-3" style="display:none">
+            <label class="formLabel colorDark">Subject Type</label>
+            <select class="form-control selctInputFormat" style="background-color: white !important;" id="rptmfcasecasetype"></select>
+        </div>
+        <div class="col-md-3">
+            <label class="formLabel colorDark">Status</label>
+            <select class="form-control selctInputFormat" style="background-color: white !important;" id="rptmfcasestatus"></select>
+        </div>
+        <div class="col-md-3">
+            <label class="formLabel colorDark">Court</label>
+            <select class="form-control col_b selctInputFormat" style="background-color: white !important;" id="rptmcasefiltercourt">
+                <option value="" selected="">Select</option>
+                <option value="Supreme Court">Supreme Court</option>
+                <option value="High Court">High Court</option>
+                <option value="District Court">District Court</option>
+                <option value="Tribunals">Tribunals</option>
+            </select>
+        </div>
+    </div>
+        <div class="row" style="padding:10px 0 0 0;">
+            
+          
+            <div class="col-md-3">
+                <label class="formLabel colorDark">Start</label>
+                <input class="form-control inputFormat" id="datefrom" onkeypress="return false;" type="date">
+            </div>
+            <div class="col-md-3">
+                <label class="formLabel colorDark">End</label>
+                <input class="form-control inputFormat" id="dateto" onkeypress="return false;" type="date">
+            </div>
+            <div class="col-md-2">
+                <button type="button" id="searchdatas" class="sbtbtn" style="margin:27px 0 0 0;">Search</button>
+            </div>
+
+
+        </div>
+        </div>
+
+</section>
+
+
+<div class="table-panel table-responsive">
+    <div style="overflow-x:scroll;">
+        <table id="example" class="table ">
+            <thead>
+                <tr>
+                    <th class="casestartdate">
+                        <div class="thbg">
+                        Date
+                        <div>
+                    </th>
+                    <th class="casecasename">
+                        <div class="thbg">
+                       Matter Name
+                        @*<span class="glyphicon glyphicon-search" id="searchdatas"></span>*@
+                        <div>
+                    </th>
+
+                    <th class="caseclientname">
+                        <div class="thbg">
+                        Client Name
+                        <div>
+                    </th>
+                    <th class="companyname"><div class="thbg">Company<div></th>
+                    <th class="casecourtname"><div class="thbg">
+                        Court
+                        <div>
+                    </th>
+                    <th class="casecasedetails"><div class="thbg">
+                        Court Hearing
+                        <div>
+                    </th>
+                    <th class="casestatus"><div class="thbg">
+                        Status
+                        <div>
+
+                    </th>
+                    <th class="casecreatedby"><div class="thbg">
+                        Created By
+                        <div>
+                    </th>
+                    <th class="caseteammembers"><div class="thbg">
+                        Team Members
+                         <div></div>
+                    </th>
+
+                    <th class="caseclientcontact"><div class="thbg">
+                        ClientContact
+                        <div>
+                    </th>
+
+                    <th class="MatterType"><div class="thbg">
+                        Matter Type
+                        <div>
+                    </th>
+                    <th class="CertifiedCopyAppliedon"><div class="thbg">
+                        Copy Applied On
+                        <div>
+                    </th>
+                    <th class="CertifiedCopyReceivedon"><div class="thbg">
+                        Copy Received On
+                        <div>
+                    </th>
+                    <th class="ValuationofSuit"><div class="thbg">
+                        Valuation of Suit
+                        <div>
+                    </th>
+                    <th class="Courtfee"><div class="thbg">
+                        Court Fee
+                        <div>
+                    </th>
+                    <th class="OppositePartyCounselname"><div class="thbg">
+                        PartyCounsel Name
+                        <div>
+                    </th>
+                    <th class="OppositePartyCounselemail"><div class="thbg">
+                        PartyCounsel Email
+                        <div>
+                    </th>
+                    <th class="OppositePartyCounselphone"><div class="thbg">
+                        PartyCounsel Phone
+                        <div>
+                    </th>
+                    <th class="CasenumberInternal"><div class="thbg">
+                        Matter Number Internal
+                        <div>
+                    </th>
+                    @*<th class="IsCourtFeePaid">
+                            IsCourtFeePaid
+                        </th>*@
+
+                    <th class="PoliceStation"><div class="thbg">
+                        Police Station
+                        <div>
+                    </th>
+                    <th class="FIRNo"><div class="thbg">
+                        FIR No
+                        <div>
+                    </th>
+
+                    <th class="caseclosedate"><div class="thbg">
+                        Close Date
+                        <div>
+                    </th>
+
+                    <th class="linkedcase"><div class="thbg">
+                        Linked Matter
+                        <div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="bindcasedata"></tbody>
+        </table>
+    </div>
+    <div id="pdatastatus"></div>
+    <div class="table-panel">
+        <div class="settingpanel">
+            <div class="col-md-6">
+
+                <div style="float: left;padding: 0 10px 0 0;">
+                    <ul>
+                        <li>
+                            <div class="btn-group dropup">
+                                <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                    customize field 
+                                </a>
+                                <ul class="dropdown-menu settingshowhide" id="od">
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="casestartdate" checked><a href="#">Start Date</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="casecasename" checked><a href="#">Matter Name</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="caseclientname" checked><a href="#" class="dropdown-item">Client</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="casecourtname" checked><a href="#" class="dropdown-item">Court</a></li>
+                                    <li class="casecasedetails1"><input type="checkbox" class="shcheckbox1 chkdhide" name="casecasedetails" checked><a href="#" class="dropdown-item">Court Hearing</a></liclass="casecasedetails">
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="casestatus" checked><a href="#" class="dropdown-item">Status</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="casecreatedby"><a href="#" class="dropdown-item">Created By</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="caseteammembers"><a href="#" class="dropdown-item">Team Members</a></li>
+
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="caseclientcontact"><a href="#" class="dropdown-item">ClientContact</a></li>
+
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="MatterType"><a href="#" class="dropdown-item">Matter Type</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="CertifiedCopyAppliedon"><a href="#" class="dropdown-item">Copy Applied On</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="CertifiedCopyReceivedon"><a href="#" class="dropdown-item">Copy Received On</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ValuationofSuit"><a href="#" class="dropdown-item">Valuation of Suit</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Courtfee"><a href="#" class="dropdown-item">Court Fee</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="OppositePartyCounselname"><a href="#" class="dropdown-item">PartyCounsel Name</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="OppositePartyCounselemail"><a href="#" class="dropdown-item">PartyCounsel Email</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="OppositePartyCounselphone"><a href="#" class="dropdown-item">PartyCounsel Phone</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="CasenumberInternal"><a href="#" class="dropdown-item">Matter Number Internal</a></li>
+                                    @* <li><input type="checkbox" class="shcheckbox1 chkdhide" name="IsCourtFeePaid"><a href="#" class="dropdown-item">IsCourtFeePaid</a></li>*@
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="PoliceStation"><a href="#" class="dropdown-item">Police Station</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="FIRNo"><a href="#" class="dropdown-item">FIR No</a></li>
+
+
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="caseclosedate"><a href="#" class="dropdown-item">Close Date</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="linkedcase"><a href="#" class="dropdown-item">Linked Matters</a></li>
+
+
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div id="casetfooter"></div>
+            </div>
+            <div class="col-md-6">
+                <ul class="pull-right">
+
+
+                    @if (role.ToString() == "1")
+                    {
+
+                        <li>
+                            <select id="filtercaseuser" class="form-control" style=" display:none; border-bottom: 1px solid #ccc !important;">
+                                <option value="" selected>Select User </option>
+                            </select>
+                        </li>
+
+                    }
+                    else
+                    {
+                        <input type="text" id="filtercaseuser" style="display:none">
+
+                    }
+
+
+                    <li>
+                        <div class="btn-group dropup">
+                            <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action Selected
+                            </a>
+                            <ul class="dropdown-menu settingaction">
+                                <li><a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a></li>
+                                <li><a href="javascript:void()" id="opdf" title="export to pdf"> export to pdf</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="myOverlay" class="overlay">
+    @*//<span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>*@
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+
+

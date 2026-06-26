@@ -1,0 +1,194 @@
+﻿@{
+    ViewBag.Title = "Team";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+    var strcurdate = DateTime.Now.ToString("dd MMM yyyy");
+}
+<style>
+    table th, td {
+        font-size: 12px !important;
+    }
+</style>
+<section class="wrapper">
+    <div class="container-main">
+        <div>
+            <h2 class="title">Matter List</h2>
+            <div class="content-header " style="margin: 0 auto 27px;">
+                <ul class="btn_panel" style="padding:0;" id="sectiontemp">
+                    <li>Matter Name :</li>
+                    <li>
+                        <input type="text" class="form-control inputbg" style="background-color: #cbeffe !important;" id="teamname" />
+                        <button type="button" class="sbtbtn" style="margin: 0;position: relative;top: -28px;float: right;background: none;border: none;right: -4px;" id="btnsearch" onclick="TeamList(1);">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="table-panel table-responsive">
+                <table id="exampleteam" class="table" style="margin:0 auto;">
+                    <thead>
+                        <tr><th><div class="thbg">Matter</div></th><th width="80px" style="text-align:center;display:none"><div class="thbg">Chat</div></th></tr>
+                    </thead>
+                    <tbody id="binddata"></tbody>
+                </table>
+                <div class="settingpanelteam settingpanel">
+                    <div class="col-md-6">
+                        <div class="row">
+                            <ul>
+                                <li>
+                                    <div class="btn-group dropup" style="display:none">
+                                        <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="glyphicon glyphicon-cog" style="margin-right:5px !important;  background-color: #ebebeb !important;"></span>
+                                            Customize Field
+                                        </a>
+                                        <ul class="dropdown-menu settingshowhide" id="EColli">
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Team" checked><a href="#" class="dropdown-item">Team</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Chat" checked><a href="#" class="dropdown-item">Chat</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li style="margin-left:18px;margin-top:12px;">
+                                    <div id="ecfooterteam"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<input type="hidden" id="currdate" value="@strcurdate" />
+<script src="~/Scripts/Firm/Pages/Chat.js?2.7"></script>
+<script>
+    $(document).ready(function () {
+        $(document).on('click', '#ChannelidGroup1', function () {
+            var strteamname = $(this).attr("data-tname");
+            var strfchannelid = $(this).attr("data-val");
+            var strffirmid = $("#firmid");
+            var strfuserid = $("#userid");
+            var strfusername = $("#username");
+            var url = "UserLogin?tid=" + strfchannelid + "&uid=" + strfuserid + "&unm=" + strfusername + "&fid=" + strffirmid + "&tnm=" + strteamname;            //window.location.href = url;
+            window.open(url, 'team', "menubar=0,resizable=1,width=1000,height=600,left=200");
+        });
+        $(document).on('click', '#SelectUser', function () {
+            var strteamname = $(this).attr("datatname");
+            var strfchannelid = $(this).attr("dataval");
+            var strffirmid = $("#firmid");
+            var strfuserid = $("#userid");
+            var strfusername = $("#username");
+            var url = "CreateChannel?tid=" + strfchannelid + "&uid=" + strfuserid + "&unm=" + strfusername + "&fid=" + strffirmid + "&tnm=" + strteamname;            //window.location.href = url;
+            window.location.href = url;
+        });
+    });
+</script>
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("exampleteam");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 1; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

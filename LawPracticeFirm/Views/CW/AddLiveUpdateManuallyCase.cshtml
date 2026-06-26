@@ -1,0 +1,1078 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    Layout = null;
+}
+<style>
+    ul li {
+        display: inline;
+    }
+</style>
+<style>
+
+    .matter_Label {
+        display: flex;
+        align-items: center;
+    }
+
+        .matter_Label span {
+            margin-left: 5px;
+        }
+
+    .glyphicon-info-sign {
+        cursor: pointer;
+        color: blue;
+    }
+
+    .note {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+        .note h4 {
+            color: #d9534f;
+        }
+
+    .case-format {
+        margin-top: 20px;
+    }
+
+        .case-format h5 {
+            color: #5bc0de;
+        }
+
+        .case-format p {
+            margin: 5px 0;
+        }
+
+    .textFormat {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    /*
+        .note .textFormat th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+       .note .textFormat th {
+            background-color: #f2f2f2;
+            color: black;
+        }*/
+
+    .thClass {
+        background-color: #f2f2f2;
+        color: black;
+    }
+
+    .tdClass {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .overlayCW {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .example {
+        margin-top: 20px;
+    }
+
+    .close-btn {
+        display: block;
+        width: 100px;
+        margin: 20px auto;
+        padding: 10px;
+        background-color: #5cb85c;
+        color: white;
+        text-align: center;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .modal-second {
+        z-index: 1060;
+    }
+
+    .modal-backdrop-second {
+        z-index: 1055;
+    }
+
+    .overlayCW {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+
+    .matter_Label {
+        display: flex;
+        align-items: center;
+    }
+
+        .matter_Label span {
+            margin-left: 5px;
+        }
+
+    .glyphicon-info-sign {
+        cursor: pointer;
+        color: blue;
+    }
+
+    .note {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+        .note h4 {
+            color: #d9534f;
+        }
+
+    .case-format {
+        margin-top: 20px;
+    }
+
+        .case-format h5 {
+            color: #5bc0de;
+        }
+
+        .case-format p {
+            margin: 5px 0;
+        }
+
+    .close-btn {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #5cb85c;
+        color: white;
+        text-align: center;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .textFormat {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+
+
+        .textFormat th {
+            background-color: #f2f2f2;
+            color: black;
+        }
+</style>
+<script src="~/Scripts/CW/AddLiveUpdateManuallyCase.js?4.1" type="text/javascript" language="javascript"></script>
+<script>
+    $(document).ready(function () {
+        addtaskmember4();
+    });
+    function addtaskmember4() {
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/MatterApi/TeamMemberbyFirmId",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    var obj = JSON.parse(response.Data);
+                }
+                else {
+                    //alert("not found");
+                }
+                var html3 = '';
+                $("#addtaskmember4").html("");
+                var NewMemberID = $("#addtaskmember3").val();
+                if (NewMemberID != null) {
+                    $("#addtaskmember4").html("");
+                    $("#addtaskmember4").append($("<option></option>").val("0").text('Please Select'));
+                    $.each(NewMemberID, function (key1, value1) {
+                        if (response != null) {
+                            $(".ms-selectall").show();
+                            $.each(obj, function (key, value) {
+                                if (value.id == value1) {
+                                    $("#addtaskmember4").append($("<option></option>").val(value.id).text(value.UserName));
+                                }
+                                else {
+                                    //  $("#addtaskmember4").append($("<option></option>").val(value.id).text(value.UserName));
+                                }
+                            });
+                            $("#addtaskmember4").val(NewMemberID);
+                        }
+                        else {
+                            //  $(".ms-selectall").hide();
+                            // $("#addtaskmember4").append($("<option></option>").val("Other").text('Others'));
+                        }
+                    });
+                }
+                //else {
+                if (response != null) {
+                    $(".ms-selectall").show();
+                    $.each(obj, function (key, value) {
+                        $("#addtaskmember4").append($("<option></option>").val(value.id).text(value.UserName));
+                    });
+                }
+                else {
+                    //  $(".ms-selectall").hide();
+                    // $("#addtaskmember4").append($("<option></option>").val("Other").text('Others'));
+                }
+                $("#addtaskmember4").multiselect('reload');
+            },
+            failure: function (response) {
+                //alert(response.responseText);
+            }, //End of AJAX failure function
+            error: function (response) {
+                //alert(response.responseText);
+            } //End of AJAX error function
+        });
+    }
+</script>
+<div class="ec_bg">
+    <div class="col-lg-12">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="control-label">Select Court Type </label>
+                </div>
+                <div class="col-md-8">
+                    <select name="divSCHCDistrict" id="divSCHCDistrict1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divSCHCDistrictdisplay1();">
+                    </select>
+                </div>
+            </div>
+            <div id="HighCourt1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Court Name </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpcourtname" id="drpcourtname1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divdisplay1();"></select>
+                    </div>
+                </div>
+            </div>
+            <div id="DistrictCourt1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">&nbsp; </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpcourtnameDC" id="drpcourtnameDC1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divdrpcourtnameDC1();"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">&nbsp; </label>
+                    </div>
+                    <div class="col-md-8" id="divDistrict1">
+                        <select name="drpdistrictcourtname" id="drpdistrictcourtname1" style="display:none; background-color: white !important;" class="form-control selctInputFormat" onchange="divdistrictchange1();"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">&nbsp; </label>
+                    </div>
+                    <div class="col-md-8" id="divcourtcomplexestb1">
+                        <select name="drpcourtcomplexestb" id="drpcourtcomplexestb1" style="display:none; background-color: white !important;" class="form-control selctInputFormat" onchange="drpcourtcompestbchange1();">
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">&nbsp;</label>
+                    </div>
+                    <div class="col-md-8" id="divcompestbcourt1">
+                        <select name="drpcompestbcourt" id="drpcompestbcourt1" style="display:none; background-color: white !important;" class="form-control selctInputFormat" onchange="drpcompestbcourtchange1();"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" id="lbldistrictname1" style="display:none; margin: -5px 22px 13px 0; overflow: hidden;">
+                </div>
+                <div class="col-md-12" id="lblcourtname1" style="display:none; margin: -5px 22px 13px 0; overflow: hidden;">
+                </div>
+                <div id="Court1" style="display:none;margin: -5px 22px 13px 0; overflow: hidden;">
+                </div>
+            </div>
+            <div id="divMHGoa1" style="display:none;">
+                <div class="rowl">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Court</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpGoa" id="drpGoa1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddiv1();">
+                            <option selected="selected" value="">--Select--</option>
+                            <option value="Goa">Goa</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="divMH1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Bench<span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpbench" id="drpbench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="fillside1();"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Side <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpside" id="drpside1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="fillCasetype1();"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Stamp/Register <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpstampregister" id="drpstampregister1" class="form-control selctInputFormat" style="background-color: white !important;">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="divTN1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Bench <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="divTNBench" id="divTNBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivTN1();">
+                            <option value="">--Select Bench--</option>
+                            <option value="0">Madras</option>
+                            <option value="1">Madurai</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="divKA1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Bench <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpKAbench" id="drpKAbench1" class="form-control selctInputFormat" style="background-color: white !important;">
+                            <option value="B">Bengaluru Bench</option>
+                            <option value="D">Dharwad Bench</option>
+                            <option value="K">Kalaburagi Bench</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="divNC1" style="display:none;">
+                <div class="row">
+                    <div id="divTCCD1" style="display:none;">
+                        <div class="col-md-3">
+                            <label class="control-label">CaseType / Diary <span class="required" aria-required="true">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select name="divTCDT" id="divTCDT1" class="form-control selctInputFormat" onchange="hiddivTCDT1();">
+                                <option value="0">Case Type</option>
+                                <option value="1">Diary</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="control-label">Bench <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpNCBench" id="drpNCBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivNC1();"></select>
+                    </div>
+                </div>
+            </div>
+            <div id="divncdrcstate1" style=" display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label"> State <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpncdrcstate" id="drpncdrcstate1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivNCDRCDistrict1();"></select>
+                    </div>
+                </div>
+            </div>
+            <div id="divncdrcDistrict1" style=" display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label"> District Forum <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpncdrcDistrict" id="drpncdrcDistrict1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                </div>
+            </div>
+            <div id="divRH1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Bench <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="divRHBench" id="divRHBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivRH1();">
+                            <option value="">--Select Bench--</option>
+                            <option value="0">Jaipur</option>
+                            <option value="1">Jodhpur</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="divJK1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Bench <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="divJKBench" id="divJKBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivJK1();">
+                            <option value="">--Select Bench--</option>
+                            <option value="0">Jammu</option>
+                            <option value="1">Srinagar</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            @*//chandani*@
+            <div id="divBH1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Bench <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="divBHBench" id="divBHBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivBH1();">
+                            <option value="">--Select Type--</option>
+                            <option value="0">Civil</option>
+                            <option value="1">Criminal</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="divMP1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Bench <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="divMPBench" id="divMPBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivMP1();">
+                            <option value="">--Select Bench / Type--</option>
+                            <option value="03">Gwalior</option>
+                            <option value="02">Indore</option>
+                            <option value="01">Jabalpur</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="divSCDE1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">CaseType / Diary</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="divSCDECD" id="divSCDECD1" class="form-control selctInputFormat" style="background-color : white !important;" onchange="hiddivSCDE1();">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="divUP1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Bench</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="divUPBench" id="divUPBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivUP1();">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="divGH1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Bench</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="divGHBench" id="divGHBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivGH1();">
+                            <option value="">Select Bench / Type</option>
+                            <option value="2">Aizawl</option>
+                            <option value="0">Gauhati</option>
+                            <option value="3">Itanagar</option>
+                            <option value="1">Kohima</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="divWB1" style="display:none">
+                <div class="col-md-3">
+                    <label class="control-label">Select Bench <span class="required" aria-required="true">*</span></label>
+                </div>
+                <div class="col-md-8">
+                    <select name="divWBBench" id="divWBBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivWB1();">
+                        @*<option value="">Select Bench / Type</option>
+                        <option value="0">Original Side</option>
+                        <option value="1">Appellate Side</option>*@
+                    </select>
+                </div>
+            </div>
+            <div id="savebtn1" style="display:none;">
+                <div class="row" id="divcasetype1">
+                    <div class="col-md-3">
+                        <label class="control-label">Matter Type <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div id="divcasetype1" class="col-md-8">
+                        <select name="drptype" id="drptype1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                </div>
+                <div class="row" id="divcaseno1">
+                    <div class="col-md-3">
+                        <label class="matter_Label" id="labelcaseNo">Matter Number <span class="required" aria-required="true">*</span><span style="padding: 0 0 0 0px; font-size: 14px; cursor:pointer !important" id="information" class="glyphicon glyphicon-info-sign" title="Appeal format" aria-hidden="true" onclick="OpenAppealInformation()"></span></label>
+                    </div>
+                    <div id="divcaseno1" class="col-md-8">
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="txtno" id="txtno1" maxlength="500" style="margin-bottom:10px !important" onkeyup="OpenAppealInformationOnSelect()" />
+                    </div>
+                </div>
+                <div id="divdiaryno1" class="form-group " style="display:none;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="control-label">Diary Number</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control inputFormat" name="txtDiaryNo" id="txtDiaryNo1" maxlength="500" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="drpyearshow">
+                    <div class="col-md-3">
+                        <label class="control-label">Matter Year <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpYear" id="drpYear1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                </div>
+                <div class="row" id="divsuffix1" style="margin-bottom:5px;display:none;">
+                    <div class="col-md-3">
+                        <label class="control-label">Suffix </label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control InputFormat" placeholder="Add Suffix" name="txtsuffix" id="txtsuffix1" maxlength="10">
+                    </div>
+                </div>
+            </div>
+            @*//using for custome court*@
+            <div class="raw" id="divcustomcourtsection1" style="display:none;">
+                <div>
+                    <div class="row" style="margin-bottom:10px">
+                        <div id="divcasename1" class="col-md-3">
+                            <label id="lblCasename1" class="control-label"> Case Name <span class="required" aria-required="true">*</span> </label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control inputFormat" name="txtcasename" id="txtcasename1" maxlength="1000" />
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom:10px">
+                        <div id="divcustomadvocate1" class="col-md-3">
+                            <label id="Label2" class="control-label"> Advocate</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control InputFormat" name="txtcustomadvocate" id="txtcustomadvocate1" maxlength="200" />
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom:10px">
+                        <div id="divnexthearingdate1" class="col-md-3">
+                            <label id="Label1" class="control-label">Next Hearing / Disposed Date <span class="required" aria-required="true">*</span> </label>
+                        </div>
+                        <div class="col-md-8">
+                            <input placeholder="Select Date" class="form-control InputFormat" name="dtnhearingdate" id="dtnhearingdate1" type="date" value="" />
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom:10px">
+                        <div id="divcustomstatus1" class="col-md-3">
+                            <label id="lblcustomstatus1" class="control-label"> Status</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control InputFormat" name="txtcustomstatus" id="txtcustomstatus1" maxlength="200" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*<%--end custome court section--%>*@
+            <div id="cnrdivdata1" style="display:none;clear:both">
+                @*<div style="text-align:center">
+                       OR
+                </div>*@
+                <div class="form-group form-horizontal">
+                    <center><label class="control-label" id="lbllinkedcase1" style="font-weight:bold;"><b>LINK CASES FOR HIGH COURT TO DISTRICT COURT</b></label></center>
+                </div>
+                <div class="row" style="margin-bottom: 10px !important">
+                    <div class="col-md-3">
+                        <label class="control-label">CNR No.</label>
+                    </div>
+                    <div class="col-md-8" id="divdcourtcnr1">
+                        <input type="text" name="drpdcourtcnr" maxlength="16" id="drpdcourtcnr1" class="form-control inputFormat" />
+                    </div>
+                </div>
+            </div>
+            <div id="RevenueCourtDiv1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Court Name <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="RevenueCourt" id="RevenueCourt1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueMandal1(this.value);"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Mandal <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="RevenueMandal" id="RevenueMandal1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueJanpad1(this.value);"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Janpad <span class="required" aria-required="true">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="RevenueJanpad" id="RevenueJanpad1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueTehsil1(this.value);"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Tahsil <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="RevenueTahsil" id="RevenueTahsil1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueCourtNameByTahsil1(this.value);"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Revenue Court <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="RevenueCourtName" id="RevenueCourtName1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Matter Number <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="Revenuetxtno" id="Revenuetxtno1" maxlength="500" style="margin-bottom:10px !important">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Matter Year <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="RevenueYear" id="RevenueYear1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                </div>
+                <div style="text-align:center"> Or </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Computerized Case No. </label>
+                    </div>
+                    <div class="col-md-8" style="margin-bottom:6px;">
+                        <input type="text" name="RevenueRefNo" maxlength="16" id="RevenueRefNo1" class="form-control inputFormat" />
+                    </div>
+                </div>
+            </div>
+            @*<--->for rera court start</--->*@
+            <div id="ReraCourtDiv1" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Select Court Name <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="divReraCourt" id="divReraCourt1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="fn_reracasetype1(this.value);">
+                        </select>
+                    </div>
+                </div>
+                <div id="divreracasetype1" style="display:none;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="control-label">Case/Appeal Authority <span class="required" aria-required="true">*</span> </label>
+                        </div>
+                        <div class="col-md-8">
+                            <select name="reracasetype" id="reracasetype1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                        </div>
+                    </div>
+                    <div class="row" id="divReraCaseno1">
+                        <div class="col-md-3">
+                            <label class="control-label">Case/Appeal No <span class="required" aria-required="true">*</span> </label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="number" name="reracasno" id="reracasno1" maxlength="50" size="10" class="form-control InputFormat" placeholder="Case/Appeal No" />
+                        </div>
+                    </div>
+                </div>
+                </br>
+                <div class="row" id="divRefNo1" style="display:none;">
+                    <div class="col-md-3">
+                        <label class="control-label">Case/Appeal No <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" name="reraRefNo" id="reraRefNo1" maxlength="50" class="form-control InputFormat" placeholder="Case/Appeal No" />
+                    </div>
+                </div>
+                <div class="row" id="divreracaseyear1" style="display:none;">
+                    <div class="col-md-3">
+                        <label class="control-label">Case Year <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="reracaseyear" id="reracaseyear1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                </div>
+                </br>
+            </div>
+            @*<-->END</-->*@
+            @*<div class="row">
+                <div class="col-md-3">
+                   <label class="control-label ">Other Details</label>
+                 </div>
+                 <div class="col-md-8">
+                <textarea id="casedetails1" class="inputFormatTextArea" value="" style="margin: 0px; width: 357px; height: 40px;" maxlength="10000"></textarea>
+              </div>
+                </div>*@
+        </div>
+    </div>
+    <!-- /.row -->
+</div>
+<div class="ec_bg" style="overflow:unset !important;height:50px;margin-top:20px">
+    <div class="col-md-12">
+        <input id="livecaseidhide1" class="form-control inputFormat" type="hidden" />
+    </div>
+    <label class="formLabel colorDark col-md-3">Matter Name<span class="required" aria-required="true">*</span></label>
+    <div class="col-md-9">
+        <input type="text" id="mattersforlink21" style="width:97%"class="form-control inputFormat" placeholder="Enter Matter Name" />
+    </div>
+</div>
+<div>
+    <div class="ec_bg" style="overflow:unset !important;height:50px;margin-top:20px;" id="teammeberoption">
+        <div class="col-md-3">
+            <label>TEAM Member </label>
+        </div>
+        <div class="col-md-8">
+            <select class="form-control InputFormat" name="languageSelect[]" id="addtaskmember4" multiple></select>
+        </div>
+    </div>
+</div>
+<div class="modal-footer" style="margin-top:60px">
+    <button type="button" class="sbtbtn" id="resetcasewatch1" onclick="resetcasewatch2()">Reset</button>
+    <button type="button" class="sbtbtn" id="savecasemanual">Save</button>
+</div>
+<input type="hidden" id="Matterlinkname">
+<input type="hidden" id="hdnAddMember">
+<input type="hidden" id="checkclient">
+<div id="myOverlayCW" class="overlayCW" style="z-index:10005">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+
+@*Appeal no modal*@
+
+<div id="AppealModalInformation" class="modal fade" role="dialog" data-backdrop="static" style="clear:both;">
+    <div class="modal-dialog" style="width:720px;">
+        <div class="modal-content">
+         
+
+            <div class="modal-body" style="height: 450px; font-family: Arial, sans-serif; margin: 20px;">
+                <div class="note">
+                    <h4>Note:</h4>
+                    <p>Please ensure that the Appeal No. is entered in the exact format as given on the Consumer Forum Site.</p>
+
+                    @*<table class="textFormat">
+                            <thead>
+                                <tr>
+                                    <th class="thClass">Case format to be entered</th>
+                                    <th class="thClass">Format</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="tdClass">Appeals (A or FA)</td>
+                                    <td class="tdClass">A/xx/yy (or) A/xx/yyyy<br>FA/xx/yy (or) FA/xx/yyyy</td>
+                                </tr>
+                                <tr>
+                                    <td class="tdClass">Consumer Cases (CC)</td>
+                                    <td class="tdClass">CC/xx/yy (or) CC/xx/yyyy</td>
+                                </tr>
+                                <tr>
+                                    <td class="tdClass">Execution Application (EA)</td>
+                                    <td class="tdClass">EA/xx/yy (or) EA/xx/yyyy</td>
+                                </tr>
+                                <tr>
+                                    <td class="tdClass">Interlocutory Application (IA)</td>
+                                    <td class="tdClass">IA/xx/yy (or) IA/xx/yyyy</td>
+                                </tr>
+                                <tr>
+                                    <td class="tdClass">Revision Petition (RP)</td>
+                                    <td class="tdClass">RP/xx/yy (or) RP/xx/yyyy</td>
+                                </tr>
+                                <tr>
+                                    <td class="tdClass">Caveat Cases (CV)</td>
+                                    <td class="tdClass">CV/xx/yy (or) CV/xx/yyyy</td>
+                                </tr>
+                                <tr>
+                                    <td class="tdClass">Review Application (RA)</td>
+                                    <td class="tdClass">RA/xx/yy (or) RA/xx/yyyy</td>
+                                </tr>
+                                <tr>
+                                    <td class="tdClass">Miscellaneous Application (MA)</td>
+                                    <td class="tdClass">MA/xx/yy (or) MA/xx/yyyy</td>
+                                </tr>
+                            </tbody>
+                        </table>*@
+
+                    <div class="example">
+                        <h5>The Matter type must be Case-sensitive.</h5>
+                        <h5>Below are a few examples for reference:</h5>
+                        <p>CC/15/2010, cc/20/2017, FA/1125/10, RBR/A/40/2021, CC 172/2018, F.A. 631/2017, FA-221/19, 181/20</p>
+                        <p> <strong>Please note that the case will not be indexed if the case format is not entered correctly.</strong></p>
+                    </div>
+                    <a class="close-btn" onclick="closeModalAppeal()" style="cursor:pointer !important;">CLOSE</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+
+    .matter_Label {
+        display: flex;
+        align-items: center;
+    }
+
+        .matter_Label span {
+            margin-left: 5px;
+        }
+
+    .glyphicon-info-sign {
+        cursor: pointer;
+        color: blue;
+    }
+
+    .note {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+        .note h4 {
+            color: #d9534f;
+        }
+
+    .case-format {
+        margin-top: 20px;
+    }
+
+        .case-format h5 {
+            color: #5bc0de;
+        }
+
+        .case-format p {
+            margin: 5px 0;
+        }
+
+    .close-btn {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #5cb85c;
+        color: white;
+        text-align: center;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .textFormat {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    /*
+        .note .textFormat th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+       .note .textFormat th {
+            background-color: #f2f2f2;
+            color: black;
+        }*/
+
+    .thClass {
+        background-color: #f2f2f2;
+        color: black;
+    }
+
+    .tdClass {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .overlayCW {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .example {
+        margin-top: 20px;
+    }
+
+    .close-btn {
+        display: block;
+        width: 100px;
+        margin: 20px auto;
+        padding: 10px;
+        background-color: #5cb85c;
+        color: white;
+        text-align: center;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+
+    .modal-backdrop-second {
+        z-index: 1055;
+    }
+
+    .overlayCW {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+<script>
+    jQuery('#addtaskmember4').multiselect({
+        columns: 1,
+        //placeholder: 'Select Mattertyt',
+        search: true,
+        selectAll: false
+    });
+    jQuery('#clearmember').click(function () {
+        var $select = $("#addtaskmember4").selectize();
+        var selectize = $select[0].selectize;
+        selectize.clear();
+        selectize.clearOptions();
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        var IsQuickTab = $("#Isquicktab").val();
+        var mattersforlinkk = $('#Matterlinkname').val();
+        if (IsQuickTab != "1") {
+            $("#teammeberoption").hide();
+            $("#mattersforlink21").prop("disabled", true);
+        } else {
+            $("#teammeberoption").show();
+            $("#mattersforlink21").prop("disabled", false);
+        }
+        $('#mattersforlink21').val(mattersforlinkk);
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $("#mattersforlink21").autocomplete({
+            disabled: true
+        });
+    });
+    $('#mattersforlink21').on('keyup', function () {
+        /* your code here */
+        var txtlength = $("#mattersforlink21").val().length;
+        if (txtlength > 0) {
+            //$("#teammeberoption").show();
+        }
+        else {
+            $("#livecaseidhide1,#mattersforlink21").val("");
+        }
+    });
+</script>

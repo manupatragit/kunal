@@ -1,0 +1,512 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+    var userid = Session["sessionuserid"];
+}
+<style>
+    .glyphicon-eye-open, .glyphicon-trash, .fa-download {
+        color: black !important;
+    }
+</style>
+<style>
+    .modal_a {
+        position: fixed;
+        z-index: 9999999999;
+        padding-top: 20px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.8);
+    }
+
+    .modal_a-content {
+        background-color: #fefefe;
+        margin: 20px auto 0;
+        padding: 10px 10px;
+        border: 1px solid #000;
+        border-radius: 5px;
+        width: 90%;
+        height: 550px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+    }
+
+    .close_a {
+        position: relative;
+        right: -20px;
+        top: -22px;
+        float: right;
+    }
+
+        .close_a:hover, .close_a:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+</style>
+<script type="text/javascript" src='https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js'></script>
+<section class="wrapper">
+    <div class="container-main">
+        <div class="">
+            <h2 class="title">bundling <span style="text-transform:uppercase"> PDF</span> </h2>
+            <div>
+                <button type="button" id="btnpdfmerge" class="sbtbtn" style="margin-bottom:10px;">bundle PDF</button>
+            </div>
+            <div class="content-header " style="margin-bottom: 27px;">
+                <div class="table-panel table-responsive">
+                    <div style="">
+                        <table class="table " id="cexample1">
+                            <thead>
+                                <tr>
+                                    <th class="ddate" onclick="sortTable(0,1)" title="Date of bundling PDF"><div class="thbg">Date<span class="fa fa-fw fa-sort pull-right"></span></div></th>
+                                    <th class="Name" onclick="sortTable(1)"><div class="thbg">Bundled PDF name<span class="fa fa-fw fa-sort pull-right"></span></div></th>
+                                    <th class="File" onclick="sortTable(2)" width="10%"><div class="thbg">Action<span class="fa fa-fw fa-sort pull-right"></span></div></th>
+                                    <th class="TotalPage" onclick="sortTable(3)"><div class="thbg">Total Pages<span class="fa fa-fw fa-sort pull-right"></span></div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="doclist"></tbody>
+                        </table>
+                    </div>
+                    <div class="settingpanel">
+                        <div class="col-md-5">
+                            <div class="row">
+                                <ul>
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat" style="background-color: #ebebeb; margin-top:-3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0;"></span>
+                                                Customize Field
+                                            </a>
+                                            <ul class="dropdown-menu settingshowhide" id="EColli">
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ddate" checked><a href="#" class="dropdown-item">Date</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Name" checked><a href="#" class="dropdown-item">Bundled PDF name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="File" checked><a href="#" class="dropdown-item">Action</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="TotalPage" checked><a href="#" class="dropdown-item">Total Pages</a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li style="margin-left:20px;">
+                                        <div id="ecfootercompare"></div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="row" style="margin-top:-10px;">
+                                <div class="col-md-4">
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <label>Pdf Name</label>
+                                            <input class="form-control inputbg" placeholder="Enter File Name" id="name" type="text" maxlength="200">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <span class="sbtbtn" id="clearnewseach" title="Click here to reset search" style="float: right; margin-top: 20px; display: none;">x</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>From Date</label>
+                                    <input class="form-control inputbg" id="datefrom" onkeypress="return false;" type="date">
+                                </div>
+                                <div class="col-md-3">
+                                    <label>To Date</label>
+                                    <input class="form-control inputbg" id="dateto" onkeypress="return false;" type="date">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" id="btnsearch" class="sbtbtn" style="width:100%;margin: 13px 0 0 0;padding: 5px 0;">Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+                        <div class="modal-dialog modal-lg">
+                            <!-- Modal content-->
+                            <div class="modal-content mymodels" id="mymodels">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="comparemodal" class="modal_a" style="display:none">
+                        <div class="modal_a-content">
+                            <img src="/Newassets/images/v_btn.png" class="close_a" id="mclose" width="22px" height="22">
+                            <iframe src="" id="frmcompare" width="100%" height="500px" frameborder="0"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var ecpageindex = 1;
+    var ecpagesize = 10;
+    $(document).ready(function () {
+        $(document).on('click', '#clearnewseach', function () {
+            /* your code here */
+            // ecpageindex = $(this).attr("index");
+            $("#clearnewseach").hide();
+            $("#name,#datefrom,#dateto").val("");
+            PdfMergeList(ecpageindex);
+        });
+        $(document).on('click', '#btnsearch', function () {
+            $("#clearnewseach").show();
+            PdfMergeList(ecpageindex);
+        });
+        PdfMergeList(ecpageindex);
+        $(document).on('click', '#btnpdfmerge', function () {
+            window.location.href = "pdfmerge";
+        });
+        $(document).on('click', '#GOpagnumvalue', function () {
+            ppageindex = $("#maxpagnumvalue").val();
+            if (ppageindex != "undefined") {
+                if (Math.sign(ppageindex) == 1) {
+                    var ppageindesx = $("#totalresult").text();
+                    if (ppageindex <= parseInt(ppageindesx)) {
+                        openload();
+                        loadflag = true;
+                        PdfMergeList(ppageindex);
+                        //closeload();
+                    }
+                    else {
+                        alert("Please enter a valid page number.");
+                        closeload();
+                    }
+                }
+                else {
+                    alert("Please enter a valid page number.");
+                }
+            }
+        });
+        $(document).on('click', '#nxtprebtn', function () {
+            ppageindex = $(this).attr("index");
+            PdfMergeList(ppageindex);
+        });
+        $(document).on('click', '#deletepdf', function () {
+            if (confirm("Are you sure want to delete this file!")) {
+                var uCGuid = $(this).attr("data-val");
+                var formData = new FormData();
+                formData.append("uCGuid", EncodeText(uCGuid));
+                $.ajax({
+                    async: true,
+                    type: "POST",
+                    url: "/PDFMerge/RemoveBundleDoc",
+                    dataType: 'text',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response1) {
+                        if (response1 == "Success") {
+                            alert("Successfully deleted");
+                            PdfMergeList(ecpageindex);
+                            return false;
+                        }
+                        else if (response1 == "error") {
+                            alert("Oops! Something went wrong..");
+                        }
+                    }
+                });
+            }
+        });
+        $(document).on('click', '#view', function () {
+            var token = $(this).attr("datap");
+            var url = token;
+            url = url.replace(/\\\\/g, "/").replace(/\\/g, "/");
+            $("#frmcompare").attr("src", url);
+            $("#comparemodal").show();
+        });
+        $(document).on('click', '#download', function () {
+            var token = $(this).attr("datap");
+            var url = token;
+            url = url.replace(/\\\\/g, "/").replace(/\\/g, "/");
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = url.split("/").pop();
+            a.click();
+        });
+        $(document).on('click', '#mclose', function () {
+            $("#comparemodal").hide();
+        });
+    });
+    function PdfMergeList(ecpageindex) {
+        $("#ecfooterexp").empty();
+        var html3 = ''; var tfot = ''; var tfot1 = '';
+        var formdata = new FormData();
+        var name = $('#name').val();
+        var datefrom = $('#datefrom').val();
+        var dateto = $('#dateto').val();
+        formdata.append("name", EncodeText(name));
+        formdata.append("frmdt", EncodeText(datefrom));
+        formdata.append("todt", EncodeText(dateto));
+        formdata.append("pageno", EncodeText(ecpageindex));
+        formdata.append("pagesize", EncodeText(ecpagesize));
+        openload();
+        var strrecord1 = 0;
+        var sct1 = $.ajax({
+            async: true,
+            type: "POST",
+            url: "/PDFMerge/PdfBundlingList",
+            dataType: 'json',
+            data: formdata,
+            contentType: false,
+            processData: false,
+            success: function (response1) {
+                if (response1 != "") {
+                    $("#ecfootercompare").empty();
+                    var length = response1.Result.length;
+                    $.each(response1.Result, function (i, a) {
+                        strrecord1 = 1;
+                        if (i === 0) {
+                            firstvalue = a.rownum;
+                        }
+                        if (i === (length - 1)) {
+                            var pnext = ecpageindex;
+                            var pprev = ecpageindex;
+                            var pageno = ecpageindex;
+                            var totdata = a.totRow;
+                            var totpage = 0;
+                            if (a.totRow > 0) {
+                                pnext = parseInt(pnext) + 1;
+                                if (pnext == 0) pnext = 1;
+                                pprev = parseInt(pageno) - 1;
+                                if (pprev == 0) pprev = 1;
+                                totpage = parseInt(totdata) / parseInt(ecpagesize);
+                                if (parseInt(totdata) % parseInt(ecpagesize) != 0) {
+                                    totpage = parseInt(totpage) + 1;
+                                }
+                                $("#maxpagnumvalue").attr("max", totpage);
+                            }
+                            tfot += '<li>results <span>' + totdata + '</span>  <span id="totalresult" style="display:none">' + totpage + '</span></li>'
+                            tfot += '<li><span>|</span></li>'
+                            tfot += '<li>pages ' + ecpageindex + '/ ' + parseInt(totpage) + '</li>'
+                            tfot += '<li><span>|</span></li>'
+                            tfot += '<li ><input type="number" id="maxpagnumvalue" min="1"  class="footerInput"><a class="gobtn" type="button" id="GOpagnumvalue" style="margin-left:10px;cursor:pointer">Go</button> </li>'
+                            tfot += '<li>'
+                            if (a.totRow <= length) { }
+                            else if (pageno == 1) { }
+                            else if (pageno == totpage) {
+                                //tfot += '<span> <a id="ecpaginate" title="Previous Page" href="javascript:void()" index="' + pprev + '"><span class="glyphicon glyphicon-arrow-left" style="padding:0 !important"></span></a></span>'
+                                tfot += '<li><span><a id="nxtprebtn"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png" ></a></span>  ' + firstvalue + '-' + a.rownum + '  <span>'
+                            }
+                            else {
+                                //tfot += '<span> <a id="ecpaginate" title="Previous Page" href="javascript:void()" index="' + pprev + '"><span class="glyphicon glyphicon-arrow-left" style="padding:0 !important"></span></a></span>'
+                                tfot += '<li><span><a id="nxtprebtn"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png" > </a></span>  ' + firstvalue + '-' + a.rownum + '  <span>'
+                            }
+                            if (pageno < totpage) {
+                                tfot += '<a id="nxtprebtn" title="Next Page" href="javascript:void()" index="' + pnext + '"><img src="/newassets/images/arrow_right.png" style="padding:3px 0 0 0;"></a></span>'
+                            }
+                            // tfot += '</li>'
+                            $("#ecfootercompare").append(tfot);
+                        }
+                        var Date = a.ddate;
+                        var vName = a.vName;
+                        var TotalPage = a.TotalPage;
+                        var vFileName = a.vFileName;
+                        var vPath = a.vPath;
+                        var PageType = a.PageType;
+                        html3 += '<tr>'
+                        html3 += '<td class="ddate">'
+                        html3 += '' + Date + ' '
+                        html3 += '</td>'
+                        html3 += '<td class="Name">'
+                        html3 += '<span id="Name" >' + vName + '</span>'
+                        html3 += '</td>'
+                        html3 += '<td class="File" >'
+                        html3 += '<span id="File" title="View document"><a href="#" id="view"  datap="' + vPath + '" data-val="' + a.iid + '"><i class="glyphicon glyphicon-eye-open"></i></a></span>'
+                        html3 += ' &nbsp;|&nbsp; <span id="File" title="Download document"><a href="javaxscirpt:void();"  datap="' + vPath + '" id="download"><i class="fa fa-download"></i></a></span>'
+                        html3 += ' &nbsp;|&nbsp; <span id="File" title="Delete document"><a href="javaxscirpt:void();"   data-val="' + a.iid + '" id="deletepdf" style="color:red;"><i class="glyphicon glyphicon-trash"></i></a></span>'
+                        html3 += '</td>'
+                        html3 += '<td class="TotalPage">'
+                        html3 += '<span name="TotalPage" id="TotalPage" >' + TotalPage + '</span></i>'
+                        html3 += '</td>'
+                        html3 += '</tr>'
+                    });
+                    if (strrecord1 > 0) {
+                        $("#doclist").html(html3);
+                    }
+                    else {
+                        $("#doclist").html("<tr><td align=center colspan=4>No record found</td></tr>");
+                    }
+                    $("input:checkbox:not(:checked)").each(function () {
+                        var column = "table ." + $(this).attr("name");
+                        $(column).hide();
+                    });
+                    closeload();
+                }
+                else {
+                    html3 = '<tr><td colspan=11>No result found !</td></tr>'
+                    $("#doclist").html(html3);
+                    closeload();
+                }
+                //var obj = JSON.parse(response1.Data);
+            },
+            failure: function (data) {
+                closeload();
+            },
+            error: function (data) {
+                closeload();
+            }
+        });
+        $(document).on('change', '.chkdhide', function () {
+            // your code
+            var column = "." + $(this).attr("name");
+            $(column).toggle();
+        });
+        function ModalClose() {
+            document.getElementById("showMe").style.display = "none";
+        }
+        $.when(sct1).then(function (data, textStatus, jqXHR) {
+            $("#EColli li input:checkbox:not(:checked)").each(function () {
+                var column = "#cexample1 ." + $(this).attr("name");
+                $(column).hide();
+            });
+            closeload();
+        });
+    }
+    function sortTable(n, type = null) {
+        try {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("cexample1");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (type == "1") {
+                        if (dir == "asc") {
+                            if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        } else if (dir == "desc") {
+                            if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    }
+                    else if (type == "2") {
+                        if (dir == "asc") {
+                            if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        } else if (dir == "desc") {
+                            if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        if (dir == "asc") {
+                            if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        } else if (dir == "desc") {
+                            if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+        catch (er) {
+            //alert(er.message);
+        }
+    }
+</script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

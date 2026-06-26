@@ -1,0 +1,212 @@
+﻿
+@{
+
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+
+}
+<script src="~/Scripts/CW/LitigationArchiveCaseList.js?1.4" type="text/javascript" language="javascript"></script>
+
+
+<style>
+    ul li {
+        display: inline;
+    }
+</style>
+<section id="header">
+    <div class="container-main">
+        <a class="goback" href="/@Session["firmcode"]/CW/LitigationCaseList" title="Case List"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+        <div class="text-left">
+            <p class="ctitle">Archived List of Matter</p>
+        </div>
+
+
+    </div>
+</section>
+<section id="header" style="margin:20px 0;">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-2">
+                <select name="divSCHCDistrict" id="divSCHCDistrict" class="form-control selctInputFormat"></select>
+            </div>
+            <div class="col-md-2" id="HighCourt" style="display:none;">
+                <select name="drpcourtname" id="drpcourtname" class="form-control selctInputFormat"></select>
+
+            </div>
+            <div class="col-md-2" id="DistrictCourt" style="display:none;">
+                <select name="drpcourtnameDC" id="drpcourtnameDC" class="form-control selctInputFormat" onchange="divdrpcourtnameDC();"></select>
+
+            </div>
+            <div class="col-md-2" id="divDistrict">
+                <select name="drpdistrictcourtname" id="drpdistrictcourtname" class="form-control selctInputFormat" style="display:none;" onchange="divdistrictchange();"></select>
+
+            </div>
+            <div class="col-md-2" id="divcourtcomplexestb">
+                <select name="drpcourtcomplexestb" id="drpcourtcomplexestb" class="form-control selctInputFormat" style="display:none;" onchange="drpcourtcompestbchange();"></select>
+
+            </div>
+            <div class="col-md-2" id="divcompestbcourt">
+                <select name="drpcompestbcourt" id="drpcompestbcourt" class="form-control selctInputFormat" style="display:none;"></select>
+
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1" style="justify-content: flex-end;">
+
+                    <div class="table-header">
+                        <div class="actions3">
+                            <button type="button" value="archivecase" class="btn btn-primary" id="archivecase">Unarchive Case</button>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+                <div class="tablecontainer">
+                    <div id="allcasediv">
+                        <table id="allcaselisttable" class="table-panel" role="grid" aria-describedby="example_info">
+                            <thead>
+                                <tr role="row">
+
+                                    <th width="5%" class="sorting_disabled">
+                                        <div class="thbg">
+                                            <input type="checkbox" id="select_all"> UnArchive
+                                        </div>
+                                    </th>
+
+                                    <th class="Case10 sorting " width="12%" tabindex="0" aria-controls="example"><div class="thbg"> Case / Diary</div></th>
+                                    <th class="Court10 sorting" width="10%"  tabindex="0" aria-controls="example"><div class="thbg"> Court / District</div></th>
+                                    <th class="CaseName10 sorting" width="10%" tabindex="0" aria-controls="example"> <div class="thbg">Case Name</div></th>
+                                    <th class="AdvName10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg"> Advocate</div></th>
+                                    <th class="NextHearing10 sorting" width="10%" tabindex="0" aria-controls="example"> <div class="thbg">Next Hearing</div></th>
+                                    @*<th class="NextHearing10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"> Manual NextHearing</th>*@
+                                    <th class="Disposed10 sorting" width="10%" tabindex="0" aria-controls="example"> <div class="thbg">Disposed Date</div></th>
+                                    <th class="Status10 sorting" width="8%" tabindex="0" aria-controls="example"><div class="thbg"> Status</div></th>
+                                    @*<th class="Notes10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"> Notes</th>*@
+                                </tr>
+                            </thead>
+                            <tbody id="alldatabind"></tbody>
+
+
+
+                        </table>
+                    </div>
+
+                    <div style="display:none" id="casediv">
+                        <table id="tblDistrictCourt" class="table-panel" role="grid" aria-describedby="tblDistrictCourt_info">
+                            <thead>
+                                <tr role="row">
+                                    <th width="5%" class="sorting_disabled" aria-label="
+                     Re-run / Archive / Delete / TagCase">
+                                        <div class="">
+                                            <input type="checkbox" id="select_all"> UnArchive
+                                        </div>
+                                    </th>
+                                    <th class="CaseDC10 sorting" width="12%"  tabindex="0" aria-controls="tblDistrictCourt" aria-label=" Case: activate to sort column ascending"> <div class="thbg">Case</div></th>
+                                    <th class="State10 sorting" width="10%" tabindex="0" aria-controls="tblDistrictCourt" aria-label=" State: activate to sort column ascending"><div class="thbg"> State</div></th>
+                                    <th class="District10 sorting" width="10%" tabindex="0" aria-controls="tblDistrictCourt" aria-label=" District: activate to sort column ascending"> <div class="thbg">District</div></th>
+                                    <th class="Courttype10 sorting" width="10%" tabindex="0" aria-controls="tblDistrictCourt" aria-label=" Court Complex / Court Establishment Type: activate to sort column ascending"> <div class="thbg">Court Complex / Court Establishment Type</div></th>
+                                    <th class="Courttypecode10 sorting" width="10%" tabindex="0" aria-controls="tblDistrictCourt" aria-label=" Court Complex / Court Establishment: activate to sort column ascending"><div class="thbg"> Court Complex / Court Establishment</div></th>
+                                    <th class="CaseName10 sorting" width="10%" tabindex="0" aria-controls="tblDistrictCourt" aria-label=" Case Name: activate to sort column ascending"><div class="thbg"> Case Name</div></th>
+                                    <th class="AdvName10 sorting" width="10%" tabindex="0" aria-controls="tblDistrictCourt" aria-label=" Advocate: activate to sort column ascending"><div class="thbg"> Advocate</div></th>
+                                    <th class="NextHearing10 sorting" width="10%" tabindex="0" aria-controls="tblDistrictCourt" aria-label=" Next Hearing: activate to sort column ascending"><div class="thbg"> Next Hearing</div></th>
+                                    @*<th class="NextHearing10 sorting" width="10%" style="font-size: 12px; width: 96px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Manual NextHearing: activate to sort column ascending"> Manual NextHearing</th>*@
+                                    <th class="Disposed10 sorting" width="10%" tabindex="0" aria-controls="tblDistrictCourt" aria-label=" Disposed Date: activate to sort column ascending"><div class="thbg"> Disposed Date</div></th>
+                                    <th class="Status10 sorting" width="8%" tabindex="0" aria-controls="tblDistrictCourt" aria-label=" Status: activate to sort column ascending"><div class="thbg"> Status</div></th>
+                                    @*<th class="Notes10 sorting" width="10%" style="font-size: 12px; width: 34px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Notes: activate to sort column ascending"> Notes</th>*@
+                                </tr>
+                            </thead>
+                            <tbody id="districtdatabind"></tbody>
+                        </table>
+                    </div>
+                    <div id="dataNotFound" style="display:none">
+
+                    </div>
+                </div>
+            </div>
+            <div class="pagination" id="pagenatedArea">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="page-btn">Result <span id="idltArchivecount" style="font-weight: bold;"></span></div>
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="UnArchiveLitigationcaselist" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="createdocclose">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/cancel-icon.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -7px 0 0 0;">
+                <h4>
+                    Unarchive Case
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862;">Are you sure to unarchive  case?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-toggle="modal" id="unarchsingle_finaltime">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

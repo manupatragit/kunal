@@ -1,0 +1,461 @@
+﻿<!DOCTYPE html>
+@{
+    Layout = null;
+}
+@using NJDGDetail.Models;
+@{
+    var firmcode = Request.Url.Segments[1];
+}
+@{
+    var role = Session["sessionroleid"];
+}
+<script>
+    //var filesize = @ViewBag.filesize;
+    var id = "uyiu";
+    var roleids = "@role";
+</script>
+<script type='text/javascript'>
+    $(document).ready(function () {
+        try {
+            var today = new Date().toISOString().split('T')[0];
+            $("#casedate").val(today);
+        }
+        catch (er) {
+        }
+        if (String(id) != "") {
+            localStorage.setItem("contacttoken", id);
+        }
+        if (String(id) == "") {
+            var urls = window.location.href;
+            url_redirect({
+                url: urls,
+                method: "post",
+                data: { "token": localStorage.getItem("contacttoken") }
+            });
+        }
+        function goodbye(e) {
+            localStorage.setItem("contacttoken", id);
+            if (!e) e = window.event;
+            //e.cancelBubble is supported by IE - this will kill the bubbling process.
+            e.cancelBubble = true;
+            //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+            //e.stopPropagation works in Firefox.
+            if (e.stopPropagation) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }
+        window.onbeforeunload = goodbye;
+    });
+</script>
+<i class="pp-icon-user"></i>
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script src="~/Scripts/Firm/Pages/CauseList.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+
+    .form-control1 {
+        width: 49%;
+        border: 1px solid #ccc;
+        /* border-radius: 4px; */
+        height: 30px;
+        color: #000;
+        padding: 0 3px;
+    }
+
+    .txtbox-setting {
+        width: 80px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        font-size: 14px;
+    }
+
+    .txtbox-setting1 {
+        width: 200px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        font-size: 14px;
+    }
+
+    .txtbox-setting2 {
+        width: 284px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        margin: 8px 0 9px 0;
+        font-size: 14px;
+    }
+
+    .txtbox-setting3 {
+        width: 284px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        margin: 0 0 9px 0;
+    }
+</style>
+<section class="content">
+    <div id="page-wrapper">
+        <div class="container-fluid showcontent" id="showcontent">
+            <!-- /.panel-heading -->
+            @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>*@
+            <script>
+            var type = '@ViewBag.type'
+            //console.log(type);
+            </script>
+            <script>
+                var tablename = "questionLIst";
+            </script>
+            <script type="text/javascript">
+                var tableToExcel = (function () {
+                    var uri = 'data:application/vnd.ms-excel;base64,'
+                        , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                        , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                        , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+                    return function (table, name) {
+                        if (!table.nodeType) table = document.getElementById(table)
+                        var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+                        window.location.href = uri + base64(format(template, ctx))
+                    }
+                })()
+            </script>
+            <script src="~/CssJsfiles/js/1.8.3/jquery.min.js"></script>
+            <script src="~/CssJsfiles/js/pdfmake.min.js"></script>
+            <script src="~/CssJsfiles/js/html2canvas.min.js"></script>
+            <script type="text/javascript">
+                $("body").on("click", "#btnExport", function () {
+                    html2canvas($('#questionLIst')[0], {
+                        onrendered: function (canvas) {
+                            var data = canvas.toDataURL();
+                            var docDefinition = {
+                                content: [{
+                                    image: data,
+                                    width: 500
+                                }]
+                            };
+                            pdfMake.createPdf(docDefinition).download("Causelist.pdf");
+                        }
+                    });
+                });
+            </script>
+            <script>
+                function searchTable() {
+                    var input, filter, found, table, tr, td, i, j;
+                    input = document.getElementById("searchdata2");
+                    filter = input.value.toUpperCase();
+                    table = document.getElementById("example");
+                    tr = table.getElementsByTagName("tr");
+                    for (i = 0; i < tr.length; i++) {
+                        td = tr[i].getElementsByTagName("td");
+                        for (j = 0; j < td.length; j++) {
+                            if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                found = true;
+                            }
+                        }
+                        if (found) {
+                            tr[i].style.display = "";
+                            found = false;
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+                function fsearchTable() {
+                    var input, filter, found, table, tr, td, i, j;
+                    input = document.getElementById("fstatus");
+                    filter = input.value.toUpperCase();
+                    table = document.getElementById("example");
+                    tr = table.getElementsByTagName("tr");
+                    for (i = 0; i < tr.length; i++) {
+                        td = tr[i].getElementsByClassName("cstatus");
+                        for (j = 0; j < td.length; j++) {
+                            if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                found = true;
+                            }
+                        }
+                        if (found) {
+                            tr[i].style.display = "";
+                            found = false;
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+                function asearchTable() {
+                    var input, filter, found, table, tr, td, i, j;
+                    input = document.getElementById("fassign");
+                    filter = input.value.toUpperCase();
+                    table = document.getElementById("example");
+                    tr = table.getElementsByTagName("tr");
+                    for (i = 0; i < tr.length; i++) {
+                        td = tr[i].getElementsByClassName("auserto");
+                        for (j = 0; j < td.length; j++) {
+                            if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                found = true;
+                            }
+                        }
+                        if (found) {
+                            tr[i].style.display = "";
+                            found = false;
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+            </script>
+            <div id="exTab1">
+                <ul class="nav nav-pills ">
+                    <li class="active">
+                        <a href="#a111" data-toggle="tab">DateWise Causelist</a>
+                    </li>
+                    <li>
+                        <a href="#a211" data-toggle="tab">Causelist</a>
+                    </li>
+                </ul>
+                <div class="tab-content clearfix">
+                    <div class="tab-pane active" id="a111">
+                        <div class="box">
+                            <div class="box-header" style="margin-top:5px;">
+                                <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp">
+                                    <li>
+                                        <input type="radio" value="1" id="ocasedata1" name="ocasedata1" checked>Supreme Court/High Court &nbsp;
+                                    </li>
+                                    <li>
+                                        <input type="radio" value="3" id="ocasedata1" name="ocasedata1">District Court &nbsp;
+                                    </li>
+                                    <li>&nbsp;&nbsp;&nbsp;</li>
+                                    <li style="margin-top:4px;">
+                                        <span> Date:</span>
+                                    </li>
+                                    <li>
+                                        <input type="date" class="form-control" id="casedate" name="casedate">
+                                    </li>
+                                    <li>
+                                        <button type="button" class="btn btn-success" id="getcauselist" name="getcauselist" value="Search">Search</button>
+                                    </li>
+                                    <li>
+                                        <input type="button" class="btn btn-primary" onclick="tableToExcelnew(tablename, 'Causelist')" value=" Excel">
+                                    </li>
+                                    <li>
+                                        <input type="textbox" style="border:1px solid #cccccc; height:34px; display:none" id="searchdata" />&nbsp;&nbsp;&nbsp;
+                                    </li>
+                                    <li>
+                                        <input type="textbox" style="border:1px solid #cccccc; display:none; height:34px;" id="searchdata2" onkeyup='searchTable()' />&nbsp;&nbsp;&nbsp;
+                                    </li>
+                                </ul>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="" style="overflow-x:auto; ">
+                                    <table id="questionLIst" border="1px solid" class="dataTable table table-bordered table-striped" cellspacing="0" border="1" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th bgcolor="DIMGRAY" class="sno" width="7%">Sl. No.</th>
+                                                <th bgcolor="DIMGRAY" class="case" width="12%">Court</th>
+                                                <th bgcolor="DIMGRAY" class="court">Case Type</th>
+                                                <th bgcolor="DIMGRAY" class="cname">Case No.</th>
+                                                <th bgcolor="DIMGRAY" class="bname">Case year</th>
+                                                <th bgcolor="DIMGRAY" class="adv" style="width:250px;">Court No</th>
+                                                <th bgcolor="DIMGRAY" class="nh">Judge Name</th>
+                                                <th bgcolor="DIMGRAY" class="dd">Session Time</th>
+                                                <th bgcolor="DIMGRAY" class="status1">CauseList Date</th>
+                                                <th bgcolor="DIMGRAY" class="Files">CauseList Detail</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="text-align:center;" id="binddatacw">
+                                    </table>
+                                    <table id="questionLIstd" border="1px solid" class="dataTable table table-bordered table-striped" cellspacing="0" border="1" width="100%" style="display:none">
+                                        <thead>
+                                            <tr>
+                                                <th bgcolor="DIMGRAY" class="sno" width="7%">Sl. No.</th>
+                                                <th bgcolor="DIMGRAY" class="case" width="12%">Case</th>
+                                                <th bgcolor="DIMGRAY" class="cname">District</th>
+                                                <th bgcolor="DIMGRAY" class="bname">JudgName</th>
+                                                <th bgcolor="DIMGRAY" class="adv" style="width:250px;">SessionTime</th>
+                                                <th bgcolor="DIMGRAY" class="nh">CourtComplex/CourtEstablishmentType</th>
+                                                <th bgcolor="DIMGRAY" class="dd">CourtComplex/CourtEstablishment</th>
+                                                <th bgcolor="DIMGRAY" class="status1">Causelist Date</th>
+                                                <th bgcolor="DIMGRAY" class="Files">Causelist Detail</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="text-align:center;" id="binddatacwd">
+                                    </table>
+                                    <div>
+                                        <center><span id="datastatus34"></span></center>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane " id="a211">
+                        <div class="box">
+                            <div class="box-header" style="margin-top:5px;">
+                                <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp">
+                                    <li>
+                                        <input type="radio" value="1" id="ocasedate" name="ocasedate" checked>Supreme Court/High Court &nbsp;
+                                    </li>
+                                    <li>
+                                        <input type="radio" value="3" id="ocasedate" name="ocasedate">District Court &nbsp;
+                                    </li>
+                                    <li>
+                                        <button type="button" class="btn btn-success" id="getcauselist2" name="getcauselist2" value="Search">Search</button>
+                                    </li>
+                                    <li>
+                                        <input type="button" class="btn btn-primary" onclick="tableToExcelnew(tablename, 'CauseList')" value=" Excel">
+                                    </li>
+                                    @*<li>
+                                            <input type="button" class="btn btn-primary" id="btnExport" value=" PDF" />
+                                        </li>*@
+                                    <li>
+                                        <input type="textbox" style="border:1px solid #cccccc; height:34px; display:none" id="searchdata" />&nbsp;&nbsp;&nbsp;
+                                    </li>
+                                    <li>
+                                        <input type="textbox" style="border:1px solid #cccccc; display:none; height:34px;" id="searchdata2" onkeyup='searchTable()' />&nbsp;&nbsp;&nbsp;
+                                    </li>
+                                </ul>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="updatePanel2" style="overflow-x:auto; ">
+                                    <table id="questionLIst2" border="1px solid" class="dataTable table table-bordered table-striped" cellspacing="0" border="1" width="100%" style="display:none">
+                                        <thead>
+                                            <tr>
+                                                <th bgcolor="DIMGRAY" class="sno" width="7%">Sl. No.</th>
+                                                <th bgcolor="DIMGRAY" class="case" width="12%">Court</th>
+                                                <th bgcolor="DIMGRAY" class="court">Case Type</th>
+                                                <th bgcolor="DIMGRAY" class="cname">Case No.</th>
+                                                <th bgcolor="DIMGRAY" class="bname">Case year</th>
+                                                <th bgcolor="DIMGRAY" class="adv" style="width:250px;">Court No</th>
+                                                <th bgcolor="DIMGRAY" class="nh">Judge Name</th>
+                                                <th bgcolor="DIMGRAY" class="dd">Session Time</th>
+                                                <th bgcolor="DIMGRAY" class="status1">CauseList Date</th>
+                                                <th bgcolor="DIMGRAY" class="Files">CauseList Detail</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="text-align:center;" id="binddatacw2">
+                                    </table>
+                                    <table id="questionLIst3" border="1px solid" class="dataTable table table-bordered table-striped" cellspacing="0" border="1" width="100%" style="display:none">
+                                        <thead>
+                                            <tr>
+                                                <th bgcolor="DIMGRAY" class="sno" width="7%">Sl. No.</th>
+                                                <th bgcolor="DIMGRAY" class="case" width="12%">Case</th>
+                                                <th bgcolor="DIMGRAY" class="court">State</th>
+                                                <th bgcolor="DIMGRAY" class="cname">District</th>
+                                                <th bgcolor="DIMGRAY" class="bname">JudgName</th>
+                                                <th bgcolor="DIMGRAY" class="adv" style="width:250px;">SessionTime</th>
+                                                <th bgcolor="DIMGRAY" class="nh">CourtComplex/CourtEstablishmentType</th>
+                                                <th bgcolor="DIMGRAY" class="dd">CourtComplex/CourtEstablishment</th>
+                                                <th bgcolor="DIMGRAY" class="status1">Causelist Date</th>
+                                                <th bgcolor="DIMGRAY" class="Files">Causelist Detail</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="text-align:center;" id="binddatacw3">
+                                    </table>
+                                    <div>
+                                        <center><span id="datastatus2"></span></center>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*<link href="~/Manupanel/sort/css/sorTable.css" rel="stylesheet" />
+                <script src="~/Manupanel/sort/js/sorTable.js"></script>*@
+            <script src="~/PanelDesign/vendor/bootstrap/js/bootstrap.min.js"></script>
+            @*<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>*@
+            <script>
+                /*					PAGINATION
+                - on change max rows select options fade out all rows gt option value mx = 5
+                - append pagination list as per numbers of rows / max rows option (20row/5= 4pages )
+                - each pagination li on click -> fade out all tr gt max rows * li num and (5*pagenum 2 = 10 rows)
+                - fade out all tr lt max rows * li num - max rows ((5*pagenum 2 = 10) - 5)
+                - fade in all tr between (maxRows*PageNum) and (maxRows*pageNum)- MaxRows
+                */
+                getPagination('#questionLIst');
+                function getPagination(table) {
+                    $('#maxRows').on('change', function () {
+                        // alert(table);
+                        $('.pagination').html('');                      // reset pagination
+                        var trnum = 0;                                   // reset tr counter
+                        var maxRows = parseInt($(this).val());
+                        // alert(maxRows);
+                        // alert(maxRows);// get Max Rows from select option
+                        var totalRows = $(table + ' tbody tr ').length;
+                        // alert(totalRows);// numbers of rows
+                        $('#example tbody tr').each(function () {           // each TR in  table and not the header
+                            trnum++;
+                            //alert(trnum);// Start Counter
+                            if (trnum > maxRows) {						// if tr number gt maxRows
+                                $(this).hide();                         // fade it out
+                            } if (trnum <= maxRows) { $(this).show(); }// else fade in Important in case if it ..
+                        });                                          //  was fade out to fade it in
+                        if (totalRows > maxRows) {                       // if tr total rows gt max rows option
+                            var pagenum = Math.ceil(totalRows / maxRows);
+                            // alert(pagenum);// ceil total(rows/maxrows) to get ..
+                            //	numbers of pages
+                            for (var i = 1; i <= pagenum;) {			// for each page append pagination li
+                                $('.pagination').append('<li data-page="' + i + '">\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <span>'+ i++ + '<span class="sr-only">(current)</span></span>\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </li>').show();
+                            }                                           // end for i
+                        } 												// end if row count > max rows
+                        $('.pagination li:first-child').addClass('active'); // add active class to the first li
+                        $('.pagination li').on('click', function () {       // on click each page
+                            var pageNum = $(this).attr('data-page');
+                            // alert(pageNum);// get it's number
+                            var trIndex = 0;							// reset tr counter
+                            $('.pagination li').removeClass('active');	// remove active class from all li
+                            $(this).addClass('active');					// add active class to the clicked
+                            $('#example tbody tr').each(function () {       // each tr in table not the header
+                                trIndex++;
+                                // alert(trIndex);
+                                // tr index counter
+                                // if tr index gt maxRows*pageNum or lt maxRows*pageNum-maxRows fade if out
+                                if (trIndex > (maxRows * pageNum) || trIndex <= ((maxRows * pageNum) - maxRows)) {
+                                    $(this).hide();
+                                } else { $(this).show(); }               //else fade in
+                            });                                      // end of for each tr in table
+                        });										// end of on click pagination list
+                    });
+                    // end of on select change
+                    // END OF PAGINATION
+                }
+            </script>
+            <script>
+                function loadcasedata(ids) {
+                    var url = "/firm/VCaseDetails/" + ids;
+                    $('.mymodels').load(url, function (result) {
+                        $('#myModal').modal({ show: true });
+                    });
+                }
+                $("input:checkbox:not(:checked)").each(function () {
+                    var column = "table ." + $(this).attr("name");
+                    $(column).hide();
+                });
+                $("input:checkbox").click(function () {
+                    var column = "table ." + $(this).attr("name");
+                    $(column).toggle();
+                });
+            </script>
+        </div>
+    </div>
+</section>

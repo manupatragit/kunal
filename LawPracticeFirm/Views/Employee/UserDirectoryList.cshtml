@@ -1,0 +1,786 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+}
+@using System.Web.Configuration
+@using LawPracticeFirm.Helpers
+<i class="pp-icon-user"></i>
+<script>
+    var filesize =@ViewBag.filesize;
+        var directoryid = "@ViewBag.directoryid";
+        var totpagesize=@ViewBag.pagesize;
+</script>
+<script type='text/javascript'>
+    if (String(directoryid) != "") {
+        localStorage.setItem("contacttoken", directoryid);
+    }
+    if (String(directoryid) == "") {
+        var urls = window.location.href;
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": localStorage.getItem("contacttoken"), "tflg": "0" }
+        });
+    }
+    function goodbye(e) {
+        alert("rtr");
+        localStorage.setItem("contacttoken", directoryid);
+        if (!e) e = window.event;
+        //e.cancelBubble is supported by IE - this will kill the bubbling process.
+        e.cancelBubble = true;
+        //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+        //e.stopPropagation works in Firefox.
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+    window.onbeforeunload = goodbye;
+</script>
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<style>
+    .dropbtn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .dropbtn:hover, .dropbtn:focus {
+            background-color: #3e8e41;
+        }
+
+    #searchdata {
+        border-box: box-sizing;
+        background-image: url('searchicon.png');
+        background-position: 14px 12px;
+        background-repeat: no-repeat;
+        font-size: 16px;
+        padding: 14px 20px 12px 45px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #myInput:focus {
+        outline: 3px solid #ddd;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        overflow: auto;
+        border: 1px solid #ddd;
+        z-index: 1;
+    }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+    .dropdown a:hover {
+        background-color: #ddd;
+    }
+
+    .show {
+        display: block;
+    }
+</style>
+<style>
+    #frameWrap {
+        position: relative;
+        height: 490px;
+        width: 100%;
+        border: 1px solid #777777;
+        background: #f0f0f0;
+        box-shadow: 0px 0px 10px #777777;
+    }
+
+    #docframe {
+        height: 490px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    #loader12 {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: url('//upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Phi_fenomeni.gif/50px-Phi_fenomeni.gif') 50% 50% no-repeat rgb(249,249,249);
+    }
+</style>
+<style>
+    #frameWrap1 {
+        position: relative;
+        height: 490px;
+        width: 100%;
+        border: 1px solid #777777;
+        background: #f0f0f0;
+        box-shadow: 0px 0px 10px #777777;
+    }
+
+    #otherdocframe {
+        height: 490px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    #loader121 {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: url('//upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Phi_fenomeni.gif/50px-Phi_fenomeni.gif') 50% 50% no-repeat rgb(249,249,249);
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $(".modal").on("hidden.bs.modal", function () {
+            $("#list").text("");
+            $(this).find('form').trigger('reset');
+        });
+        $(document).on("click", "#resercreatefiles", function () {
+            $("#list").text("");
+            $(".modal").find('form').trigger('reset');
+        });
+        //Do stuff here
+    });
+    function goForward() {
+        window.history.forward();
+    }
+    function goBack() {
+        window.history.back();
+    }
+</script>
+<script>
+    /* When the user clicks on the button,
+    toggle between hiding and showing the dropdown content */
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/employee/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Folders/Files List</li>
+        </ol>
+        <h1><span class="glyphicon glyphicon-folder-open"></span>  &nbsp;&nbsp;Folders/Files List</h1>
+        <ol class="breadcrumb">
+            <li class="active" style="cusror:pointer;float"><a id="transferpage" href="javascript:void()" data-val="0"><span class="glyphicon glyphicon-folder-open"></span> </a> </li>
+            @if (ViewBag.DIRECTORYLINK != null)
+            {
+                foreach (var item in ViewBag.DIRECTORYLINK)
+                {
+                    <li class="active" style="cusror:pointer;float"><a id="transferpage" href="javascript:void()" data-val="@item.ID">@item.Name</a> </li>
+                }
+            }
+        </ol>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header" style="padding:5px;">
+                        <ul class="btn_panel no-margin pull-right" id="sectiontemp">
+                            <li>
+                                <button class="btn btn-success " onclick="goBack()" title="Previous"><span class="glyphicon glyphicon-arrow-left"></span>&nbsp;</button>
+                                <button class="btn btn-success" onclick="goForward()" title="Next"><span class="glyphicon glyphicon-arrow-right"></span>&nbsp;</button>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-info " id="move" title="Move Files"> <span class="glyphicon glyphicon-share"> </span> Move</button>
+                            </li>
+                            <li>
+                                <btn class="btn btn-primary   " style="margin-top:0px;" data-toggle="modal" id="myModal12" title="Create Folder"><span class="glyphicon glyphicon-plus"></span> Create </btn>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-info  " data-toggle="modal" data-target="#myModal1" id="delete"> <span class="glyphicon glyphicon-cloud"> </span>  Upload File</button>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-info  " data-toggle="modal" data-target="#myModal3" id="" title="Create Online Document"> <span class="glyphicon glyphicon-plus"> </span>  Create Document</button>
+                            </li>
+                            <li>
+                                <input type="textbox" style="border:1px solid #cccccc; height:34px;" id="searchdata2" onkeyup='searchTable()' placeholder=" Search Data" />
+                            </li>
+                        </ul>
+                        <div class="pull-right">
+                            <select class="form-control pull-left viewc" name="state" tempname="user" id="contype" style="width:150px !important; display:none">
+                                <option value="" selected>Select Type</option>
+                                <option value="Contact">User</option>
+                                @*<option value="Matter">Matter</option>*@
+                            </select>&nbsp;&nbsp;
+                            <select class="form-control pull-right viewc" name="state" tempname="user" id="matter" style="width:150px !important; display:none">
+                                <option value="" selected>Select Case</option>
+                            </select>&nbsp;&nbsp;
+                        </div>
+                    </div>
+                    <ul class="pagination-sm no-margin pull-right">
+                        <script type="text/javascript">
+                            var tableToExcel = (function () {
+                                var uri = 'data:application/vnd.ms-excel;base64,'
+                                    , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                                    , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                                    , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+                                return function (table, name) {
+                                    if (!table.nodeType) table = document.getElementById(table)
+                                    var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+                                    var blob = new Blob([format(template, ctx)]);
+                                    var blobURL = window.URL.createObjectURL(blob);
+                                    if (ifIE()) {
+                                        csvData = table.innerHTML;
+                                        if (window.navigator.msSaveBlob) {
+                                            var blob = new Blob([format(template, ctx)], {
+                                                type: "text/html"
+                                            });
+                                            navigator.msSaveBlob(blob, '' + name + '.xls');
+                                        }
+                                    }
+                                    else
+                                        window.location.href = uri + base64(format(template, ctx))
+                                }
+                            })()
+                            function ifIE() {
+                                var isIE11 = navigator.userAgent.indexOf(".NET CLR") > -1;
+                                var isIE11orLess = isIE11 || navigator.appVersion.indexOf("MSIE") != -1;
+                                return isIE11orLess;
+                            }
+                        </script>
+                    </ul>
+                </div>
+            </div><!-- /.box-header -->
+            <!-- /.panel-heading -->
+            <script>
+                     var userid = '@ViewBag.userId'
+                    var firmid = '@ViewBag.firmid';
+                    var directoryname = '@ViewBag.directoryname';
+                    var directoryid = '@ViewBag.directoryid';
+                    var directorypath = '@ViewBag.directorypath';
+            </script>
+            <script src="~/Scripts/Employee/Pages/UserDirectoryList.js" type="text/javascript"></script>
+            <script src="~/CssJsfiles/js/3.3.1/jquery.min.js"></script>
+            <script src="~/CssJsfiles/js/jquery.dataTables.min.js"></script>
+            <script type="text/javascript">
+                var tableToExcel = (function () {
+                    var uri = 'data:application/vnd.ms-excel;base64,'
+                        , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                        , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                        , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+                    return function (table, name) {
+                        if (!table.nodeType) table = document.getElementById(table)
+                        var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+                        window.location.href = uri + base64(format(template, ctx))
+                    }
+                })()
+            </script>
+            <script>
+                $(document).ready(function () {
+                    $("#searchdata2").on("keyup", function () {
+                        var value = $(this).val().toLowerCase();
+                        $("#example tbody tr").filter(function () {
+                            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                        });
+                    });
+                });
+            </script>
+            <script src="~/CssJsfiles/js/1.8.3/jquery.min.js"></script>
+            <script src="~/CssJsfiles/js/pdfmake.min.js"></script>
+            <script src="~/CssJsfiles/js/html2canvas.min.js"></script>
+            <script type="text/javascript">
+                $("body").on("click", "#btnExport", function () {
+                    html2canvas($('#example')[0], {
+                        onrendered: function (canvas) {
+                            var data = canvas.toDataURL();
+                            var docDefinition = {
+                                content: [{
+                                    image: data,
+                                    width: 500
+                                }]
+                            };
+                            pdfMake.createPdf(docDefinition).download("Table.pdf");
+                        }
+                    });
+                });
+            </script>
+            <div style="overflow-x:auto">
+                <table id="example" class="dataTable table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width:4%"><input type="checkbox" id="select_all" /></th>
+                            <th>Folders/Files Name</th>
+                            <th width="100px;">Date</th>
+                            <th width="100px;">Action</th>
+                            <th width="100px;">FileType</th>
+                            <th width="100px;">Permission</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dirbound"></tbody>
+                </table>
+            </div>
+            @*<div id="updatePanel" style="overflow-x:auto;">
+                </div>*@
+            <div id="tfooter">
+            </div>
+</aside>
+<div id="myOverlay" class="overlay">
+    @*//<span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>*@
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<div id="myModalmove" class="modal fade" role="dialog" style="z-index:2000;">
+    <div class="modal-dialog " style="width: 45% !important;margin:20px auto">
+        <!-- Modal content-->
+        <div class="modal-content" style=" height: 585px;">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <span id="spanhead"> Move Files</span>
+                </h4>
+            </div>
+            <span id="fileids" style="display:none"></span>
+            <span id="filenames" style="display:none"></span>
+            <span id="filepath" style="display:none"></span>
+            <div class="minebody modal-body loadmovedirlist" style="height:450px; overflow-x:auto">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="close">Close</button>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+    </div>
+</div>
+<div id="myModal8" class="modal fade" role="dialog" style="z-index:2000;">
+    <div class="modal-dialog " style="width: 98% !important;margin:20px auto">
+        <!-- Modal content-->
+        <div class="modal-content" style=" height: 585px;">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <span id="spanhead"> Create Files</span>
+                </h4>
+            </div>
+            <div class="minebody modal-body">
+                <div id="frameWrap">
+                    <img id="loader12" width="36" height="36" />
+                    <iframe id="docframe" src="/Firm/loader" height="490px;" width="100%;">
+                        <p>Your browser does not support iframes.</p>
+                    </iframe>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+    </div>
+</div>
+<script>
+    $('#docframe').on('load', function () {
+        //  alert("hi");
+        $('#loader12').hide();
+    });
+    $(document).ready(function () {
+        $('#otherdocframe').on('load', function () {
+            //  alert("hi");
+            $('#loader121').hide();
+        });
+    });
+</script>
+@*for other filesopen*@
+<div id="myModal9" class="modal fade" role="dialog" style="z-index:2000;">
+    <div class="modal-dialog " style="width: 98% !important;margin:20px auto">
+        <!-- Modal content-->
+        <div class="modal-content" style=" height: 585px;">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <span id="spanhead"> Create Files</span>
+                </h4>
+            </div>
+            <div class="minebody modal-body">
+                <div id="frameWrap1">
+                    <img id="loader121" width="36" height="36" />
+                    <iframe id="otherdocframe" src="/Firm/loader" height="490px;" width="100%;">
+                        <p>Your browser does not support iframes.</p>
+                    </iframe>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+    </div>
+</div>
+<div id="myModal3" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Create Document
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <fieldset>
+                                            <legend>File</legend>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-3">Choose Folder</label>
+                                                <div class="col-md-8">
+                                                    <select name="" class="form-control" id="filedirectory">
+                                                        <option value="">Select Folder...</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-3">File Name</label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" id="filename" placeholder="Add Description...">
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                        </fieldset>
+                                        <button style="margin-bottom:5px;" class="btn btn-labeled btn-primary" data-toggle="modal" id="modeldocs">
+                                            <span class="btn-label"><i class="fa fa-file-word-o"></i></span> New  Document
+                                        </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        @*<button style="margin-bottom:5px;"  class="btn btn-labeled btn-success" data-toggle="modal" id="modelspread">
+                                                <span class="btn-label"><i class="fa fa-file-excel-o"></i></span> New spreadsheet
+                                            </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <button style="margin-bottom:5px;"  class="btn btn-labeled btn-danger" data-toggle="modal" id="modelpresent">
+                                                <span class="btn-label"><i class="fa fa-file-powerpoint-o"></i></span> New presentation
+                                            </button>*@
+                                        <div class=" form-horizontal" style="display:none">
+                                            <ul class="try-editor-list">
+                                                <li><a class="try-editor document" href=" @Url.Action("sample", "Docs" , new { fileExt="docx" })" target="_blank">Create<br />Sample Document</a></li>
+                                                @*<li><a class="try-editor spreadsheet" href="@Url.Action("sample", "Docs" , new { fileExt="xlsx" })" target="_blank">Create<br />Sample Spreadsheet</a></li>
+                                                    <li><a class="try-editor presentation" href="@Url.Action("sample", "Docs" , new { fileExt="pptx" }) " target="_blank">Create<br />Sample Presentation</a></li>*@
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Create Folder for Files
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger alert-dismissable validpanel">
+                            <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                            . <a href="#" class="alert-link">Alert Link</a>.
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form role="form" id="foldercreate">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-3">Folder Name<span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" value="" id="cdir"><span style="color:red">(@@\/:*?"<>|.) is not allowed.</span>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="CreateDir">Create</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*////permission mpodel*@
+<div id="myModalperm" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Permissions
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form role="form" id="foldercreate">
+                                            <fieldset>
+                                                <legend>File</legend>
+                                                <form id="fileupload" name="fileupload">
+                                                    <div class="form-group form-horizontal">
+                                                        <label class="control-label col-md-3">File Name</label>
+                                                        <div class="col-md-8">
+                                                            <span id="directoryname"></span> <span id="directoryid" style="visibility:hidden"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group form-horizontal">
+                                                        <label class="control-label col-md-3">Select User</label>
+                                                        <div class="col-md-8">
+                                                            <select class="form-control  viewm" name="state" tempname="user" id="contact" style="width:150px !important; padding:0 0 0 10px;">
+                                                                <option value="" selected>Select User</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group form-horizontal">
+                                                        <label class="control-label col-md-3">Permissions</label>
+                                                        <div class="col-md-7" id="linkdata">
+                                                        </div>
+                                                        <label class="control-label assignremove " style="float:right; font-size:10px; margin-top: -20px;">(Can remove from his list)</label>
+                                                    </div>
+                                                    <div class="form-group form-horizontal assigntable">
+                                                        <table class="dataTable table table-bordered table-striped" style="overflow-x:auto">
+                                                            <tr>
+                                                                <th width="15px;" style="background-color:#5c5c5c">S.No</th>
+                                                                <th style="background-color:#5c5c5c"><span class="glyphicon glyphicon-folder-open" aria-hidden="true" style="color:orange"></span>&nbsp;&nbsp;&nbsp;  File Name</th>
+                                                                <th style="background-color:#5c5c5c" width="100px;">Date</th>
+                                                                <th style="background-color:#5c5c5c" width="100px;">User</th>
+                                                                <th style="background-color:#5c5c5c" width="100px;">Permission</th>
+                                                                <th style="background-color:#5c5c5c" width="100px;">Action</th>
+                                                            </tr>
+                                                            <tbody id="assignuserdata"></tbody>
+                                                        </table>
+                                                    </div>
+                                                </form>
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="assign">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal1" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Upload  Files
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <fieldset>
+                            <legend>File</legend>
+                            <form id="fileupload" name="fileupload">
+                                <div class="form-group form-horizontal">
+                                    <label class="control-label col-md-3">Choose Folder</label>
+                                    <div class="col-md-8">
+                                        <select name="" class="form-control" id="directory">
+                                            <option value="">Select Folder...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group form-horizontal">
+                                    <label class="control-label col-md-3">File</label>
+                                    <div class="col-md-8">
+                                        <div id="dropContainer" style="border:1px solid #ccc;width:387px;">
+                                            <center>
+                                                <h3><span class="glyphicon glyphicon-cloud" style="color:#069"> </span> Drag and Drop Files here</h3>
+                                                <input type="file" id="attachment" multiple required>
+                                                <output id="list"></output>
+                                            </center>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group form-horizontal">
+                                    <label class="control-label col-md-3">Description</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control" type="text" id="filedetails" placeholder="Add Description...">
+                                    </div>
+                                </div>
+                                <div class="form-group form-horizontal">
+                                    @*<label class="control-label col-md-3">Permissions</label>
+                                        <div class="col-md-8" id="linkdata">
+                                        </div>*@
+                            </form>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="createfiles"> Upload File</button>
+                    <button type="button" class="btn btn-default" id="resercreatefiles"> Reset</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
+            evt.preventDefault();
+        };
+        dropContainer.ondrop = function (evt) {
+            // pretty simple -- but not for IE :(
+            var files1 = evt.dataTransfer.files;
+            var output = [];
+            for (var i = 0, f; f = files1[i]; i++) {
+                //output.push('<li class="list-group-item"><strong>', f.name, '</strong> - ',
+                //    f.size, ' bytes',
+                //    '</li>');
+                output.push('<tr><td class="list-group-item">', f.name, ' </td><td> ',
+                    f.size, ' bytes',
+                    '</td>');
+            }
+            // document.getElementById('list').innerHTML = '<ul class="list-group">' + output.join('') + '</ul>';
+            document.getElementById('list').innerHTML = '<table id="" style="font-size:13px;" class=" table table-striped"><tr><th style="background:#ccc;color:black;font-weight:normal">File Name</th><th style="background:#ccc;color:black;font-weight:normal">Size</th></tr>' + output.join('') + '</table>';
+            // }
+            attachment.files = evt.dataTransfer.files;
+            evt.preventDefault();
+        };
+    </script>
+    @*//delete confirm model*@
+    <div id="confirm" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- dialog body -->
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    Hello world!
+                </div>
+                <!-- dialog buttons -->
+                <div class="modal-footer"><button type="button" class="btn btn-primary">OK</button></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).on("click", "#myModal12", function () {
+            $(".validpanel").css("display", "none");
+            $('#myModal').modal({ show: true });
+        });
+    </script>>
+    <script language="javascript" type="text/javascript">
+        var ConverExtList = '@string.Join(",", DocManagerHelper.ConvertExts.ToArray())';
+        var EditedExtList = '@string.Join(",", DocManagerHelper.EditedExts.ToArray())';
+        var UrlConverter = '@Url.Content("~/webeditor.ashx?type=convert")';
+        var UrlEditor = '@Url.Action("editor", "Docs")';
+    </script>

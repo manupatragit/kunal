@@ -1,0 +1,234 @@
+﻿@{
+    Layout = null;
+}
+@{
+    var id = Request.Url.Segments[1];
+}
+@Html.Action("UserPageSecurity", "employee")
+<!-- Page Content -->
+<script>
+     var filesize =@ViewBag.filesize;
+</script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Content/multipleselect/selectize.js"></script>
+<script src="~/Content/multipleselect/index.js"></script>
+<link href="~/Content/multipleselect/dist/css/selectize.bootstrap2.css" rel="stylesheet" />
+<link href="~/Content/multipleselect/dist/css/jquery.magicsearch.min.css" rel="stylesheet" />
+<script src="~/Scripts/Employee/Pages/ConfigCallEdit.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<link href="~/Manupanel/jquerydatetimepicker/jquery.datetimepicker.css" rel="stylesheet" />
+<script src="~/Manupanel/jquerydatetimepicker/jquery.datetimepicker.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#dt1').datetimepicker();
+    });
+</script>
+<style>
+    .selectize-dropdown {
+        position: unset !important;
+    }
+</style>
+<div class="modal-header btn-primary">
+    <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Edit Call
+    </h4>
+</div>
+<div class="modal-body " style="height:500px; overflow-y:scroll;">
+    <!-- Main content -->
+    <form id="savecallform" enctype="multipart/form-data" autocomplete="off">
+        <!-- Start About boxes -->
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Linked to</legend>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Client </label>
+                        <div class="col-md-9">
+                            <select name="contact" class="form-control" id="contact1">
+                                <option value="" selected>Select Client...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Case <span class="required" aria-required="true">*</span></label>
+                        <div class="col-md-9">
+                            <select name="matter" class="form-control" id="matter1" required>
+                                <option value="" selected>Select Case...</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Call</legend>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Subject <span class="required" aria-required="true">*</span></label>
+                        <div class="col-md-9">
+                            <input class="form-control" type="text" maxlength="49" required id="subject1" placeholder="Add Subject..." />
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Call Type</label>
+                        <div class="col-md-9">
+                            <select name="" class="form-control" id="calltype1">
+                                <option value="Inbound">Inbound</option>
+                                <option value="OutBound">OutBound</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Date/Time <span class="required" aria-required="true">*</span></label>
+                        <div class="col-md-9">
+                            <input class="form-control" name="dt" type="text" placeholder="Date/Time" id="dt1" required />
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Call Duration <span class="required" aria-required="true">*</span></label>
+                        <div class="col-md-9">
+                            <input class="form-control" name="duration" type="text" required id="duration1" placeholder="Format: 1h 10m 1s" value="0h:0m:0s" />
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3"> </label>
+                        <div class="col-md-6">
+                            <button id="starttimer" type="button" class="btn save" style="float:left;  margin:0 10px 0 0px;"><span class="glyphicon glyphicon-time"></span>&nbsp;&nbsp;Start Timer</button>
+                            <button id="stoptimer" type="button" class="btn save" style="float:left; margin:0 10px 0 0px;display:none"><span class="glyphicon glyphicon-pause"></span>&nbsp;&nbsp;Stop Timer</button>
+                            <div class="timer " id="countdown2" style="text-align:center">0h:0m:0s</div>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Status</label>
+                        <div class="col-md-9">
+                            <select name="" class="form-control" id="status1">
+                                <option value="Not Completed">Not Completed</option>
+                                <option value="Completed">Completed</option>
+                                <option value="In Progress">In Progress</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Description</label>
+                        <div class="col-md-9">
+                            <textarea ID="details1" cols="15"></textarea>
+                            <div class="grid-container" style="display:none">
+                                <div id="editor">
+                                </div>
+                                <script>
+                                    initSample();
+                                    CKEDITOR.replace('details1', {
+                                        toolbar:
+                                            [
+                                                { name: 'basicstyles', items: ['Bold', 'Italic'] },
+                                                { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                { name: 'tools', items: ['Maximize',] }
+                                            ],
+                                        height: 80,
+                                        width: 400
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Participants</legend>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">User <span class="required" aria-required="true">*</span></label>
+                        <div class="col-md-9">
+                            @Html.DropDownList("puser1", new SelectList(ViewBag.Fruits, "val", "label"), "Select", new { @id = "puser1", @class = "demodefault ", @multiple = "multiple" })
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal" style="display:none">
+                        <label class="control-label col-md-3">Contacts <span class="required" aria-required="true">*</span></label>
+                        <div class="col-md-9">
+                            <select name="" class="form-control" id="pcontact1">
+                                <option value="">Select Contact...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Tags</label>
+                        <div class="col-md-9">
+                            <input class="form-control" type="text" maxlength="49" id="tags1" placeholder="Tags..." />
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Attachments</label>
+                        <div class="col-md-9">
+                            <input class="form-control" name="postedFile" id="postedFile" type="file" multiple placeholder="Add description..." />
+                            (Please upload a file up to 20MBs only..)
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="modal-footer">
+                    <input type="submit" id="savecall" class="btn save" value="save">
+                    <button type="button" id="closemodels" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+        <!-- /.content -->
+    </form>
+</div>
+<script>
+    $('#puser1').selectize({
+        //maxItems: 3
+    });
+    var $select = $("#puser1").selectize();
+    if (id != "") {
+        setTimeout(function () {
+            var formData = new FormData();
+            formData.append("token", id);
+            formData.append("type", "Call");
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/api/callApi/ActivtiyAssignUser", // Controller/View
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    //},
+                    success: function (response) {
+                        var dataarray = [];
+                        $.each(response.Data, function (i, b) {
+                            try {
+                                var selectize = $select[0].selectize;
+                                var selecteduser = b.auserid;
+                                dataarray.push(selecteduser)
+                            }
+                            catch (er) {
+                                alert(er.message);
+                            }
+                            selectize.setValue(dataarray)
+                        });
+                    },
+                    failure: function (response) {
+                        alert(data.responseText);
+                    },
+                    error: function (response) {
+                        alert(data.responseText);
+                    }
+                });
+        }, 1000);
+    }
+    else {
+        // alert(tokenid);
+    }
+</script>

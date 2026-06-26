@@ -1,0 +1,478 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Drafter</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: #f5f6f8;
+            color: #1a1a1a;
+        }
+
+        .wrapper {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebarDrafter {
+            width: 260px;
+            background: #ffffff;
+            border-right: 1px solid #e5e5e5;
+            padding: 20px 16px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 25px;
+            border: 1px solid #dcdcdc;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .historyDrafter {
+            margin-top: 30px;
+        }
+
+            .historyDrafter h4 {
+                margin-bottom: 15px;
+                font-weight: 600;
+                color: #444;
+            }
+
+        .historyDrafter-item {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .mainDrafter {
+            flex: 1;
+            padding: 40px 30px;
+            overflow-y: auto;
+        }
+
+        .headerDrafter {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+            .headerDrafter h1 {
+                margin: 0;
+                font-size: 34px;
+                font-weight: 600;
+            }
+
+            .headerDrafter p {
+                margin-top: 8px;
+                margin-bottom: 12px;
+                color: #6b6b6b;
+                font-size: 15px;
+            }
+
+            .headerDrafter a {
+                margin-left: 10px;
+                font-size: 14px;
+                color: #3b5cff;
+                text-decoration: none;
+                font-weight: 500;
+            }
+        .card {
+            width: 400px;
+            background: #fff;
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 2px 15px 15px #0C4A6E !important;
+            border: 1px solid #e7e7e7;
+            text-align: center;
+            transition: box-shadow 0.2s ease;
+            transform: none !important;
+            backface-visibility: hidden;
+        }
+
+            .card:hover {
+                transform: none !important; 
+                box-shadow: 0 12px 26px rgba(0,0,0,0.12); 
+            }
+
+        /* Cards */
+        .card-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .card {
+            width: 420px;
+            background: #fff;
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e7e7e7;
+            text-align: center;
+        }
+
+            .card h2 {
+                margin: 0 0 12px;
+                font-size: 24px;
+                font-weight: 600;
+            }
+
+            .card p {
+                font-size: 14px;
+                color: #666;
+                line-height: 1.6;
+            }
+
+        .primary-btn {
+            margin-top: 22px;
+            padding:   12px 28px;
+            color: black;
+            border: none;
+            border-radius: 26px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+            .primary-btn:hover {
+                background: #0C4A6E;
+                color: white !important;
+            }
+
+        /* Upload Box */
+        .upload-box {
+            border: 2px dashed #d7d7d7;
+            border-radius: 12px;
+            padding: 10px 10px;
+            background: #fafafa;
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 15px;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .file-types {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 18px;
+        }
+
+        .upload-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .upload-btn {
+            border: 1px solid #d0d0d0;
+            background: white;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+            .upload-btn:hover {
+                background: #f1f1f1;
+            }
+
+        .ai-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.45);
+        }
+        #backtodrafter:hover {
+            background: #0C4A6E;
+            color: white !important;
+        }
+        /* Modal box */
+        .ai-modal-content {
+            background: #fff;
+            margin: 4% auto;
+            width: 50%;
+            max-height: 80vh;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            position: relative; /* <-- ADD THIS */
+        }
+
+            /* Header */
+            .ai-modal-content h2 {
+                margin: 0;
+                padding: 18px 22px;
+                font-size: 22px;
+                border-bottom: 1px solid #eee;
+            }
+
+        /* Close cross */
+        .ai-close {
+            position: absolute;
+            right: 18px;
+            top: 12px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #333;
+            z-index: 10;
+        }
+
+            .ai-close:hover {
+                color: #000;
+            }
+
+        /* Body scroll */
+        .ai-modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+            .ai-modal-body ul {
+                padding-left: 18px;
+            }
+
+            .ai-modal-body li {
+                margin-bottom: 14px;
+            }
+
+        /* Footer */
+        .ai-modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+
+        .ai-btn-close {
+            color: black;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+            .ai-btn-close:hover {
+                background: #0C4A6E;
+                color: white !important;
+            }
+
+        .drafter-history-item {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="drafterWrapper" class="wrapper">
+        <!-- sidebarDrafter -->
+        <div class="sidebarDrafter">
+            <div class="historyDrafter">
+                <h4 style="font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; color: #0C4A6E; font-size: 24px;">
+                    <i class="bi bi-clock-history"></i> History
+                </h4>
+
+                <!-- Search Input -->
+                <input type="text" id="drafterSearch" placeholder="Search by filename..." style="width: 100%; padding: 6px 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;" onkeyup="filterDrafterHistory()" />
+
+                <!-- History Items Grouped by Date -->
+                <div id="drafterHistory" style="font-size: 12px;">
+                    <!-- JS will populate it -->
+                </div>
+                <p id="nodrafterMessage" style="color: #999; font-style: italic; display: none;; font-size: 18px;">No draft generated...</p>
+            </div>
+        </div>
+
+        <!-- mainDrafter Content -->
+        <div class="mainDrafter" style="color: #0C4A6E;">
+            <div class="headerDrafter">
+                <h1><span style="color: black; ">Initiate a New Draft </span><a href="#" onclick="openAIDraftModal()" style="color: #0C4A6E; font-size: 16px; "><i class="fa fa-lightbulb-o"></i>AI Draft Prompts</a></h1>
+                <p>Add comprehensive information, facts of the case and context for high quality drafts</p>
+            </div>
+            <div style="display:flex; justify-content:center; margin:-30px; align-items:center; gap:6px;">
+                <span style="width:8px; height:8px; background:#ff4d4f; border-radius:50%; display:inline-block;"></span>
+                <h4 style="margin:0;">30 Credits</h4>
+            </div>
+
+            <div class="card-container">
+                <!-- Left Card -->
+                <div class="card">
+                    <h2>Initiate a New Draft</h2>
+                    <p>
+                        Tell us about what you want to Draft<br />
+                        Include which legal document you wish to draft<br />
+                        Add comprehensive information, facts of the case and context for high quality drafts
+                    </p>
+                    <button class="primary-btn" style="color: #0C4A6E; " id="getStartedAIDraft">Get Started</button>
+                </div>
+
+                <!-- Right Card -->
+                <div class="card">
+                    <h2>Upload your document and generate a reply.</h2>
+
+                    <div class="upload-box">
+                        <div class="upload-icon"><i class="fa fa-upload me-1"></i></div>
+                        <div class="upload-text">Choose a file</div>
+                        <div class="file-types">PDF, DOCX</div>
+
+                        <div class="upload-actions">
+                            <!-- Browse (local file) -->
+                            <label for="attachmentDriveTab1"
+                                   class="upload-btn"
+                                   style="cursor:pointer; border:1px solid #ccc; padding:6px 10px; border-radius:4px;">
+                                <i class="fa fa-upload me-1"></i> Browse
+                            </label>
+
+                            <!-- MyKase Drive -->
+                            <button type="button" class="upload-btn browsetaskfile browsetaskfile1" id="browsefileocrTab1" module="drafter" style="width: 145px; cursor: pointer; border: 1px solid #ccc; padding: 6px 10px; border-radius: 4px;" onclick="openMyKasePicker(event)">
+                                <i class="fa fa-cloud me-1"></i> Mykase Drive
+                            </button>
+
+                            <input type="file"
+                                   id="attachmentDriveTab1"
+                                   class="postedFile"
+                                   accept=".pdf,.docx,.doc"
+                                   style="display:none;" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Draft Prompts Modal -->
+    <div id="aiDraftPromptModal" class="ai-modal">
+        <div class="ai-modal-content">
+            <span class="ai-close" id="closeAIDraftModal">&times;</span>
+            <h2 style=" font-weight: 400; ">AI Draft Prompts - Samples</h2style=">
+            <h4 style=" margin-left: 20px; ">Sample of how prompts can be given for generating drafts:</h4>
+            <div class="ai-modal-body">
+                <ol>
+                    <li><b>Leave and License Agreement</b> <br /> Draft a Leave and License Agreement between Mr. Rajesh Sharma (Landlord), owner of Flat No. 302, “Sunrise Apartments”, Andheri (West), Mumbai, and Mr. Arvind Mehta (Licensee), who wishes to occupy the premises for residential purposes for 11 months. Include clauses on license fee, security deposit, maintenance, termination notice, renewal, restrictions on alterations, and indemnity.</li>
+
+                    <li><b>Legal Notice for Recovery of Payment</b> <br /> Draft a Legal Notice on behalf of M/s Stellar Marketing Pvt. Ltd. to its client M/s Bluewave Traders, who failed to make payment of ₹2,50,000 for goods supplied under Invoice No. SM/142/2025 dated 10th August 2025. Include reference to the transaction details, reminder communications, and a demand for payment within 15 days failing which civil/criminal action will be initiated under the law.</li>
+
+                    <li><b>Partnership Deed</b> <br /> Draft a Partnership Deed between Mr. Rohan Verma and Ms. Sneha Kapoor for carrying on business of manufacturing eco-friendly packaging material under the name “GreenPack Industries”. Include clauses on capital contribution, profit-sharing ratio, duties of partners, operation of bank accounts, admission and retirement of partners, dissolution, and dispute resolution.</li>
+
+                    <li><b>Affidavit for Change of Name</b> <br /> Draft an Affidavit for Mr. Ajay Kumar, son of Late Sh. Mohan Lal, resident of 45, Patel Nagar, Delhi, who has changed his name to "Ajay Mohan". The affidavit is to be sworn before the Magistrate and used for publication in the Gazette. It should include reasons for name change, declaration of no fraudulent intent, and verification clause.</li>
+
+                    <li><b>Memorandum of Understanding (MoU)</b> <br /> Draft a Memorandum of Understanding (MoU) between M/s Sunrise Tech Pvt. Ltd. (Company A) and M/s Green Innovations Ltd. (Company B) for collaboration on research and development of solar-powered home appliances. Include objectives, scope of collaboration, confidentiality, duration, intellectual property rights, financial arrangements, dispute resolution, and termination clauses.</li>
+
+                    <li><b>Power of Attorney</b> <br /> Draft a General Power of Attorney executed by Mr. Suresh Gupta authorizing his son, Mr. Rahul Gupta, to manage, lease, collect rent, and deal with his property at Plot No. 45, Sector 12, Dwarka, New Delhi. Include authority to sign documents, represent before authorities, pay taxes, and handle maintenance.</li>
+
+                    <li><b>Complaint under Section 138 NI Act</b> <br /> Draft a Complaint under Section 138 of the NI Act, 1881, on behalf of Mr. Ramesh Tiwari against Mr. Anil Patel for dishonour of cheque No. 123456 dated 1st September 2025 for ₹1,00,000 drawn on HDFC Bank, returned unpaid for “insufficient funds”. Include details of transaction, issuance of notice, non-payment within statutory period, and prayer for punishment as per law.</li>
+
+                    <li><b>Writ Petition under Article 226</b> <br /> Draft a Writ Petition under Article 226 before the Hon'ble High Court of Delhi on behalf of Mr. Prakash Kumar, a government employee, challenging his illegal termination order dated 15th July 2025 passed by the Department of Revenue without due inquiry or opportunity of hearing. Include facts, grounds of violation of natural justice, relevant legal provisions, and prayer for reinstatement with consequential benefits.</li>
+
+                    <li><b>Plaint for Declaration & Permanent Injunction</b> <br /> Draft a Plaint before the Civil Court on behalf of Mr. Mahesh Joshi seeking declaration of ownership and permanent injunction against Mr. Sandeep Sharma, who is illegally claiming ownership and attempting to sell the plaintiff's ancestral property located at 12, Nehru Nagar, Jaipur. Include cause of action, ownership documents, relief sought, and verification clause.</li>
+
+                    <li><b>Gift Deed</b> <br /> Draft a Gift Deed executed by Mr. Vinod Khanna in favour of his daughter, Ms. Nisha Khanna, transferring his self-acquired property bearing No. 17, Green Valley, Gurugram, Haryana, without any monetary consideration. Include details of ownership, acceptance by donee, possession, and registration clause.</li>
+
+                    <li><b>Complaint under Consumer Protection Act</b> <br /> Draft a Complaint under Section 35 of the Consumer Protection Act, 2019 on behalf of Mrs. Kavita Sharma against M/s HomeTech Appliances Ltd. for deficiency in service as the refrigerator purchased on 20th May 2025 malfunctioned within 15 days and repeated complaints were ignored. Include facts, copies of invoice, communications, and prayer for replacement/refund and compensation.</li>
+
+                    <li><b>Bail Application</b> <br /> Draft a Bail Application under Section 437 CrPC before the Magistrate on behalf of Mr. Rohit Singh, accused in FIR No. 242/2025 under Sections 420, 406 IPC at Connaught Place Police Station, New Delhi. Include brief facts of the case, grounds for bail (no criminal antecedents, cooperation in investigation), and undertaking to comply with conditions.</li>
+
+                    <li><b>Agreement for Sale</b> <br /> Draft an Agreement for Sale between M/s Bright Builders Pvt. Ltd. (Builder) and Mrs. Meera Kapoor (Purchaser) for booking Flat No. B-502 in “Emerald Heights”, Gurugram, Haryana. Include details of total sale consideration, payment schedule, possession date, default clauses, and registration obligations.</li>
+
+                    <li><b>Written Statement</b> <br /> Draft a Written Statement on behalf of the defendant, Mr. Deepak Sharma, in Civil Suit No. 145/2025 filed by Mr. Harish Mehta, denying the allegations of breach of contract. Include preliminary objections, para-wise reply, and statement that the plaintiff has not come with clean hands.</li>
+
+                    <li><b>Will</b> <br /> Draft a Will of Mr. Rajinder Prasad, aged 70 years, bequeathing his self-acquired property (House No. 58, Model Town, Delhi) and ancestral agricultural land in Hisar to his two sons and one daughter, specifying shares and appointing an executor. Include revocation of earlier wills and attestation clauses.</li>
+
+                    <li><b>Public Notice for Loss of Property Documents</b> <br /> Draft a Public Notice to be published in an English and Hindi newspaper stating that the original Sale Deed dated 12th April 2010 of Flat No. 204, "Silver Oaks Apartments", Bandra (West), Mumbai, in the name of Mr. Ajay Deshmukh, has been lost/misplaced, and any person having claim should notify within 7 days.</li>
+                </ol>
+            </div>
+
+            <div class="ai-modal-footer">
+                <button id="btnCloseAIDraft" class="ai-btn-close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="aiDraftChatPage" style="display:none; padding:20px;">
+        <!-- Header -->
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="headerDrafter">
+                <h1><span style="color: black; margin-left: -120px; ">Initiate a New Draft </span><a href="#" onclick="openAIDraftModal()" style="color: #0C4A6E;font-size: 16px; "><i class="fa fa-lightbulb-o"></i>AI Draft Prompts</a></h1>
+
+                <p>Add comprehensive information, facts of the case and context for high quality drafts</p>
+                <div style="display:flex; align-items:center;">
+                    <span id="uploadedFileName" style="font-size: 16px;color: #555;font-weight: 500;display: flex;justify-content: start;"></span>
+                    @*<button id="clearDrafterFileBtn" style="display:none;">Clear</button>*@
+                    <span class="remove-file remove-local" id="clearDrafterFileBtn" data-index="0" style="cursor:pointer;color:red;margin-left:10px;display:none">Clear</span>
+                </div>
+            </div>
+
+            <button onclick="backToDraftHome()" id="backtodrafter" class="primary-btn"
+                    style="color: #0C4A6E; border: none; padding: 10px 18px; border-radius: 25px; cursor: pointer;">
+                ← Back
+            </button>
+        </div>
+
+        <!-- Chat container -->
+        <div id="aiChatContainer" style="margin-top:15px; border:1px solid #e2e2e2; border-radius:10px;background:#fafafa;">
+
+            <!-- Draft content -->
+            <div id="aiDraftContent"
+                 style="height:450px; overflow-y:auto; background:white; border-radius:8px; padding:20px; border:1px solid #ddd;">
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div style="display:flex; margin-top:15px; border:1px solid #ddd; border-radius:8px; overflow:hidden;">
+            <input type="text" id="aiDraftInput"
+                   placeholder="Add comprehensive information, facts of the case and context for high quality drafts..."
+                   style="flex:1; border:none; padding:14px; outline:none;" />
+
+            <button onclick="sendDraftQuery()"
+                    style="background:#1f2a60; color:white; border:none; padding:0 22px; cursor:pointer;">
+                <i class="fa fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+    <div id="myOverlayDrafter" class="overlay" style="display:block;z-index: 9999;">
+        <div class="overlay-content">
+            <div class="spinner2">
+                <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Scripts/Firm/Pages/drafter.js?2.3"></script>
+    <script src="~/Scripts/Firm/Pages/chartGraph.js"></script>
+    <script>
+
+    </script>
+</body>
+</html>

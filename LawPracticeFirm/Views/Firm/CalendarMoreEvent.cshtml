@@ -1,0 +1,105 @@
+﻿@{
+    Layout = null;
+}
+<!-- Page Content -->
+<style>
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        var evtdate = "@ViewBag.evttokendate";
+        LoadCalEvent();
+        function LoadCalEvent() {
+            $("#bindcaleventdatastatus").html("");
+            $("#bindcaleventdata").html("");
+            var html3 = '';
+            var formData = new FormData();
+            formData.append("date", evtdate);
+            var qty1 = 1;
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/BindMoreCalendarEvent",
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Data != "") {
+                        $("#bindcaleventdatastatus").html("");
+                    }
+                    else {
+                        $("#bindcaleventdatastatus").html("No result found !");
+                        closeload();
+                    }
+                    $.each(response.Data, function (i, a) {
+                        var types = "";
+                        if (a.Type == "Event") {
+                            types = "modelEditEvent";
+                        }
+                        else if (a.Type == "Task") {
+                            types = "modelEditTask";
+                        }
+                        else if (a.Type == "Case Alert") {
+                            types = "transfercaseevent";
+                        }
+                        else {
+                            types = "modelEditReminder";
+                        }
+                        qty1 = qty1 + 1;
+                        html3 += '<tr>'
+                        html3 += '<td>' + qty1 + '</td>'
+                        html3 += '<td>' + a.Type+'</td>'
+                        html3 += '<td>' + formatDatetoIST(a.EventDate) +'</td>'
+                        html3 += '<td>' + a.ETitle + '</td>'
+                        if (a.Type == "Event" || a.Type == "Task") {
+                            html3 += '<td><a id="transferpageevent" type="' + types + '" data-val="' + a.Rid + '" href="javascript:void()">View</a></td>'
+                        }
+                        else {
+                            html3 += '<td></td>'
+                        }
+                        html3 += '</tr>'
+                    }); //End of foreach Loop
+                    $("#bindcaleventdata").append(html3);
+                    //  //console.log(response);
+                }, //End of AJAX Success function
+                failure: function (response) {
+                    alert(data.responseText);
+                }, //End of AJAX failure function
+                error: function (response) {
+                    alert(response.responseText);
+                } //End of AJAX error function
+            });
+        }
+    });
+</script>
+<div class="modal-header btn-primary">
+    <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Calendar Events
+    </h4>
+</div>
+<div class="modal-body" style="height:500px; overflow-y:scroll;">
+    <!-- Main content -->
+    <!-- Start About boxes -->
+    <div class="row">
+        <div class="col-md-12">
+            <table id="tblcaleventdata" class="dataTable table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>SlNo.</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Subject</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="bindcaleventdata"></tbody>
+            </table>
+            <center><div id="bindcaleventdatastatus"></div></center>
+        </div>
+    </div>
+    <!-- /.content -->
+</div>

@@ -1,0 +1,330 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#searchdata").on("keyup", function () {
+            var value = $("#searchdata").val().toLowerCase();
+            $("#ocrlist tbody tr ").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
+<SCRIPT language=Javascript>
+       <!--
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+    function ValidateAlpha() {
+        var x = document.getElementById("seriescode").value;
+        var regex = /^[a-zA-Z0-9]*$/;
+        isValid = regex.test(x);
+        return isValid;
+    }
+    //-->
+</SCRIPT>
+<script>
+        $(document).ready(function () {
+            try {
+            var fcode = localStorage.getItem("FirmCode");
+            var token = "@ViewBag.token";
+}
+catch(er)
+{
+    alert(er.message);
+}
+            $('#seriescode').keyup(function () {
+                this.value = this.value.toLocaleUpperCase();
+            });
+            $("#saveinvseries").click(function () {
+                //var year = $("#year").val();
+                var srno = $("#srno").val();
+                var seriescode = $("#seriescode").val();
+                var fromdate = $("#fromdate").val();
+                var todate = $("#todate").val();
+                //check for invoicefrom date and to date
+                var date1 = new Date(fromdate);
+                var date2 = new Date(todate);
+                if (fromdate != "" && todate != "") {
+                    if (date1 > date2) {
+                        alert("To date should be after from date.");
+                        return false;
+                    }
+                }
+                if (fromdate == "" && todate != "") {
+                    alert("Please select from date.");
+                    return false;
+                }
+                if (fromdate == "") {
+                    new PNotify({
+                        title: 'Warning!',
+                        text: ' Please enter From date ',
+                        type: 'error',
+                        delay: 3000
+                    });
+                    return false;
+                }
+                if (todate == "") {
+                    new PNotify({
+                        title: 'Warning!',
+                        text: ' Please enter To date ',
+                        type: 'error',
+                        delay: 3000
+                    });
+                    return false;
+                }
+                if (seriescode != "") {
+                    if (seriescode.length > 6) {
+                        new PNotify({
+                            title: 'Warning!',
+                            text: ' Series code cannot be of more than six Characters',
+                            type: 'error',
+                            delay: 3000
+                        });
+                        return false;
+                    }
+                }
+                if (srno == "") {
+                    new PNotify({
+                        title: 'Warning!',
+                        text: 'Please enter the starting series no. ',
+                        type: 'error',
+                        delay: 3000
+                    });
+                    return false;
+                }
+                var formData = new FormData();
+                formData.append("year", '');
+                formData.append("srno", srno);
+                formData.append("seriescode", seriescode);
+                formData.append("token", token);
+                formData.append("fromdate", fromdate);
+                formData.append("todate", todate);
+                $.ajax({
+                    url: '/api/OcrInvoiceApi/PostEditInvoiceSeries',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.Status == true) {
+                            var datas = JSON.stringify(response);
+                            if (response.Data == "alreadyexist") {
+                                new PNotify({
+                                    title: 'warning!',
+                                    text: 'You have already created invoice series for the selected date range.',
+                                    type: 'error',
+                                    delay: 3000
+                                });
+                                closeload();
+                            }
+                            else {
+                                $("#fileupload")[0].reset();
+                                new PNotify({
+                                    title: 'Success!',
+                                    text: ' Invoice Series Updated successfully',
+                                    type: 'success',
+                                    delay: 3000
+                                });
+                                window.location = encodeURI("/" + fcode + "/Bill/CreateInvoiceSeries");
+                            }
+                        }
+                        else {
+                            // alert("not found");
+                        }
+                    },
+                    error: function () {
+                        alert('Error!');
+                    }
+                });
+            });
+        });
+</script>
+<section class="wrapper">
+    <div class="container-main">
+        <div>
+            <h2 class="title" style="padding: 0 0 0 0 !important;">Edit Invoice Series </h2>
+            <section class="content">
+                <form id="fileupload" enctype="multipart/form-data">
+                    <div class="row ">
+                        <div class="col-md-12 ">
+                            <div style="border-top: 1px solid #8fd500;margin: 10px 0 15px 0;"></div>
+                        </div>
+                        <div>
+                            <span id="textleadid" style="display:none"></span>
+                            <form id="saveleadcallform">
+                                <div class="col-md-3">
+                                    <label class="formLabel colorDark">From Date <span class="required" aria-required="true">*</span></label>
+                                    <input class="form-control inputbg" value="@ViewBag.fromdate.ToString("yyyy-MM-dd")" name="mname" type="DATE" id="fromdate" onkeypress="return false;" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="formLabel colorDark">To Date <span class="required" aria-required="true">*</span></label>
+                                    <input class="form-control inputbg" value="@ViewBag.todate.ToString("yyyy-MM-dd")" name="mname" type="DATE" id="todate" onkeypress="return false;" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="formLabel colorDark ">Series Code </label>
+                                    <input class="form-control inputbg" required onkeypress="return ValidateAlpha()" value="@ViewBag.seriescode" minlength="4" maxlength="6" type="text" id="seriescode" placeholder="Invoice  Series Code Eg:INVP" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="formLabel colorDark">Start Serial No <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <input class="form-control inputbg" value="@ViewBag.seriesno" onkeypress="return restrictAlphabets(event)" placeholder="Inovice Series No Eg: 100" maxlength="6" type="text" id="srno" />
+                                </div>
+                                <div class="form-group form-horizontal">
+                                    <label class="control-label col-xs-3"></label>
+                                    <div class="col-md-12 col-xs-8">
+                                        <button type="button" class="sbtbtn" id="saveinvseries">Save</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</section>
+<script>
+    /*					PAGINATION
+    - on change max rows select options fade out all rows gt option value mx = 5
+    - append pagination list as per numbers of rows / max rows option (20row/5= 4pages )
+    - each pagination li on click -> fade out all tr gt max rows * li num and (5*pagenum 2 = 10 rows)
+    - fade out all tr lt max rows * li num - max rows ((5*pagenum 2 = 10) - 5)
+    - fade in all tr between (maxRows*PageNum) and (maxRows*pageNum)- MaxRows
+    */
+    getPagination('#ocrlist');
+    function getPagination(table) {
+        $('#maxRows').on('change', function () {
+            $('.pagination').html('');						// reset pagination
+            var trnum = 0;									// reset tr counter
+            var maxRows = parseInt($(this).val());
+            //alert(maxRows);
+            // alert(maxRows);// get Max Rows from select option
+            var totalRows = $(table + ' tbody tr ').length;
+            // alert(totalRows);// numbers of rows
+            $('#ocrlist tbody tr').each(function () {			// each TR in  table and not the header
+                trnum++;
+                //alert(trnum);// Start Counter
+                if (trnum > maxRows) {						// if tr number gt maxRows
+                    $(this).hide();							// fade it out
+                } if (trnum <= maxRows) { $(this).show(); }// else fade in Important in case if it ..
+            });											//  was fade out to fade it in
+            if (totalRows > maxRows) {						// if tr total rows gt max rows option
+                var pagenum = Math.ceil(totalRows / maxRows);
+                // alert(pagenum);// ceil total(rows/maxrows) to get ..
+                //	numbers of pages
+                for (var i = 1; i <= pagenum;) {			// for each page append pagination li
+                    $('.pagination').append('<li data-page="' + i + '">\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <span>'+ i++ + '<span class="sr-only">(current)</span></span>\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </li>').show();
+                }											// end for i
+            } 												// end if row count > max rows
+            $('.pagination li:first-child').addClass('active'); // add active class to the first li
+            $('.pagination li').on('click', function () {		// on click each page
+                var pageNum = $(this).attr('data-page');
+                // alert(pageNum);// get it's number
+                var trIndex = 0;							// reset tr counter
+                $('.pagination li').removeClass('active');	// remove active class from all li
+                $(this).addClass('active');					// add active class to the clicked
+                $('#ocrlist tbody tr').each(function () {		// each tr in table not the header
+                    trIndex++;
+                    // alert(trIndex);
+                    // tr index counter
+                    // if tr index gt maxRows*pageNum or lt maxRows*pageNum-maxRows fade if out
+                    if (trIndex > (maxRows * pageNum) || trIndex <= ((maxRows * pageNum) - maxRows)) {
+                        $(this).hide();
+                    } else { $(this).show(); } 				//else fade in
+                }); 										// end of for each tr in table
+            });										// end of on click pagination list
+        });
+        // end of on select change
+        // END OF PAGINATION
+    }
+</script>
+<script>
+    function sortTable(n) {
+        try {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("ocrlist");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+        catch (er) {
+            //alert(er.message);
+        }
+    }
+</script>
+<!-- Modal -->
+<div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>

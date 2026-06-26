@@ -1,0 +1,463 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    var hsmklitigation1 = Session["hsmklitigation"];
+    var dashmatter1 = Session["dashmatter"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script src="~/Scripts/CW/RevenueCaseList.js?1.6" type="text/javascript" language="javascript"></script>
+<script>
+    var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter ="@Session["dashmatter"]";
+</script>
+<style>
+    ul li {
+        display: inline;
+    }
+
+    .recent {
+        list-style: none;
+    }
+    .tabs {
+        display: flex;
+        border-bottom: 2px solid #ddd;
+        margin-bottom: 20px;
+    }
+
+    .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+        border-bottom: 2px solid transparent;
+    }
+
+        .tab.active {
+            border-bottom: 2px solid #007bff;
+            color: #007bff;
+        }
+    .snav {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        border-bottom: 1px solid #ccc;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle">List of Revenue Matter</p>
+        </div>
+        <div style="margin: 10px 0 5px 0; overflow:hidden;">
+            <ul class="snav">
+                <li id="" class=""><a href="/@Session["firmcode"]/CW/LitigationCaseList">All Court</a></li>
+                <li id="" class="active"><a href="/@Session["firmcode"]/Revenue/RevenueCaseList">Revenue</a><span id="totRecordData"></span></li>
+                <li id="" class=""><a href="/@Session["firmcode"]/Rera/ReraCaseList">Rera</a></li>
+            </ul>
+        </div>
+        
+    </div>
+</section>
+<section id="header" style="margin:20px 0;">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-2">
+                <select name="RevenueCourt" id="RevenueCourt" class="form-control selctInputFormat" onchange="BindRevenue(this.value);">
+                    <option value=''>Select Court</option>
+                </select>
+            </div>
+            @* RELK Section - Lucknow Revenue Court (with Mandal) *@
+            <div id="RELK" style="display:none;">
+                <div class="col-md-2">
+                    <select name="RevenueMandal" id="RevenueMandal" class="form-control selctInputFormat" onchange="BindRevenueJanpad(this.value);">
+                        <option value=''>Select Mandal</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="RevenueJanpad" id="RevenueJanpad" class="form-control selctInputFormat" onchange="BindRevenueTehsil(this.value);">
+                        <option value=''>Select Janpad</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="RevenueTahsil" id="RevenueTahsil" class="form-control selctInputFormat" onchange="BindRevenueCourtnameByTahsil(this.value);">
+                        <option value=''>Select Tahsil</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="RevenueCourtName" id="RevenueCourtName" class="form-control selctInputFormat">
+                        <option value=''>Select Court</option>
+                    </select>
+                </div>
+            </div>
+
+            @* RERH Section - Rajasthan Revenue Court (without Mandal) *@
+            <div id="RERH" style="display:none;">
+                <div class="col-md-2">
+                    <select name="RevenueJanpad" id="RevenueJanpad_RERH" class="form-control selctInputFormat" onchange="GetRevenueCourtNameByTahsilAndJanpad();">
+                        <option value=''>Select Janpad</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="RevenueTahsil" id="RevenueTahsil_RERH" class="form-control selctInputFormat" onchange="GetRevenueCourtNameByTahsilAndJanpad();">
+                        <option value=''>Select Tahsil</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="RevenueCourtName" id="RevenueCourtName_RERH" class="form-control selctInputFormat">
+                        <option value=''>Select Court</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+            
+     </div>
+        <div class="row" style="display:none">
+            <div class="col-md-12">
+                <div class="col-md-2">
+                    <input type="text" id="casename" name="casename" placeholder="case name" class="form-control inputFormat">
+                </div>
+                <div class="col-md-1" style="margin-left:-18px;">
+                    <button type="button" id="searchcase" class="sbtbtn">Search</button>
+                </div>
+                <div class="col-md-2">
+                    <select name="sortdate" id="sortdate" class="form-control selctInputFormat" style="background-color: white !important;">
+                        <option value="">Sort Hearing date</option>
+                        <option value="desc">Descending</option>
+                        <option value="asc">Ascending</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="CaseStatus" id="CaseStatus" class="form-control selctInputFormat" style="background-color: white !important;">
+                        <option value="">Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Disposed">Disposed</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="display:none">
+            <div class="col-md-8">
+                <div class="col-md-3">
+                    Next Hearing From
+                </div>
+                <div class="col-md-3" style="margin-left:-50px;">
+                    <input type="date" id="hearingfrom" name="hearingfrom" class="form-control inputFormat">
+                </div>
+                <div class="col-md-1">
+                    To
+                </div>
+                <div class="col-md-3" style="margin-left:-20px;">
+                    <input type="date" id="hearingto" name="hearingto" class="form-control inputFormat">
+                </div>
+                <div class="col-md-1" style="margin-left:-20px;">
+                    <button type="button" id="searchhearing" class="sbtbtn">Search</button>
+                </div>
+                <div class="col-md-1" style="margin-left:5px;margin-top:2px;">
+                    <button type="button" id="clearhearing" class="sbtbtn" style="display:none;"><span class="fa fa-close"></span></button>
+                </div>
+            </div>
+            <div class="col-md-4 pull-right">
+            </div>
+        </div>
+        
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1" style="justify-content: flex-end; padding: 0 14px;">
+
+                    <div class="table-header">
+                        <div class="actions3" style="margin: 10px 0 0 0; float: right;">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li>
+                                        <div id="exporttoexcel" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                    </li>
+                                    <li>
+                                        <div id="exporttopdf" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+                <div class="tablecontainer">
+                    <div id="allcasediv">
+                        <table id="allcaselisttable" class="table-panel" role="grid" aria-describedby="example_info">
+                            <thead>
+                                <tr>
+                                    <th class="Case10 sorting" width="12%" tabindex="0" aria-controls="example"><div class="thbg"> Case No</div></th>
+                                    <th class="PartyName10 sorting " width="12%" tabindex="0" aria-controls="example"><div class="thbg"> Party Name</div></th>
+                                    <th class="Court10 sorting " width="12%" tabindex="0" aria-controls="example"><div class="thbg"> Court Name</div></th>
+                                    <th class="Mandal10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg"> Mandal</div></th>
+                                    <th class="JanPad10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg"> JanPad</div></th>
+                                    <th class="Tahsil10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg"> Tahsil</div></th>
+                                    <th class="RevenueCourt10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg"> Revenue Court</div></th>
+                                    <th class="NextHearing10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg"> Next Hearing</div></th>
+                                    <th class="Disposed10 sorting" width="10%" tabindex="0" aria-controls="example"> <div class="thbg">Disposed Date</div></th>
+                                    <th class="Status10 sorting" width="8%" tabindex="0" aria-controls="example"><div class="thbg"> Status</div></th>
+                                    <th class="ComputerCaseno10 sorting" width="8%" tabindex="0" aria-controls="example"><div class="thbg"> ComputerCaseno</div></th>
+                                    <th class="Nature10 sorting" width="8%" tabindex="0" aria-controls="example"><div class="thbg"> Nature</div></th>
+                                    <th class="AdmissionDate10 sorting" width="8%" tabindex="0" aria-controls="example"><div class="thbg"> Admission Date</div></th>
+                                    <th class="Act10 sorting" width="8%" tabindex="0" aria-controls="example"><div class="thbg">Act</div></th>
+                                    @if (hsmklitigation1.ToString() == "display:unset" && dashmatter1.ToString() == "display:none")
+                                    {
+                                        <th class="Notes10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg">MatterName</div>    </th>
+                                    }
+                                    else
+                                    {
+                                        <th class="Notes10 sorting" width="10%" tabindex="0" aria-controls="example">
+                                            <div class="thbg">Action</div>
+                                        </th>
+                                    }
+
+                                </tr>
+                            </thead>
+                            <tbody id="alldatabind"></tbody>
+                        </table>
+                        <center>
+                            <div class="notfound" id="pdatastatus" style="display:none;">
+                                <img src="~/newassets/img/not-found.png" />
+                                <h4><span id="dtNotFound">No Case List Found</span></h4>
+                                <p>We found no Case list.</p>
+                            </div>
+                        </center>
+                    </div>
+
+                </div>
+                <div class="pagination" id="pagenatedArea">
+                    <div class="pagination-button-group">
+                        <div id="prev" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbers" class="pagination-button-group-base1">
+                        </div>
+
+                        <div id="next" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGo" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+        
+                    <div id="myModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog " style="width:60%">
+                            <div class="modal-content">
+                                <div class="modal-header btn-success">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">
+                                        Details by Appeal No
+                                    </h4>
+                                </div>
+                                <!-- Modal content-->
+                                <div class="modal-content mymodels" id="mymodels" style="margin-top:10px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="myModaltimeline" class="modal fade myModal" role="dialog" data-backdrop="static">
+                        <div class="modal-dialog" style="width:60%">
+                            <!-- Modal content-->
+                            <div class="modal-content ">
+                                <div class="modal-header btn-success">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">
+                                        Case Order TimeLine
+                                    </h4>
+                                </div>
+                                <div class="mymodelstime" id="mymodelstime" style="margin-top:10px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="myModallinkcase" class="modal fade myModal" role="dialog" data-backdrop="static">
+                        <div class="modal-dialog">
+                            <!-- Modal content-->
+                            <div class="modal-content ">
+                                <div class="modal-header btn-success">
+                                    <button type="button" class="close" id="closelinkmatter" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">
+                                        Link case
+                                    </h4>
+                                </div>
+                                <div class="myModallinkcase1" id="myModallinkcase1" style="margin-top:10px;">
+                                    <div class="modal-body">
+                                        <div class="ec_bg" style="height: 150px !important">
+                                            <div class="col-md-8">
+                                                <input id="livecaseidhide" class="form-control inputFormat" type="hidden" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <input type="text" id="mattersforlink2" class="form-control inputFormat" placeholder="Enter Matter Name" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <button class="sbtbtn" id="savelinkmatter">Save</button>
+                                            </div>
+                                        </div>
+                                        <br><br><br><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+                        <div class="modal-dialog">
+                            <input type="hidden" id="exportrecords">
+                            <div class="modal-header btn-primary">
+                                <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">
+                                    Export Cases
+                                </h4>
+                            </div>
+                            <div class="modal-body  partynamebody " id="" style="height:505px; overflow-y:scroll;background:white;">
+                                <table class="table " style="font-size:12px;">
+                                    <thead>
+                                        <tr style="font-size: 12px;">
+                                            <th><div class="thbg">Page No.</div></th>
+                                            <th><div class="thbg">FileName</div></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="printexport"></tbody>
+                                    <tr></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+               
+        <div id="casewatchmodelalert" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog ">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header btn-success">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            User Details for Live Update
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="form-group col-md-12 ">
+                                <label>Select Users</label>
+                                <select multiple class="selctInputFormat" name="languageSelect[]" id="UsersCasewatchAlert"></select>
+                            </div>
+                            <div class="form-group col-md-12 text-right" style="margin:15px 0;"> 
+                            <button type="button" class="btn btn-primary" id="savecasewatchuser">Save</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                
+                                    <table class="table-panel">
+                                        <thead>
+                                            <tr> <th><div class="thbg">Sl NO.</div></th><th><div class="thbg">UserName</div></th><th><div class="thbg">Email</div></th><th><div class="thbg">Mobile</div></th><th><div class="thbg">Action</div></th></tr>
+                                        </thead>
+                                        <tbody id="bindcasewatchalertuser"></tbody>
+                                    </table>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: none !important">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $("#mattersforlink2").autocomplete({
+                    disabled: true
+                });
+            });
+            $('#mattersforlink2').on('keyup', function () {
+                /* your code here */
+                var txtlength = $("#mattersforlink2").val().length;
+                if (txtlength > 0) {
+                }
+                else {
+                    $("#livecaseidhide,#mattersforlink2").val("");
+                }
+            });
+            $(function () {
+                $("#mattersforlink2").typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 3,
+                    source: function (request, response) {
+                        request = request.replace(/"/g, "").replace(/\\/g, "");
+                        $.ajax({
+                            async: true,
+                            url: '/Firm/MatterFilterAutoComplete',
+                            data: "{ 'prefix': '" + request + "'}",
+                            dataType: "json",
+                            type: "POST",
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                items = [];
+                                map = {};
+                                $.each(data, function (i, item) {
+                                    var id = item.val;
+                                    var name = item.label;
+                                    map[name] = { id: id, name: name };
+                                    items.push(name);
+                                });
+                                response(items);
+                                $(".dropdown-menu").css("height", "auto");
+                                $(".typeahead li").removeClass("active");
+                            },
+                            error: function (response) {
+                                alert(response.responseText);
+                            },
+                            failure: function (response) {
+                                alert(response.responseText);
+                            }
+                        });
+                    },
+                    updater: function (item) {
+                        $("#livecaseidhide").val(map[item].id);
+                        return map[item].name;
+                    }
+                });
+            });
+        </script>

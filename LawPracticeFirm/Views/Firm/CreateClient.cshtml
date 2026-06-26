@@ -1,0 +1,353 @@
+﻿@{
+    ViewBag.Title = "CreateUser";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<i class="pp-icon-user"></i>
+<style>
+    input[readonly] {
+        cursor: text !important;
+        background-color: #fff !important;
+    }
+
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+</style>
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+    var type = '@ViewBag.type'
+    var filesize =@ViewBag.filesize;
+</script>
+<script src="~/Scripts/Firm/Pages/CreateClient.js?1.2"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script>
+    $(document).ready(function () {
+        try {
+            var ddlCountry = $('#country');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    $.each(d.Data, function (i, country) {
+                        ddlCountry.append($("<option></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                    ddlCountry.append($("<option value='' selected></option>").val('').html('Please Select Country'));
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //State details by country id
+        $("#country").change(function () {
+            var CountryId = $(this).val();
+            if (CountryId != "India") {
+                $("#ostate").css("display", "unset");
+                $("#ocity").css("display", "unset");
+                $("#state").css("display", "none");
+                $("#city").css("display", "none");
+                return false;
+            }
+            else {
+                $("#ostate").css("display", "none");
+                $("#ocity").css("display", "none");
+                $("#state").css("display", "unset");
+                $("#city").css("display", "unset");
+            }
+            var ddlState = $('#state');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#city');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select City'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select the state.'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#state").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#city');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value='' selected></option>").val('').html('Select City Name'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+    });
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">New @Session["caclientlable"]</li>
+        </ol>
+        <h1><span class="fa fa-user"></span> New @Session["caclientlable"]</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="">
+                    <div class="box-header">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <form id="saveclient" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <fieldset>
+                        <legend>Personal Details</legend>
+                        <div class="">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-10 contact-details">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4"> User Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                <div class="col-md-8">
+                                                    <input autofocus="" class="form-control" maxlength="49" placeholder="Full Name" type="text" value="" name="name" id="name" required="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4"> Email <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                <div class="col-md-8">
+                                                    <input autofocus="" class="form-control" maxlength="49" placeholder="Email" type="email" required value="" name="email" id="email" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4" for="Home"> Mobile <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" onkeypress="return restrictAlphabets(event)" minlength="10" maxlength="10" required ondrop="return false;" onpaste="return false;" maxlength="10" placeholder="Mobile Number" type="text" name="mobile" value="" id="mobile">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4" for="Mobile"> Land Line </span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" maxlength="49" onkeypress="return restrictAlphabetsfax(event)" placeholder="landline Number" name="landline" type="text" value="" id="landline">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4" for="Office"> Address </span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" maxlength="249" placeholder="Address" type="text" value="" id="address">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4"> Country <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </span>
+                                                <div class="col-md-8">
+                                                    <select class="form-control" name="country" id="country" required></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4"> State  <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                <div class="col-md-8">
+                                                    <select nname="state" id="state" class="form-control"></select>
+                                                    <input type="text" class="form-control" name="ostate" id="ostate" style="display:none" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4"> City <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </span>
+                                                <div class="col-md-8">
+                                                    <select cname="city" id="city" class="form-control"></select>
+                                                    <input type="text" class="form-control" name="ocity" id="ocity" style="display:none" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="form-group">
+                                                <div class="col-md-10">
+                                                    <div class="grid-container" style="display:none">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6" id="content">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 contact-photo" style="padding-top:8px">
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <div>
+                                                <div class="fileupload-new thumbnail"> <img src="~/PanelDesign/images/Default_User_pic_new.png" alt="" id="output_image"> </div>
+                                                <div>
+                                                    <span class="btn btn-default btn-file file-upload-buttons">
+                                                        <span class="fileupload-new"><span class="glyphicon glyphicon-paperclip"></span> Upload Picture</span> <span class="fileupload-exists"><span class="glyphicon glyphicon-repeat"></span> Change</span>
+                                                        <input type="file" onchange="preview_image(event)" class="default photo-attachment" name="attachment" id="attachment" accept="image/*">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <fieldset>
+                                <legend>Create Login Details </legend>
+                                <div class="form-group form-horizontal">
+                                    <label class="control-label col-md-2">User ID  <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <div class="col-md-4">
+                                        <input class="form-control" readonly onfocus="$(this).removeAttr('readonly');" name="username" type="text" maxlength="30" id="username" placeholder="User ID" required />
+                                    </div>
+                                </div>
+                                <div class="form-group form-horizontal">
+                                    <label class="control-label col-md-2">Password  <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <div class="col-md-4">
+                                        <input class="form-control" readonly onfocus="$(this).removeAttr('readonly');" name="npassword" minlength="8" maxlength="30" type="password" id="npassword" autocomplete="off" placeholder="Password" required />
+                                    </div>
+                                </div>
+                                <div class="form-group form-horizontal">
+                                    <label class="control-label col-md-2">Confirm Password  <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <div class="col-md-4">
+                                        <input class="form-control" readonly onfocus="$(this).removeAttr('readonly');" minlength=8 name="cpassword" type="password" id="cpassword" autocomplete="off" maxlength="30" placeholder="Confirm Password" required />
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <input type="submit" id="addcontact" class="btn btn-primary save" value="Save">
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+</aside>
+        </form>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

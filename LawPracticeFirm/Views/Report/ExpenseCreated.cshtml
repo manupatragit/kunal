@@ -1,0 +1,830 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/Scripts/Firm/Pages/ExpenseCreated.js?2.8"></script>
+<style>
+    .database_table {
+        margin-bottom: 10px;
+        overflow: auto;
+    }
+</style>
+<main class="wrapper report_wrapper">
+    <section id="header">
+        <div class="container-main">
+            <div class="text-left">
+                <p class="ctitle">Billing Reports</p>
+            </div>
+        </div>
+    </section>
+    <div class="horizontal-tabs">
+        <div class="tabs">
+            <div class="tab-button-base">
+                <div class="text1" id="alink_invoicecreated" style="cursor:pointer;"><a href="/@Session["firmcode"]/report/InvoiceReport" title="Invoice Report">Invoice</a> </div>
+            </div>
+            <div class="tab-button-base1">
+                <div class="text1" id="alink_expensecreated"><a href="/@Session["firmcode"]/report/ExpenseCreated" title="Expense Report">Expense Created</a> </div>
+            </div>
+        </div>
+    </div>
+    <section class="main_content">
+        <div class="mid-section ec_bg">
+            <form id="idexpreportformat">
+                <div class="row report_row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">User</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpenceTeamMemberCr">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3" style="display:none">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">CREATED BY</label>
+                            @if (role.ToString() == "1")
+                            {
+                                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpUser" name="ddlExpUser"></select>
+                            }
+                            else
+                            {
+                                <span style="display:none" id="ddlExpUser" name="ddlExpUser"></span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Client</label>
+                            <input type="hidden" id="ectimecontactvalue">
+                            <input type="text" id="ectimecontact" name="ectimecontact" class="form-control inputFormat" autocomplete="new-text" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Matter Type</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="ecmatterlist" name="ecmatterlist">
+                                <option value="0" selected="">Select</option>
+                                <option value="Active">Active</option>
+                                <option value="Archive">Archive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Matter Name</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="ecmatter" name="ecmatter">
+                                <option value="" selected="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Expense Type</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpenseType">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Expense Category</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlCategory">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Creation Date</label>
+                            <div class="row gy-sm-4">
+                                <div class="col-md-6">
+                                    <input class="form-control inputFormat" id="datefrom" onkeypress="return false;" type="date" placeholder="from">
+                                </div>
+                                <div class="col-md-6">
+                                    <input class="form-control inputFormat" id="dateto" onkeypress="return false;" type="date" placeholder="to">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">&nbsp;&nbsp;</label>
+                            <div class="row gy-sm-4">
+                                <div class="col-md-8">
+                                    <button class="btn btn-primary" type="button" style="width:100%;" id="searchdatas">Generate Report</button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-secondary" type="button" style="width:100%;" id="expClearReport">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+                </div>
+
+        <div class="tabuler_section">
+            <div class="table-responsive">
+                <section id="table" style="margin-top:15px;">
+                    <div class="container-main">
+                        <div class="table">
+                            <div class="card-header">
+                                <div class="content1" style="padding-bottom:20px;">
+                                    <div class="text-and-supporting-text1">
+
+                                    </div>
+                                    <div class="table-header">
+                                        <div class="actions3">
+                                            <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                                                <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+                                                <div class="text-padding">
+                                                    <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                                </div>
+                                            </div>
+                                            <div class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                                    <div class="button13 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+                                                        <div class="text-padding">
+                                                            <div class="text1"><a href="javascript:void()" id="download" title="Column Selection">Report Download</a></div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <ul class="dropdown-menu settingaction">
+                                                    @if (role.ToString() == "1")
+                                                    {
+                                                        <li><a href="javascript:void()" id="oexcel" title="export to excel"> Export to excel</a></li>
+                                                        <li><a href="javascript:void()" id="opdf" title="export to pdf"> Export to pdf</a></li>
+                                                    }
+                                                    else
+                                                    {
+                                                        if (Convert.ToInt32(ViewBag.export) == 1)
+                                                        {
+                                                            <li><a href="javascript:void()" id="oexcel" title="export to excel"> Export to excel</a></li>
+                                                            <li><a href="javascript:void()" id="opdf" title="export to pdf"> Export to pdf</a></li>
+                                                        }
+                                                    }
+                                                </ul>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="database_table">
+                                <table class="table-panel" id="cexample1" style="overflow-x:auto">
+                                    <thead>
+                                        <tr>
+                                            <th class="eDate" title="Date on which expense incurred"><div class="thbg">Date</div></th>
+                                            <th class="eCaseName" width="15%" title="Matter for which expense incurred"><div class="thbg">Matter Name</div></th>
+                                            <th class="Retainername" width="11%">
+                                                <div class="thbg">
+                                                    <div style="float:left;width:80%">
+                                                        <input type="text" id="filterretainerName" placeholder="Retainer Name" class="form-control pull-left" style="width:120px;">
+                                                    </div>
+                                                    <div style="float:left;width:20%">
+                                                        <span class="glyphicon glyphicon-search" id="searretainerName" style="margin:5px 0 0 -14px;float:right"></span>
+                                                        <span class="" id="clearretainerName" title="Click here to reset search" style="display:none;color:black;font-size:15px;font-weight:350;cursor:pointer;">x</span>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <th class="eClientName" title="Client for whom expense incurred"><div class="thbg">Client Name</div></th>
+                                            <th class="eExpenseType" title="Billable or Non billable expense"><div class="thbg">Expense Type</div></th>
+                                            <th class="eCategory" title="Expense type"><div class="thbg">Category</div></th>
+                                            <th class="eCurrency" width="10%" title="Expense Currency">
+                                                <div class="thbg">
+                                                    <select class="form-control" id="ddlCurrencyFilter">
+                                                        <option value="">Currency</option>
+                                                        <option value="1">INR</option>
+                                                        <option value="2">USD</option>
+                                                    </select>
+                                                </div>
+                                            </th>
+                                            <th class="eDescription" width="15%" title="Add Narration">
+                                                <div class="thbg">
+                                                    <div style="float:left;width:80%">
+                                                        <input type="text" id="expensefilterdescription" placeholder="Description" class="form-control pull-left" style="width:120px;">
+                                                    </div>
+                                                    <div style="float:left;width:20%">
+                                                        <span class="glyphicon glyphicon-search" id="searchdescription" style="margin:5px 0 0 -14px;float:right"></span>
+                                                        <span class="" id="clearnewsearchdescription" title="Click here to reset search" style="display:none;font-size:15px; color:black; font-weight:400; cursor:pointer;">x</span>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <th class="eDueDate" title="Due Date">
+                                                <div class="thbg" style="width: auto !important;">
+                                                    Due Date
+                                                </div>
+                                            </th>
+                                            <th class="ePriceRate"><div class="thbg">Price/Rate</div></th>
+                                            <th class="eUnit"><div class="thbg">Unit</div></th>
+                                            <th class="eTotalPayment" width="5%" title="Amount of expense"><div class="thbg">Amount</div></th>
+                                            <th class="ePayReceived" title="Payment Received">
+                                                <div class="thbg" style="width: auto !important;">
+                                                    Payment Made
+                                                </div>
+                                            </th>
+                                            <th class="eTotal" width="5%" title="Balance amount of expense"><div class="thbg">Balance Amount</div></th>
+                                            <th class="createdby" title="User name"><div class="thbg">Created by</div></th>
+                                            <th class="eReceipt" title="Attach supporting if applicable"><div class="thbg">Receipt</div></th>
+                                            <th class="createdfor" title="User on whose behalf expense entry made"><div class="thbg">Created for</div></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bindexpense"></tbody>
+                                </table>
+                                <div>
+                                    <center>
+                                        <div class="notfound" id="datastatus">
+                                            <img src="~/newassets/img/not-found.png" />
+                                            <h4>No Report Generated</h4>
+                                            <p>Use the filter above to generate your customized report.</p>
+                                        </div>
+                                    </center>
+                                </div>
+                            </div>
+
+                            @*<div style="float:left;width:57%;margin-bottom:5px;">
+                                    &nbsp;
+                                </div>
+                                <div style="float:left;width:20%;display:none;border:1px solid #ccc" id="sumdiv">
+                                    <span style="margin-left:15px;font-weight:bold">Total Amount </span>
+                                    <span style="margin-left:34px;">|</span>
+                                    <span id="totalamount" style="margin-left:20px">0</span>
+                                </div>*@
+                            <div class="pagination">
+                                <div class="pagination-button-group">
+                                    <div id="prev" class="pagination-button-group-base">
+                                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                    </div>
+                                    <div id="pageNumbers" class="pagination-button-group-base1">
+
+                                    </div>
+
+                                    <div id="next" class="pagination-button-group-base8">
+                                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-parent">
+                                    <div class="input">
+                                        <div class="content">
+                                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                        </div>
+                                        <div class="help-icon">
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-group">
+                                        <div class="text-and-supporting-text">
+                                            <div id="divGo" class="text9">Go</div>
+                                        </div>
+                                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+</main>
+
+
+
+<!-- Modal customize modal-->
+<div id="myModalCustomizedcolumn" class="modal right fade myModal in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul id="bindcolumnmaster">
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDate" checked><a href="#" class="dropdown-item">Date</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCaseName" checked><a href="#" class="dropdown-item">Matter Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eClientName" checked> <a href="#" class="dropdown-item">Client Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eExpenseType" checked><a href="#" class="dropdown-item">Expense Type</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCategory" checked><a href="#" class="dropdown-item">Category</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCurrency" checked><a href="#" class="dropdown-item">Currency</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDescription"><a href="#" class="dropdown-item">Description</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDueDate"><a href="#" class="dropdown-item">Due Date</a></li>
+                            <li style="display:none"><input type="checkbox" class="shcheckbox1 chkdhide" name="ePriceRate"><a href="#" class="dropdown-item">Price/Rate</a></li>
+                            <li style="display:none"><input type="checkbox" class="shcheckbox1 chkdhide" name="eUnit"><a href="#" class="dropdown-item">Unit</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eTotalPayment" checked><a href="#" class="dropdown-item">Amount</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eTotal" checked><a href="#" class="dropdown-item">Balance Amount</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ePayReceived" checked><a href="#" class="dropdown-item">Payment Made</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eReceipt"><a href="#" class="dropdown-item">Receipt</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="createdby"><a href="#" class="dropdown-item">Created by</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="createdfor" checked><a href="#" class="dropdown-item">Created for</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                    <button class="btn btn-secondary" id="ClearCustomSelection">Clear</button>
+                    <button class="btn btn-primary" id="SaveCustomSelection">Confirm</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function psortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("pexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function osortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("oexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        $("#ectimecontact").autocomplete({
+            disabled: true
+        });
+    });
+    //$("#filterclient").change(function () {
+    //    var flval = $("#filterclient").val();
+    //    if (flval != "") {
+    //        loadmatter1(flval, "filtercasescheduler");
+    //    }
+    //});
+    var clientGrpId = "";
+    var ddlType = "";
+    //function loadmatter1(clientid, mtypes) {
+    //    if (mtypes != "") {
+    //        $('#' + mtypes).append('<option value="">Select Matter</option>').find('option:first').attr("selected", "selected");
+    //        clientGrpId = clientid;
+    //        ddlType = mtypes;
+    //    }
+    //}
+    //function getcasebyajax1(clientid, matteridslbl) {
+    //    try {
+    //        openload();
+    //    }
+    //    catch
+    //    {
+    //    }
+    //    $.ajax({
+    //        async: true,
+    //        type: "POST",
+    //        url: "/api/callApi/LoadMatterforclient",
+    //        headers: {
+    //            "clientid": clientid,
+    //            "companyids": ""
+    //        },
+    //        contentType: "application/json; charset=utf-8",
+    //        dataType: "json",
+    //        success: function (response) {
+    //            if (response.Status == true) {
+    //                var datas = JSON.stringify(response);
+    //            }
+    //            else {
+    //                //alert("not found");
+    //            }
+    //            var obj = JSON.parse(response.Data);
+    //            if (matteridslbl == "filtercasescheduler") {
+    //                $("#filtercasescheduler").empty();
+    //                var optiontempy = '<option value="" >Matters</option>';
+    //                $("#" + matteridslbl).append(optiontempy);
+    //            }
+    //            $.each(obj, function (i, a) {
+    //                var mattername = a.mname;
+    //                var mid = a.Id;
+    //                if (mattername == null) {
+    //                    mattername = "";
+    //                    mid = "";
+    //                }
+    //                else {
+    //                    var option = '<option value="' + mid + '" > ' + mattername + '</option>';
+    //                    $("#" + matteridslbl).append(option);
+    //                }
+    //            });
+    //            try {
+    //                closeload();
+    //            }
+    //            catch
+    //            {
+    //            }
+    //        },
+    //        failure: function (response) {
+    //            alert(data.responseText);
+    //            try {
+    //                closeload();
+    //            }
+    //            catch
+    //            {
+    //            }
+    //        },
+    //        error: function (response) {
+    //            alert(data.responseText);
+    //            try {
+    //                closeload();
+    //            }
+    //            catch
+    //            {
+    //            }
+    //        }
+    //    });
+    //}
+    $("#ecmatterlist").change(function () {
+        var mType = $("#ecmatterlist").val();
+        var matteridslbl = "ecmatter";
+        if (mType != 0) {
+            if (clientGrpId == "") {
+                alert("Please select client name");
+                return false;
+            }
+        }
+        if (mType != "" && clientGrpId != "") {
+            $('#ecmatter').empty();
+            getCaseByMatterType(clientGrpId, mType, matteridslbl);
+        }
+    });
+    function getCaseByMatterType(clientid, matterType, matteridslbl) {
+        try {
+            openload();
+        }
+        catch
+        {
+        }
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/LoadMatterforclientByMatterType",
+            headers: {
+                "clientid": clientid,
+                "matterType": matterType
+            },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                }
+                else {
+                }
+                var obj = JSON.parse(response.Data);
+                $('#' + matteridslbl).html('');
+                $('#' + matteridslbl).append('<option value="">Select Matter</option>').find('option:first').attr("selected", "selected");
+                if (matteridslbl == "filtercasescheduler") {
+                    $("#filtercasescheduler").empty();
+                    var optiontempy = '<option value="" >Matters</option>';
+                    $("#" + matteridslbl).append(optiontempy);
+                }
+                $.each(obj, function (i, a) {
+                    var mattername = a.mname;
+                    var mid = a.Id;
+                    if (mattername == null) {
+                        mattername = "";
+                        mid = "";
+                    }
+                    else {
+                        var option = '<option value="' + mid + '" > ' + mattername + '</option>';
+                        $("#" + matteridslbl).append(option);
+                    }
+                });
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            },
+            failure: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            },
+            error: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            }
+        });
+    }
+    //$(function () {
+    //    $("#taskcontact").typeahead({
+    //        hint: true,
+    //        highlight: true,
+    //        minLength: 3,
+    //        source: function (request, response) {
+    //            request = request.replace(/"/g, "").replace(/\\/g, "");
+    //            $.ajax({
+    //                async: true,
+    //                url: '/Firm/ClientFilter',
+    //                data: "{ 'prefix': '" + request + "'}",
+    //                dataType: "json",
+    //                type: "POST",
+    //                contentType: "application/json; charset=utf-8",
+    //                success: function (data) {
+    //                    items = [];
+    //                    map = {};
+    //                    $.each(data, function (i, item) {
+    //                        var id = item.val;
+    //                        var name = item.label;
+    //                        var utype = item.utype;
+    //                        var isclient = item.isclient;
+    //                        var CompanyID = item.CompanyID;
+    //                        var ProfileType = item.ProfileType;
+    //                        var LabelName = item.LabelName;
+    //                        map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+    //                        items.push(name);
+    //                    });
+    //                    response(items);
+    //                    $(".dropdown-menu").css("height", "auto");
+    //                    $(".typeahead li").removeClass("active");
+    //                },
+    //                error: function (response) {
+    //                    alert(response.responseText);
+    //                },
+    //                failure: function (response) {
+    //                    alert(response.responseText);
+    //                }
+    //            });
+    //        },
+    //        updater: function (item) {
+    //            $("#member").css("height", "100px !important;")
+    //            var clientds = map[item].id;
+    //            if (clientds != "") {
+    //                $('#ecmatter').empty();
+    //                loadmatter1(clientds, "ecmatter");
+    //            }
+    //            else {
+    //            }
+    //            return item;
+    //        }
+    //    });
+    //});
+    $(function () {
+        $("#ectimecontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                var clientds = map[item].id;
+                $("#ectimecontactvalue").val(clientds);
+                if (clientds != "") {
+                    clientGrpId = clientds;
+                    $('#ecmatter').empty();
+                    $('#ecmatterlist').val(0).change();
+                    loadmatter1(clientds, "ecmatter");
+                }
+                else {
+                }
+                return item;
+            }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $("#ColumnSelectionopen").click(function () {
+            $("#myModalCustomizedcolumn").modal('show'); // Opens the modal
+        });
+
+        $(document).click(function (event) {
+            if ($(event.target).is(".myModal")) {
+                $("#myModalCustomizedcolumn").modal('hide'); // Closes the modal
+            }
+        });
+    });
+</script>

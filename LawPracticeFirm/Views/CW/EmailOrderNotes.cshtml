@@ -1,0 +1,119 @@
+﻿@{
+    Layout = null;
+}
+<script>
+        var CaseId = "@ViewBag.CaseId"
+        var search = "@ViewBag.search"
+        GetCaseNotes(CaseId, search);
+        function GetCaseNotes(val, search) {
+            var html3 = '';
+            var formData = new FormData();
+            formData.append("caseid", val);
+            formData.append("search", search);
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/CW/GetCaseNotes",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response1) {
+                    var length = response1.length;
+                    $("#casenotes tr").remove();
+                    if (length > 0) {
+                        $.each(response1, function (i, a) {
+                            $("#mailsubject").val(a.Casename);
+                                html3 += '<tr>'
+                                html3 += '<td>'
+                                html3 += a.Orderdt
+                                html3 += '</td>'
+                                html3 += '<td>'
+                                html3 += a.Notes
+                                html3 += '</td>'
+                                html3 += '</tr>'
+                        });
+                    } else {
+                        html3 += '<tr>'
+                        html3 += '<td colspan=2 align=center>Data Not Found</td></tr>'
+                    }
+                    html3 += '</table>'
+                    $("#casenotes").html("");
+                    $("#casenotes").append(html3);
+                },
+                failure: function (data) {
+                    alert(data.responseText);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+    }
+    function mailsend(val) {      
+        var toemail = $("#mailto").val();
+        if (toemail == "") {
+            alert("Please enter emailId");
+            return false;
+        }
+        var formData = new FormData();
+        formData.append("caseid", val);      
+        formData.append("toemail", toemail);
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/CW/ShareNotes",
+            dataType: 'text',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response1) {
+                alert(response1);
+            },
+            failure: function (data) {
+                alert(data.responseText);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+        });
+    }
+</script>
+<div id="content">
+    <div class="table-panel table-responsive">
+        <div style="background:#e3efff;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                    <td align="left">
+                        <table cellpadding="0" cellspacing="5" border="0" width="100%">
+                            <tr>
+                                <td rowspan="2" width="10%"><button class="sentbtn" type="submit" name="submit" value="Submit" Text="Submit" onClick=mailsend("@ViewBag.CaseId"); style="margin:0px 6px 0 1px;"> Send </button></td>
+                                <td width="10%"><p style="background:#e1e1e1; border:1px solid #adadad; text-align:center; padding:3px 0; margin:0;"> To:</p></td>
+                                <td><input type="text" name="mailto" id="mailto" style="width:100%; padding:4px 0;" /></td>
+                            </tr>
+                            <tr>
+                                <td width="10%"><p style="background:#e1e1e1; border:1px solid #adadad; text-align:center; padding:3px 0; margin:0;"> Subject:</p></td>
+                                <td><input disabled type="text" name="mailsubject" id="mailsubject" value="" style="width:100%; padding:4px 0;" /></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="left" style="padding:10px;">
+                        <fieldset>
+                            <legend> Mail Body</legend>
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tbody style="text-align:center;" id="casenotes"></tbody>
+                                @*<tr>
+            <td style="display:none;"><%=casemasternotesdata1[j].Iid%></td>
+            <td width="20%" align="left" style="padding:4px;"><%=casemasternotesdata1[j].Orderdt%></td>
+            <td width="80%" align="left" style="padding:4px;"><%=casemasternotesdata1[j].Notes%></td>
+        </tr>*@
+                            </table>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr></tr>
+            </table>
+        </div>
+    </div>
+</div>

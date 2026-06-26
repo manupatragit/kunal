@@ -1,0 +1,1833 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script>
+    var gid = "@ViewBag.id";
+    var gop = "2";
+    var gname = "";
+    var filesize =@ViewBag.filesize;
+    var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter ="@Session["dashmatter"]";
+</script>
+<style>
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+
+    input:disabled {
+        background: green;
+    }
+</style>
+<!--Prem style start-->
+<style>
+    .section-header {
+        padding: 14px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+        background: #F9FAFB;
+        border-bottom: 1px solid #e9eaeb;
+    }
+
+    .section-content {
+        padding: 10px 20px;
+        display: none;
+    }
+
+
+
+    .upload-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .upload-box input[type="file"] {
+            width: auto;
+        }
+
+        .upload-box button {
+            padding: 8px 12px;
+            background: #0b3b66;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+    .toggle-icon {
+        font-size: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .rotate {
+        transform: rotate(180deg);
+    }
+
+    .avatar-container {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin: 10px;
+    }
+
+    .avatar-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid #0369A1;
+        object-fit: cover;
+    }
+
+    .edit-icon {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background: white;
+        border-radius: 3px;
+        padding: 2px 2px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }
+
+    .form-group {
+        height: 70px;
+    }
+
+    .switch {
+        margin: 2px 0 0 7px;
+    }
+
+    form {
+        margin: 0;
+        padding: 0;
+    }
+
+    #info-wrapper-1 {
+        position: relative;
+        display: inline-block;
+    }
+
+    #info-icon-1 {
+        cursor: pointer;
+        margin-left: 5px;
+    }
+
+    #info-text-1 {
+        display: none;
+        position: absolute;
+        top: 26px;
+        left: 0;
+        width: 230px;
+        background: white;
+        border: 1px solid rgb(143, 213, 0);
+        padding: 4px;
+        z-index: 1000;
+    }
+
+    /* Show text on hover of the wrapper */
+    #info-wrapper-1:hover #info-text-1 {
+        display: block;
+    }
+</style>
+<!--End prem style-->
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Employee/Pages/Profile.js?2.9"></script>
+<script src="~/Scripts/Firm/Pages/ChangePassword.js?2.3" type="text/javascript"></script>
+
+
+<script>
+    openloader();
+    var ajaxTime = new Date().getTime();
+    function openloader() {
+    }
+    $(document).ready(function () {
+        if (dashcw == "display:unset") {
+            $("#EmailSignaturetable").show();
+        }
+        else {
+            $("#EmailSignaturetable").remove();
+        }
+        //for hide the rights parts if user is litigation
+        if (hsmklitigation == "display:unset" && dashmatter == "display:none") {
+            $("#home").hide();
+        }
+        else {
+            $("#home").show();
+        }
+        var tempsize = 0;
+        var tottempsize = 0;
+        try {
+            var ddlCountry = $('#country');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    option11 = '<option value="" selected >Select</option>';
+                    ddlCountry.append($("<option value='' selected></option>").val('').html('Please Select Country'));
+                    $.each(d.Data, function (i, country) {
+                        ddlCountry.append($("<option></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //State details by country id
+        $("#country").change(function () {
+            var CountryId = $(this).val();
+            if (CountryId != "India") {
+                $("#ostate").css("display", "unset");
+                $("#ocity").css("display", "unset");
+                //$("#state").css("display", "none");
+                //$("#city").css("display", "none");
+                return false;
+            }
+            else {
+                $("#ostate").css("display", "none");
+                $("#ocity").css("display", "none");
+                //$("#state").css("display", "unset");
+                //$("#city").css("display", "unset");
+            }
+            var ddlState = $('#state');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#city');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select City'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select the state.'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#state").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#city');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select City Name'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+        $("#savesettings").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("signlogo").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("signlogo").files[i];
+                var filename = file.name;
+                //validate filechracter
+                var extension = filename.substring(filename.lastIndexOf('.') + 1);
+                if (extension.toLowerCase() == "jpg" || extension.toLowerCase() == "jpeg" || extension.toLowerCase() == "png") {
+                }
+                else {
+                    alert("Only JPG,JPEG and PNG extensions/files are allowed.");
+                    return false;
+                }
+                var fileNameIndex = filename.lastIndexOf("/") + 1;
+                var dotIndex = filename.lastIndexOf('.');
+                var newfioename = filename.substr(fileNameIndex, dotIndex < fileNameIndex ? filename.length : dotIndex);
+                var reg = /[@@\\/:*?"<>|.&$%#!~+`*^,]/;
+                if (reg.test(newfioename) == true) {
+                    alert('(@@\/:*?"<>|.&$%#!~+`*^,) are  not allowed.');
+                    return false;
+                }
+                if (filename.length > 100) {
+                    alert("The name of the file cannot exceed the limit of 100 characters. Please check file name: " + filename);
+                    return false;
+                }
+
+                formData.append("FileUpload", file);
+                try {
+                    if (typeof (file) != "undefined") {
+                        size = parseFloat(file.size / 1024).toFixed(2);
+                        tottempsize = parseFloat(tottempsize) + parseFloat(size);
+                        tempsize = parseFloat(size);
+                    }
+                }
+                catch (err) {
+                    //alert(err.message);
+                }
+                tempsize = tempsize.toFixed(2);
+                if (tempsize > filesize) {
+                    new PNotify({
+                        title: 'Warning!',
+                        text: Filesizelabel,
+                        type: 'error',
+                        delay: 3000
+                    });
+                    return false
+                }
+            }
+            var orgname = $("#orgname").val();
+            var sname = $("#sname").val();
+            var sremail = $("#sremail").val();
+            var signmobile = $("#signmobile").val();
+            var signemail = $("#signemail").val();
+            var AlertFor = $("#AlertFor").val();
+            var filepath = $("#filepath").val();
+            if (orgname == "") {
+                alert("Please enter organisation name.")
+                $("#orgname").focus();
+                return false;
+            }
+            if (sname == "") {
+                alert("Please enter name.")
+                $("#sname").focus();
+                return false;
+            }
+            if (sremail != "") {
+                var reg = /^([A-Za-z0-9_\-\.])+\@@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+                if (reg.test(sremail) == false) {
+                    alert('Invalid reply email ID');
+                    document.getElementById("sremail").focus();
+                    return false;
+                }
+            }
+            if (signmobile != "") {
+                var intRegex = /^\d+$/;
+                if (intRegex.test(signmobile)) {
+                }
+                else {
+                    alert("Please enter valid signature mobile.");
+                    document.getElementById("signmobile").focus();
+                    return false;
+                }
+                if (signmobile.length == 10) {
+                }
+                else {
+                    alert("Signature mobile should be 10 digits.");
+                    document.getElementById("signmobile").focus();
+                    return false;
+                }
+            }
+            if (signemail != "") {
+                var reg = /^([A-Za-z0-9_\-\.])+\@@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+                if (reg.test(signemail) == false) {
+                    alert('Invalid signature email ID');
+                    document.getElementById("signemail").focus();
+                    return false;
+                }
+            }
+            formData.append("orgnisation", EncodeText(orgname));
+            formData.append("name", EncodeText(sname));
+            formData.append("replyemail", EncodeText(sremail));
+            formData.append("signaturemobile", EncodeText(signmobile));
+            formData.append("signatureemail", EncodeText(signemail));
+            formData.append("alertfor", EncodeText(AlertFor));
+            formData.append("filepath", EncodeText(filepath));
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/AddUserEmailDetails",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (String(response.Data) == "1") {
+                        alert("Details saved succssfully.");
+                        window.location.reload();
+                        GetSignatureDetails()
+                    }
+                    else {
+                        alert("Oops something went wrong!");
+                    }
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        });
+        //  $("#OpenEmailSettings").click(function () {
+        //   $('#myModalperm').modal({ show: true });
+        BindAlertFor();
+        setTimeout(GetSignatureDetails, 2000);
+        //  });
+        function GetSignatureDetails() {
+            var html3 = '';
+            var formData = new FormData();
+            openload();
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/BindEmailSignatureDetails",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response1) {
+                    var length = response1.Data.length;
+                    $.each(response1.Data, function (i, a) {
+                        $("#orgname").val(a.vOrgnisationname);
+                        $("#sname").val(a.vName);
+                        $("#sremail").val(a.ReplyEmail);
+                        $("#signmobile").val(a.SignatureMobile);
+                        $("#signemail").val(a.SignatureEmail);
+                        $("#AlertFor").val(a.AlertsFor);
+                        $("#filepath").val(a.SignatureLogo);
+                        if (a.SignatureLogo == "") {
+                            $("#signsource").attr("href", a.SignatureLogo).hide();
+                        }
+                        else {
+                            $("#signsource").attr("href", a.SignatureLogo).show();
+                            var filename = a.SignatureLogo.substring(a.SignatureLogo.lastIndexOf("/") + 1, a.SignatureLogo.length);
+                            $("#signsource").attr("download", filename).show();
+                            $("#signsource").attr("title", "Download the Signature Logo");
+                        }
+                    });
+                    closeload();
+                },
+                failure: function (data) {
+                    alert(data.responseText);
+                    closeload();
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                    closeload();
+                }
+            });
+        }
+        $("#OpenAlertSettings").click(function () {
+            $('#myModalAlertOnOff').modal({ show: true });
+        });
+
+        //End Save Alert Day added by umesh on 6Jul22
+        if (role == "1") {
+            $("#lblisadmin").text('( Firm Admin )');
+        }
+        $("#twostep").click(function () {
+            if ($("#twostep:checked").prop('checked')) {
+                cp = "1"
+            }
+            else {
+                cp = "0";
+            }
+            var formData = new FormData();
+            formData.append("authenticate", EncodeText(cp));
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/TwoFactorAuthentication",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (String(cp) == "1") {
+                        alert("Two step authentication enabled successfully.");
+                    }
+                    else if (String(cp) == "0") {
+                        alert("Two step authentication disabled successfully.");
+                    }
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        });
+        Loadstructure();
+        function Loadstructure() {
+            $("#codesignation").html('');
+            var option7 = '<option value="" > Select</option>';
+            $("#codesignation").append(option7);
+            var formData = new FormData();
+            $.ajax({
+                async: true,
+                url: '/api/CallApi/LoadFirmStructureAll',
+                data: formData,
+                contentType: false,
+                processData: false,
+                type: 'POST',
+                success: function (response) {
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        var obj = JSON.parse(response.Data);
+                    }
+                    else {
+                        //alert("not found");
+                    }
+                    $.each(obj, function (i, a) {
+                        if (a.SType == "Designation") {
+                            var option = '<option value="' + a.Id + '" > ' + a.Name + '</option>';
+                            $("#codesignation").append(option);
+                        }
+                    });
+                    $.ajax({
+                        async: true,
+                        url: '/api/EmployeeApi/UserDetail',
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        success: function (response) {
+                            var totalTime = new Date().getTime() - ajaxTime;
+                            console.log("Userdetails:" + totalTime);
+                            if (response.Status == true) {
+                                var datas = JSON.stringify(response);
+                                var obj = JSON.parse(response.Data);
+                            }
+                            else {
+                                //  alert("not found");
+                            }
+                            var it = 2;
+                            var bclass = '';
+                            var bdata = '';
+                            $.each(obj, function (i, val) {
+                                $("#cofname").val(val.cfname.replace("&amp;", "&"));
+                                $("#comname").val(val.cmname);
+                                $("#colname").val(val.clname);
+                                var ulable = "User rights"
+                                if (val.cfname != "") {
+                                    ulable = "User Rights (" + val.cfname.replace("&amp;", "&") + ")";
+                                    $("#userrightstitle").text(ulable);
+                                }
+                                else {
+                                    ulable = "User Rights (" + val.Username.replace("&amp;", "&") + ")";
+                                    $("#userrightstitle").text(ulable);
+                                }
+                                if (val.Designation != null) {
+                                    $('#codesignation option[value="' + val.Designation + '"]').attr("selected", true);
+                                }
+                                $("#coemail").val(val.cemail);
+                                $("#comobile").val(val.cmobile);
+                                $("#colandline").val(val.clandline);
+                                $("#coaddress").val(val.caddress);
+                                $('#cocountry').val(val.country);
+                                $('#costate').val(val.cstate);
+                                $("#cocity").val(val.ccity);
+                                $("#copin").val(val.Pin);
+                                $("#name").val(val.cfname);
+                                $("#email").val(val.cemail);
+                                $("#mobile").val(val.cmobile);
+                                $("#currentEmail").val(val.cemail);
+                                $("#currentMobile").val(val.cmobile);
+                                $("#landline").val(val.clandline);
+                                $("#address").val(val.caddress);
+                                $('#country').val(val.country);
+                                $('#state').val(val.cstate);
+                                $("#city").val(val.ccity);
+                                $("#hidid").val(val.Id);
+                                $("#barno").val(val.BARNo);
+                                $("#commuemail").val(val.Commuemail);
+                                if (val.cphoto != null) {
+                                    $("#output_image").attr("src", val.cphoto)
+                                }
+                                if (val.IsTwoFactor == "1") {
+                                    $("#twostep").prop("checked", true);
+                                }
+                                else {
+                                    $("#twostep").prop("checked", false);
+                                }
+                            });
+                            try {
+                                LoadUserGroup_TeambyId();
+                                LoadEditRoleAccessLevelData();
+                                LoadCaseRoleAccessLevelData();
+                            }
+                            catch
+                            {
+                            }
+                        },
+                        error: function () {
+                            // alert('Error!');
+                        }
+                    });
+                    //console.log(response);
+                },
+                failure: function (response) {
+                    alert(data.responseText);
+                },
+                error: function (response) {
+                    alert(data.responseText);
+                }
+            });
+        }
+
+
+        LoadstructureData();
+        function LoadstructureData() {
+            $("#codesignation").html('');
+            var option7 = '<option value="" > Select</option>';
+            $("#codesignation").append(option7);
+            var formData = new FormData();
+            $.ajax({
+                async: true,
+                url: '/api/CallApi/LoadFirmStructureAll',
+                data: formData,
+                contentType: false,
+                processData: false,
+                type: 'POST',
+                success: function (response) {
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        var obj = JSON.parse(response.Data);
+                    }
+                    else {
+                        //alert("not found");
+                    }
+                    $.each(obj, function (i, a) {
+                        if (a.SType == "Designation") {
+                            var option = '<option value="' + a.Id + '" > ' + a.Name + '</option>';
+                            $("#codesignation").append(option);
+                        }
+                    });
+                },
+                failure: function (response) {
+                    alert(data.responseText);
+                },
+                error: function (response) {
+                    alert(data.responseText);
+                }
+            });
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const firstHeader = document.querySelector('.section-header');
+            if (firstHeader) {
+                toggleSection(firstHeader);
+            }
+        });
+    });
+    function toggleSection(header) {
+        const allSections = document.querySelectorAll('.section-content');
+        const allIcons = document.querySelectorAll('.toggle-icon');
+
+        const content = header.nextElementSibling;
+        const icon = header.querySelector('.toggle-icon');
+
+        allSections.forEach(sec => {
+            if (sec !== content) sec.style.display = 'none';
+        });
+
+        allIcons.forEach(ic => {
+            if (ic !== icon) ic.classList.remove('rotate');
+        });
+
+        const isOpen = content.style.display === 'block';
+        content.style.display = isOpen ? 'none' : 'block';
+        icon.classList.toggle('rotate', !isOpen);
+    }
+
+    // Automatically open the first toggle on page load
+
+    //function preview_image(event) {
+    //    var reader = new FileReader();
+    //    reader.onload = function () {
+    //        var output = document.getElementById('output_image');
+    //        output.src = reader.result;
+    //    }
+    //    reader.readAsDataURL(event.target.files[0]);
+    //}
+</script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Profile Details</p>
+        </div>
+    </div>
+</section>
+<!-- General Info -->
+<section id="table">
+    <div class="container-main">
+        <div class="table" style="margin:0;">
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    General Information
+                    <span class="toggle-icon"><img src="~/newassets/img/arrow.png" /></span>
+                </div>
+                <div class="section-content">
+                    <form id="saveclient" enctype="multipart/form-data">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="avatar-container">
+                                    <img src="~/PanelDesign/images/Default_User_pic_new.png" alt="User" class="avatar-img" id="output_image">
+                                    <label for="attachment" class="edit-icon"><img src="~/newassets/img/editmatter.png" /></label>
+                                    <input type="file" id="attachment" accept="image/*" style="display: none" onchange="preview_image(event)">
+                                </div>
+                                <hr>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input type="hidden" id="hidid" />
+                                    <label>First Name<span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input class="form-control inputFormat" id="fname" name="fname" required type="text" maxlength="50" placeholder="Enter First Name">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Middle Name</label>
+                                    <input class="form-control inputFormat" id="mname" name="mname" type="text" maxlength="50" placeholder="Enter Middle Name">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Last Name <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input class="form-control inputFormat" id="lname" name="lname" required type="text" maxlength="50" placeholder="Enter Last Name">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Designation</label>
+                                    <select id="codesignation" class="form-control selctInputFormat" autocomplete="new-text">
+                                        <option value=""> Select</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Mobile Number <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input class="form-control inputFormat" maxlength="10" minlength="10" onkeypress="return isNumberKey(event)" id="mobile" required name="mobile" type="text" placeholder="Enter Mobile Number">
+                                    <label id="lblmobile-error"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Email Id <span class="required " aria-required="true"><b> *</b> </span><span id="emailVerified" style="display: none; color: green">Verified</span></label>
+                                    <input class="form-control inputFormat" id="email" required name="email" type="email" placeholder="Enter Email">
+                                    <label id="lblemail-error"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-2" style=" margin-top: 10px; ">
+                                <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+                                    <button id="verifyEmailOTP" type="button" class="btn btn-primary pull-right" disabled>Verify OTP</button>
+                                    <div id="info-wrapper-1" style="margin-left: 6px; position: relative;">
+                                        <img src="~/newassets/img/info-circle.png" id="info-icon-1" alt="info" style="cursor: pointer;">
+                                        <div id="info-text-1">
+                                            <p>Email should be different from<br> previously entered Email.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Landline Number</label>
+                                    <input class="form-control inputFormat" maxlength="16" onkeypress="return restrictAlphabetsfax(event)" id="landline" name="landline" type="text" placeholder="Enter Landline Number">
+                                    <label id="lbllandline-error"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="display:none">
+                                <div class="form-group">
+                                    <label>Aadhar No.</label>
+                                    <input class="form-control inputFormat" id="aadharno" name="aadharno" type="text" maxlength="12" onkeypress="return isNumberKey(event)" placeholder="Enter Aadhar Number">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <input class="form-control inputFormat" id="address" name="address" type="text" maxlength="200" placeholder="Enter Address">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Pin </label>
+                                    <input class="form-control inputFormat" onkeypress="return isNumberKey(event)" id="pin" name="pin" type="text" maxlength="6" minlength="6" placeholder="Enter PIN">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Country <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <select class="form-control selctInputFormat" name="country" required id="country"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>State </label>
+                                    <select class="form-control selctInputFormat" name="state" id="state">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Çity </label>
+                                    <select class="form-control selctInputFormat" name="city" id="city">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                            @if (role.ToString() == "1")
+                            {
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Communication Email</label>
+                                        <input class="form-control inputFormat" id="commuemail" name="commuemail" type="email">
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <ol style="list-style: none; margin-top: 35px;">
+                                        <li style="float:left;margin-left:-30px;">
+                                            <span>
+                                                Two Step Authentication:
+                                            </span>
+                                        </li>
+                                        <li style="float: left; margin:-2px 0 0 5px;">
+                                            <label class="switch">
+                                                <input type="checkbox" id="twostep" name="twostep" value="1" onchange="cTrig('check3')">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="display:none">
+                                <div class="form-group">
+                                    <label>GSTIN No </label>
+                                    <input class="form-control inputFormat" id="gstin" name="gstin" type="text" maxlength="20">
+                                    <label id="lblgstin-error" class="errors"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="display:none">
+                                <div id="pandiv">
+                                    <div class="form-group">
+                                        <label>Pan No </label>
+                                        <input class="form-control inputFormat" id="panno" name="panno" type="text" maxlength="15">
+                                        <label id="lblpanno-error" class="errors"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="form-actions hidden-print">
+                                        <button id="addcontact" style="margin:25px 0 0 0;" class="btn btn-primary pull-right" value="Update">Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div id="content">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Email Signature -->
+<section id="EmailSignaturetable">
+    <div class="container-main">
+        <div class="table">
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    Email Signature Settings
+                    <span class="toggle-icon"><img src="~/newassets/img/arrow.png" /></span>
+                </div>
+                <div class="section-content">
+                    <form id="fileupload" name="fileupload">
+                        <input type="hidden" id="filepath">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label>Organisation Name<span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input type="text" class="form-control inputFormat" id="orgname" name="orgname" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Name <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input type="text" class="form-control inputFormat" id="sname" name="sname" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Reply Email</label>
+                                    <input type="text" class="form-control inputFormat" id="sremail" name="sremail" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Signature Mobile</label>
+                                    <input type="text" class="form-control inputFormat" id="signmobile" name="etasktype" minlength="0" maxlength="10" onkeypress="return isNumberKey(event)" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Signature Email </label>
+                                    <input type="text" class="form-control inputFormat" id="signemail" name="signemail" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Alert For </label>
+                                    <select class="form-control selctInputFormat" id="AlertFor" name="AlertFor"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group" style="display:flex; justify-content:space-between; border:1px solid #ccc; border-radius: 5px; padding:12px;">
+                                    <div>
+                                        <label>Upload Company Logo</label>
+                                        <p style="font-size: 16px; font-weight: 400; color: #717680;">Add File (Only jpg and pdf file format allowed)</p>
+                                    </div>
+
+                                    <label class="btn btn-secondary" for="signlogo">
+                                        <img src="/newassets/img/uploaddocument-icon.png" alt="Alternate Text"> Upload Document
+                                    </label>
+                                    <input type="file" class="form-control inputFormat" id="signlogo" name="signlogo" style="display:none;" />
+                                </div>
+                                @*<div class="form-group">
+                                        <label>Upload Company Logo</label>
+                                        <input type="file" class="form-control inputFormat" id="signlogo" name="signlogo" />
+                                        <a class="btn btn-secondary" id="signsource" download="" style="height: 40px; float: right; margin: -39px 0px 0px; color: #6b7280; font-weight: 600; display: none; ">
+                                            <img src="/newassets/img/download-01.png" alt="Alternate Text"> Download
+                                        </a>
+                                    </div>*@
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:15px;">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-primary pull-right" id="savesettings" data-type="">Save</button>
+                            </div>
+                        </div>
+
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Change Password -->
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    Change Password
+                    <span class="toggle-icon"><img src="~/newassets/img/arrow.png" /></span>
+                </div>
+                <div class="section-content">
+                    <form method="post" id="frmpass" enctype="multipart/form-data">
+                        <!-- Start About boxes -->
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Old Password <span class="required " aria-required="true"><b> *</b> </span></label>
+
+                                    <input class="form-control  inputFormat" minlength="8" maxlength="30" name="oldpass" type="password" id="oldpass" autocomplete="off" required="" onfocus="$(this).removeAttr('readonly');" readonly>
+                                    @if (HttpContext.Current.Request.UserAgent.ToLower().Contains("MSIE") || HttpContext.Current.Request.UserAgent.ToLower().Contains("edge")) //IF IE > 10
+                                    {
+                                    }
+                                    else
+                                    {
+                                        <span id="hideeye" toggle="#oldpass" class="fa fa-fw fa-eye-slash field-icon toggle-password1" style="float: right; position: relative; right: 9px; top: -26px; z-index: 1000;">  </span>
+
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>New Password <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input class="form-control  inputFormat" minlength="8" maxlength="30" name="newpass" type="password" id="newpass" autocomplete="off" required="" onfocus="$(this).removeAttr('readonly');" readonly />
+
+                                    @if (HttpContext.Current.Request.UserAgent.ToLower().Contains("MSIE") || HttpContext.Current.Request.UserAgent.ToLower().Contains("edge")) //IF IE > 10
+                                    {
+                                    }
+                                    else
+                                    {
+                                        <span id="hideeye" toggle="#newpass" class="fa fa-fw fa-eye-slash field-icon toggle-password1" style="float: right; position: relative; right: 9px; top: -26px; z-index: 1000;"></span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Confirm Password <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input class="form-control inputFormat" minlength="8" maxlength="30" name="conpass" type="password" id="conpass" autocomplete="off" required="" onfocus="$(this).removeAttr('readonly');" readonly />
+                                    @if (HttpContext.Current.Request.UserAgent.ToLower().Contains("MSIE") || HttpContext.Current.Request.UserAgent.ToLower().Contains("edge")) //IF IE > 10
+                                    {
+                                    }
+                                    else
+                                    {
+                                        <span id="hideeye" toggle="#conpass" class="fa fa-fw fa-eye-slash field-icon toggle-password1" style="float: right; position: relative; right: 9px; top: -26px; z-index: 1000;"></span>
+
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" id="btnsave" class="btn btn-primary pull-right" value="Save" style="width: 100%; margin: 20px 0 0 0;">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div>
+
+                <div class="col-md-12">
+                    <div class="row">
+                        <!--<section class="content-header">
+                        <!-- Content Header (Page header) -->
+                        <!-- Content Header (Page header) -->
+                        <!--<ol style="margin-bottom: 10px;margin-left:-10px;list-style:none">
+                                @if (role.ToString() == "1")
+                                {
+                                    @*<li style="float:left;margin-left:15px;cursor:pointer;color:#069;" title="Open Alert Settings" id="OpenAlertSettings">
+                                            Set Alert OFF/ON
+                                        </li>
+                                        <li style="float:left;margin-left:15px;cursor:pointer;color:#069;" title="Open Alert Settings" id="OpenAlertSettingsDay">
+                                            Set Alert Days
+                                        </li>*@
+                                }
+                            </ol>
+                        </section>-->
+                    </div>
+
+                </div>
+                @if (role.ToString() != "1")
+                {
+
+                    <div id="home">
+                        @*user belongs to groups/partners*@
+                        @*<h2 class="title">Groups/Partners</h2>*@
+                        <table class="table-panel" style="display:none">
+                            <thead>
+                                <tr>
+                                    <th><div class="thbg">Partner Name</div></th>
+                                    <th><div class="thbg">Group Name</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="bindusergroup"></tbody>
+                        </table>
+                        <center><div id="groupstatus" style="display:none"></div></center>
+                        @*user belongs to groups/partners end*@
+                        <div class="section-header" id="userrightstitle">User Rights</div>
+                        <table class="table-panel" style="display:none">
+                            <thead>
+                                <tr>
+                                    <th colspan="3">
+                                        <div class="form-group form-horizontal">
+                                            <div>
+                                                <div id="divlabel" style="float:left;"></div><div id="divlevelrights" style="float:left; margin-left:5px;"></div>
+                                                <div id="divShowUserCount"></div>
+                                                <input type="hidden" id="hdnrdrightslevelval" value="0" />
+                                            </div>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table class="table-panel">
+                            <thead>
+                                <tr style="display:none;">
+                                    <th><div class="thbg"><p style="font-size:14px;">Role Access Levels</p></div></th>
+                                    <th colspan="7"><div class="thbg"><p style="font-size:14px;">Settings for the User's Contacts</p></div></th>
+                                    <th colspan="2"><div class="thbg"><p style="font-size:14px;">Settings for the All Contacts</p></div></th>
+                                </tr>
+                                <tr>
+                                    <th><div class="thbg">Feature</div></th>
+                                    <th id="thCreate"><div class="thbg">Create</div></th>
+                                    <th id="thView"><div class="thbg">View</div></th>
+                                    <th id="thEdit"><div class="thbg">Edit</div></th>
+                                    <th id="thDelete"><div class="thbg">Delete</div></th>
+                                    <th id="thExport"><div class="thbg">Export/Email/Download</div></th>
+                                    <th id="thShare"><div class="thbg">Share</div></th>
+                                    <th id="thEnable"><div class="thbg">Enable</div></th>
+                                    <th id="thglobalviewall" style="display:none;" title="User view all the items or records in the system"><div class="thbg">View All</div></th>
+                                    <th id="thglobaleditall" style="display:none;" title="User edit every items or records in the system"><div class="thbg">Edit All</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="bindEditRole"></tbody>
+                        </table>
+                        @*<button type="button" class="btn btn-primary" id="groupcancel">Cancel</button>*@
+                        <center><div id="dataescstatus"></div></center>
+                        <div id="tfooter" class="settingpanel"></div>
+
+                        <div class="section-header" id="userrightstitle">Matter Rights</div>
+                        <table class="table-panel">
+                            <thead>
+                                <tr style="display:none;">
+                                    <th><div class="thbg"><p style="font-size:14px;">Role Access Levels</p></div></th>
+                                    <th colspan="7"><div class="thbg"><p style="font-size:14px;">Settings for the User's Contacts</p></div></th>
+                                    <th colspan="2"><div class="thbg"><p style="font-size:14px;">Settings for the All Contacts</p></div></th>
+                                </tr>
+                                <tr>
+                                    <th><div class="thbg">Feature</div></th>
+                                    <th id="thCreate"><div class="thbg">Create</div></th>
+                                    <th id="thView"><div class="thbg">View</div></th>
+                                    <th id="thEdit"><div class="thbg">Edit</div></th>
+                                    <th id="thDelete"><div class="thbg">Delete</div></th>
+                                    <th id="thExport"><div class="thbg">Export/Email/Download</div></th>
+                                    <th id="thShare"><div class="thbg">Share</div></th>
+                                    @*<th id="thEnable">Enable</th>*@
+                                    <th id="thglobalviewall" style="display:none;" title="User view all the items or records in the system"><div class="thbg">View All</div></th>
+                                    <th id="thglobaleditall" style="display:none;" title="User edit every items or records in the system"><div class="thbg">Edit All</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="bindcasetask"></tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+<input type="hidden" id="currentMobile" name="hiddenValue1" value="" />
+<input type="hidden" id="currentEmail" name="hiddenValue2" value="" />
+
+<div id="EmailOTPModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -32px 0 0 0;">
+                <h4>Verify OTP</h4>
+            </div>
+            <div class="modal-body" style="margin:-20px 0 20px 0;">
+                <form role="form" id="editfile">
+                    <div class="form-group">
+                        @*<p style="margin:0;">Are you sure you want to delete matter case no - <span id="id_deleteno"></span></p>*@
+                        <label class="formLabel colorDark" style="margin-top: 10px; font-weight: 600 !important;">Enter OTP: </label>
+                        <input class="form-control inputFormat" maxlength="6" minlength="6" id="emailotp" required name="otp" type="text" placeholder="Enter OTP">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer footer_buttons" style="margin-top:0; border-top:none !important;">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="verifyOTPOnEmail">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="myOverlay" class="overlay" style="display:block !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script>
+    var fcode = localStorage.getItem("FirmCode");
+    jQuery('#update').click(function (e) {
+        validnavigation = true;
+        window.onbeforeunload = null;
+        var url = "/firm/ProfileUpdate";
+        window.location = encodeURI("/" + fcode + url);
+    });
+    var pageindex = 1, pagesize = 10, recordcount = 0, totrecord = 0;
+    var fcode = localStorage.getItem("FirmCode");
+    $(document).ready(function () {
+    });
+@*Load edit role access level data*@
+    function LoadEditRoleAccessLevelData() {
+        var rightlevel = 0;
+        var trdisplaystatus = "";
+        var thdisplaystatus = "none";
+        var thdisplayCVEDstatus = "";
+        var html3 = '';
+        var formData = new FormData();
+        formData.append("pagenum", EncodeText(pageindex));
+        formData.append("pagesize", EncodeText(pagesize));
+        openload();
+        var urlpath = "";
+        if (gop == 1) { urlpath = "/api/RoleApi/RoleAccessByGroupId?groupid=" + gid; BindGroupName(gid); }
+        if (gop == 2) { urlpath = "/api/RoleApi/RoleAccessByAssignUser?assignuser=" + gid; BindUserProfileName(gid) }
+        $("#hdniGroupId").val(gid);
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: urlpath,
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response1) {
+                if (response1.Data != "") {
+                    $("#dataescstatus").html("");
+                }
+                else {
+                    $("#dataescstatus").html("No result found !");
+                    closeload();
+                }
+                var length = response1.Data.length;
+                openload();
+                $.each(response1.Data, function (i, a) {
+                    var id = a.Id;
+                    var pagename = a.PageName;
+                    var ewrite = 0; eview = 0; eedit = 0; edelete = 0, eexport = 0, eshare = 0, eenabledisable = 0;
+                    var econtactcredential = 0, edocumentdonfidential = 0;
+                    ewrite = a.Write;
+                    eview = a.View;
+                    eedit = a.Edit;
+                    edelete = a.Delete;
+                    eviewall = a.ViewAll;
+                    eeditall = a.EditAll;
+                    eexport = a.Export;
+                    eshare = a.Share;
+                    eenabledisable = a.Enable;
+                    econtactcredential = a.Credentials;
+                    edocumentdonfidential = a.Confidential;
+                    rightlevel = a.iLevelType;
+                    $("#hdnrdrightslevelval").val(rightlevel);
+                    if (rightlevel == 2) {
+                        $("#thCreate").hide();
+                        $("#thView").hide();
+                        $("#thEdit").hide();
+                        $("#thDelete").hide();
+                        $("#thExport").hide();
+                        $("#thShare").hide();
+                        $("#thEnable").hide();
+                        $("#thglobalviewall").show();
+                        $("#thglobaleditall").show();
+                    }
+                    else {
+                        $("#thCreate").show();
+                        $("#thView").show();
+                        $("#thEdit").show();
+                        $("#thDelete").show();
+                        $("#thExport").show();
+                        $("#thShare").show();
+                        $("#thEnable").show();
+                        $("#thglobalviewall").hide();
+                        $("#thglobaleditall").hide();
+                    }
+                    var pname = pagename.replace(" ", "_");
+                    var displayCreatetatus = "block";
+                    var displayViewstatus = "block";
+                    var displayEditstatus = "block";
+                    var displayDeletestatus = "block";
+                    var displayViewAllstatus = "block";
+                    var displayEditAllstatus = "block";
+                    var displayExportEmailstatus = "block";
+                    var displaySharestatus = "block";
+                    var displayEnablestatus = "none";
+                    var pagelink = a.Pagelink;
+                    var contactcredential = econtactcredential == 1 ? '<input checked type="checkbox" id="chkcontactcredential_' + id + '" />' : '<input style="display:' + displayCreatetatus + ';" type="checkbox" id="chkcontactcredential_' + id + '" />';
+                    var documentconfidential = edocumentdonfidential == 1 ? '<input checked type="checkbox" id="chkDocumentConfidential_' + id + '" />' : '<input style="display:' + displayCreatetatus + ';" type="checkbox" id="chkDocumentConfidential_' + id + '" />';
+                    var contactsublink = "", directorysublink = "";
+                    if (rightlevel == 0) {
+                        $("#divlevelrights").html("(user level rights)");
+                        if (pagelink == "Userlist" || pagelink == "UserGroup" || pagelink == "RoleAccess" || pagelink == "CaseRoleAccess") {
+                            trdisplaystatus = "none";
+                        }
+                        thdisplayCVEDstatus = "";
+                    }
+                    //for partner level setting
+                    if (rightlevel == 1) {
+                        $("#divlevelrights").html("(partner level rights)");
+                        if (pagelink == "ViewKnowledge" || pagelink == "MailBox") {
+                            trdisplaystatus = "none";
+                        }
+                        else {
+                            trdisplaystatus = "";
+                        }
+                    }
+                    //for firm level settings
+                    if (rightlevel == 2) {
+                        $("#divlevelrights").html("(firm level rights)");
+                        if (pagelink == "ViewKnowledge" || pagelink == "MailBox") {
+                            trdisplaystatus = "none";
+                        }
+                        else {
+                            trdisplaystatus = "";
+                        }
+                        thdisplaystatus = "";
+                        thdisplayCVEDstatus = "none";
+                    }
+                    if (pagelink == "UserGroup") {
+                        displayViewAllstatus = "none";
+                        displayEditAllstatus = "none";
+                        displaySharestatus = "none";
+                        displayEnablestatus = "none";
+                        displayExportEmailstatus = "none";
+                        displayViewAllstatus = "";
+                        displayEditAllstatus = "";
+                    }
+                    if (pagelink == "RoleAccess") {
+                        displayViewAllstatus = "none";
+                        displayEditAllstatus = "none";
+                        displaySharestatus = "none";
+                        displayEnablestatus = "none";
+                        displayExportEmailstatus = "none";
+                        displayViewAllstatus = "";
+                        displayEditAllstatus = "";
+                    }
+                    if (pagelink == "CaseRoleAccess") {
+                        displayViewAllstatus = "none";
+                        displayEditAllstatus = "none";
+                        displaySharestatus = "none";
+                        displayEnablestatus = "none";
+                        displayExportEmailstatus = "none";
+                        displayViewAllstatus = "";
+                        displayEditAllstatus = "";
+                    }
+                    if (pagelink == "ClientCredentials") {
+                        displayCreatetatus = "block";
+                        displayViewstatus = "none";
+                        displayEditstatus = "none";
+                        displayDeletestatus = "none";
+                        displayViewAllstatus = "none";
+                        displayEditAllstatus = "none";
+                        displayExportEmailstatus = "none";
+                        displayEnablestatus = "block";
+                        displaySharestatus = "none";
+                    }
+                    if (pagelink == "DocumentConfidential") {
+                        displayCreatetatus = "none";
+                        displayViewstatus = "none";
+                        displayEditstatus = "none";
+                        displayDeletestatus = "none";
+                        displayViewAllstatus = "none";
+                        displayEditAllstatus = "none";
+                        displayExportEmailstatus = "none";
+                        displayEnablestatus = "block";
+                        displaySharestatus = "none";
+                    }
+                    if (pagelink == "ContactsList") {
+                        displayEnablestatus = "block";
+                    }
+                    if (pagelink == "MergeCalendar") {
+                        displayEditstatus = "none";
+                        displayDeletestatus = "none";
+                        displayEditAllstatus = "none";
+                        displaySharestatus = "none";
+                        displayEnablestatus = "none";
+                    }
+                    if (pagelink == "ExpenseReport") {
+                        displaySharestatus = "none";
+                        displayEnablestatus = "none";
+                    }
+                    if (pagelink == "ReceiveMessageList") {
+                        displayEditstatus = "none";
+                        displayViewAllstatus = "none";
+                        displayEditAllstatus = "none";
+                        displaySharestatus = "none";
+                    }
+                    if (pagelink == "ViewKnowledge") {
+                        displayEditstatus = "none";
+                        displayViewAllstatus = "none";
+                        displayEditAllstatus = "none";
+                    }
+                    if (pagelink == "MailBox") {
+                        displayCreatetatus = "none";
+                        displayEditstatus = "none";
+                        displayDeletestatus = "none";
+                        displayViewAllstatus = "none";
+                        displayEditAllstatus = "none";
+                        displaySharestatus = "none";
+                        displayExportEmailstatus = "none";
+                    }
+                    if (pagelink == "ClientMessaging") {
+                        displayCreatetatus = "block";
+                        displayViewstatus = "none";
+                        displayEditstatus = "none";
+                        displayDeletestatus = "none";
+                        displayViewAllstatus = "none";
+                        displayEditAllstatus = "none";
+                        displaySharestatus = "none";
+                        displayExportEmailstatus = "none";
+                    }
+                    if (pagelink == "ViewTimer") {
+                        displaySharestatus = "none";
+                        displayEnablestatus = "none";
+                    }
+                    if (pagelink == "DirectoryList") {
+                        displayExportEmailstatus = "none";
+                        displayEnablestatus = "none";
+                    }
+                    if (pagelink == "Userlist") {
+                        displaySharestatus = "none";
+                        displayEnablestatus = "block";
+                        displayViewAllstatus = "";
+                        displayEditAllstatus = "";
+                        displayDeletestatus = "none";
+                    }
+                    if (rightlevel == 2 || rightlevel == 1) {
+                        if (pagelink == "ClientCredentials" || pagelink == "DocumentConfidential") {
+                            displayViewAllstatus = "";
+                            displayEditAllstatus = "none";
+                        }
+                        if (pagelink == "ClientMessaging") {
+                            displayViewAllstatus = "none";
+                            displayEditAllstatus = "";
+                        }
+                    }
+                    var write = "", view = "", edit = "", deletelevel = "", exportemaildownload = "", share = "", enabledisable = "";
+                    write = ewrite == 1 ? '<input style="display:' + displayCreatetatus + ';" checked type="checkbox" id="chkwrite_' + id + '" />' : '<input style="display:' + displayCreatetatus + ';" type="checkbox" id="chkwrite_' + id + '" />';
+                    view = eview == 1 ? '<input style="display:' + displayViewstatus + ';" checked type="checkbox" id="chkview_' + id + '" />' : '<input style="display:' + displayViewstatus + ';" type="checkbox" id="chkview_' + id + '" />';
+                    edit = eedit == 1 ? '<input style="display:' + displayEditstatus + ';" checked type="checkbox" id="chkedit_' + id + '" />' : '<input style="display:' + displayEditstatus + ';" type="checkbox" id="chkedit_' + id + '" />';
+                    deletelevel = edelete == 1 ? '<input style="display:' + displayDeletestatus + ';" checked type="checkbox" id="chkdelete_' + id + '" />' : '<input style="display:' + displayDeletestatus + ';" type="checkbox" id="chkdelete_' + id + '" />';
+                    exportemaildownload = eexport == 1 ? '<input style="display:' + displayExportEmailstatus + ';" checked type="checkbox" id="chkexportemaildownload_' + id + '" />' : '<input style="display:' + displayExportEmailstatus + ';" type="checkbox" id="chkexportemaildownload_' + id + '" />';
+                    share = eshare == 1 ? '<input style="display:' + displaySharestatus + ';" checked type="checkbox" id="chkshare_' + id + '" />' : '<input style="display:' + displaySharestatus + ';" type="checkbox" id="chkshare_' + id + '" />';
+                    enabledisable = eenabledisable == 1 ? '<input style="display:' + displayEnablestatus + ';" checked type="checkbox" id="chkenabledisable_' + id + '" />' : '<input style="display:' + displayEnablestatus + ';" type="checkbox" id="chkenabledisable_' + id + '" />';
+                    var viewall = eviewall == 1 ? '<input style="display:' + displayViewAllstatus + ';" checked type="checkbox" id="chkviewall_' + id + '" />' : '<input style="display:' + displayViewAllstatus + ';" type="checkbox" id="chkviewall_' + id + '" />';
+                    var editall = eeditall == 1 ? '<input checked style="display:' + displayEditAllstatus + ';" type="checkbox" id="chkeditall_' + id + '" />' : '<input style="display:' + displayEditAllstatus + ';" type="checkbox" id="chkeditall_' + id + '" />';
+                    html3 += '<tr style="display:' + trdisplaystatus + ';" id=chngcolor' + id + '>'
+                    html3 += '<td>'
+                    if (pagelink == "DocumentConfidential") {
+                        html3 += '<span id="clname" ><img src="/newassets/images/rolls_icon1.png"></img> ' + pagename + '</span><input type=hidden id=m' + id + ' value=' + pname + '><input type="hidden" id="hdniGroupId" value="' + gid + '" /><input type="hidden" id="hdnrdaccessval" value="' + gop + '" />'
+                    }
+                    else if (pagelink == "ClientCredentials") {
+                        html3 += '<span id="clname" ><img src="/newassets/images/rolls_icon1.png"></img> ' + pagename + '</span><input type=hidden id=m' + id + ' value=' + pname + '><input type="hidden" id="hdniGroupId" value="' + gid + '" /><input type="hidden" id="hdnrdaccessval" value="' + gop + '" />'
+                    }
+                    else if (pagelink == "ClientMessaging") {
+                        html3 += '<span id="clname" ><img src="/newassets/images/rolls_icon1.png"></img> ' + pagename + '</span><input type=hidden id=m' + id + ' value=' + pname + '><input type="hidden" id="hdniGroupId" value="' + gid + '" /><input type="hidden" id="hdnrdaccessval" value="' + gop + '" />'
+                    }
+                    else {
+                        html3 += '<span id="clname" >' + pagename + '</span><input type=hidden id=m' + id + ' value=' + pname + '><input type="hidden" id="hdniGroupId" value="' + gid + '" /><input type="hidden" id="hdnrdaccessval" value="' + gop + '" />'
+                    }
+                    html3 += '<td style="display:' + thdisplayCVEDstatus + ';">'
+                    html3 += '<span id="clname" >' + write + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:' + thdisplayCVEDstatus + ';">'
+                    html3 += '<span id="clname" >' + view + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:' + thdisplayCVEDstatus + ';">'
+                    html3 += '<span id="clname" >' + edit + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:' + thdisplayCVEDstatus + ';">'
+                    html3 += '<span id="clname" >' + deletelevel + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:' + thdisplayCVEDstatus + ';">'
+                    html3 += '<span id="clname" >' + exportemaildownload + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:' + thdisplayCVEDstatus + ';">'
+                    html3 += '<span id="clname" >' + share + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:' + thdisplayCVEDstatus + ';">'
+                    html3 += '<span id="clname" >' + enabledisable + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:' + thdisplaystatus + ';">'
+                    html3 += '<span id="clname" >' + viewall + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:' + thdisplaystatus + ';">'
+                    html3 += '<span id="clname" >' + editall + '</span>'
+                    html3 += '</td>'
+                    html3 += '</tr>'
+                });
+                $("#bindEditRole").html("");
+                $("#bindEditRole").append(html3);
+                $("#bindEditRole :input").attr("onclick", "return false");
+                if (dashcalendar == "display:none") { $("#chngcolor75").hide(); }
+                if (dashcontact == "display:none") { $("#chngcolor65,#chngcolor110").hide(); }
+                if (dashdocument == "display:none") { $("#chngcolor92,#chngcolor111").hide(); }
+                if (dashexpense == "display:none") { $("#chngcolor77").hide(); }
+                if (dashinvoice == "display:none") { $("#chngcolor82").hide(); }
+                if (dashtimeentry == "display:none") { $("#chngcolor102").hide(); }
+                if (dashknow == "display:none") { $("#chngcolor79").hide(); }
+                if (dashrights == "display:none") { $("#chngcolor108,#chngcolor109").hide(); }
+                if (dashuser == "display:none") { $("#chngcolor106").hide(); }
+                closeload();
+            },
+            failure: function (data) {
+                alert(data.responseText);
+                closeload();
+            },
+            error: function (data) {
+                alert(data.responseText);
+                closeload();
+            }
+        });
+    }
+    function LoadCaseRoleAccessLevelData() {
+        var html3 = ''; var htmlsubmodule = '';
+        var formData = new FormData();
+        formData.append("pagenum", EncodeText(1));
+        formData.append("pagesize", EncodeText(10));
+        formData.append("auser", EncodeText(gid));
+        formData.append("op", EncodeText(""));
+        formData.append("editcaseid", EncodeText(""));
+        formData.append("pageid", EncodeText(""));
+        openload();
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/RoleApi/LoadCasePageAccesslevelForProfile",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response1) {
+                if (response1.Data != "") {
+                    $("#dataescstatus").html("");
+                }
+                else {
+                    $("#dataescstatus").html("No result found !");
+                    closeload();
+                }
+                var length = response1.Data.length;
+                var parentpage = "";
+                $.each(response1.Data, function (i, a) {
+                    var id = a.Id;
+                    var pagename = a.PageName;
+                    var ewrite = 0; eview = 0; eedit = 0; edelete = 0;
+                    ewrite = a.Write;
+                    eview = a.View;
+                    eedit = a.Edit;
+                    edelete = a.Delete;
+                    eviewall = a.ViewAll;
+                    eeditall = a.EditAll;
+                    eexport = a.Export;
+                    eshare = a.Share;
+                    eenabledisable = a.Enable;
+                    var coption = a.CaseOption;
+                    if (pagename == "Documents under Matter") {
+                        var displaySharestatus = "block";
+                    }
+                    else {
+                        var displaySharestatus = "none";
+                    }
+                    var displayExportEmailstatus = "block";
+                    var displayEnablestatus = "none";
+                    var write = "", view = "", edit = "", deletelevel = "", exportemaildownload = "", share = "", enabledisable = "";;
+                    if (coption == '3') {
+                        if (pagename == "Documents under Matter") {
+                            write = ewrite == 1 ? '<input style="display:' + displaySharestatus + ';" checked type="checkbox" id="chkwrite_' + id + '" />' : '<input style="display:' + displaySharestatus + ';" type="checkbox" id="chkwrite_' + id + '" />';
+                        }
+                        else {
+                            write = ewrite == 1 ? '<input checked type="checkbox" id="chkwrite_' + id + '" />' : '<input type="checkbox" id="chkwrite_' + id + '" />';
+                        }
+                    }
+                    else {
+                        if (pagename == "Documents under Matter") {
+                            write = ewrite == 1 ? '<input style="display:' + displaySharestatus + ';" checked type="checkbox" id="chkwrite_' + id + '" />' : '<input style="display:' + displaySharestatus + ';" type="checkbox" id="chkwrite_' + id + '" />';
+                        }
+                        else {
+                            write = '<input style="display:none;" type="checkbox" id="chkwrite_' + id + '" />'
+                        }
+                    }
+                    view = eview == 1 ? '<input checked type="checkbox" id="chkview_' + id + '" />' : '<input type="checkbox" id="chkview_' + id + '" />';
+                    edit = eedit == 1 ? '<input checked type="checkbox" id="chkedit_' + id + '" />' : '<input type="checkbox" id="chkedit_' + id + '" />';
+                    deletelevel = edelete == 1 ? '<input checked type="checkbox" id="chkdelete_' + id + '" />' : '<input type="checkbox" id="chkdelete_' + id + '" />';
+                    exportemaildownload = eexport == 1 ? '<input style="display:' + displayExportEmailstatus + ';" checked type="checkbox" id="chkexportemaildownload_' + id + '" />' : '<input style="display:' + displayExportEmailstatus + ';" type="checkbox" id="chkexportemaildownload_' + id + '" />';
+                    share = eshare == 1 ? '<input style="display:' + displaySharestatus + ';" checked type="checkbox" id="chkshare_' + id + '" />' : '<input style="display:' + displaySharestatus + ';" type="checkbox" id="chkshare_' + id + '" />';
+                    enabledisable = eenabledisable == 1 ? '<input style="display:' + displayEnablestatus + ';" checked type="checkbox" id="chkenabledisable_' + id + '" />' : '<input style="display:' + displayEnablestatus + ';" type="checkbox" id="chkenabledisable_' + id + '" />';
+                    var viewall = eviewall == 1 ? '<input checked type="checkbox" id="chkviewall_' + id + '" />' : '<input type="checkbox" id="chkviewall_' + id + '" />';
+                    var editall = eeditall == 1 ? '<input checked type="checkbox" id="chkeditall_' + id + '" />' : '<input type="checkbox" id="chkeditall_' + id + '" />';
+                    var pname = pagename.replace(" ", "_");
+                    html3 += '<tr>'
+                    html3 += '<td>'
+                    html3 += '<span id="clname" ><input type=hidden id=m' + id + ' value=' + pname + '>' + pagename + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td>'
+                    html3 += '<span id="clname" >' + write + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td>'
+                    html3 += '<span id="clname" >' + view + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td>'
+                    html3 += '<span id="clname" >' + edit + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td>'
+                    html3 += '<span id="clname" >' + deletelevel + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td>'
+                    html3 += '<span id="clname" >' + exportemaildownload + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td>'
+                    html3 += '<span id="clname" >' + share + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:none;">'
+                    html3 += '<span id="clname" >' + enabledisable + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:none;">'
+                    html3 += '<span id="clname" >' + viewall + '</span>'
+                    html3 += '</td>'
+                    html3 += '<td style="display:none;">'
+                    html3 += '<span id="clname" >' + editall + '</span>'
+                    html3 += '</td>'
+                    html3 += '</tr>'
+                });
+                $("#bindcasetask").html("")
+                $("#bindcasetask").html(html3);
+                $("#bindcasetask :input").attr("onclick", "return false");
+                if (dashmatter == "display:none") { $("#bindcasetask").hide(); }
+                closeload();
+            },
+            failure: function (data) {
+                alert(data.responseText);
+                closeload();
+            },
+            error: function (data) {
+                alert(data.responseText);
+                closeload();
+            }
+        });
+    }
+    function fn_ContactCridential() {
+        $("#divContactcredential").toggle();
+    }
+    function fn_DocumentConfidential() {
+        $("#divDocumentConfidential").toggle();
+    }
+@*Load user group by team id*@
+    function LoadUserGroup_TeambyId() {
+        var html3 = '';
+        var formData = new FormData();
+        formData.append("pagenum", EncodeText(1));
+        formData.append("pagesize", EncodeText(10));
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/RoleApi/LoadUserGroup_TeambyId",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response1) {
+                if (response1.Data != "") {
+                    $("#groupstatus").html("");
+                }
+                else {
+                    $("#groupstatus").html("No result found !");
+                }
+                var isdata = false;
+                $.each(response1.Data, function (i, a) {
+                    var PartnerId = a.PartnerId;
+                    var GroupId = a.GroupId;
+                    var PartnerName = a.PartnerName;
+                    var Groupname = a.Groupname;
+                    if (PartnerName != "") {
+                        isdata = true
+                    }
+                    if (Groupname != "") {
+                        isdata = true
+                    }
+                    if (isdata == false) {
+                        $("#groupstatus").html("No result found !");
+                    }
+                    else {
+                        html3 += '<tr>'
+                        html3 += '<td>'
+                        html3 += '<span id="clname" >' + Groupname + '</span>'
+                        html3 += '</td>'
+                        html3 += '<td>'
+                        html3 += '<span id="clname" >' + PartnerName + '</span>'
+                        html3 += '</td>'
+                        html3 += '</tr>'
+                    }
+                });
+                $("#bindusergroup").html("");
+                $("#bindusergroup").append(html3);
+            },
+            failure: function (data) {
+                alert(data.responseText);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+        });
+    }
+    @* Bind alert *@
+    function BindAlertFor() {
+        var formData = new FormData();
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/CW/BindAlertFor",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                var option = "";
+                $.each(response.data, function (i, a) {
+                    option += '<option value="' + a["vvalue"] + '"> ' + a["nname"] + '</option>';
+                });
+                $("#AlertFor").html(option);
+            }
+        });
+    }
+    @* Load group name by group value *@
+    function BindGroupName(groupval) {
+        groupname = "Team Name: ";
+        var igroupid = groupval;
+        var formData = new FormData();
+        formData.append("igroupid", igroupid);
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/RoleApi/CallUserGroupbyiGroupId",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response1) {
+                var length = response1.Data.length;
+                groupname += response1.Data[0].vGroupname;
+                $("#divlabel").html(groupname);
+                var userviewlink = '<a data-toggle="tab" href="#" id="showUserContDetails" onclick=fn_showUserContDetails("' + igroupid + '") >View User(s)</a>'
+                $("#divShowUserCount").html(userviewlink);
+            }
+        });
+    }
+    @* Bind User Profile Name by assign user id *@
+    function BindUserProfileName(assignuserid) {
+        groupname = "User Name: ";
+        var igroupid = assignuserid;
+        var formData = new FormData();
+        formData.append("assignuser", igroupid);
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/RoleApi/CallUserprofilebyLoginId",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response1) {
+                var length = response1.Data.length;
+                groupname += response1.Data[0].cfname;
+                $("#divlabel").html(groupname);
+            }
+        });
+    }
+    function fn_SetRoleAccessOption(val) {
+        if (val == 1) {
+            $("#hdnrdaccessval").val(1);
+        }
+        if (val == 2) {
+            $("#hdnrdaccessval").val(2);
+        }
+    }
+    function fn_showUserContDetails(groupval) {
+        $("#modalUserCountView").modal();
+        var html3 = '';
+        var formData = new FormData();
+        formData.append("igroupid", groupval);
+        formData.append("flag", 1);
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/RoleApi/UserDetailsbyiGroupId",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response1) {
+                if (response1.Data != "") {
+                    $("#bindUsercountdetails").html("");
+                }
+                else {
+                    $("#bindUsercountdetails").html("No User Found!");
+                }
+                var length = response1.Data.length;
+                $.each(response1.Data, function (i, a) {
+                    var LoginId = a.LoginId;
+                    var cfname = a.cfname;
+                    var EmailId = a.EmailId;
+                    $("#myModalUserLabel").html("User(s) in " + a.vGroupname + " Team");
+                    html3 += '<tr><td>' + cfname + '</td><td>' + EmailId + '</td><td><a href="#" onclick=fn_RemoveRoleUser("' + groupval + '","' + LoginId + '",1)>Remove</a></td></tr>'
+                });
+                $("#bindUsercountdetails").html("");
+                $("#bindUsercountdetails").append(html3);
+            },
+            failure: function (data) {
+                alert(data.responseText);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+        });
+    }
+
+</script>
+

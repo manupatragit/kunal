@@ -1,0 +1,661 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<i class="pp-icon-user"></i>
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script>
+    var totpagesize=@ViewBag.pagesize;
+</script>
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<style>
+    .dropbtn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .dropbtn:hover, .dropbtn:focus {
+            background-color: #3e8e41;
+        }
+
+    #searchdata {
+        border: 1px solid #ccc;
+        padding: 7px 4px;
+        font-size: 12px;
+        background: #ffffff;
+        width: 92%;
+        margin: 5px 0 13px 0;
+    }
+
+    #myInput:focus {
+        outline: 3px solid #ddd;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        overflow: auto;
+        border: 1px solid #ddd;
+        z-index: 1;
+    }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+    .dropdown a:hover {
+        background-color: #ddd;
+    }
+
+    .show {
+        display: block;
+    }
+</style>
+<script>
+    /* When the user clicks on the button,
+    toggle between hiding and showing the dropdown content */
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script>
+    /* When the user clicks on the button,
+    toggle between hiding and showing the dropdown content */
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+    $('body').click(function (evnt) {
+        $('#myDropdown').click(function (event) {
+            event.stopPropagation();
+            return false;
+        });
+        $('#dropdowntab').click(function (event) {
+            event.stopPropagation();
+            return false;
+        });
+        $(".dropdown-content").removeClass("show");
+    });
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Prospect List</li>
+        </ol>
+        <h1><span class="fa fa-users"></span> Prospect List</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header" style="padding:5px;">
+                        <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp">
+                            <li>
+                                <div class="dropdown" id="dropdowntab">
+                                    <button onclick="myFunction()" class="btn btn-success"><span class="glyphicon glyphicon-filter"></span> Filter <span class="caret"></span></button>
+                                    <div id="myDropdown" class="dropdown-content" style="padding:5px; background:#ffffff;">
+                                        <input type="text" placeholder="Search.." id="searchdata">
+                                        <button type="button" class="form-control" id="searchdatas" />Search</button>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <btn style="margin:0 0 0 5px " class="btn btn-info" id="linklead" title="Create New Lead"><span class="glyphicon glyphicon-plus" title="Create New Lead"></span> New</btn>
+                            </li>
+                            <li>
+                                <btn class="btn btn-primary" id="excel" title="Export to Excel"> <span class="glyphicon glyphicon-save"></span> Excel</btn>
+                            </li>
+                            <li>
+                                <btn type="button" class="btn btn-primary" id="pdf" title="Export data to PDF" /><span class="glyphicon glyphicon-save" title="Export to PDF"></span> PDF</btn>
+                            </li>
+                            <li>
+                                <input type="button" class="btn btn-warning" id="btnImport" value="Import" title="Import data from Excel File" />
+                            </li>
+                            <li>
+                                <btn type="button" class="btn btn-success" data-toggle="modal" data-target="#myModalemail" id="btnShare" value="Share" title="Share data To Email" /><i class="glyphicon glyphicon-envelope"></i> Email</btn>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-default  dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> <span class="caret"></span></button>
+                                <ul class="dropdown-menu" id="bd" style="width:116px !important; top:0 !important;">
+                                    <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldn" checked>Prospect Name</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldp" checked>Contact Person</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldorg" checked>Organization</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldmob" checked>Mobile</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldemail" checked>Email</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="lddate" checked>Date</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="lddesign">Designation</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldcity">City</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldstate">State</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldcase">Case Type</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldsource">Source</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldcat">Category</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="ldltype">Prospect Type</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-danger " style="padding:8px 12px;" id="delete" title="Remove Lead"> <span class="glyphicon glyphicon-trash" title="Remove Lead"> </span></button>
+                            </li>
+                        </ul>
+                    </div>
+                </div><!-- /.box-header -->
+                <!-- /.panel-heading -->
+                <script>
+                </script>
+                <script src="~/Scripts/Firm/Pages/ViewLead.js" type="text/javascript"></script>
+                <script src="~/CssJsfiles/js/3.3.1/jquery.min.js"></script>
+                <script src="~/CssJsfiles/js/jquery.dataTables.min.js"></script>
+                <script>
+                    function searchTable() {
+                        var input, filter, found, table, tr, td, i, j;
+                        input = document.getElementById("searchdata");
+                        filter = input.value.toLowerCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByTagName("td");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j].innerHTML.toLowerCase().indexOf(filter) > -1) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                tr[i].style.display = "";
+                                found = false;
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                    function filterFunctionltype() {
+                        var input, filter, found, table, tr, td, i, j;
+                        input = document.getElementById("le");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByClassName("ldltype");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                tr[i].style.display = "";
+                                found = false;
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                    function filterFunctionsource() {
+                        var input, filter, found, table, tr, td, i, j;
+                        input = document.getElementById("se");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByClassName("ldsource");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                tr[i].style.display = "";
+                                found = false;
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                    function filterFunctionctype() {
+                        var input, filter, found, table, tr, td, i, j;
+                        input = document.getElementById("ct");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByClassName("ldcase");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                tr[i].style.display = "";
+                                found = false;
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                    function filterFunctioncategory() {
+                        var input, filter, found, table, tr, td, i, j;
+                        input = document.getElementById("cy");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByClassName("ldcat");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                tr[i].style.display = "";
+                                found = false;
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                    function filterFunctionstate() {
+                        var input, filter, found, table, tr, td, i, j;
+                        input = document.getElementById("ste");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByClassName("ldstate");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                tr[i].style.display = "";
+                                found = false;
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                    function filterFunctioncity() {
+                        var input, filter, found, table, tr, td, i, j;
+                        input = document.getElementById("cty");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByClassName("ldcity");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                tr[i].style.display = "";
+                                found = false;
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                </script>
+                <script src="~/CssJsfiles/js/1.8.3/jquery.min.js"></script>
+                <script src="~/CssJsfiles/js/pdfmake.min.js"></script>
+                <script src="~/CssJsfiles/js/html2canvas.min.js"></script>
+                <script type="text/javascript">
+                    $("body").on("click", "#btnExport", function () {
+                        html2canvas($('#example')[0], {
+                            onrendered: function (canvas) {
+                                var data = canvas.toDataURL();
+                                var docDefinition = {
+                                    content: [{
+                                        image: data,
+                                        width: 500
+                                    }]
+                                };
+                                pdfMake.createPdf(docDefinition).download("Lead List.pdf");
+                            }
+                        });
+                    });
+                </script>
+                <div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+                    <div class="modal-dialog modal-lg">
+                        <!-- Modal content-->
+                        <div class="modal-content mymodels" id="mymodels">
+                        </div>
+                    </div>
+                </div>
+                <div id="updatePanel" style="overflow-x:auto;">
+                </div>
+                <div><center><span id="datastatus"></span></center></div>
+                <div id="tfooter">
+                </div>
+                <div class="box-footer clearfix">
+                    <ul class="pagination pagination-sm no-margin pull-right"></ul>
+                </div>
+</aside>
+<div id="tokens"></div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script src="~/PanelDesign/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script>
+    /*					PAGINATION
+    - on change max rows select options fade out all rows gt option value mx = 5
+    - append pagination list as per numbers of rows / max rows option (20row/5= 4pages )
+    - each pagination li on click -> fade out all tr gt max rows * li num and (5*pagenum 2 = 10 rows)
+    - fade out all tr lt max rows * li num - max rows ((5*pagenum 2 = 10) - 5)
+    - fade in all tr between (maxRows*PageNum) and (maxRows*pageNum)- MaxRows
+    */
+    getPagination('#example');
+    function getPagination(table) {
+        $('#maxRows').on('change', function () {
+            $('.pagination').html('');						// reset pagination
+            var trnum = 0;									// reset tr counter
+            var maxRows = parseInt($(this).val());
+            // alert(maxRows);// get Max Rows from select option
+            var totalRows = $(table + ' tbody tr ').length;
+            // alert(totalRows);// numbers of rows
+            $('#example tbody tr').each(function () {			// each TR in  table and not the header
+                trnum++;
+                //alert(trnum);// Start Counter
+                if (trnum > maxRows) {						// if tr number gt maxRows
+                    $(this).hide();							// fade it out
+                } if (trnum <= maxRows) { $(this).show(); }// else fade in Important in case if it ..
+            });											//  was fade out to fade it in
+            if (totalRows > maxRows) {						// if tr total rows gt max rows option
+                var pagenum = Math.ceil(totalRows / maxRows);
+                // alert(pagenum);// ceil total(rows/maxrows) to get ..
+                //	numbers of pages
+                for (var i = 1; i <= pagenum;) {			// for each page append pagination li
+                    $('.pagination').append('<li data-page="' + i + '">\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <span>'+ i++ + '<span class="sr-only">(current)</span></span>\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </li>').show();
+                }											// end for i
+            } 												// end if row count > max rows
+            $('.pagination li:first-child').addClass('active'); // add active class to the first li
+            $('.pagination li').on('click', function () {		// on click each page
+                var pageNum = $(this).attr('data-page');
+                // alert(pageNum);// get it's number
+                var trIndex = 0;							// reset tr counter
+                $('.pagination li').removeClass('active');	// remove active class from all li
+                $(this).addClass('active');					// add active class to the clicked
+                $('#example tbody tr').each(function () {		// each tr in table not the header
+                    trIndex++;
+                    // tr index counter
+                    // if tr index gt maxRows*pageNum or lt maxRows*pageNum-maxRows fade if out
+                    if (trIndex > (maxRows * pageNum) || trIndex <= ((maxRows * pageNum) - maxRows)) {
+                        $(this).hide();
+                    } else { $(this).show(); } 				//else fade in
+                }); 										// end of for each tr in table
+            });										// end of on click pagination list
+        });
+        // end of on select change
+        // END OF PAGINATION
+    }
+</script>
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("example");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<br />
+<div id="myModalleadcall" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Prospect Calls
+                </h4>
+            </div>
+            <div class="modal-body" style="height:500px; overflow-y:scroll;">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div id="exTab1">
+                                            <ul class="nav nav-pills">
+                                                <li class="active">
+                                                    <a href="#1a" data-toggle="tab">View Calls</a>
+                                                </li>
+                                                <li>
+                                                    <a href="#2a" data-toggle="tab">Add Calls</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content clearfix">
+                                                <div class="tab-pane active" id="1a" style="overflow-x:auto">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group form-horizontal" style="overflow-x:auto">
+                                                                <table class="dataTable table table-bordered table-striped">
+                                                                    <tr>
+                                                                        <th width="15px;" style="background-color:#5c5c5c">S.No</th>
+                                                                        <th style="background-color:#5c5c5c" width="30%;">Prospect Name</th>
+                                                                        <th style="background-color:#5c5c5c" width="10%;">Call Type</th>
+                                                                        <th style="background-color:#5c5c5c" width="10%;">Date</th>
+                                                                        <th style="background-color:#5c5c5c" width="40%;">Details</th>
+                                                                        <th style="background-color:#5c5c5c" width="10%;">Created By</th>
+                                                                    </tr>
+                                                                    <tbody id="assignuserdata"></tbody>
+                                                                </table>
+                                                                <center><div id="calldatastatus"></div></center>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane" id="2a" style="overflow-x:auto">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <span id="textleadid" style="display:none"></span>
+                                                            <form id="saveleadcallform">
+                                                                <div class="form-group form-horizontal">
+                                                                    <label class="control-label col-xs-3">Call Type<span class="required" aria-required="true">*</span></label>
+                                                                    <div class="col-xs-8">
+                                                                        <select name="contact" class="form-control" id="calltype">
+                                                                            <option value="">Select Call Type...</option>
+                                                                            <option value="InComing">InComing Call</option>
+                                                                            <option value="OutGoing">OutGoing Call</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group form-horizontal">
+                                                                    <label class="control-label col-xs-3">  Call Description <span class="required" aria-required="true">*</span></label>
+                                                                    <div class="col-xs-8">
+                                                                        <textarea id="calldetails" rows="5" cols="15" style="margin: 0px; width: 100%; height: 105px;"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group form-horizontal">
+                                                                    <label class="control-label col-xs-3"></label>
+                                                                    <div class="col-xs-8">
+                                                                        <button type="button" class="btn btn-success" id="saveleadcall">Save</button>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalemail" class="modal fade" role="dialog" style="z-index:2000;">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <span id="spanhead"> Email Data</span>
+                </h4>
+            </div>
+            <div class="minebody modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <fieldset>
+                                        <legend>Email Data</legend>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-3">Please enter the E-mail Id.<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                            <div class="col-md-8">
+                                                <input type="email" class="form-control" id="shareemail" placeholder="Please enter the E-mail Id. with Comma Separated (,) in case of Multiple recipients." />
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-labeled btn-info" id="sharedocs">
+                                            <span class="btn-label"><i class="fa fa-envelop"></i></span>Share to mail
+                                        </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    </fieldset>
+                                </div>
+                                <!-- /.row (nested) -->
+                            </div>
+                            <!-- /.panel-body -->
+                        </div>
+                        <!-- /.panel -->
+                        <!-- /.col-lg-12 -->
+                    </div>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        </div>
+    </div>
+</div>

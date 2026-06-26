@@ -1,0 +1,436 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    var userid = Session["sessionuserid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    .inputFormatTextArea {
+        border-radius: 7px !important;
+        height: 36px !important;
+        margin-top: 0px !important;
+        padding: 7px 10px !important;
+        border: 1px solid #d5d7da !important;
+        background: #ffffff !important;
+        width: 100%;
+    }
+    .form-group {
+        margin-bottom: 3px;
+        height: 70px;
+    }
+    .tablinks {
+        border: none;
+        background: transparent;
+        font-size: 14px;
+        color: #717680;
+        font-weight: 600;
+        padding: 0 0 5px 0;
+        margin: 0 15px 0 0;
+    }
+
+    .active {
+        color: #0369a1 !important;
+        border-bottom: 2px solid #0369a1 !important;
+    }
+
+    #divOCRContent, #divlabelchkbox {
+        height: 360px;
+        overflow-y: auto;
+    }
+</style>
+<script>
+    var roleid = "@role";
+     var userid = "@userid";
+</script>
+
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-8 text-left">
+                <p class="ctitle" id="dynamicreptonotiheader">Create Reply To Notice</p>
+            </div>
+            <div class="col-md-4">
+                @if (role.ToString() == "1")
+                {
+                    <button id="resetcf" class="btntop pull-right" style="display: none">Refresh Custom Fields</button>
+                    @*<img src="/newassets/images/reset_btn.png" id="resetcf" title="Reset All Custom Fields" class="pull-right publish" style="cursor:pointer;height: 25px; margin-right: 10px;display:none">*@
+                }
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table" style="padding:15px;">
+            <form enctype="multipart/form-data" class="ec_bg">
+                <input type="hidden" id="hiddenid" />
+                <input type="hidden" value="@ViewBag.parentId" id="parentId" />
+                <input type="hidden" value="@ViewBag.rootId" id="rootId" />
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="formLabel colorDark">OCR Notice</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-12">
+                            <fieldset style="border-radius: 10px; margin: 0; padding: 15px 0;">
+                                <div id="OtherOCRNotice">
+                                    <div id="fileupload">
+                                        <div class="col-md-12">
+                                            <label class="formLabel colorDark">Select Document</label>
+                                            <input type="file" id="attachment" class="form-control" value="AA" accept="application/pdf,image/png,image/jpeg" onchange="return fileValidation()" />
+                                        </div>
+                                        <div class="col-md-12 text-right" style="margin:10px 0 0 0;">
+                                            <button type="button" class="btn btn-primary" id="savecasefilenew">Convert Document</button>
+                                            <button type="button" class="btn btn-secondary" id="showomoredetail" style="margin: 0 0px 0 10px;">Import Fields</button>
+                                        </div>
+                                        <div style="display:none">
+                                            <div class="col-md-12" style="padding-bottom:20px;">
+                                                <p>
+                                                    OCR converter service allows you to convert scanned images and documents into editable files.</br> myKase has provided the facility of OCR for your convenience and
+                                                    research. myKase is not responsible for (and makes no Warranty with respect to) accuracy, adequacy and reliability or completeness of text.<br> OCR doesn't always work
+                                                    well with Handwriting and cursive letters!<br> Max file size 20 MB
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12" style="display:none">
+                                            <label>LANGUAGE</label>
+                                            <select class="form-control selctInputFormat" style="background-color: #ebebeb !important;" id="ocrlanguage">
+                                                <option value="" selected>Select</option>
+                                                <option value="eng">English</option>
+                                                <option value="hin">Hindi</option>
+                                                <option value="enghin">English + Hindi</option>
+                                                <option value="kan">Kannad</option>
+                                                <option value="mal">Malyalam</option>
+                                                <option value="mar">Marathi</option>
+                                                <option value="tam">Tamil</option>
+                                                <option value="guj">Gujarati</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                        <div class="col-md-12"><hr /></div>
+                    </div>
+                <!-- Start About boxes -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="formLabel colorDark">Sender Details</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Sender's Name</label>
+                                <select id="txtsendername" class="form-control selctInputFormat" disabled></select>
+                            </div>
+                            <div class="form-group" style="display:None" id="txtothersenderdiv">
+                                <input type="text" id="txtsendernameother" value="" name="txtsendernameother" class="form-control inputFormat" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label"> Sender's Address</span></label>
+                                <textarea type="text" class="inputFormatTextArea" id="txtsenderaddresss"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group2">
+                                <label class="formLabel colorDark"><span class="control-label">Other Details of Sender</span></label>
+                                <textarea type="text" class="inputFormatTextArea" id="txtotherdetailsrespondent"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="formLabel colorDark">Receiver Details</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label">Receiver's Name</span></label>
+                                <input type="text" class="form-control inputFormat" id="txtreplyaddress" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label">Receiver's Address</span></label>
+                                <textarea type="text" class="inputFormatTextArea" id="txtaddressaddress"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label">Other Details of Receiver</span></label>
+                                <textarea type="text" class="inputFormatTextArea" id="txtotherdetailsofaddress"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="formLabel colorDark">Notice Details</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label"> Type</span></label>
+                                <select class="form-control selctInputFormat" id="ddlnoticetype">
+                                    <option value="">Please Select</option>
+                                    <option value="Statutory">Statutory</option>
+                                    <option value="Non-Statutory">Non-Statutory</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label">Subject</span></label>
+                                <select class="form-control selctInputFormat" id="txtreplysubject"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label"> Title</span></label>
+                                <input type="text" class="form-control inputFormat" id="txtnoticetitle" disabled />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label">Date of Reply</span></label>
+                                <input type="date" class="form-control inputFormat" id="txtreplytonoticecreatedon" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label">Due Date </span></label>
+                                <input type="date" class="form-control inputFormat" id="txtduedatenotice" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label"> Mode of Delivery</span></label>
+                                <select class="form-control selctInputFormat" name="languageSelect[]" id="txtmodeofservice" multiple>
+                                    <option value="Post"> Speed Post/Registered Post</option>
+                                    <option value="Courier">Courier</option>
+                                    <option value="Email">Email</option>
+                                    <option value="ByHand">By Hand</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label"> Notice Through/To</span></label>
+                                <select class="form-control selctInputFormat" name="languageSelect[]" id="txtnoticethroughs" multiple>
+                                    <option value="Receiver">Receiver</option>
+                                    <option value="CounselforReceiver">Counsel for Receiver</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label">Notice Status</span></label>
+                                <select class="selctInputFormat" id="txtStatusOfNotice"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label">Amount Claimed</span></label>
+                                <input type="text" class="form-control inputFormat" id="txtamountclaimed" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label">Tags</span></label>
+                                <input type="text" class="form-control inputFormat" id="txttag" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label"> Priority</span></label>
+                                <select class="form-control selctInputFormat" id="txtCriticality" onchange="fnhighpriorityreason()">
+                                    <option value="0">Please Select</option>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="display:None" id="divhighpriorityreson">
+                                <label class="formLabel colorDark"><span class="control-label"> Reason for high priority<span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                <textarea type="text" class="inputFormatTextArea" id="reasonforhighpriority"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="formLabel colorDark"><span class="control-label">Upload Files</span></label>
+                                <input type="file" class="form-control inputFormat" id="txtfileupload" multiple />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                    </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="formLabel colorDark">Description</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-12">
+                            <label class="formLabel colorDark"><span class="control-label">Notice Text</span></label>
+                            <textarea type="text" class="inputFormatTextArea" id="CreateNotice"></textarea>
+                            <div class="grid-container" style="display:none">
+                                <div id="CreateNoticedd">
+                                </div>
+                                <script>
+                                    CKEDITOR.replace('CreateNotice', {
+                                        toolbar:
+                                            [
+                                                { name: 'document', groups: ['mode', 'document', 'doctools'], items: ['Source', '-', 'Print', '-', 'Templates'] },
+                                                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'justify', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'] },
+                                                { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                { name: 'tools', items: ['Maximize', '-'] },
+                                                { name: 'styles', items: ['Styles', 'format', 'Font', 'FontSize'] },
+                                                { name: 'colors', items: ['TextColor', 'BGColor'] },
+                                                { name: 'editing', items: ['Scayt'] }
+                                            ],
+                                        height: 100,
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row" id="htmlContainer">
+                    <div class="col-md-4">
+                        <label class="formLabel colorDark">Custom Fields</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-12">
+                            @{Html.RenderPartial("CustomizeFormField", new ViewDataDictionary { { "Pagename", "ReplyToNotice" }, { "PageId", "3" } });}
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row settingpanel">
+                    <div class="col-md-12 text-right">
+                        <button type="button" id="savereplttonotice" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+                    <!-- /.content -->
+            </form>
+        </div>
+    </div>
+</section>
+
+            <div class="modal fade" id="myOCRModal">
+                <div class="modal-dialog" style="width:90%">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            &nbsp;
+                            <a href="#" class="close" data-dismiss="modal">&times;</a>
+                        </div>
+                        <div class="modal-body" style="overflow:hidden;">
+                            <div class="ctitle">OCR Convertor</div>
+                            <div class="tab" style="margin:15px 0;">
+                                <button class="tablinks active" onclick="openCity(event, 'ocrwithcontrol')">Ocr with controls</button>
+                                <button class="tablinks" onclick="openCity(event, 'ocrorignalimage')">Original Copy</button>
+                            </div>
+                            <div class="tabcontent" id="ocrwithcontrol" style="overflow:hidden;display:block;">
+                                <div class="col-md-12">
+                                    <div id="divOCRContent" class="col-md-8">
+                                    </div>
+                                    <div class="col-md-4" style="display:block;" id="divlabelchkbox">
+                                        <label style="border-bottom:1px solid black; font-weight:600;">Input Field Controls</label>
+                                        <div style="padding-left:2px;">
+                                            <label>Please select checkbox<span>*</span></label>
+                                            <br />
+                                            <input type="checkbox" id="txtreplyaddresslbl" name="txtreplyaddress" dirname="abcv" value="Addressed To(Receiver Name)" class="fieldnamecls">
+                                            <label for="txtreplyaddress">Addressed To(Receiver Name)</label><br>
+                                            <input type="checkbox" id="txtaddressaddresslbl" name="txtaddressaddress" dirname="abcv" value="Addressee Address" class="fieldnamecls">
+                                            <label for="txtaddressaddress">Addressee Address</label><br>
+                                            <input type="checkbox" id="txtotherdetailsrespondentlbl" name="txtotherdetailsrespondent" dirname="abcv" value="Other Details of Sender (Parentage/ Spouse)" class="fieldnamecls">
+                                            <label for="txtotherdetailsrespondent">Other Details of Sender (Parentage/ Spouse)</label><br>
+                                            <input type="checkbox" id="txtotherdetailsofaddresslbl" name="txtotherdetailsofaddress" dirname="abcv" value="Other Details of Receiver" class="fieldnamecls">
+                                            <label for="txtotherdetailsofaddress">Other Details of Receiver</label><br>
+                                            <input type="checkbox" id="txtrejoindertitlelbl" name="txtrejoindertitle" dirname="abcv" value="Notice Title" class="fieldnamecls">
+                                            <label for="txtrejoindertitle">Notice Title</label><br>
+                                            <input type="checkbox" id="txtreplytonoticecreatedonlbl" name="txtreplytonoticecreatedon" dirname="abcv" value="Date of Creation" class="fieldnamecls">
+                                            <label for="txtreplytonoticecreatedon">Date of Creation</label><br>
+                                            <input type="checkbox" id="txtdateofreplylbl" name="txtdateofreply" dirname="abcv" value="Date Reply Sent" class="fieldnamecls">
+                                            <label for="txtdateofreply">Date Reply Sent</label><br>
+                                            <input type="checkbox" id="txtduedatenoticelbl" name="txtduedatenotice" dirname="abcv" value="Due Date" class="fieldnamecls">
+                                            <label for="txtduedatenotice">Due Date</label><br>
+                                            <input type="checkbox" id="txttaglbl" name="txttag" dirname="abcv" value="Tags" class="fieldnamecls">
+                                            <label for="txttag">Tags</label><br>
+                                            <input type="checkbox" id="txtamountclaimedlbl" name="txtamountclaimed" dirname="abcv" value="Amount Claimed" class="fieldnamecls">
+                                            <label for="txtamountclaimed">Amount Claimed</label><br>
+                                            <input type="checkbox" id="CreateNoticelbl" name="CreateNotice" dirname="abcv" value="Add Received Notice" class="fieldnamecls">
+                                            <label for="CreateNotice">Notice Text</label><br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="ocrorignalimage" class="tabcontent">
+                                <div id="ocrimgdiv">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="myOCRModalContent">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            &nbsp;
+                            <a href="#" class="close" data-dismiss="modal">&times;</a>
+                            <h3 class="modal-title">OCR Copy</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="ocr_doc_panel1 col-md-12" style="border-top:1px solid rgb(0,0,0)">
+                                        <div id="divOCRContentresponse" class="col-md-12"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var newfilesize = 20480;
+                function googleTranslateElementInit() {
+                    new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'bn,en,gu,hi,kn,ml,mr,pa,ta,te,ur,ne', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL }, 'google_translate_element');
+                }
+            </script>
+            <script>
+                function exportHTML() {
+                    var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+                        "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+                        "xmlns='https://www.w3.org/TR/REC-html40'>" +
+                        "<head><meta charset='utf-8'><title>OCR DOCS</title></head><body>";
+                    var footer = "</body></html>";
+                    var sourceHTML = header + document.getElementById("divOCRContent").innerHTML + footer;
+                    var source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+                    var fileDownload = document.createElement("a");
+                    document.body.appendChild(fileDownload);
+                    fileDownload.href = source;
+                    fileDownload.download = 'ocrdocs.doc';
+                    fileDownload.click();
+                    document.body.removeChild(fileDownload);
+                }
+            </script>
+            <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+            <script src="~/Scripts/Notice/AddReplyTonotice.js?5.1"></script>
+            <script src="~/Scripts/Notice/commonocr.js?2.6"></script>

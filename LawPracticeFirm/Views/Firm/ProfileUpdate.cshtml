@@ -1,0 +1,447 @@
+﻿@{
+    ViewBag.Title = "Profile Update";
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    var role = Session["sessionroleid"];
+}
+<i class="pp-icon-user"></i>
+<style>
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+</style>
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        try {
+            var ddlCountry = $('#country');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    option11 = '<option value="" selected >Select</option>';
+                    ddlCountry.append($("<option value='' selected></option>").val('').html('Please Select Country'));
+                    $.each(d.Data, function (i, country) {
+                        ddlCountry.append($("<option></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //State details by country id
+        $("#country").change(function () {
+            var CountryId = $(this).val();
+            if (CountryId != "India") {
+                $("#ostate").css("display", "unset");
+                $("#ocity").css("display", "unset");
+                $("#state").css("display", "none");
+                $("#city").css("display", "none");
+                return false;
+            }
+            else {
+                $("#ostate").css("display", "none");
+                $("#ocity").css("display", "none");
+                $("#state").css("display", "unset");
+                $("#city").css("display", "unset");
+            }
+            var ddlState = $('#state');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#city');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select City'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select the state.'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#state").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#city');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select City Name'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+        Loadstructure();
+        function Loadstructure() {
+            $("#codesignation").html('');
+            var option7 = '<option value="" > Select</option>';
+            $("#codesignation").append(option7);
+            var formData = new FormData();
+            $.ajax({
+                async: true,
+                url: '/api/CallApi/LoadFirmStructureAll',
+                data: formData,
+                contentType: false,
+                processData: false,
+                type: 'POST',
+                success: function (response) {
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        var obj = JSON.parse(response.Data);
+                    }
+                    else {
+                        //alert("not found");
+                    }
+                    $.each(obj, function (i, a) {
+                        if (a.SType == "Designation") {
+                            var option = '<option value="' + a.Id + '" > ' + a.Name + '</option>';
+                            $("#codesignation").append(option);
+                        }
+                    });
+                },
+                failure: function (response) {
+                    alert(data.responseText);
+                },
+                error: function (response) {
+                    alert(data.responseText);
+                }
+            });
+        }
+    });
+</script>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Employee/Pages/Profile.js?2.8"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<style>
+    .img-wrap {
+        position: relative;
+    }
+
+        .img-wrap .close1 {
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            z-index: 100;
+            color: #ce9090;
+            font-size: 25px;
+        }
+</style>
+<section class="wrapper" style="margin:unset !important">
+    <div class="container-main showcontent" id="showcontent">
+        <div class="row">
+            <h2 class="title">Edit User Profile</h2>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <section class="content-header">
+                    <!-- Content Header (Page header) -->
+                </section>
+                <section class="content">
+                    <div class="row">
+                        <form class="ec_bg" id="saveclient" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                    @*//<h4 class="form-section">Contact</h4>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-10 contact-details">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <input type="hidden" id="hidid" />
+                                                                <label class="formLabel colorDark">FIRST NAME <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                                <input class="form-control form-control-sm inputFormat" id="fname" name="fname" required type="text" maxlength="50">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">MIDDLE NAME</label>
+                                                                <input class="form-control form-control-sm inputFormat" id="mname" name="mname" type="text" maxlength="50">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">LAST NAME <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                                <input class="form-control form-control-sm inputFormat" id="lname" name="lname" required type="text" maxlength="50">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">DESIGNATION </label>
+                                                                <select id="codesignation" class="form-control selctInputFormat" style="background-color: white !important;" autocomplete="new-text">
+                                                                    <option value=""> Select</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">MOBILE NUMBER <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                                <input class="form-control form-control-sm inputFormat" maxlength="10" minlength="10" onkeypress="return isNumberKey(event)" id="mobile" required name="mobile" type="text">
+                                                                <label id="lblmobile-error"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">Email Id <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                                <input class="form-control form-control-sm inputFormat" id="email" required name="email" type="email">
+                                                                <label id="lblemail-error"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">Landline Number</label>
+                                                                <input class="form-control form-control-sm inputFormat" maxlength="16" onkeypress="return restrictAlphabetsfax(event)" id="landline" name="landline" type="text">
+                                                                <label id="lbllandline-error"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4" style="display:none">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">AADHAR CARD NO</label>
+                                                                <input class="form-control form-control-sm inputFormat" id="aadharno" name="aadharno" type="text" maxlength="12" onkeypress="return isNumberKey(event)">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">ADDRESS</label>
+                                                                <input class="form-control form-control-sm inputFormat" id="address" name="address" type="text" maxlength="200">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">Pin </label>
+                                                                <input class="form-control form-control-sm inputFormat" onkeypress="return isNumberKey(event)" id="pin" name="pin" type="text" maxlength="6" minlength="6">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">Country <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="country" required id="country"></select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">State </label>
+                                                                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="state" id="state">
+                                                                    <option value="">Select</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">Çity </label>
+                                                                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="city" id="city">
+                                                                    <option></option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if (role.ToString() == "1")
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="row">
+                                                                <div class="form-group col-md-12">
+                                                                    <label class="formLabel colorDark">Communication Email</label>
+                                                                    <input class="form-control form-control-sm inputFormat" id="commuemail" name="commuemail" type="email">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                <div class="row">
+                                                    <div class="col-md-4" style="display:none">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">GSTIN No </label>
+                                                                <input class="form-control form-control-sm inputFormat" id="gstin" name="gstin" type="text" maxlength="20">
+                                                                <label id="lblgstin-error" class="errors"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4" style="display:none">
+                                                        <div class="row" id="pandiv">
+                                                            <div class="form-group col-md-12">
+                                                                <label class="formLabel colorDark">PAN No </label>
+                                                                <input class="form-control form-control-sm inputFormat" id="panno" name="panno" type="text" maxlength="15">
+                                                                <label id="lblpanno-error" class="errors"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <div class="col-md-10">
+                                                                <div class="grid-container" style="display:none">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6" id="content">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 contact-photo" style="padding-top:8px">
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <div>
+                                                            <div class="fileupload-new thumbnail img-wrap"><span class="close1" style="cursor:pointer" id="removepic" title="Remove profile picture">&times;</span><img src="~/PanelDesign/images/Default_User_pic_new.png" alt="" id="output_image"> </div>
+                                                            <div>
+                                                                <span class="btn btn-default btn-file file-upload-buttons">
+                                                                    <input style="width:130px;" type="file" onchange="preview_image(event)" class="default inputbg" name="attachment" id="attachment" accept="image/*">
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12" style="clear:both">
+                                    <div class="">
+                                        <div class="form-actions hidden-print">
+                                            <button type="submit" id="addcontact" class="sbtbtn save pull-right" value="Update">Update</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var fcode = localStorage.getItem("FirmCode");
+    jQuery('#view').click(function (e) {
+        validnavigation = true;
+        window.onbeforeunload = null;
+        var url = "/firm/UserProfile";
+        window.location = encodeURI("/" + fcode + url);
+    });
+</script>
+<div id="myOverlay" class="overlay" style="display:block !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

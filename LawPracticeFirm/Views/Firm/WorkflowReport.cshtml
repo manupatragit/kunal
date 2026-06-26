@@ -1,0 +1,142 @@
+﻿@{
+    ViewBag.Title = "WorkflowReport";
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script src="~/Scripts/Firm/Pages/WorkflowReport.js" type="text/javascript"></script>
+<style>
+    .Collapseheader {
+        font-size: 12px;
+        padding: 4px !important;
+        background-color: #204d74;
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+        background: #5c5c5c !important;
+        border: 1px solid #5c5c5c;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Workflow Status</li>
+        </ol>
+        <h1><span class="fa fa-cubes"></span> Workflow Status</h1>
+    </section>
+    <section class="content">
+        <form id="frmtsklist">
+            <section class="content-header">
+                <div class="box">
+                    <div class="box-header" style="padding:5px;">
+                        <ul class="btn_panel no-margin pull-right" style="padding:0;">
+                            <li>
+                                <btn class="btn btn-primary" id="btnExport1" value="Excel" title="Export to Excel"> <span class="glyphicon glyphicon-save"></span> Excel</btn>
+                            </li>
+                            <li>
+                                <button type="button" class="btn btn-warning pull-right" id="printdocsmykase" title="Print" idval="printdivmykase" idtitle="WorkFlow Report"><i class="glyphicon glyphicon-print"></i>&nbsp;</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="printdivmykase">
+                    <div id="wfdata" style="overflow-x:auto"></div>
+                    <div id="wfsdata" style="overflow-x:auto"></div>
+                </div>
+                <script>
+                    $("#btnExport1").click(function (e) {
+                        var a = document.createElement('a');
+                        //getting data from our div that contains the HTML table
+                        var data_type = 'data:application/vnd.ms-excel';
+                        a.href = 'data:application/vnd.ms-excel,' + encodeURIComponent($('div[id=printdivmykase]').html());
+                        //setting the file name
+                        a.download = 'WorkFlow Report.xls';
+                        //triggering the function
+                        a.click();
+                        //just in case, prevent default behaviour
+                        e.preventDefault();
+                        return (a);
+                    });
+                </script>
+            </section>
+            <!-- Modal -->
+            <div id="myModal1" class="modal fade myModal" role="dialog" data-backdrop="static">
+                <div class="modal-dialog modal-lg">
+                    <!-- Modal content-->
+                    <div class="modal-content mymodels" id="mymodels">
+                    </div>
+                </div>
+            </div>
+        </form>
+</aside>
+<script src="~/CssJsfiles/js/pdfmake.min.js"></script>
+<script src="~/CssJsfiles/js/html2canvas.min.js"></script>
+<script type="text/javascript">
+    $("body").on("click", "#btnExport", function () {
+        html2canvas($('#example')[0], {
+            onrendered: function (canvas) {
+                var data = canvas.toDataURL();
+                var docDefinition = {
+                    content: [{
+                        image: data,
+                        width: 500
+                    }]
+                };
+                pdfMake.createPdf(docDefinition).download("Workflowreport.pdf");
+            }
+        });
+    });
+    function searchTable() {
+        var input, filter, found, table, tr, td, i, j;
+        input = document.getElementById("searchdata");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("example");
+        tablebody = table.getElementById("tbody");
+        tr = tablebody.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    found = true;
+                }
+            }
+            if (found) {
+                tr[i].style.display = "";
+                found = false;
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+</script>
+<script type="text/javascript">
+    var tableToExcel = (function () {
+        var uri = 'data:application/vnd.ms-excel;base64,'
+            , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+            , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+            , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+        return function (table, name) {
+            if (!table.nodeType) table = document.getElementById(table)
+            var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+            window.location.href = uri + base64(format(template, ctx))
+        }
+    })()
+</script>

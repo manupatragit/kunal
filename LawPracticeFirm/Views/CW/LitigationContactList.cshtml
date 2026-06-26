@@ -1,0 +1,316 @@
+﻿
+@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+<style>
+    #myModalpopup table label {
+        margin: 5px;
+    }
+    /*adding ccustom css for input field disappearing when clicked - Navneet Prasad */
+    .inputFormatnav {
+        display: block !important;
+        width: 100% !important;
+        height: 34px !important;
+        padding: 6px 12px !important;
+        font-size: 14px !important;
+        line-height: 1.428571429 !important;
+        color: #555 !important;
+        vertical-align: middle !important;
+        background-color: #fff !important;
+        background-image: none !important;
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075) !important;
+        transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s !important;
+    }
+
+        .inputFormatnav:focus {
+            border-color: #d5d7da !important;
+            border: 1px solid #d5d7da !important;
+        }
+</style>
+<script src="~/Scripts/CW/LitigationContactList.js?1.4"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle">Contact List</p>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1" style="justify-content: flex-end;">
+
+                    <div class="table-header">
+                        <div class="actions3">
+                            <div>
+                                <button class="btn btn-primary" id="btnAddUserModal">Add New Contact</button>
+                            </div>
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li>
+                                        <div id="exporttoexcel" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                    </li>
+
+                                </ul>
+
+                            </div>
+                            <div class="button13" id="CustSelectionopen" title="Column Selection">
+                                <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+                <div class="tablecontainer">
+                    <div class="table-panel" id="allcasediv">
+                        <table id="allcaselisttable" class="table-panel" role="grid" aria-describedby="example_info">
+                            <thead width="100%">
+                                <tr role="row">
+                                    <th class="lName"><div class="thbg">Name</div></th>
+                                    <th class="lMobile"><div class="thbg">Mobile</div></th>
+                                    <th class="lEmail"><div class="thbg">Email</div></th>
+                                    <th class="lhomeaddress"><div class="thbg">Home Address</div></th>
+                                    <th class="lofficename"><div class="thbg">Office Name</div></th>
+                                    <th class="lofficeaddress"><div class="thbg">Office Address</div></th>
+                                    <th class="lalternatemob"><div class="thbg">Alternate Mobile</div></th>
+                                    <th class="lOrgnization"><div class="thbg">Organization Name</div></th>
+                                    @*<th class="lwebsite" width="10%">Website</th>*@
+                                    <th width="100px"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="alldatabindcontactlist"></tbody>
+                        </table>
+
+                    </div>
+
+                    <center>
+
+                        <div class="notfound" id="pdatastatus" style="display:none;">
+                            <img src="/newassets/img/not-found.png">
+                            <h4>No Matter list found</h4>
+                            <p>We found no matter list.</p>
+                        </div>
+                    </center>
+                </div>
+
+            </div>
+            <div class="pagination" id="pagenatedArea">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<div id="myModalCustomizedcolumn" class="modal right fade myModal in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12" style="overflow-y:scroll; margin-top:15px; max-height:420px;">
+                        <ul id="od">
+                            <li><input type="checkbox" value="lName" class="chkChartsetting chkdhide" name="lName" checked><a href="#" class="dropdown-item">Name</a></li>
+                            <li><input type="checkbox" value="lMobile" class="chkChartsetting chkdhide" name="lMobile" checked><a href="#" class="dropdown-item">Mobile</a></li>
+                            <li><input type="checkbox" value="lEmail" class="chkChartsetting chkdhide" name="lEmail" checked><a href="#" class="dropdown-item">Email</a></li>
+                            <li><input type="checkbox" value="lhomeaddress" class="chkChartsetting chkdhide" name="lhomeaddress"><a href="#" class="dropdown-item">Home Address</a></li>
+                            <li><input type="checkbox" value="lofficename" class="chkChartsetting chkdhide" name="lofficename" checked><a href="#">Office Name</a></li>
+                            <li><input type="checkbox" value="lofficeaddress" class="chkChartsetting chkdhide" name="lofficeaddress" checked><a href="#">Office Address</a></li>
+                            <li><input type="checkbox" value="lalternatemob" class="chkChartsetting chkdhide" name="lalternatemob"><a href="#" class="dropdown-item">Alternate Mobile</a></li>
+                            <li><input type="checkbox" value="lOrgnization" class="chkChartsetting chkdhide" name="lOrgnization"><a href="#" class="dropdown-item">Organization Name</a></li>
+
+
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="myModalpopup" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog " style="width:670px">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Add/Update Contact
+                </h4>
+            </div>
+            <!-- Modal content-->
+            <div class="modal-body" id="mymodels">
+                <table cellspacing="0" cellpadding="0" width="100%" align="center">
+                    <tbody>
+                        <tr>
+                            <td><label>Name</label><span class="required" aria-required="true"><b>*</b><input type="text" class="form-control inputFormatnav" placeholder="Enter Full Name" name="txtFullName" id="txtFullName" maxlength="20"></td>
+                            <td width="30px">&nbsp;</td>
+                            <td><label>Home Address</label><input type="text" class="form-control inputFormatnav" placeholder="Home Address" name="txthome" id="txthome" maxlength="200"></td>
+                        </tr>
+                        <tr>
+                            <td><label>Mobile</label><span class="required" aria-required="true"><b>*</b><input type="text" class="form-control inputFormatnav" placeholder="Mobile No" pattern="[6789][0-9]{9}" name="txtMobile" id="txtMobile" maxlength="10"></td>
+                            <td>&nbsp;</td>
+                            <td><label>Office Name</label><input type="text" class="form-control inputFormatnav" placeholder="Office" name="txtoffice" id="txtoffice" maxlength="200"></td>
+                        </tr>
+                        <tr>
+                            <td><label>Email</label><span class="required" aria-required="true"><b>*</b><input type="email" class="form-control inputFormatnav" placeholder="Email" name="txtEmail" id="txtEmail" maxlength="150"></td>
+                            @*<td><label>Fax</label><input type="text" class="form-control inputFormat" placeholder="Fax No" name="txtFax" id="txtFax" maxlength="15"></td>*@
+                            <td>&nbsp;</td>
+                            <td><label>Alternate Mobile No</label><input type="text" class="form-control inputFormatnav" maxlength="10" placeholder="Alternate Mobile No" name="txthomephoneno" id="txthomephoneno" maxlength="21"></td>
+                        </tr>
+                        <tr>
+                            <td><label>Office Address</label><input type="text" class="form-control inputFormatnav" placeholder="Office Address" name="txtAddress" id="txtAddress" maxlength="200"></td>
+                            <td>&nbsp;</td>
+                            <td><label>Orgnization</label><input type="text" class="form-control inputFormatnav" placeholder="Orgnization" name="txtOrgnization" id="txtOrgnization" maxlength="50"></td>
+                        </tr>
+                        @*<tr>
+                                <td><label>Website</label><input type="text" class="form-control inputFormat" placeholder="Website" name="txtWebsite" id="txtWebsite" maxlength="30"></td>
+                                <td>
+                                </td>
+                                <td><label>Orgnization</label><input type="text" class="form-control inputFormat" placeholder="Orgnization" name="txtOrgnization" id="txtOrgnization" maxlength="50"></td>
+                            </tr>*@
+                        <tr>
+
+                            <td colspan="3" class="text-right" style="padding: 20px 0;">
+                                <input type="hidden" id="hdniid" value="0" />
+                                <button class="btn btn-primary" type="submit" name="submit" value="Submit" onclick="return validation();">Submit</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="sbtn">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+    @*Export excel code - Navneet Prasad*@
+    <div class="modal-content" style="width: 520px; margin-left: 682px; margin-top: 30px;">
+        <input type="hidden" id="exportrecords" value="505">
+        <input type="hidden" id="Exporttype" value="Excel">
+        <div class="modal-header btn-success">
+            <button type="button" class="close" id="closemodels22" data-dismiss="modal">×</button>
+            <h4 class="modal-title">
+                <img src="/newassets/img/pdf-export.png" style="margin:-15px 0px 0 -15px">
+            </h4>
+
+        </div>
+        <div class="modaltitle" style="margin: -40px 0 0 0; border-bottom: none;">
+            <h4>Export List</h4>
+            <p>Select number of list to be exported </p>
+        </div>
+        <div class="modal-body partynamebody">
+            <form role="form">
+                <div class="row">
+                    <div class="form-group" style="margin: 15px 0; overflow: hidden;">
+                        <div class="col-md-12">
+                            @* <label>Number of Matters</label>*@
+                        </div>
+                        <div class="col-md-12">
+                            <select class="selctInputFormat" id="id_exportreportdrop">
+                                <option value="">Please Select</option>
+                                @*<option value="1"> 1 </option>
+                                <option value="2"> 2 </option>*@
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="CommonExportExcel">Confirm</button>
+        </div>
+    </div>
+</div>
+
+@* Delete popup started *@
+
+<div id="myModalContactConf" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/delete-notice.png" style="margin:-10px 0px 0 -13px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_deleteTraderequesr">Delete Contact Request</h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgRUSure">Are you sure you want to delete this contact.</p>
+            </div>
+            <div class="footer_buttons modal-footer">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="deleteContactDetails">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* Delete popup ended *@

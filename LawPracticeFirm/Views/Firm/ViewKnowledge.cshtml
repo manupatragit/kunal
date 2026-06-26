@@ -1,0 +1,932 @@
+﻿@{
+    ViewBag.Title = "ViewKnowledge";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    var filepath = "";
+}
+<script src="~/Scripts/Firm/Pages/ViewKnowledge.js?1.7" type="text/javascript"></script>
+<script>
+    var totpagesize = @ViewBag.pagesize;
+    var directoryid = "@ViewBag.directoryid";
+    var filesize = @ViewBag.filesize;
+    var datauser = "";
+    var userid = "@Session["sessionuserid"]";
+    var roleids = "@role";
+</script>
+<script>
+    var isDelete = "@ViewBag.IsDelete";
+    var IsCreate = "@ViewBag.IsCreate";
+</script>
+<script>
+    var _0x68e3 = ["", "\x2F\x61\x70\x69\x2F\x63\x61\x6C\x6C\x41\x70\x69\x2F\x54\x61\x73\x6B\x45\x4B\x44\x61\x74\x61", "\x50\x4F\x53\x54", "\x6A\x73\x6F\x6E", "\x44\x61\x74\x61", "\x2F\x53\x63\x72\x69\x70\x74\x73\x2F\x53\x69\x6D\x70\x6C\x79\x66\x79\x2E\x6A\x73", "\x67\x65\x74\x53\x63\x72\x69\x70\x74", "\x72\x65\x73\x70\x6F\x6E\x73\x65\x54\x65\x78\x74", "\x61\x6A\x61\x78"]; var dtqwe = _0x68e3[0]; $[_0x68e3[8]]({ url: _0x68e3[1], type: _0x68e3[2], dataType: _0x68e3[3], success: function (_0x8e52x2) { dtqwe = _0x8e52x2[_0x68e3[4]]; $[_0x68e3[6]](_0x68e3[5], function () { }) }, error: function (_0x8e52x2) { alert(_0x8e52x2[_0x68e3[7]]) } })
+</script>
+<style>
+    .glyphicon-eye-open,
+    .glyphicon-trash,
+    .glyphicon-download-alt,
+    .glyphicon-envelope {
+        color: black !important;
+    }
+</style>
+<style>
+    .dropbtn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .dropbtn:hover,
+        .dropbtn:focus {
+            background-color: #3e8e41;
+        }
+
+    #searchdata {
+        border-box: box-sizing;
+        background-image: url('searchicon.png');
+        background-position: 14px 12px;
+        background-repeat: no-repeat;
+        font-size: 16px;
+        padding: 14px 20px 12px 45px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #myInput:focus {
+        outline: 3px solid #ddd;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        overflow: auto;
+        border: 1px solid #ddd;
+        z-index: 1;
+    }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+    .dropdown a:hover {
+        background-color: #ddd;
+    }
+
+    .show {
+        display: block;
+    }
+</style>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+
+    .marginTopNav {
+        margin-top: 10px;
+    }
+</style>
+<script>
+    /* When the user clicks on the button,
+    toggle between hiding and showing the dropdown content */
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle">Knowledge Management</p> <input type="text" id="searchdata" style="display:none">
+        </div>
+        <div class="supporting-text"></div>
+        <div class="tabs-and-filters">
+            <div class="">
+                <div class="tabs">
+                    <div class="tab_button_base active">
+                        <div class="text1"><a href="/@Session["firmcode"]/Firm/ViewKnowledge/0" title="View Knowledge">All <span id="CcaseCount"></span></a> </div>
+                    </div>
+                    <div class="tab_button_base">
+                        <div class="text1" style="cursor:pointer;"><a href="/@Session["FirmCode"]/Firm/ViewKnowledgefav" title="Favourite content">Pinned File <span id="PinnedCount"></span></a></div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="table-header">
+                <div class="actions3">
+                    @if (role.ToString() == "1")
+                    {
+                        <a href="javascript:void()" class="button13" title="Upload Document" id="myModal123" data-toggle="modal"><img src="~/newassets/img/uploaddocument-icon.png" /> Upload Document</a>
+                        <a href="javascript:void()" title="Create Folder" id="myModal12" data-toggle="modal" class="button4"><span><img src="~/newassets/img/plus-icon.png" /></span>Add New Folder</a>
+
+                    }
+                    else
+                    {
+                        if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                        {
+                            <a href="javascript:void()" class="button13" title="Upload Document" id="myModal123" data-toggle="modal"><img src="~/newassets/img/uploaddocument-icon.png" /> Upload Document</a>
+                            <a href="javascript:void()" title="Create Folder" id="myModal12" data-toggle="modal" class="button4"><span><img src="~/newassets/img/plus-icon.png" /></span>Add New Folder</a>
+
+                        }
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+<section style="padding:15px 0 0;">
+    <div class="card-header">
+        <div class="content1" style="justify-content: space-between;padding:0;">
+            <div class="left_input" style="display: grid; gap: 10px; grid-template-columns: 150px 150px 120px 40px;">
+                <select class=" dropdown-toggle form-control selctInputFormat" id="searchtype">
+                    <option value="1">Title</option>
+                    <option value="2">Documents</option>
+                </select>
+
+                <input type="text" placeholder="Search" id="searchdatainfile" class="form-control inputFormat">
+
+
+                <div id="myDropdown">
+                    <input type="text" placeholder="Search.." class="form-control selctInputFormat" style="background:#ebebeb !important;display:none" id="searchdata" onkeyup="searchTable()">
+                    @*<button type="button" class="btn btn-secondary" id="btnsearch" value="Search" onclick="Getdata()"><img src="/newassets/img/search-lg.png" style="width:18px;" /> Search
+        </button>*@
+                    <button type="button" class="btn btn-secondary" id="btnsearch" value="Search">
+                        <img src="/newassets/img/search-lg.png" style="width:18px;" /> Search
+                    </button>
+                </div>
+                <span class="" title="Click here to reset search"
+                      style="padding:3px 8px !important;display:none;cursor:pointer;font-size:15px;color: black;font-weight:350;" id="btnback" value="Back" onclick="BacktoResult()">x</span>
+            </div>
+            <div class="table-header">
+                <div class="actions3">
+                    <div class="menuexport" style="position:relative; cursor:pointer;">
+                        <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                            <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                        </div>
+                        <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                            <li><div title="Export to PDF" id="pdf"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</div>
+                            <li>
+                        </ul>
+                    </div>
+                    <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                        <img class="plus-icon" alt="" src="~/newassets/img/settings-icon.png">
+
+                        <div class="text-padding">
+                            <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@*<section>
+    <div class="card-header">
+        <div class="content-header">
+            <ol class="breadcrumb" style="padding: 0; margin-bottom: 0; list-style: none; background-color: #ffffff; border-radius: 4px;">
+                <li class="active" style="cusror:pointer;float"><a id="transferpage12" href="javascript:void()" data-val="0"><img width="20" src="/newassets/img/file.svg" /> /</a> </li>
+                @if (ViewBag.DIRECTORYLINK != null)
+                {
+                    foreach (var item in ViewBag.DIRECTORYLINK)
+                    {
+                        <li class="active noactive" style="cursor:pointer;"><a id="transferpage" href="javascript:void()" data-val="@item.ID">@item.Name</a> </li>
+                    }
+                }
+            </ol>
+        </div>
+    </div>
+</section>*@
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="tablearea"  style="margin:0;">
+                <div class="tablecontainer">
+                    <div id="updatePanel">
+                    </div>
+                    <center>
+                        <div class="notfound" id="datastatus" style="display:none;">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4>No Record found</h4>
+                            <p>We found no Record list.</p>
+                        </div>
+                    </center>
+                </div>
+                <div class="pagination">
+                    <div class="pagination-button-group">
+                        <div id="prev" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbers" class="pagination-button-group-base1">
+                            @*<div class="text">a</div>*@
+                            @*<span id="pageNumbers" class="pages"></span>*@
+                        </div>
+
+                        <div id="next" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGo" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+    </div>
+</section>
+
+
+
+
+@*<section class="wrapper" style="margin:unset !important">
+    <div class="container-main showcontent" id="showcontent">
+        <div>
+            <div class="row">
+                <div class="col-md-8">
+                    <h2 class="title"> Knowledge Management</h2>
+                </div>
+            </div>
+            <div class="content-header">
+                <ol class="breadcrumb">
+                    <li class="active" style="cusror:pointer;float"><a id="transferpage12" href="javascript:void()" data-val="0"><span class="glyphicon glyphicon-folder-open"></span> </a> </li>
+                    @if (ViewBag.DIRECTORYLINK != null)
+                    {
+                        foreach (var item in ViewBag.DIRECTORYLINK)
+                        {
+                            <li class="active noactive" style="cursor:pointer;"><a id="transferpage" href="javascript:void()" data-val="@item.ID">@item.Name</a> </li>
+                        }
+                    }
+                </ol>
+            </div>
+            <div id="updatePanel" class="table-panel table-responsive">
+            </div>
+            <div>
+                <center><span id="datastatus"></span></center>
+            </div>
+            <div class="table-panel">
+                <div class="settingpanel">
+                    <div class="col-md-6">
+                        <div style="float: left;padding: 0 10px 0 0;">
+                            <ul>
+                                <li>
+                                    <div class="btn-group dropup">
+                                        <a href="javascript:void()"
+                                           class=" dropdown-toggle form-control selctInputFormat "
+                                           style="background-color: #ebebeb !important; margin-top: -3px !important;"
+                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="glyphicon glyphicon-cog"
+                                                  style="font-size:14px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                            Customize Field
+                                        </a>
+                                        <ul class="dropdown-menu settingshowhide">
+                                            <li>
+                                                <input type="checkbox" class="shcheckbox1 chkdhide" name="titles"
+                                                       checked><a href="#" class="dropdown-item">Title</a>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" class="shcheckbox1 chkdhide" name="authordate">
+                                                <a href="#" class="dropdown-item">Author Date</a>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" class="shcheckbox1 chkdhide" name="category"
+                                                       checked><a href="#" class="dropdown-item">Category</a>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" class="shcheckbox1 chkdhide" name="author"
+                                                       checked><a href="#" class="dropdown-item">Author</a>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" class="shcheckbox1 chkdhide" name="source"><a href="#" class="dropdown-item">Source</a>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" class="shcheckbox1 chkdhide" name="details"
+                                                       checked><a href="#" class="dropdown-item">Description</a>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" class="shcheckbox1 chkdhide" name="date"
+                                                       checked><a href="#" class="dropdown-item">Date</a>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" class="shcheckbox1 chkdhide" name="Size"
+                                                       checked><a href="#" class="dropdown-item">Size</a>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" class="shcheckbox1 chkdhide" name="createdby"
+                                                       checked><a href="#" class="dropdown-item">Created By</a>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" class="shcheckbox1 chkdhide" name="Favourite"
+                                                       checked><a href="#" class="dropdown-item">Favourite</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="tfooter"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="pull-right" id="ulfooter1">
+                            <li>
+                                <select class=" dropdown-toggle form-control selctInputFormat "
+                                        style="background-color: #ebebeb !important;
+    padding-right: 20px !important;
+    border-radius: 20px !important;
+    height: 30px !important;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    padding-left: 15px !important;
+    background: #ebebeb url(/newassets/images/selectbox_arrow.png) no-repeat right !important;
+    -webkit-appearance: none;
+    background-position-x: 99%;
+    margin-bottom: 10px !important;"
+                                        id="searchtype">
+                                    <option value="1">Title</option>
+                                    <option value="2">Documents</option>
+                                </select>
+                            </li>
+                            <li>
+                                <input type="text" placeholder="Search" id="searchdatainfile"
+                                       class="form-control inputbg">
+                            </li>
+                            <li>
+                                <div id="myDropdown">
+                                    <input type="text" placeholder="Search.." class="form-control selctInputFormat" style="background:#ebebeb !important;display:none" id="searchdata" onkeyup="searchTable()">
+                                    <button type="button" class="sbtbtn" style="margin: 0;position: relative;float: right;background: none;border: none;" id="btnsearch"
+                                            value="Search" onclick="Getdata()">
+                                        <i class="glyphicon glyphicon-search"></i>
+                                    </button>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="" title="Click here to reset search"
+                                      style="padding:3px 8px !important;display:none;cursor:pointer;font-size:15px;color: black;font-weight:350;"
+                                      id="btnback" value="Back" onclick="BacktoResult()">x</span>
+                            </li>
+                            <li><span>|</span></li>
+                            <li>
+                                <div class="btn-group dropup">
+                                    <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat "
+                                       style="background-color: #ebebeb !important; " data-toggle="dropdown"
+                                       aria-haspopup="true" aria-expanded="false">
+                                        Action Selected
+                                    </a>
+                                    <ul class="dropdown-menu settingaction">
+                                        @if (role.ToString() == "1")
+                                        {
+                                            <li>
+                                                <a href="javascript:void()" style="margin-top:0px;" data-toggle="modal"
+                                                   id="myModal12" title="Create Folder">create folder</a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void()" data-toggle="modal" id="myModal123">
+                                                    upload
+                                                    document
+                                                </a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                                            {
+                                                <li>
+                                                    <a href="javascript:void()" style="margin-top:0px;" data-toggle="modal"
+                                                       id="myModal12" title="Create Folder">create folder</a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void()" data-toggle="modal" id="myModal123">
+                                                        upload
+                                                        document
+                                                    </a>
+                                                </li>
+                                            }
+                                        }
+                                        @if (role.ToString() == "1")
+                                        {
+                                            <li>
+                                                <a href="javascript:void()" id="pdf" value="Export to PDF"
+                                                   title="Export to PDF">export to pdf</a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            if (Convert.ToInt32(ViewBag.export) == 1)
+                                            {
+                                                <li>
+                                                    <a href="javascript:void()" id="pdf" value="Export to PDF"
+                                                       title="Export to PDF">export to pdf</a>
+                                                </li>
+                                            }
+                                        }
+                                        <li>
+                                            <a href="/@Session["FirmCode"]/Firm/ViewKnowledgefav">favourite content</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="myOverlay23" class="overlay">
+                <div class="overlay-content">
+                    <div class="spinner2">
+                        <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>*@
+
+<div class="container">
+    <!-- Modal -->
+    <div class="modal fade" id="myModal434" role="dialog">
+        <div class="modal-dialog">
+            s
+            <!-- Modal content-->
+            <div class="modal-content" style="background-color: green">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="loadfile"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal8" class="modal fade" role="dialog" style="z-index:2000;">
+    <div class="modal-dialog " style="width: 98% !important;margin:20px auto">
+        <!-- Modal content-->
+        <div class="modal-content" style=" height: 585px;">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="resetofficeusers" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <span id="spanheadfile"> View File</span>
+                </h4>
+            </div>
+            <div class="minebody modal-body">
+                <div id="frameWrap">
+                    <img id="loader12" width="36" height="36" />
+                    <iframe id="docframe" src="/Firm/loader" height="490px" width="100%">
+                        <p>Your browser does not support iframes.</p>
+                    </iframe>
+                </div>
+            </div>
+            <script>
+                $('#docframe').on('load', function () {
+                    $('#loader12').hide();
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<div id="myModalupload" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:415px;">
+        <!-- Modal content-->
+        <div class="modal-content" style=" overflow-y: scroll; ">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="closeDocsUploadBtn">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/notice-icon.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -35px 0 15px 0; border: none;">
+            <h4>Upload Document</h4>
+            </div>
+            <div class="modal-body">
+                <form id="fileupload" name="fileupload">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="dragUpload">
+                                <div class="upload-icon"> <img src="/newassets/img/upload-cloud.svg"> </div>
+                                <p class="upload-text" style="font-size:14px;margin:0;">
+                                    <span>
+                                        <label for="attachment"
+                                               style="color: #0369A1; font-weight:600; cursor:pointer;">Click to upload</label>
+                                    </span> or drag and drop
+                                </p>
+                                <p class="upload-subtext" style="font-size:14px;margin:0;">Special characters like (@@\/:*?"<>|.&$%#!~+`*^,) are not allowed in file names.</p>
+
+                                <input type="file" id="attachment" class="inputFormat" required="" style="display:none;">
+                                <div id="fileListDocs" style="margin-top:10px;"></div>
+                                <div class="col-md-12">
+                                    <div class="progress" style="display:none">
+                                        <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                                             aria-valuemax="100" style="width: 0%;">
+                                            0%
+                                        </div>
+                                    </div>
+                                    <div id="progressBarstatus" style="text-align:center; margin-top: -15px;display:none">
+                                        Please wait document is uploading....
+                                    </div>
+                                </div>
+                            </div>
+                            @*<div class="row">
+        <div class="col-md-12">
+            <label>File<span class="required" aria-required="true">*</span></label>
+            <input type="file" class="inputFormat" id="attachment" required @*class="upload">
+                    <label for="attachment"></label>
+                </div>
+                <div class="col-md-12">
+                    <div class="progress" style="display:none">
+                        <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="0"
+                             aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                            0%
+                        </div>
+                    </div>
+                    <div id="progressBarstatus" style="text-align:center; margin-top: -15px;display:none">
+                        Please wait document is uploading....
+                    </div>
+                </div>
+            </div>*@
+
+                            <div class="row" id="dirdiv" style="display:none">
+                                <div class="col-md-12 marginTopNav" >
+                                    <label class="control-label">Choose Folder</label>
+                                    <select name="" class="form-control selctInputFormat" id="directory">
+                                        <option value="">Select Directory...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 marginTopNav" >
+                                    <label>Title<span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input class="form-control inputFormat" type="text" id="title" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 marginTopNav">
+                                    <label class="control-label">Category</label>
+                                    <select name="" class="form-control selctInputFormat" id="category">
+                                        <option value="">Select Category</option>
+                                        <option value="Environment">Environment</option>
+                                        <option value="Research">Research</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 marginTopNav">
+                                    <label class="control-label">Author</label>
+                                    <input class="form-control inputFormat" type="text" id="author" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 marginTopNav">
+                                    <label class="control-label">Date</label>
+                                    <input class="form-control inputFormat" type="text" placeholder="Eg: 15-SEP-2020" id="dDate" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 marginTopNav">
+                                    <label>Source</label>
+                                    <input class="form-control inputFormat" type="text" id="source" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 marginTopNav">
+                                    <label>Description</label>
+                                    <input class="form-control inputFormat" type="text" id="desc" maxlength="50">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                   
+                    <div class="modal-footer text-right marginTopNav" style="border-top: none !important">
+                        <div class="row">
+                            <div class="col-md-6"><button type="reset" class="btn btn-secondary"  id="resercreatefiles" style="width:100%;"> Cancel</button></div>
+                            <div class="col-md-6"><button type="button" class="btn btn-primary" id="createfiles" style="width:100%;"> Upload Document</button></div>
+                        </div>
+                        
+                        
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/create-folder.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -35px 0 -10px 0; border: none;">
+                <h4>Add New Folder</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-danger alert-dismissable validpanel">
+                            <button type="button" class="close validpanel" data-dismiss="alert" aria-hidden="true">
+                                &times;
+                            </button>
+                            . <a href="#" class="alert-link">Alert Link</a>.
+                        </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form role="form" id="foldercreate">
+                                            <div class="form-group form-horizontal">
+                                               <label>Folder Name <span class="required " aria-required="true"><b> *</b> </span></label>
+                                               <input class="form-control inputFormat" type="text" value="" id="cdir" placeholder="Enter Folder Name"><span style="color:red"></span>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer text-right" style="border-top: none !important; margin-top: -4px;">
+                <button class="btn btn-secondary" id="" data-dismiss="modal" style="width: 47%;">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="CreateDir" style="width: 50%;">Add New Folder</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalpermission" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content" style="width: 480px; margin-left: -45px; ">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/share.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -35px 0 15px 0; border: none;">
+                <h4>Share Document</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" id="foldercreate">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="hidden" id="hdn" />
+                            <label>User<span class="required " aria-required="true"><b> *</b> </span></label>
+                            <select id="drpuserlist" name="drpuserlist" class="form-control selctInputFormat">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:10px 0 0 0;">
+                        <div class="col-md-12">
+                            <label>Permission </label>
+                        </div>
+                        <div class="col-md-4">
+                            <input id="Vew" name="Vew" type="checkbox" data-val=""> <span>View</span>
+                        </div>
+                        <div class="col-md-4">
+                            <input id="Dwn" name="Dwn" type="checkbox" data-val=""> <span>Download</span>
+                        </div>
+                        <div class="col-md-4"></div>
+                    </div>
+                </form>
+                <div class="footer_buttons modal-footer" style="margin-top: -1px !important; ">
+                    <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSavePermission">Share document</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal23" class="modal fade" role="dialog" style="z-index:2000;">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/share.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -35px 0 -15px 0; border: none;">
+                <h4>Share As Email</h4>
+            </div>
+            <div class="minebody modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="hidden" id="knowfileid">
+                        <div class="form-group form-horizontal">
+                            <label>E-mail Id <span class="required " aria-required="true"><b> *</b> </span></label>
+                            <input type="email" class="form-control inputFormat" placeholder="Enter the E-mail Id" id="shareemail"
+                                   title="Please enter the E-mail Id. with Comma Separated (,) in case of Multiple recipients. with comma separated(,)" />
+                        </div>
+                    </div>
+                    <!-- /.row (nested) -->
+                </div>
+            </div>
+            <div class="modal-footer text-right" style="border-top: none !important;">
+                <button class="btn btn-secondary" id="" data-dismiss="modal" style="width:47%;">Cancel</button>
+                <button class="btn btn-primary" id="sharedocs" style="width:50%;"> Share Document </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalCustomizedcolumn" class="modal right fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="overflow-y:scroll; height:700px;">
+                        <ul id="od">
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="titles"
+                                       checked><a href="#" class="dropdown-item">Title</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="authordate">
+                                <a href="#" class="dropdown-item">Author Date</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="category"
+                                       checked><a href="#" class="dropdown-item">Category</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="author"
+                                       checked><a href="#" class="dropdown-item">Author</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="source"><a href="#" class="dropdown-item">Source</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="details"
+                                       checked><a href="#" class="dropdown-item">Description</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="date"
+                                       checked><a href="#" class="dropdown-item">Date</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="Size"
+                                       checked><a href="#" class="dropdown-item">Size</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="createdby"
+                                       checked><a href="#" class="dropdown-item">Created By</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="Favourite"
+                                       checked><a href="#" class="dropdown-item">Favourite</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function openload() {
+        $('#myOverlay23').css("display", "block");
+    }
+    function closeloader() {
+        $('#myOverlay23,#myOverlay').css("display", "none");
+    }
+</script>
+<script type="text/javascript">
+    var tableToExcel = (function () {
+        var uri = 'data:application/vnd.ms-excel;base64,'
+            , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+            , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+            , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+        return function (table, name) {
+            if (!table.nodeType) table = document.getElementById(table)
+            var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+            window.location.href = uri + base64(format(template, ctx))
+        }
+    })()
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("example");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>

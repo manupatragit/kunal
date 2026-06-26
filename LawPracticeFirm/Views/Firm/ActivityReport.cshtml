@@ -1,0 +1,270 @@
+﻿@{
+    Layout = null;
+    var role = Session["sessionroleid"];
+}
+<script src="~/Scripts/Firm/Pages/ActivityReport.js?1.6"></script>
+<script>
+    var roleid = "@Session["sessionroleid"]";
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<section class="wrapper">
+    <input id="searchdata" value="" type="text" style="display:none;" />
+    <div class="ec_bg">
+        <div class="col-md-3">
+            <label class="formLabel colorDark">User<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+            <select id="actcontacttype" class="form-control selctInputFormat" style="background-color: white !important;">
+                <option value="" selected="">Select</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="formLabel colorDark">Start<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+            <input class="form-control inputFormat" id="fdate" onkeypress="return false;" type="date">
+        </div>
+        <div class="col-md-3">
+            <label class="formLabel colorDark">End<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+            <input class="form-control inputFormat" id="tdate" onkeypress="return false;" type="date">
+        </div>
+        <div class="col-md-3">
+            <button type="button" id="getreport" class="sbtbtn" style="margin:27px 0 0 0;">Search</button>
+        </div>
+    </div>
+</section>
+<div class="table-panel table-responsive" id="activityreport" style="display:none;margin-top:5px !important">
+    <table id="loadactivity" class="dataTable table ">
+        <thead>
+            <tr>
+                <th>Sl.No</th>
+                <th class="activitytype"><div class="thbg">Activity Type</div></th>
+                <th class="activityaction"><div class="thbg">Activity Action</div></th>
+                <th class="adatetime"><div class="thbg">Date/Time</div></th>
+                <th class="ausername"><div class="thbg">UserName</div></th>
+            </tr>
+        </thead>
+        <tbody id="loadactivitydata"></tbody>
+    </table>
+    <center><div id="dataarstatus"></div></center>
+    <div class="table-panel">
+        <div class="settingpanel">
+            <div class="col-md-6">
+                <div style="float: left;padding: 0 10px 0 0; display:block;">
+                    <ul>
+                        <li>
+                            <div class="btn-group dropup">
+                                <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                    customize field
+                                </a>
+                                <ul class="dropdown-menu settingshowhide" id="useractivity">
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="activitytype" checked><a href="#">Activity Type</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="activityaction" checked><a href="#">Activity Action</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="adatetime" checked><a href="#">Date/Time</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ausername" checked><a href="#">UserName</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div id="actfooter">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <ul class="pull-right" id="ulfooter1">
+                    <li>
+                        <div class="btn-group dropup">
+                            <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action Selected
+                            </a>
+                            <ul class="dropdown-menu settingaction">
+                                <li><a href="javascript:void();" id="oexcel" title="export to excel"> export to excel </a></li>
+                                <li><a href="javascript:void();" id="opdf" title="export to pdf"> export to pdf</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function sortTable(n) {
+        try {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("invlist");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+        catch (er) {
+            //alert(er.message);
+        }
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        loadteamleader();
+    });
+    function loadteamleader() {
+        $("#actcontacttype").html("");
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/MatterApi/Assignuserteamlead",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    //alert(datas);
+                    var obj = JSON.parse(response.Data);
+                }
+                else {
+                    //alert("not found");
+                }
+                $("#actcontacttype option").remove();
+                var option = '<option value="" selected>Select</option>';
+                var html3 = '';
+                $("#actcontacttype").append(option);
+                $.each(obj, function (i, a) {
+                    if (a.roleid == 1) {
+                        option = '<option value="' + a["id"] + '"  tempUserName="' + a["UserName"] + '"> ' + a["UserName"] + ' (Admin)</option>';
+                        $("#actcontacttype").append(option);
+                    }
+                    else {
+                        if (a.IsPartner == 1) {
+                            option = '<option value="' + a["id"] + '"  tempUserName="' + a["UserName"] + '"> ' + a["UserName"] + ' (' + a.RoleName + ')</option>';
+                            $("#actcontacttype").append(option);
+                        }
+                        else {
+                            if (a.PartnerId == "" || a.PartnerId == null || a.PartnerId == "null") {
+                                option = '<option value="' + a["id"] + '"  tempUserName="' + a["UserName"] + '"> ' + a["UserName"] + ' (User)</option>';
+                                $("#actcontacttype").append(option);
+                            }
+                            else {
+                                option = '<option value="' + a["id"] + '"  tempUserName="' + a["UserName"] + '"> ' + a["UserName"] + '-(User-' + a.PartnerName + ')</option>';
+                                $("#actcontacttype").append(option);
+                            }
+                        }
+                    }
+                });
+                return false;
+            }, //End of AJAX Success function
+            failure: function (response) {
+                alert(data.responseText);
+            }, //End of AJAX failure function
+            error: function (response) {
+                alert(data.responseText);
+            } //End of AJAX error function
+        });
+    }
+</script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<style>
+    a.morelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span {
+        display: none;
+    }
+
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+</style>

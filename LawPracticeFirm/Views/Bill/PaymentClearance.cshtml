@@ -1,0 +1,239 @@
+﻿@{
+    ViewBag.Title = "InvoiceSetting";
+    var firmid = ViewBag.firmid;
+    var userid = ViewBag.userid;
+    var invoiceid = ViewBag.invid;
+    var invoicetype = ViewBag.invtype;
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+    <!-- Page Content -->
+    <script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+    <link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+    <script src="~/Manupanel/validation/jquery.validate.js"></script>
+    <script src="~/Scripts/Firm/Pages/PaymentClearance.js?1.5"></script>
+    <script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+    <script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+    <link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+    <link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+    <script>
+        $(document).ready(function () {
+            @*var invtoken ="@ViewBag.invid";
+            $("#invoicetoken").val(invtoken);*@
+        });
+    </script>
+<style>
+   
+    /*Adding some css for looks good*/
+    span.error {
+        display: block;
+        visibility: hidden;
+        color: red;
+        font-size: 90%;
+    }
+    span.error1 {
+        display: none;
+        clear: both;
+        color: red;
+        font-size: 90%;
+    }
+    /*css for table*/
+   
+    .ui-widget {
+        font-size: 12px !important;
+    }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Payment Clearance</p>
+        </div>
+    </div>
+</section>
+<form id="savedata" enctype="multipart/form-data" name="savedata">
+    <section style="padding:15px 0;">
+        <div class="card-header">
+            <div class="container-main">
+                <div class="row" id="paymentdiv">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Select Client</label>
+                            <select id="clientids" class="form-control selctInputFormat">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Select Invoice</label>
+                            <select class="form-control selctInputFormat" placeholder="Payment Type" id="Invoiceid">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="container-main">
+            <div class="table">
+                <div class="tablearea" style="margin:0;">
+                    <div class="tablecontainer">
+                        <div id="resultdiv" style="display:none;">
+                            <table id="tblinvoice" class="table-panel">
+                                <tr>
+                                    <th style="width:5%"><div class="thbg">Sl.NO</div> </th>
+                                    <th style="width:10%"><div class="thbg">Invoice No.</div></th>
+                                    <th style="width:10%"><div class="thbg">Payment Type</div></th>
+                                    <th style="width:10%"><div class="thbg">Date</div></th>
+                                    <th style="width:10%"><div class="thbg">Amount</div></th>
+                                    <th style="width:15%"><div class="thbg">Bank Name</div></th>
+                                    <th style="width:15%"><div class="thbg">DD/Cheque NO.</div></th>
+                                    <th style="width:10%"><div class="thbg">Ref NO.</div></th>
+                                    <th style="width:50%"><div class="thbg">Action</div></th>
+                                </tr>
+                                <tbody id="assignuserdata"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<input type="hidden" id="textinvid" value="" />
+<div id="myModaldocs1" class="modal fade" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-content" style="margin-left: 35%; width: 480px; max-width: 640px; height: 303px; border-radius: 12px; background: #FFFFFF; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 8px 8px -4px rgba(0, 0, 0, 0.08), 0px 20px 24px -4px rgba(0, 0, 0, 0.06); padding: 24px;">
+
+        <!-- Header -->
+
+        <div class="modal-header btn-success">
+            <button type="button" class="close" id="closereject" data-dismiss="modal">×</button>
+            <div class="modal-title">
+                <div class="icon_header_pulse">
+                    <span class="pulse_div">
+                        <img src="~/newassets/img/edit-icon.png" alt="reject">
+                    </span>
+                </div>
+                <h4 class="modal-ctitle" id="myModalLabel">
+                    Clear Invoice Cheque/DD
+                </h4>
+
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body" style="margin-top: 24px; padding: 0;">
+            <input type="hidden" id="textinvid">
+            <fieldset class="ec_bg" style="border: none; padding: 0;">
+                <div class="form-group form-horizontal" style="display: flex; align-items: center; margin-bottom: 24px;">
+                    <label class="formLabel colorDark col-md-4" style="margin-bottom: 0; font-weight: 500;">Clearance Date <span class="required" aria-required="true" style="color:red">*</span></label>
+                    <div class="col-md-8">
+                        <input class="form-control inputFormat" name="mname" type="date" onkeydown="return false" id="cleardate" required
+                               placeholder="yyyy-mm-dd" style="padding: 10px; border-radius: 8px; border: 1px solid #CED4DA; width: 100%;">
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer" style="border-top: none; padding-top: 0;">
+
+            <div class="row" style="">
+                <div class="form-group col-md-6 text-left">
+                    <button class="btn btn-secondary" data-dismiss="modal" style="width: 100%; height: 44px; border-radius: 8px; font-weight: 500;">Cancel</button>
+                </div>
+                <div class="form-group col-sm-6 text-right">
+                    <button class="btn btn-primary" type="button" name="submit" id="clearpayment" value="Submit" text="Confirm" style="width: 100%; height: 44px; border-radius: 8px; font-weight: 500; background-color: #0369A1;">Save</button>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<div id="myModaldocs" class="modal fade" role="dialog" style="z-index:2000;">
+    <div class="modal-content" style="margin-left: 35%;  max-width: 640px; border-radius: 12px; background: #FFFFFF; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 8px 8px -4px rgba(0, 0, 0, 0.08), 0px 20px 24px -4px rgba(0, 0, 0, 0.06); padding: 24px;">
+
+
+        <!-- Header -->
+
+        <div class="modal-header btn-success">
+            <button type="button" class="close" id="closereject" data-dismiss="modal">×</button>
+            <div class="modal-title">
+                <div class="icon_header_pulse">
+                    <span class="pulse_div">
+                        <img src="~/newassets/img/edit-icon.png" alt="reject">
+                    </span>
+                </div>
+                <h4 class="modal-ctitle" id="myModalLabel">
+                    Clear Invoice Cheque/DD
+                </h4>
+
+            </div>
+        </div>
+
+
+        <div class="minebody modal-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ec_bg">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <input type="hidden" id="textinvid">
+                                    <fieldset class="ec_bg">
+                                        <legend class="btn btn-primary" style="display:flex; align-items:center; width: auto; height: 44px; border-radius: 8px; font-weight: 500; background-color: #0369A1;">Bounce Invoice Cheque/DD no. </legend>
+                                        <div class="form-group form-horizontal">
+                                            <label class="formLabel  col-md-3">Bounce Date<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                            <div class="col-md-8">
+                                                <input class="form-control inputFormat" name="mname" type="DATE" onkeydown="return false" id="bouncedate" required="" placeholder="yyyy-mm-dd">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="modal-footer" style="border-top: none; padding-top: 0;">
+
+                                    <div class="row" style="">
+                                        <div class="form-group col-md-6 text-left">
+                                            <button class="btn btn-secondary" data-dismiss="modal" style="width: 100%; height: 44px; border-radius: 8px; font-weight: 500;">Cancel</button>
+                                        </div>
+                                        <div class="form-group col-sm-6 text-right">
+                                            <button class="btn btn-primary" type="button" id="bouncepayment" name="submit" value="Submit" text="Confirm" style="width: 100%; height: 44px; border-radius: 8px; font-weight: 500; background-color: #0369A1;">Save</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- /.row (nested) -->
+                            </div>
+                            <!-- /.panel-body -->
+                        </div>
+                        <!-- /.panel -->
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+    </div>
+
+
+
+
+</div>

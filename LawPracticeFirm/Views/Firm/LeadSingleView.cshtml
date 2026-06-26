@@ -1,0 +1,310 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+@{
+    var id = ViewBag.token;
+}
+<script>
+     var id ="@id";
+    var type = 7;
+</script>
+<script type='text/javascript'>
+    $(document).ready(function () {
+        $('#btn-id').click(function () {
+            alert("fd");
+            window.history.pushState('obj', 'PageTitle', '/NewPage');
+            return false;
+        });
+    });
+    if (String(id) != "") {
+        localStorage.setItem("contacttoken", id);
+    }
+    if (String(id) == "") {
+        var urls = window.location.href;
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": localStorage.getItem("contacttoken") }
+        });
+    }
+    function goodbye(e) {
+        if (!e) e = window.event;
+        //e.cancelBubble is supported by IE - this will kill the bubbling process.
+        e.cancelBubble = true;
+        localStorage.setItem("contacttoken", id);
+        //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+        //e.stopPropagation works in Firefox.
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+    window.onbeforeunload = goodbye;
+</script>
+<script>
+    $(document).on("click", "#print1", function () {
+        window.print();//  document.body.innerHTML = originalContents;
+    });
+</script>
+<!-- Page Content -->
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/LeadSingleView.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<aside class="right-side">
+    @{
+        var firmcode = Request.Url.Segments[1];
+        firmcode = firmcode.Replace("/", "");
+    }
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="/@firmcode/Firm/ViewLead/">Prospect List</a></li>
+            <li class="active">Edit Prospect</li>
+        </ol>
+        <h1>
+            <span class="fa fa-users"></span> Edit Prospect</span>
+        </h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="">
+                    <div class="box-header">
+                        <btn style="margin:0 0 0 5px " class="btn btn-primary pull-right" id="linklead"><span class="glyphicon glyphicon-pencil"></span> Edit</btn>
+                        <button type="button" class="btn btn-warning pull-right" id="print1" title="Print" idval="printcontent"><i class="glyphicon glyphicon-print"></i>&nbsp;</button>
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- /.box-header -->
+    <!-- /.panel-heading -->
+    <!-- Main content -->
+    <!-- Main content -->
+    <section class="content">
+        <form id="savelead" enctype="multipart/form-data">
+            <div class="row" id="printcontent1">
+                <div class="col-md-12">
+                    <div class="form-section-bordered">
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Name: </b> </label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lname"></label>
+                            </div>
+                            <label class="control-label col-md-2"><b>Contact Person: </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="cperson"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Organization:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="org"></label>
+                            </div>
+                            <label class="control-label col-md-2"><b>Designation:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lpost"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Address:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="laddress"></label>
+                            </div>
+                            <label class="control-label col-md-2"><b>Pin:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lpin"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Country:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lcountry"></label>
+                            </div>
+                            <label class="control-label col-md-2"><b>State:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lstate"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>City:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lcity"></label>
+                            </div>
+                            <label class="control-label col-md-2"><b>Fax No:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lfax"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Email Id:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lemail"></label>
+                            </div>
+                            <label class="control-label col-md-2"><b>Landline No: </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lphn"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Mobile No:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lmob"></label>
+                            </div>
+                            <label class="control-label col-md-2"><b>Case Type: </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lbtype"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Source: </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lsource"></label>
+                            </div>
+                            <label class="control-label col-md-2"><b>Category: </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lcategory"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Prospect Type: </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="ltype"></label>
+                            </div>
+                            <label class="control-label col-md-2"><b>Plan:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lplan"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Expected Closure:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="lec"></label>
+                            </div>
+                            <label class="control-label col-md-2"><b>Add Info:</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="linfo"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Upload Document </b></label>
+                            <div class="col-md-4">
+                                <a href="#" id="alink" id-val="" data-val=""> Attached Document</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6" id="content">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>
+    <!-- /.content -->
+    <!-- /.content -->
+</aside>
+<div id="myModaldocs" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog ">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header btn-primary">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            Custom Field
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="alert alert-danger alert-dismissable validpanel">
+                                    <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                                    . <a href="#" class="alert-link">Alert Link</a>.
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <form role="form" id="form2">
+                                                    <div class="form-group">
+                                                        <label>Custom Field Name</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                        <input class="form-control" type="text" value="" id="txtcustomFieldName">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Custom Field Type</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                        <select class="form-control" id="ctype">
+                                                            <option value="0">-Select Any-</option>
+                                                        </select>
+                                                    </div>
+                                                    <div id="common">
+                                                        <div class="form-group">
+                                                            <label id="listid">List options</label>
+                                                            <input class="form-control" data-val="true" id="txtcustomFieldvalue" />
+                                                            <p>(Add the options you would like to have in the drop down list list, separate values with a comma.)</p>
+                                                        </div>
+                                                        <div class="form-group">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group form-horizontal" style="margin-top:10px;">
+                                                        <label class="control-label col-xs-3">Is Required :</label>
+                                                        <div class="col-xs-8">
+                                                            <label class="switch">
+                                                                <input type="checkbox" id="chkRequired" name="assign" value="1">
+                                                                <span class="slider round"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <!-- /.row (nested) -->
+                                        </div>
+                                        <!-- /.panel-body -->
+                                    </div>
+                                    <!-- /.panel -->
+                                </div>
+                                <!-- /.col-lg-12 -->
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success" id="addfield">Add Field</button>
+                        <button type="reset" class="btn btn-default">Reset</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+    </div>
+<!-- /.container-fluid -->
+    </div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>

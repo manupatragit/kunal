@@ -1,0 +1,716 @@
+﻿@{
+    /**/
+    ViewBag.Title = "InvoiceSetting";
+    var firmid = ViewBag.firmid;
+    var userid = ViewBag.userid;
+    var invoiceid = ViewBag.invid;
+    var invoicetype = ViewBag.invtype;
+    Layout = null;
+}
+@using DataAccess.Modals;
+@using QueryStringEDAES;
+@using System.Globalization
+@using LawPracticeFirm.Models;
+@using NReco.PdfGenerator;
+@using System.IO;
+<h2>PrintInvoiceDetail</h2>
+@{
+    var db = new LawPracticeEntities();
+    string strHTMLpath = "";
+    var chckintemplate = 1;
+    strHTMLpath = Server.MapPath("~\\Manupanel\\Invoice\\invoice2.html");
+    var invtemplate = db.invoiceadmindata(Convert.ToString(firmid), Convert.ToString(userid), Convert.ToString(invoiceid));
+    var footerhtml = "";
+    if (invtemplate != null)
+    {
+        foreach (invoiceadmindata_Result invtemp in invtemplate)
+        {
+            if (invtemp.intemplate.ToString() == "1")
+            {
+                chckintemplate = 1;
+                strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\invoice.html");
+            }
+            else if (invtemp.intemplate.ToString() == "2")
+            {
+                chckintemplate = 2;
+                strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\invoice2.html");
+            }
+            else if (invtemp.intemplate.ToString() == "3")
+            {
+                chckintemplate = 3;
+                strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\invoice3.html");
+            }
+            else if (invtemp.intemplate.ToString() == "4")
+            {
+                chckintemplate = 4;
+                strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\invoice4.html");
+            }
+            else if (invtemp.intemplate.ToString() == "5")
+            {
+                chckintemplate = 5;
+                strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\invoice5.html");
+            }
+            else
+            {
+                strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\invoice.html");
+            }
+        }
+    }
+    var iuserids = "";
+    string iinoiceids = Convert.ToString(invoiceid);
+    var useridsd = db.TblInvoices.Where(x => x.id.ToString() == iinoiceids.ToString()).FirstOrDefault();
+    if (userid != null)
+    {
+        iuserids = useridsd.userid.ToString();
+    }
+    //set client data
+    var isinvoicetax = "";
+    var ClientGSTNo = "";
+    var _invoiceresult = db.invoicedata(Convert.ToString(firmid), Convert.ToString(iuserids), Convert.ToString(invoiceid));
+    if (_invoiceresult != null)
+    {
+        foreach (invoicedata_Result invdetaildata in _invoiceresult)
+        {
+            isinvoicetax = invdetaildata.isinvoicetax.ToString();
+            ClientGSTNo = invdetaildata.ClientGSTNo;
+        }
+    }
+    if (isinvoicetax == "1")
+    {
+        if (chckintemplate == 1)
+        {
+            strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\invoicewithouttax.html");
+        }
+        else if (chckintemplate == 2)
+        {
+            strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\Invoice2withouttax.html");
+        }
+        else if (chckintemplate == 4)
+        {
+            strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\Invoice4withouttax.html");
+        }
+        else if (chckintemplate == 5)
+        {
+            strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\Invoice5withouttax.html");
+        }
+        else
+        {
+            strHTMLpath = Server.MapPath("~\\Documents\\InvoiceTemplate\\Invoice3withouttax.html");
+        }
+    }
+    System.IO.StreamReader reader = new System.IO.StreamReader(strHTMLpath, System.Text.Encoding.Default);
+    string strinvoicetemplate = reader.ReadToEnd().Replace('\r', ' ').Replace('\n', ' ').Replace("  ", " ");
+    string strinvoicetemplate1 = strinvoicetemplate;
+    strinvoicetemplate = strinvoicetemplate.Replace("@invtype", "Invoice");
+    strinvoicetemplate = strinvoicetemplate.Replace("@invoicetype", invoicetype);
+    string startupPath = AppDomain.CurrentDomain.BaseDirectory + "\\Manupanel\\Invoice\\images\\Rupees-symbol-black.gif";
+    strinvoicetemplate = strinvoicetemplate.Replace("#balimg", "<img src='" + startupPath + "'></img>");
+    //set admin data
+    var invadmindata1 = db.invoiceadmindata(Convert.ToString(firmid), Convert.ToString(userid), Convert.ToString(invoiceid));
+    if (invadmindata1 != null)
+    {
+        foreach (invoiceadmindata_Result invadmindata in invadmindata1)
+        {
+            footerhtml += "<hr><div style='width:100%;float:left;text-align:center;font-weight:bold;'>";
+            if (!String.IsNullOrEmpty(invadmindata.inaddress))
+            {
+                footerhtml += invadmindata.inaddress;
+                footerhtml += "&nbsp;&nbsp;&nbsp;";
+            }
+            if (!String.IsNullOrEmpty(invadmindata.inphone))
+            {
+                footerhtml += "O: " + invadmindata.inphone;
+                footerhtml += "&nbsp;&nbsp;&nbsp;";
+            }
+            if (!String.IsNullOrEmpty(invadmindata.inemail))
+            {
+                footerhtml += "E: " + invadmindata.inemail;
+                footerhtml += "&nbsp;&nbsp;&nbsp;";
+            }
+            if (!String.IsNullOrEmpty(invadmindata.website))
+            {
+                footerhtml += invadmindata.website;
+            }
+            footerhtml += "</div>";
+            strinvoicetemplate = strinvoicetemplate.Replace("@cmpname", invadmindata.Incompanyname);
+            strinvoicetemplate = strinvoicetemplate.Replace("@cmpaddress", invadmindata.inaddress);
+            strinvoicetemplate = strinvoicetemplate.Replace("@cmpemail", invadmindata.inemail);
+            strinvoicetemplate = strinvoicetemplate.Replace("@cmpphoneno", invadmindata.inphone);
+            strinvoicetemplate = strinvoicetemplate.Replace("@cmppan", invadmindata.inpan);
+            if (chckintemplate == 4)
+            {
+                if (ClientGSTNo != "")
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@gstdetails", "GSTIN: " + ClientGSTNo + "<br />");
+                }
+                else
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@gstdetails", "");
+                }
+            }
+            else if (chckintemplate == 5)
+            {
+                if (ClientGSTNo != "")
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@GST", ClientGSTNo);
+                }
+                else
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@GST", "");
+                }
+                strinvoicetemplate = strinvoicetemplate.Replace("@cmpname", invadmindata.Incompanyname);
+                strinvoicetemplate = strinvoicetemplate.Replace("@cmpaddress", invadmindata.inaddress);
+                strinvoicetemplate = strinvoicetemplate.Replace("@cmpphoneno", invadmindata.inphone);
+                strinvoicetemplate = strinvoicetemplate.Replace("@Pan", invadmindata.inpan);
+            }
+            else
+            {
+                if (invadmindata.ingstregno != "")
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@cmpgstregno", "GST Reg. No.: " + invadmindata.ingstregno + "<br />");
+                    strinvoicetemplate = strinvoicetemplate.Replace("@gstdetails", "GSTIN: " + invadmindata.ingstregno + "<br />");
+                }
+                else
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@cmpgstregno", invadmindata.ingstregno);
+                    strinvoicetemplate = strinvoicetemplate.Replace("@gstdetails", invadmindata.ingstregno);
+                }
+            }
+            if (invadmindata.saccode != "")
+            {
+                strinvoicetemplate = strinvoicetemplate.Replace("@cmpsac", "SAC Code: " + invadmindata.saccode + "<br/>");
+            }
+            else
+            {
+                strinvoicetemplate = strinvoicetemplate.Replace("@cmpsac", invadmindata.saccode);
+            }
+            strinvoicetemplate = strinvoicetemplate.Replace("@note", "<div style='word-break:break-all'>" + invadmindata.innotes + "</div>");
+            strinvoicetemplate = strinvoicetemplate.Replace("@terms", invadmindata.intermscondtion);
+            string relative_path = invadmindata.inlogo;
+            string absolute_path = Server.MapPath(relative_path);
+            string relative_pathsign = invadmindata.InSignature;
+            string absolute_pathsign = Server.MapPath(relative_pathsign);
+            if (chckintemplate == 3)
+            {
+                strinvoicetemplate = strinvoicetemplate.Replace("@logo", "<img src='" + absolute_path + "' style='height: 150px; width: 500px; overflow: hidden;'></img>");
+                if (!String.IsNullOrEmpty(invadmindata.InSignature))
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@sign", "<img src='" + absolute_pathsign + "' style='height: 50px; width: 200px; overflow: hidden;'></img>");
+                }
+            }
+            if (chckintemplate == 4)
+            {
+                strinvoicetemplate = strinvoicetemplate.Replace("@logo", "<img src='" + absolute_path + "' style='height: 100px; width: 100px; overflow: hidden;'></img>");
+                if (!String.IsNullOrEmpty(invadmindata.InSignature))
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@sign", "<img src='" + absolute_pathsign + "' style='height: 50px; width: 200px; overflow: hidden;'></img>");
+                }
+            }
+            if (chckintemplate == 5)
+            {
+                strinvoicetemplate = strinvoicetemplate.Replace("@logo", "<img src='" + absolute_path + "' style='height: 131; width: 434;'></img>");
+                if (!String.IsNullOrEmpty(invadmindata.InSignature))
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@signature", "<img src='" + absolute_pathsign + "' style='height: 87px; width: 70px; overflow: hidden;'></img>");
+                }
+            }
+            else
+            {
+                strinvoicetemplate = strinvoicetemplate.Replace("@logo", "<img src='" + absolute_path + "' style='height: 100px; width: 200px; overflow: hidden;'></img>");
+                if (!String.IsNullOrEmpty(invadmindata.InSignature))
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@sign", "<img src='" + absolute_pathsign + "' style='height: 50px; width: 200px; overflow: hidden;'></img>");
+                }
+            }
+        }
+    }
+    var filename = "";
+    var totalamount = "";
+    var iuserid = "";
+    //get userid
+    string iinoiceid = Convert.ToString(invoiceid);
+    var userids = db.TblInvoices.Where(x => x.id.ToString() == iinoiceid.ToString()).FirstOrDefault();
+    if (userid != null)
+    {
+        iuserid = userids.userid.ToString();
+    }
+    //set client data
+    var Isubject = "";
+    var IRef = "";
+    var invdata2 = db.invoicedata(Convert.ToString(firmid), Convert.ToString(iuserid), Convert.ToString(invoiceid));
+    if (invdata2 != null)
+    {
+        foreach (invoicedata_Result invdata in invdata2)
+        {
+            Isubject = invdata.ISubject;
+            IRef = invdata.IReference;
+        }
+    }
+    //subjref
+    string subjrefdata = "";
+    //flatfee entry
+    if (!String.IsNullOrEmpty(Isubject) || !String.IsNullOrEmpty(IRef))
+    {
+        if (chckintemplate == 4)
+        {
+            //subjrefdata += "<p></p>";
+            if (!String.IsNullOrEmpty(Isubject))
+            {
+                subjrefdata += "<p><b>Subject:</b> " + Isubject + "</p>";
+            }
+            if (!String.IsNullOrEmpty(IRef))
+            {
+                subjrefdata += "<p><b>Reference:</b> " + IRef + "<p/>";
+            }
+        }
+        else
+        {
+            subjrefdata += "<table style='border-collapse:collapse;' cellspacing='0 > ";
+            if (!String.IsNullOrEmpty(Isubject))
+            {
+                subjrefdata += "<tr style='height:17pt'>";
+                subjrefdata += "<td style='width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt' > ";
+                subjrefdata += "<p class='s3' style ='padding-left: 5pt;text-indent: 0pt;line-height: 14pt;text-align: left; ' > Subject</p>";
+                subjrefdata += "</td>";
+                subjrefdata += " <td style='width:14pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt' > ";
+                subjrefdata += " <p class='s4' style ='text-indent: 0pt;line-height: 14pt;text-align: center; ' >:</p>";
+                subjrefdata += "</td>";
+                subjrefdata += " <td style='width:359pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt' > ";
+                subjrefdata += "<p class='s4' style ='padding-left: 5pt;text-indent: 0pt;line-height: 14pt;text-align: left;font-size:18px;' > " + Isubject + "</p>";
+                subjrefdata += "</td>";
+                subjrefdata += "</tr>";
+            }
+            if (!String.IsNullOrEmpty(IRef))
+            {
+                subjrefdata += "<tr style='height:33pt' > ";
+                subjrefdata += "<td style='width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt' > ";
+                subjrefdata += "<p class='s3' style ='padding-left: 5pt;text-indent: 0pt;line-height: 14pt;text-align: left; ' > Reference</p>";
+                subjrefdata += "</td>";
+                subjrefdata += "<td style='width:14pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt' > ";
+                subjrefdata += "<p class='s4' style ='text -indent: 0pt;line-height: 14pt;text-align: center; ' >:</p>";
+                subjrefdata += "</td>";
+                subjrefdata += "<td style='width:359pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt' > ";
+                subjrefdata += "<p class='s4' style ='padding-left: 5pt;text-indent: 0pt;line-height: 14pt;text-align: left;font-size:18px; ' > " + IRef + "</p>";
+                subjrefdata += "</td>";
+                subjrefdata += "</tr>";
+            }
+            subjrefdata += "</table>";
+        }
+    }
+    string flatfeedata = "";
+    string timeentrydata1 = "";
+    flatfeedata += " <p></p>";
+    flatfeedata += " <p></p>";
+    flatfeedata += " <table id='table1' border='1' width='900' cellspacing='0' cellpadding='0' align='center'>";
+    flatfeedata += "  <thead><tr> ";
+    flatfeedata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Item Name</th>";
+    flatfeedata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Case Name</th>";
+    flatfeedata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Billed By</th>";
+    flatfeedata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Unit Price</th>";
+    flatfeedata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Total</th>";
+    flatfeedata += "</tr></thead><tbody>";
+    var flagfee = 0;
+    var flagtime = 0;
+    var flagexpense = 0;
+    string timeentrydata = "";
+    if (chckintemplate == 3)
+    {
+        timeentrydata += " <p></p>";
+        timeentrydata += " <p></p>";
+        timeentrydata += " <table id='table1' border='1' width='900' cellspacing='0' cellpadding='0' align='center'>";
+        timeentrydata += "  <thead><tr> ";
+        timeentrydata += "<th height='20' width='120px' align='center' valign='top' style='padding:0 5px;'>Sr No.</th>";
+        timeentrydata += "<th height='20' align='center' valign='top' style='padding:0 5px;'>Particulars</th>";
+        timeentrydata += "<th height='20' align='center' valign='top' style='padding:0 5px;'>Amount(INR)</th>";
+        timeentrydata += "<th height='20' align='center' valign='top' style='padding:0 5px;'>Sub Total(INR)</th>";
+        timeentrydata += "</tr></thead><tbody>";
+    }
+    else if (chckintemplate == 4)
+    {
+        timeentrydata += " <p></p>";
+        timeentrydata += " <p></p>";
+        timeentrydata += " <table id='table1' border='1' width='900' cellspacing='0' cellpadding='0' align='center'>";
+        timeentrydata += "  <thead><tr> ";
+        timeentrydata += "<th  style='padding:0 5px;width:8%'>S. No.</th>";
+        timeentrydata += "<th  style='padding:0 5px;width:74%;text-align:left;' >Particulars</th>";
+        timeentrydata += "<th  style='padding:0 5px;width:8%;text-align:left;'>Amount(INR)</th>";
+        timeentrydata += "</tr></thead><tbody>";
+    }
+    else
+    {
+        timeentrydata += " <p></p>";
+        timeentrydata += " <p></p>";
+        timeentrydata += " <table id='table1' border='1' width='900' cellspacing='0' cellpadding='0' align='center'>";
+        timeentrydata += "  <thead><tr> ";
+        timeentrydata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Particular Name</th>";
+        timeentrydata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Case Name</th>";
+        timeentrydata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Billed By</th>";
+        timeentrydata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Amount</th>";
+        timeentrydata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Total</th>";
+        timeentrydata += "</tr></thead><tbody>";
+    }
+    string expensedata = "";
+    expensedata += " <p></p>";
+    // expensedata += "<p><strong>Expenses</strong></p>";
+    expensedata += " <p></p>";
+    expensedata += " <table id='table1' border='1' width='900' cellspacing='0' cellpadding='0' align='center'>";
+    expensedata += "  <thead><tr> ";
+    expensedata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Particular</th>";
+    expensedata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Case Name</th>";
+    expensedata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Billed By</th>";
+    expensedata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Unit Price</th>";
+    expensedata += "<th height='20' align='left' valign='top' style='padding:0 5px;'>Total</th>";
+    expensedata += "</tr></thead><tbody>";
+    var billbyname = "";
+    var inventry = db.invoiceentry(Convert.ToString(firmid), Convert.ToString(userid), Convert.ToString(invoiceid));
+    int sum = 0;
+    if (inventry != null)
+    {
+        foreach (invoiceentry_Result invent in inventry)
+        {
+            billbyname = "";
+            sum = sum + 1;
+            if (!string.IsNullOrEmpty(invent.billuser))
+            {
+                billbyname = invent.billuser.ToString();
+            }
+            if (invent.type == "FlatFees")
+            {
+                flagfee = 1;
+                flatfeedata += "<tr><td height = '20' align = 'left' valign ='top' width='20%' style='padding:0 5px;' >" + invent.itemname + " </ td >";
+                flatfeedata += "<td height = '20' align = 'left' valign ='top'  width='30%' style='padding:0 5px;' > " + invent.casename + " </ td >";
+                flatfeedata += "<td height = '20' align = 'left' valign ='top'  width='20%' style='padding:0 5px;'> " + billbyname + "  </ td >";
+                flatfeedata += "<td height = '20' align = 'left' valign ='top'  width='10%' style='padding:0 5px;'> " + invent.price + "  </ td >";
+                flatfeedata += "<td height = '20' align = 'left' valign ='top'   width='10%' style='padding:0 5px;'> " + (string.Format(String.Format("{0:N2}", (invent.price)))).ToString() + " </ td ></tr>";
+            }
+            else if (invent.type == "TimeEntries")
+            {
+                if (chckintemplate == 3)
+                {
+                    flagtime = 1;
+                    timeentrydata += "<tr><td height = '20' align = 'left' valign ='top'  width='5%' style='padding:0 5px;'> " + sum + "  </ td >";
+                    timeentrydata += "<td height = '20' align = 'left' valign ='top'  width='20%' style='padding:0 5px;'>" + invent.itemname + " </ td >";
+                    timeentrydata += "<td height = '20' align = 'left' valign ='top'  width='10%' style='padding:0 5px;' > " + invent.price + "  </ td >";
+                    timeentrydata += "<td height = '20' align = 'left' valign ='top'  width='10%' style='padding:0 5px;'> " + (string.Format(String.Format("{0:N2}", (invent.price)))).ToString() + " </ td ></tr>";
+                }
+                else if (chckintemplate == 4)
+                {
+                    flagtime = 1;
+                    timeentrydata += "<tr><td  style='padding:0 5px;font-size:19px !Important;text-align:center'> " + sum + "  </ td >";
+                    timeentrydata += "<td  style='padding:0 5px;font-size:19px !Important;'>" + invent.itemname + " </ td >";
+                    timeentrydata += "<td  style='padding:0 5px;font-size:19px !Important;text-align:right;'  ><b> " + (string.Format(String.Format("{0:N2}", (invent.price)))).ToString() + "  </b></ td >";
+                    timeentrydata += "</tr>";
+                }
+                else if (chckintemplate == 5)
+                {
+                    timeentrydata1 += "<tr><td align='left' valign='top' width='53' style='padding: 2px 3px;'> " + sum + "  </ td >";
+                    timeentrydata1 += "<td align='left' valign='top' style='padding: 2px 3px;'>" + invent.itemname + " </ td >";
+                    // timeentrydata += "<td height = '20' align = 'left' valign ='top'  width='10%' style='padding:0 5px;' > " + invent.price + "  </ td >";
+                    timeentrydata1 += "<td align='right' valign='top' width='275' style='padding: 2px 3px;'> " + (string.Format(String.Format("{0:N2}", (invent.price)))).ToString() + " </ td ></tr>";
+                }
+                else
+                {
+                    flagtime = 1;
+                    timeentrydata += "<tr><td height = '20' align = 'left' valign ='top'  width='20%' style='padding:0 5px;'>" + invent.itemname + " </ td >";
+                    timeentrydata += "<td height = '20' align = 'left' valign ='top'  width='30%' style='padding:0 5px;'> " + invent.casename + "  </ td >";
+                    timeentrydata += "<td height = '20' align = 'left' valign ='top'  width='20%' style='padding:0 5px;' > " + billbyname + "  </ td >";
+                    timeentrydata += "<td height = '20' align = 'left' valign ='top'  width='10%' style='padding:0 5px;' > " + invent.price + "  </ td >";
+                    timeentrydata += "<td height = '20' align = 'left' valign ='top'  width='10%' style='padding:0 5px;'> " + (string.Format(String.Format("{0:N2}", (invent.price)))).ToString() + " </ td ></tr>";
+                }
+            }
+            else if (invent.type == "Expense")
+            {
+                flagexpense = 1;
+                expensedata += "<tr><td height = '20' align = 'left' valign ='top'  width='20%' style='padding:0 5px;' > " + invent.itemname + "</ td >";
+                expensedata += "<td height = '20' align = 'left' valign ='top'  width='30%' style='padding:0 5px;'> " + invent.casename + "  </ td >";
+                expensedata += "<td height = '20' align = 'left' valign ='top'   width='20%' style='padding:0 5px;'> " + billbyname + "  </ td >";
+                expensedata += "<td height = '20' align = 'left' valign ='top'  width='10%' style='padding:0 5px;' > " + invent.price + "  </ td >";
+                expensedata += "<td height = '20' align = 'left' valign ='top'  width='10%'style='padding:0 5px;' > " + (string.Format(String.Format("{0:N2}", (invent.price * invent.QtyORHour)))).ToString() + " </ td ></tr>";
+            }
+        }
+    }
+    if (chckintemplate == 3 || chckintemplate == 4)
+    {
+        if (isinvoicetax == "1")
+        {
+            timeentrydata += "<tr><td height = '20' align = 'left' valign ='top'  width='5%' style='padding:0 5px;'> </ td >";
+            timeentrydata += "<td height = '20' align = 'left' valign ='top'  width='20%' style='padding:0 5px;'><b>Total in Words ( @word )</b>  </ td >";
+            timeentrydata += "<td height = '20' align = 'right' colspan='2' valign ='top'  width='10%' style='padding:0 5px;font-size:19px !Important;text-align:right;' ><b> @Invtotal</b>  </ td ></tr>";
+            // timeentrydata += "<tr><td colspan='4' style='padding:0 5px;'>Amount Payable: Indian Rupees @word </ td ></tr>";
+        }
+        else
+        {
+            timeentrydata += "<tr><td height = '20' align = 'left' valign ='top'  width='5%' style='padding:0 5px;'> </ td >";
+            timeentrydata += "<td height = '20' align = 'center' valign ='top'  width='20%' style='padding:0 5px;'>IGST @iper%: </ td >";
+            timeentrydata += "<td height = '20' align = 'right' colspan='2' valign ='top'  width='10%' style='padding:0 5px;' > @igst  </ td ></tr>";
+            timeentrydata += "<tr><td height = '20' align = 'left' valign ='top'  width='5%' style='padding:0 5px;'> </ td >";
+            timeentrydata += "<td height = '20' align = 'center' valign ='top'  width='20%' style='padding:0 5px;'>CGST @cper%:	 </ td >";
+            timeentrydata += "<td height = '20' align = 'right' colspan='2' valign ='top'  width='10%' style='padding:0 5px;' > @cgst  </ td ></tr>";
+            timeentrydata += "<tr><td height = '20' align = 'left' valign ='top'  width='5%' style='padding:0 5px;'> </ td >";
+            timeentrydata += "<td height = '20' align = 'center' valign ='top'  width='20%' style='padding:0 5px;'>SGST @sper%:	 </ td >";
+            timeentrydata += "<td height = '20' align = 'right' colspan='2' valign ='top'  width='10%' style='padding:0 5px;' > @sgst  </ td ></tr>";
+            timeentrydata += "<tr><td height = '20' align = 'left' valign ='top'  width='5%' style='padding:0 5px;'> </ td >";
+            timeentrydata += "<td height = '20' align = 'center' valign ='top'  width='20%' style='padding:0 5px;'>Round Off:</ td >";
+            timeentrydata += "<td height = '20' align = 'right' colspan='2' valign ='top'  width='10%' style='padding:0 5px;' > @roundoff  </ td ></tr>";
+            timeentrydata += "<tr><td height = '20' align = 'left' valign ='top'  width='5%' style='padding:0 5px;'> </ td >";
+            timeentrydata += "<td height = '20' align = 'center' valign ='top'  width='20%' style='padding:0 5px;'><b>Total in Words ( @word ) </b></ td >";
+            timeentrydata += "<td height = '20' align = 'right' colspan='2' valign ='top'  width='10%' style='padding:0 5px;text-align:right;' ><b> @Invtotal </b> </ td ></tr>";
+            //  timeentrydata += "<tr><td colspan='4' style='padding:0 5px;'>Amount Payable: Indian Rupees @word </ td ></tr>";
+        }
+    }
+    flatfeedata += "<tr>";
+    timeentrydata += "<tr>";
+    expensedata += "<tr>";
+    flatfeedata += "</tbody></table>";
+    timeentrydata += "</tbody></table>";
+    expensedata += "</tbody></table>";
+    if (flagfee == 1)
+    {
+        strinvoicetemplate = strinvoicetemplate.Replace("@flatfeedata", flatfeedata);
+    }
+    else
+    {
+        strinvoicetemplate = strinvoicetemplate.Replace("@flatfeedata", "");
+    }
+    if (flagtime == 1)
+    {
+        if (chckintemplate == 3 || chckintemplate == 4)
+        {
+            strinvoicetemplate = strinvoicetemplate.Replace("@paymentdetails", timeentrydata);
+        }
+        else
+        {
+            strinvoicetemplate = strinvoicetemplate.Replace("@timeenrydata", timeentrydata);
+        }
+    }
+    else
+    {
+        if (chckintemplate == 5)
+        {
+            strinvoicetemplate = strinvoicetemplate.Replace("@paymentdetailsfor5", timeentrydata1);
+        }
+        else
+        {
+            strinvoicetemplate = strinvoicetemplate.Replace("@timeenrydata", "");
+        }
+    }
+    if (flagexpense == 1)
+    {
+        strinvoicetemplate = strinvoicetemplate.Replace("@expensedata", expensedata);
+    }
+    else
+    {
+        strinvoicetemplate = strinvoicetemplate.Replace("@expensedata", "");
+    }
+    strinvoicetemplate = strinvoicetemplate.Replace("@subjectref", subjrefdata);
+    //set payment data
+    string paymentdata = "";
+    var payflag = 0;
+    double tempbalance = 0;
+    var invpaydata1 = db.invoicepayment(Convert.ToString(firmid), Convert.ToString(userid), Convert.ToString(invoiceid));
+    if (invpaydata1 != null)
+    {
+        foreach (invoicepayment_Result invpay in invpaydata1)
+        {
+            payflag = 1;
+            if (invpay.PaymentType == "Cheque")
+            {
+                paymentdata += "<tr>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Date:</strong> " + @String.Format("{0:dd MMM yyyy}", invpay.PDate) + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Amount:</strong>" + (string.Format(String.Format("{0:N2}", invpay.Amount))) + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Type</strong>: " + invpay.PaymentType + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'></td>";
+                paymentdata += "</tr>";
+                paymentdata += "<tr  colspan='2'>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Bank Name</strong> </td>";
+                paymentdata += "<td height='20' align='left' valign='top'>" + invpay.BankName + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Cheque/DD:</strong>: </td>";
+                paymentdata += "<td height='20' align='left' valign='top'>" + invpay.ChequeNo + invpay.DdNo + "</td>";
+                paymentdata += "</tr>";
+                paymentdata += "<tr>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "</tr>";
+            }
+            else if (invpay.PaymentType == "Demand Draft")
+            {
+                paymentdata += "<tr>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Date:</strong> " + @String.Format("{0:dd MMM yyyy}", invpay.PDate) + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Amount:</strong>" + (string.Format(String.Format("{0:N2}", invpay.Amount))) + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Type</strong>: " + invpay.PaymentType + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'></td>";
+                paymentdata += "</tr>";
+                paymentdata += "<tr  colspan='2'>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Bank Name</strong> </td>";
+                paymentdata += "<td height='20' align='left' valign='top'>" + invpay.BankName + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Cheque/DD:</strong>: </td>";
+                paymentdata += "<td height='20' align='left' valign='top'>" + invpay.ChequeNo + invpay.DdNo + "</td>";
+                paymentdata += "</tr>";
+                paymentdata += "<tr>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "</tr>";
+            }
+            else if (invpay.PaymentType == "Cash")
+            {
+                paymentdata += "<tr>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Date:</strong> " + @String.Format("{0:dd MMM yyyy}", invpay.PDate) + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Amount:</strong>" + (string.Format(String.Format("{0:N2}", invpay.Amount))) + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Type</strong>: " + invpay.PaymentType + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'></td>";
+                paymentdata += "</tr>";
+                paymentdata += "<tr>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "</tr>";
+            }
+            else if (invpay.PaymentType == "Online")
+            {
+                paymentdata += "<tr>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Date:</strong> " + @String.Format("{0:dd MMM yyyy}", invpay.PDate) + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Amount:</strong>" + (string.Format(String.Format("{0:N2}", invpay.Amount))) + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Type</strong>: " + invpay.PaymentType + "</td>";
+                paymentdata += "<td height='20' align='left' valign='top'><strong>Mode</strong>: " + invpay.PaymentMode + "</td>";
+                paymentdata += "</tr>";
+                paymentdata += "<tr>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "<td height='20' align='left' valign='top'><hr></td>";
+                paymentdata += "</tr>";
+            }
+            tempbalance = Convert.ToDouble(tempbalance) + Convert.ToDouble(invpay.Amount);
+        }
+    }
+    var invdata21 = db.invoicedata(Convert.ToString(firmid), Convert.ToString(iuserid), Convert.ToString(invoiceid));
+    if (invdata21 != null)
+    {
+        foreach (invoicedata_Result invdata in invdata21)
+        {
+            var rtotvalue = invdata.SubTotal + invdata.IGST + invdata.CGST + invdata.SGST;
+            var rtotamt = invdata.TotAmt;
+            var rdiff = invdata.TotAmt - rtotvalue;
+            var sign = "";
+            if (rdiff > 0)
+            {
+                sign = "+";
+            }
+            else
+            {
+            }
+            var clientnames = "";
+            if (!string.IsNullOrEmpty(invdata.UserNameInvoice))
+            {
+                clientnames = invdata.UserNameInvoice.ToString();
+            }
+            //for template5 data
+            if (chckintemplate == 5)
+            {
+                strinvoicetemplate = strinvoicetemplate.Replace("@Name", clientnames);
+                strinvoicetemplate = strinvoicetemplate.Replace("@Address", invdata.address);
+                strinvoicetemplate = strinvoicetemplate.Replace("@Mobile", invdata.mobile);
+                strinvoicetemplate = strinvoicetemplate.Replace("@Price", (string.Format(String.Format("{0:0,0.00}", invdata.SubTotal))).ToString());
+                strinvoicetemplate = strinvoicetemplate.Replace("@TotalPrice", (string.Format(String.Format("{0:0,0.00}", invdata.TotAmt))).ToString());
+                strinvoicetemplate = strinvoicetemplate.Replace("@InvDate", @String.Format("{0:dd MMM yyyy}", invdata.invdate));
+                strinvoicetemplate = strinvoicetemplate.Replace("@Invoice", invdata.InvoiceNo);
+                if (!String.IsNullOrEmpty(invdata.ClientPanNo))
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@cPan", invdata.ClientPanNo);
+                }
+                else
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@cPan", "");
+                }
+                if (chckintemplate == 5)
+                {
+                    strinvoicetemplate = strinvoicetemplate.Replace("@Rupees", Convert.ToString(NumWords.ConvertNumbertoWordsTitleCase(Convert.ToInt32(invdata.TotAmt))) + " Only");
+                }
+            }
+            Isubject = invdata.ISubject;
+            IRef = invdata.IReference;
+            strinvoicetemplate = strinvoicetemplate.Replace("@roundoff", sign + " " + (string.Format(String.Format("{0:N2}", rdiff))).ToString());
+            strinvoicetemplate = strinvoicetemplate.Replace("@Name", clientnames);
+            strinvoicetemplate = strinvoicetemplate.Replace("@address", invdata.address);
+            strinvoicetemplate = strinvoicetemplate.Replace("#trstt", invdata.state);
+            strinvoicetemplate = strinvoicetemplate.Replace("@saddress", invdata.shipaddress);
+            strinvoicetemplate = strinvoicetemplate.Replace("#strstt", invdata.shipstate);
+            strinvoicetemplate = strinvoicetemplate.Replace("@Mobile", invdata.mobile);
+            strinvoicetemplate = strinvoicetemplate.Replace("@subtot", (string.Format(String.Format("{0:N2}", invdata.SubTotal))).ToString());
+            strinvoicetemplate = strinvoicetemplate.Replace("@igst", (string.Format(String.Format("{0:N2}", invdata.IGST))).ToString());
+            strinvoicetemplate = strinvoicetemplate.Replace("@cgst", (string.Format(String.Format("{0:N2}", invdata.CGST))).ToString());
+            strinvoicetemplate = strinvoicetemplate.Replace("@sgst", (string.Format(String.Format("{0:N2}", invdata.SGST))).ToString());
+            strinvoicetemplate = strinvoicetemplate.Replace("@iper", invdata.IGSTPer.ToString());
+            strinvoicetemplate = strinvoicetemplate.Replace("@cper", invdata.CGSTPer.ToString());
+            strinvoicetemplate = strinvoicetemplate.Replace("@sper", invdata.SGSTPer.ToString());
+            strinvoicetemplate = strinvoicetemplate.Replace("@Invtotal", (string.Format(String.Format("{0:N2}", invdata.TotAmt))).ToString());
+            strinvoicetemplate = strinvoicetemplate.Replace("@InvDate", @String.Format("{0:dd MMM yyyy}", invdata.invdate));
+            strinvoicetemplate = strinvoicetemplate.Replace("@duedate", @String.Format("{0:dd MMM yyyy}", invdata.duedate));
+            strinvoicetemplate = strinvoicetemplate.Replace("@Invoice", invdata.InvoiceNo);
+            if (chckintemplate == 3)
+            {
+                strinvoicetemplate = strinvoicetemplate.Replace("@word", Convert.ToString(NumWords.ConvertNumbertoWordsTitleCase(Convert.ToInt32(invdata.TotAmt))) + " Only");
+            }
+            else
+            {
+                strinvoicetemplate = strinvoicetemplate.Replace("@word", Convert.ToString(NumWords.ConvertNumbertoWords(Convert.ToInt32(invdata.TotAmt))) + " ONLY");
+            }
+            var ClientData = "</br>";
+            if (!String.IsNullOrEmpty(invdata.ClientPanNo))
+            {
+                ClientData += "<strong>Client PAN No :</strong>" + invdata.ClientPanNo + "</br>";
+            }
+            if (!String.IsNullOrEmpty(invdata.ClientGSTNo))
+            {
+                ClientData += "<strong>Client GST No :</strong>" + invdata.ClientGSTNo + "</br>";
+            }
+            strinvoicetemplate = strinvoicetemplate.Replace("@ClientData", ClientData);
+            if (invoicetype == "Original for Recipient")
+            {
+                filename = invdata.InvoiceNo.ToUpper() + "_Original.pdf";
+            }
+            else if (invoicetype == "Duplicate for Recipient")
+            {
+                filename = invdata.InvoiceNo.ToUpper() + "_Duplicate.pdf";
+            }
+            totalamount = invdata.TotAmt.ToString();
+        }
+    }
+    if (payflag == 1)
+    {
+        strinvoicetemplate = strinvoicetemplate.Replace("@paymentdetails", paymentdata);
+        strinvoicetemplate = strinvoicetemplate.Replace("@bal", (string.Format(String.Format("{0:N2}", (Convert.ToInt32(totalamount) - tempbalance)))).ToString());
+    }
+    else
+    {
+        strinvoicetemplate = strinvoicetemplate.Replace("@paymentdetails", "");
+        strinvoicetemplate = strinvoicetemplate.Replace("@bal", (string.Format(String.Format("{0:N2}", (Convert.ToInt32(totalamount) - tempbalance)))).ToString());
+    }
+    string filepath = filename;
+    string folderPath = HttpContext.Current.Server.MapPath("~/Documents/Invoice/html/" + firmid + "/" + userid + "/");
+    if (!Directory.Exists(folderPath))
+    {
+        Directory.CreateDirectory(folderPath);
+    }
+    var htmlToPdf = new NReco.PdfGenerator.HtmlToPdfConverter();
+    var pageMargins = new NReco.PdfGenerator.PageMargins { Bottom = 10, Left = 05, Right = 05, Top = 05 };
+    htmlToPdf.Margins = pageMargins;
+    htmlToPdf.PageFooterHtml = footerhtml;
+    var pdfBytes = htmlToPdf.GeneratePdf(strinvoicetemplate);
+    filename = filename.Replace("/", "_");
+    var pffth = Server.MapPath("~\\Documents\\Invoice\\html\\" + firmid + "\\" + userid + "\\" + filename);
+    File.WriteAllBytes(pffth, pdfBytes);
+    Response.Clear();
+    System.IO.MemoryStream ms = new System.IO.MemoryStream(pdfBytes);
+    Response.ContentType = "application/pdf";
+    Response.AddHeader("content-disposition", "attachment;filename=" + filename + "");
+    Response.Buffer = true;
+    ms.WriteTo(Response.OutputStream);
+    Response.End();
+    string domainval = "localhost:55513//Documents//Invoice//html//";
+}

@@ -1,0 +1,376 @@
+﻿@{
+    ViewBag.Title = "CreateUser";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script>
+        var totpagesize=@ViewBag.pagesize;
+</script>
+
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<style>
+    .dropbtn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .dropbtn:hover, .dropbtn:focus {
+            background-color: #3e8e41;
+        }
+
+    #searchdata {
+        border-box: box-sizing;
+        background-image: url('searchicon.png');
+        background-position: 14px 12px;
+        background-repeat: no-repeat;
+        font-size: 16px;
+        padding: 14px 20px 12px 45px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #myInput:focus {
+        outline: 3px solid #ddd;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        overflow: auto;
+        border: 1px solid #ddd;
+        z-index: 1;
+    }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+    .dropdown a:hover {
+        background-color: #ddd;
+    }
+
+    .show {
+        display: block;
+    }
+</style>
+<style>
+    #frameWrap {
+        position: relative;
+        height: 490px;
+        width: 100%;
+        border: 1px solid #777777;
+        background: #f0f0f0;
+        box-shadow: 0px 0px 10px #777777;
+    }
+
+    #docframe {
+        height: 490px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    #loader12 {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: url('//upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Phi_fenomeni.gif/50px-Phi_fenomeni.gif') 50% 50% no-repeat rgb(249,249,249);
+    }
+</style>
+<style>
+    #frameWrap1 {
+        position: relative;
+        height: 490px;
+        width: 100%;
+        border: 1px solid #777777;
+        background: #f0f0f0;
+        box-shadow: 0px 0px 10px #777777;
+    }
+
+    #otherdocframe {
+        height: 490px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    #loader121 {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: url('//upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Phi_fenomeni.gif/50px-Phi_fenomeni.gif') 50% 50% no-repeat rgb(249,249,249);
+    }
+</style>
+<script>
+    /* When the user clicks on the button,
+    toggle between hiding and showing the dropdown content */
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        @{
+            var firmcode = Request.Url.Segments[1];
+        }
+        <ol class="breadcrumb">
+            @if (role.ToString() == "1")
+            {
+                <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            }
+            else if (role.ToString() == "2")
+            {
+                <li><a href="/@Session["firmcode"]/employee/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            }
+            else
+            {
+                <li><a href="/@Session["firmcode"]/client/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            }
+            <li class="active">File List</li>
+        </ol>
+        <h1><span class="fa fa-file"></span> Shared File List</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box1 pull-right" style="margin-bottom:5px;">
+                    <input type="textbox" class="form-control2" placeholder="Search Data" id="searchdata" style="width:150px;" />&nbsp;&nbsp;&nbsp;
+                    <button type="button" class="form-control2" id="searchdatas">Search</button>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $("#searchdata2").on("keyup", function () {
+                            var value = $(this).val().toLowerCase();
+                            $("#example tbody tr").filter(function () {
+                                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                            });
+                        });
+                    });
+                </script>
+                <script type="text/javascript">
+                    var tableToExcel = (function () {
+                        var uri = 'data:application/vnd.ms-excel;base64,'
+                            , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                            , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                            , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+                        return function (table, name) {
+                            if (!table.nodeType) table = document.getElementById(table)
+                            var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+                            var blob = new Blob([format(template, ctx)]);
+                            var blobURL = window.URL.createObjectURL(blob);
+                            if (ifIE()) {
+                                csvData = table.innerHTML;
+                                if (window.navigator.msSaveBlob) {
+                                    var blob = new Blob([format(template, ctx)], {
+                                        type: "text/html"
+                                    });
+                                    navigator.msSaveBlob(blob, '' + name + '.xls');
+                                }
+                            }
+                            else
+                                window.location.href = uri + base64(format(template, ctx))
+                        }
+                    })()
+                    function ifIE() {
+                        var isIE11 = navigator.userAgent.indexOf(".NET CLR") > -1;
+                        var isIE11orLess = isIE11 || navigator.appVersion.indexOf("MSIE") != -1;
+                        return isIE11orLess;
+                    }
+                </script>
+                </ul>
+            </div>
+        </div><!-- /.box-header -->
+        <!-- /.panel-heading -->
+        <script>
+                     var userid = '@ViewBag.userId'
+                    var firmid = '@ViewBag.firmid';
+            @*var type = '@ViewBag.type'
+            //console.log(type);*@
+        </script>
+        <script src="~/Scripts/Firm/Pages/AzureAssignUserFileList.js?1.1" type="text/javascript"></script>
+        <script src="~/CssJsfiles/js/3.3.1/jquery.min.js"></script>
+        <script src="~/CssJsfiles/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript">
+            var tableToExcel = (function () {
+                var uri = 'data:application/vnd.ms-excel;base64,'
+                    , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                    , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                    , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+                return function (table, name) {
+                    if (!table.nodeType) table = document.getElementById(table)
+                    var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+                    window.location.href = uri + base64(format(template, ctx))
+                }
+            })()
+        </script>
+        <script>
+            function searchTable() {
+                var input, filter, found, table, tr, td, i, j;
+                input = document.getElementById("searchdata");
+                filter = input.value.toLowerCase();
+                table = document.getElementById("example");
+                tr = table.getElementsByTagName("tr");
+                for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByTagName("td");
+                    for (j = 0; j < td.length; j++) {
+                        if (td[j].innerHTML.toLowerCase().indexOf(filter) > -1) {
+                            found = true;
+                        }
+                    }
+                    if (found) {
+                        tr[i].style.display = "";
+                        found = false;
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+            function filterFunctionstatus() {
+                var input, filter, found, table, tr, td, i, j;
+                input = document.getElementById("le");
+                filter = input.value.toUpperCase();
+                table = document.getElementById("example");
+                tr = table.getElementsByTagName("tr");
+                for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByClassName("status");
+                    for (j = 0; j < td.length; j++) {
+                        if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                        }
+                    }
+                    if (found) {
+                        tr[i].style.display = "";
+                        found = false;
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        </script>
+        <script src="~/CssJsfiles/js/1.8.3/jquery.min.js"></script>
+        <script src="~/CssJsfiles/js/pdfmake.min.js"></script>
+        <script src="~/CssJsfiles/js/html2canvas.min.js"></script>
+        <script type="text/javascript">
+            $("body").on("click", "#btnExport", function () {
+                html2canvas($('#example')[0], {
+                    onrendered: function (canvas) {
+                        var data = canvas.toDataURL();
+                        var docDefinition = {
+                            content: [{
+                                image: data,
+                                width: 500
+                            }]
+                        };
+                        pdfMake.createPdf(docDefinition).download("Table.pdf");
+                    }
+                });
+            });
+        </script>
+        <div style="overflow-x:auto; clear:both">
+            <table id="example" class="dataTable table table-bordered table-striped" style="overflow-x:auto">
+                <thead>
+                    <tr>
+                        <th width="100px;">File Name</th>
+                        <th width="100px;">Date</th>
+                        <th width="100px;">File Type</th>
+                        <th width="100px;">Action</th>
+                        <th width="100px;">Shared By</th>
+                    </tr>
+                </thead>
+                <tbody id="dirbound"></tbody>
+            </table>
+        </div>
+        <div id="tfooter">
+        </div>
+</aside>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

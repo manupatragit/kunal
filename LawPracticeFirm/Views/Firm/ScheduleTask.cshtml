@@ -1,0 +1,245 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    Layout = null;
+    var userid = Session["sessionuserid"];
+    var strtoken = Convert.ToDateTime(Request.QueryString["token"]).ToString("dd-MMM-yyyy");
+}
+<script>
+    var userid = "@userid";
+    var roleids = "@Session["sessionroleid"]";
+    var isPartner = "@Session["IsPartner"]";
+</script>
+<script src="~/Scripts/AES.js"></script>
+<style>
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+
+    #parentnbox {
+        border-bottom: 0px !important;
+    }
+
+        #parentnbox > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+            border: 0px !important
+        }
+
+        #parentnbox > li > a:hover, .nav > li > a:focus {
+            background-color: white !important;
+        }
+
+        #parentnbox > li > a:hover {
+            border-color: white !important;
+        }
+
+    #filterbox li.active > a {
+        color: #555;
+        cursor: default;
+        background-color: #ccc !important;
+        border: transparent;
+    }
+
+        #filterbox li.active > a:hover {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+        #filterbox li.active > a:focus {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+    .rangediv {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+        .rangediv li {
+            margin: 0;
+            padding: 6px 10px 0 0;
+            float: left;
+        }
+
+    .alertbox li > a {
+        color: #555 !important;
+        cursor: default;
+    }
+
+    .alertbox li.active > a {
+        color: #555;
+        cursor: default;
+        background-color: #ccc !important;
+        border: transparent;
+    }
+
+        .alertbox li.active > a:hover {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+        .alertbox li.active > a:focus {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+</style>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ScheduleTask</title>
+</head>
+<body>
+    <div class="modal-header btn-primary">
+        <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">
+            Schedule Task
+        </h4>
+    </div>
+    <div>
+        <div class="table-panel table-responsive" style="padding:10px 0 0 0; clear:both;overflow:auto" data-example-id="hoverable-table" id="home">
+            <table class="table-panel" id="schedulertable">
+                <thead>
+                    <tr>
+                        <th width="8%" class="scttime"><div class="thbg">Date</div></th>
+                        <th width="12%" class="scttype">
+                            <div class="thbg">
+                                Task
+                            </div>
+                        </th>
+                        <th width="14%" class="sctclient">
+                            <div class="thbg">
+                                Client
+                            </div>
+                        </th>
+                        <th width="12%">
+                            <div class="thbg">
+                                Matters
+                            </div>
+                        </th>
+                        <th width="16%" class="sctbrief"><div class="thbg">Notes</div></th>
+                        <th width="6%" class="sctassigntoby">
+                            <div class="thbg">
+                                Assign By
+                            </div>
+                        </th>
+                        <th width="6%">
+                            <div class="thbg">
+                                Assign To
+                            </div>
+                        </th>
+                        <th width="11%"><div class="thbg">Accept/Reject by</div></th>
+                        <th width="8%"><div class="thbg">Due date</div></th>
+                    </tr>
+                </thead>
+                <tbody id="bindcasetask"></tbody>
+            </table>
+            <center><div id="dataescstatus"></div></center>
+        </div>
+    </div>
+    <input type="hidden" id="pagenum" value="1" />
+    <input type="hidden" id="pagesize" value="1000" />
+    <input type="hidden" id="datefrm" value="@strtoken" />
+    <input type="hidden" id="dateto" value="@strtoken" />
+</body>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        var formData = new FormData();
+        formData.append("pagenum", $("#pagenum").val());
+        formData.append("pagesize", $("#pagesize").val());
+        formData.append("datefrm", $("#datefrm").val());
+        formData.append("dateto", $("#dateto").val());
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/CallApi/PersonalDashboardTaskList_Calendar",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response1) {
+                if (response1.Data != "") {
+                    $("#dataescstatus").html("");
+                }
+                else {
+                    $("#dataescstatus").html("No result found !");
+                    closeload();
+                }
+                var html3 = '';
+                $.each(response1.Data, function (i, a) {
+                    html3 += '<tr>'
+                    html3 += '<td class="scttime"><span>' + formatDatetoIST(a.CreateDate) + '</span></td>'
+                    html3 += '<td class="scttype"><span>' + a.TaskName + '</span></td>'
+                    html3 += '<td class="sctclient">'
+                    html3 += '<div style="float:left">'
+                    html3 += '<span id="clname" class="LoginId" style="cursor: pointer; color: #069" data-id="' + a.ClientId + '">' + a.ClientName + '</span><br>'
+                    html3 += '</div>'
+                    html3 += '</td>'
+                    html3 += '<td class="sctcase"><span id="caseid" style="cursor: pointer; color: #069" sno="' + a.CaseId + '">' + a.CaseName + '</span></td>'
+                    if (a.TDetails == "" || a.TDetails == null || a.TDetails == "null") {
+                        html3 += '<td scope="row" class="sctbrief" ></td>'
+                    }
+                    else {
+                        html3 += '<td class="sctbrief"><span class="comment more" >' + a.TDetails + '</span></td>'
+                    }
+                    html3 += '<td style=text-align:center>'
+                    html3 += '<span id="clname" > ' + a.AssignBy + '</span><br>'
+                    html3 += '</td>'
+                    html3 += '<td style="text-align:center" class="sctassigntoby">'
+                    html3 += '<span > ' + a.AssignTo + '</span>'
+                    html3 += '</td>'
+                    if (a.ActionByDate == "" || a.ActionByDate == null || a.ActionByDate == "null") {
+                        html3 += '<td scope="row"></td>'
+                    }
+                    else {
+                        html3 += '<td scope="row"><span class="text-success">' + formatDatetoIST(a.ActionByDate) + '</span></td>'
+                    }
+                    html3 += '<td style="text-align:center" class="sctduedate">' + formatDatetoIST(a.TaskDueDate) + '</td>'
+                });
+                $("#bindcasetask").html("");
+                $("#bindcasetask").append(html3);
+            },
+            failure: function (data) {
+                alert(data.responseText);
+                closeload();
+            },
+            error: function (data) {
+                alert(data.responseText);
+                closeload();
+            }
+        });
+    });
+    $(document).on("click", ".LoginId", function () {
+        var token = $(this).attr("data-id");
+        var fcode = localStorage.getItem("FirmCode");
+        var urls = "/" + fcode + "/Firm/ClientCaseList";
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "clienttoken": token }
+        });
+    });
+    $(document).on("click", "#caseid", function () {
+        var token = $(this).attr("sno");
+        var fcode = localStorage.getItem("FirmCode");
+        var urls = "/" + fcode + "/Firm/NewCaseDashboard";
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": token }
+        });
+    });
+</script>
+</html>

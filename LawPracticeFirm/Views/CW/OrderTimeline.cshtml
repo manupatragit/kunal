@@ -1,0 +1,294 @@
+﻿@{
+    Layout = null;
+}
+<!-- Page Content -->
+<script>
+    var emailcasedno = localStorage.getItem('emailcasedno');
+    var emailcourt = localStorage.getItem('emailcourt');
+    var emailcasename = localStorage.getItem('emailcasename');
+    var emailadv = localStorage.getItem('emailadv');
+    var emaildspdate = localStorage.getItem('emaildspdate');
+    var emailstatus = localStorage.getItem('emailstatus');
+    $("#csdno").html(emailcasedno);
+    $("#cscourt").html(emailcourt);
+    $("#cscase").html(emailcasename);
+    $("#csadv").html(emailadv);
+    $("#csdsp").html(emaildspdate);
+    $("#cssts").html(emailstatus);
+    $("#emailsubject").val("Order Detail of " + emailcasedno);
+</script>
+<script src="~/Scripts/Firm/Pages/MultipleEmailValid.js"></script>
+<script>
+    var tokencasedata = "@ViewBag.token"
+    var caseid = "@ViewBag.caseid"
+    $(document).on("click", "#emailorder", function () {
+        var flname = $(this).attr("filename");
+        $("#attach").val("Attached document");
+        $("#hidftoken").val($(this).attr("ftoken"));
+        $("#hidctoken").val($(this).attr("casetoken"));
+        //$('.mymodels').load(url, function (result) {
+            $('#test2').modal({
+                backdrop: 'static',
+                keyboard: false });
+        //});
+    });
+    $(document).on("click", "#cemailorder", function () {
+        //$('.mymodels').load(url, function (result) {
+        $("#test2").modal('hide');
+        //});
+    });
+    try {
+        $("#senddocs").click(function () {
+            var formdata1 = new FormData();
+            var emailto = $("#emailto").val();
+            if (emailto == "") {
+                alert("Please enter the E-mail Id.");
+                return false;
+            }
+            else {
+                if (emailto != "") {
+                    var emailArray = emailto.split(",");
+                    for (i = 0; i <= (emailArray.length - 1); i++) {
+                        if (checkEmail(emailArray[i])) {
+                            //  alert("true");
+                            vEmails = "true";
+                        } else {
+                            vEmails = "false";
+                            new PNotify({
+                                title: 'Warning!',
+                                text: ' Invalid email format!',
+                                type: 'error',
+                                delay: 3000
+                            });
+                        }
+                    }
+                }
+            }
+            if (vEmails == "" || vEmails == "true") {
+                formdata1.append("email", emailto);
+                formdata1.append("casetoken", $("#hidctoken").val());
+                formdata1.append("ftoken", $("#hidftoken").val());
+                formdata1.append("mailfilename", EncodeText($("#attach").val()));
+                formdata1.append("mailbody", EncodeText($("#emailbody").html()));
+                formdata1.append("mailsubject", EncodeText($("#emailsubject").val()));
+                $.ajax({
+                    async: true,
+                    url: '/firm/Sendcaseorderfile',
+                    data: formdata1,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (response) {
+                        new PNotify({
+                            title: 'Success!',
+                            text: ' Matter order has been sent successfully',
+                            type: 'success',
+                            delay: 3000
+                        });
+                        $("#emailto").val("");
+                    },
+                    error: function () {
+                      //  alert('Error!');
+                    }
+                });
+            }
+        });
+    }
+    catch (er) {
+       // alert(er.message);
+    }
+</script>
+<style>
+    ol li {
+        list-style-type: none !important;
+    }
+</style>
+@using System.Globalization;
+@if (ViewBag.data.Count > 0)
+{
+    <script>document.getElementsByTagName("html")[0].className += " js";</script>
+    <link rel="stylesheet" href="~/Manupanel/TimeLine/assets/css/style.css?1.4">
+    <section class="cd-h-timeline js-cd-h-timeline margin-bottom-md">
+        <div class="cd-h-timeline__container container">
+            <div class="cd-h-timeline__dates">
+                <div class="cd-h-timeline__line">
+                    <ol id="binddateli797">
+                        @{
+                            int qty = 0;
+                        }
+                        @foreach (var datas in ViewBag.data)
+                        {
+                            if (qty == 0)
+                            {
+                                <li><a href="#0" data-date="@datas.OrderDateForTimeLine.ToString("dd/MM/yyyy").Replace("-", "/")" class="cd-h-timeline__date cd-h-timeline__date--selected">@datas.OrderDateForTimeLine.ToString("dd MMM yyyy").Replace("-", "/")</a></li>
+                            }
+                            else
+                            {
+                                <li><a href="#0" data-date="@datas.OrderDateForTimeLine.ToString("dd/MM/yyyy").Replace("-", "/")" class="cd-h-timeline__date">@datas.OrderDateForTimeLine.ToString("dd MMM yyyy").Replace("-", "/")</a></li>
+                            }
+                            qty = qty + 1;
+                        }
+                    </ol>
+                    <span class="cd-h-timeline__filling-line" aria-hidden="true"></span>
+                </div> <!-- .cd-h-timeline__line -->
+            </div> <!-- .cd-h-timeline__dates -->
+            <ul>
+                <li><a href="#0" class="text-replace cd-h-timeline__navigation cd-h-timeline__navigation--prev cd-h-timeline__navigation--inactive">Prev</a></li>
+                <li><a href="#0" class="text-replace cd-h-timeline__navigation cd-h-timeline__navigation--next">Next</a></li>
+            </ul>
+        </div> <!-- .cd-h-timeline__container -->
+        <div class="cd-h-timeline__events">
+            <ol>
+                @{
+                    int qty1 = 0;
+                }
+                @foreach (var datas in ViewBag.data)
+                {
+                    if (qty1 == 0)
+                    {
+                        <li class="cd-h-timeline__event cd-h-timeline__event--selected text-component">
+                            <div class="cd-h-timeline__event-content container" style="text-align:center">
+                                <h2 class="cd-h-timeline__event-title hidcasename" style="font-size:20px"></h2>
+                                <em class="cd-h-timeline__event-date">@datas.OrderDateForTimeLine.ToString("dd MMM yyyy").Replace("-", "/")</em>
+                                <p class="cd-h-timeline__event-description color-contrast-medium">
+                                    CaseNo:- <span class="hidcaseno"></span><br>
+                                    <span class="hidparty"></span>
+                                    <br><br>
+                                    @if (datas.Filename != "/")
+                                    {
+                                        if (datas.Filepath != "")
+                                        {
+                                        <p>
+                                            <a href="/DownloadFile.ashx?module=caseorder&ftoken=@datas.Filepath" download="@datas.Filename" target="_blank" class="sbtbtn">Open Order</a>
+                                        </p>
+                                    }
+                                }
+                                    </p>
+                                </div>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="cd-h-timeline__event cd-h-timeline__event">
+                                <div class="cd-h-timeline__event-content container" style="text-align:center">
+                                    <h2 class="cd-h-timeline__event-title hidcasename" style="font-size:20px"></h2>
+                                    <em class="cd-h-timeline__event-date">@datas.OrderDateForTimeLine.ToString("dd MMM yyyy").Replace("-", "/")</em>
+                                    <p class="cd-h-timeline__event-description color-contrast-medium">
+                                        CaseNo:- <span class="hidcaseno"></span><br>
+                                        <span class="hidparty"></span>
+                                        <br><br>
+                                        @if (datas.Filename != "/")
+                                        {
+                                            if (datas.Filepath != "")
+                                            {
+                                            <p>
+                                                <a href="/DownloadFile.ashx?module=caseorder&ftoken=@datas.Filepath" download="@datas.Filename" target="_blank" class="sbtbtn">Open Order</a>
+                                            </p>
+                                        }
+                                    }
+                                        </p>
+                                    </div>
+                                </li>
+                            }
+                            qty1 = qty1 + 1;
+                        }
+            </ol>
+        </div> <!-- .cd-h-timeline__events -->
+    </section>
+    <script src="~/Manupanel/TimeLine/assets/js/util.js"></script>
+ <!-- util functions included in the CodyHouse framework -->
+    <script src="~/Manupanel/TimeLine/assets/js/swipe-content.js"></script>
+ <!-- A Vanilla JavaScript plugin to detect touch interactions -->
+    <script src="~/Manupanel/TimeLine/assets/js/main.js"></script>
+    <br>
+}
+else
+{
+    <p style="text-align:center">No Result Found...</p>
+    <br>
+    <br>
+}
+@*<script src="~/Manupanel/js/bootstrap.min.js"></script>*@
+<div id="test2" class="modal fade" role="dialog" data-backdrop="static" style="clear:both;">
+    <div class="modal-dialog" style="max-width:500px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="cemailorder">&times;</button>
+                <h4 class="modal-title">
+                    Email Matter Order
+                </h4>
+            </div>
+            <div class="modal-body" sstyle="height:500px; overflow-y:scroll;">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-4">To <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" name="subject" type="text" id="emailto" placeholder="Email Id" required="">
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-4">Subject <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" name="subject" type="text" id="emailsubject" placeholder="Subject" required="" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-4">Attachment <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" name="subject" type="text" id="attach" placeholder="Attachment" required="" disabled>
+                                            </div>
+                                        </div>
+                                        <div id="emailbody" style="clear: both;padding: 10px 0 0 0;">
+                                            <table width="100%" cellpadding="0" cellspacing="0" style="background:unset !important; font-size:12px;">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" width="30%">
+                                                            Matter / Diary No.:
+                                                        </td>
+                                                        <td align="left"><span id="csdno"></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="left"> Court:</td>
+                                                        <td align="left"><span id="cscourt"></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="left">Matter Name:</td>
+                                                        <td align="left"><span id="cscase"></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="left">Advocate:</td>
+                                                        <td align="left"><span id="csadv"></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Status:</td>
+                                                        <td><span id="cssts"></span></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="form-group form-horizontal" style="padding:10px 0 0 0;">
+                                            <button type="button" class="sbtbtn" id="senddocs">SEND</button>
+                                        </div>
+                                        <input type="hidden" id="hidftoken">
+                                        <input type="hidden" id="hidctoken">
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

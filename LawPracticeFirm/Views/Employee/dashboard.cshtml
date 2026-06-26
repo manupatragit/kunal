@@ -1,0 +1,1041 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+}
+@using QueryStringEDAES;
+@{
+    string QueryString = Request.Url.AbsolutePath;
+    string[] QueryArray = QueryString.Split('/');
+    var firm = QueryArray[1];
+}
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script src="~/CssJsfiles/js/Chart.min.js"></script>
+<script>
+    var type = '@ViewBag.type'
+     var firmname = "@firm";
+    var firmcode = "@Session["FirmCode"]";
+</script>
+<script>
+    var type = '@ViewBag.type'
+    var firmname = "@firm";
+    var firmcode = "@Session["FirmCode"]";
+    dashboardcount();
+    function dashboardcount() {
+        var ajaxTime = new Date().getTime();
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/Firmdashboardcount",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                var totalTime = new Date().getTime() - ajaxTime;
+                console.log("details:" + totalTime);
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                }
+                else {
+                    //alert("not found");
+                }
+                $.each(response.Data, function (i, a) {
+                    $("#hcountclient").text(a.countclient);
+                    $("#htotalmatter").text(a.totalmatter);
+                    $("#hpendtask").text(a.pendtask);
+                    $("#hcontactcount").text(a.contactcount);
+                    $("#hmattercount").text(a.mattercount);
+                    $("#heventcount").text("("+a.eventcount+")");
+                    $("#hnotecount").text("(" + a.notecount + ")");
+                    $("#htaskcount").text("(" + a.taskcount + ")");
+                    $("#hcallcount").text("(" + a.callcount + ")");
+                    $("#hcountmessage").text("(" + a.countmessage + ")");
+                });
+            },
+            failure: function (response) {
+                alert(data.responseText);
+            },
+            error: function (response) {
+                alert(data.responseText);
+            }
+        });
+    }
+</script>
+<style>
+    table {
+        background: white !important;
+    }
+</style>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/calender/dist/jquery.datetimepicker.min.js"></script>
+<header class="header">
+    <aside class="right-side">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <ol class="breadcrumb">
+                <li><i class="glyphicon glyphicon-home"></i> Home</li>
+                <li class="active">Dashboard </li>
+            </ol>
+            <h1><span class="fa fa-dashboard"></span> Dashboard</h1>
+        </section>
+        <section class="dashboard">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-3 col-sm-2">
+                        <div class="small-box bg-aqua" style="background-color:#968e8e !important">
+                            <div class="inner"><h3>@Session["firmtypes"]</h3><p id="hcountclient">&nbsp;</p></div>
+                            <div class="icon"><i class="fa fa-users" style="font-size:60px;"></i></div>
+                            <a href="#" style="z-index:0 !important;" onclick="clientlist();" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-2">
+                        <div class="small-box bg-green">
+                            <div class="inner">
+                                <h3>
+                                    Contacts
+                                </h3>
+                                <p id="hcontactcount">&nbsp;</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-user" style="font-size:60px;"></i>
+                            </div>
+                            <a href="#" style="z-index:0 !important;" onclick="contactlist();" class="small-box-footer">
+                                More info <i class="fa fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-2">
+                        <div class="small-box bg-yellow">
+                            <div class="inner">
+                                <h3>
+                                    Prospect
+                                </h3>
+                                <p id="hpendtask">
+                                    &nbsp;
+                                </p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-file-text-o" style="font-size:60px;"></i>
+                            </div>
+                            <a href="#" style="z-index:0 !important;" onclick="tasklist();" class="small-box-footer">
+                                More info <i class="fa fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-2">
+                        <div class="small-box bg-aqua">
+                            <div class="inner">
+                                <h3>
+                                    Total Cases
+                                </h3>
+                                <p id="htotalmatter">
+                                    &nbsp;
+                                </p>
+                            </div>
+                            <div class="icon">
+                                <i class="glyphicon glyphicon-briefcase" style="font-size:60px;"></i>
+                            </div>
+                            <a href="#" style="z-index:0 !important;" onclick="matterlist();" class="small-box-footer">
+                                More info <i class="fa fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="dashboard">
+            <div class="col-md-8">
+                <div>
+                    <fieldset style="background:#f1f1f1;">
+                        <legend>Quick View</legend>
+                        <script>
+                            $(document).ready(function () {
+                                var fcode = "@firm";
+                                $("#menucontact").click(function () {
+                                    window.location = encodeURI("/" + fcode + "/Employee/vcontact/contact");
+                                });
+                                $("#menumatter").click(function () {
+                                    window.location = encodeURI("/" + fcode + "/Employee/vmatter/matter");
+                                });
+                                $("#modelEvent").click(function () {
+                                    window.location = encodeURI("/" + fcode + "/Employee/activities/event");
+                                });
+                                $("#modelTask").click(function () {
+                                    window.location = encodeURI("/" + fcode + "/Employee/activities/task");
+                                });
+                                $("#modelNote").click(function () {
+                                    window.location = encodeURI("/" + fcode + "/Employee/activities/note");
+                                });
+                                $("#modelCall").click(function () {
+                                    window.location = encodeURI("/" + fcode + "/Employee/activities/call");
+                                });
+                                $("#modelMessage").click(function () {
+                                    window.location = encodeURI("/" + fcode + "/Employee/ReceiveMessageList");
+                                });
+                                $('#demo2').datetimepicker({
+                                    date: new Date(),
+                                    viewMode: 'YMD',
+                                    onDateChange: function () {
+                                        validnavigation = true;
+                                        window.onbeforeunload = null;
+                                        window.location = encodeURI("/" + fcode + "/firm/MergeCalendar");
+                                    }
+                                });
+                            });
+                            var fcode = "@firm";
+                            function clientlist() {
+                                validnavigation = true;
+                                window.onbeforeunload = null;
+                                var url = "/Employee/ClientList";
+                                window.location = encodeURI("/" + fcode + url);
+                            }
+                            function contactlist() {
+                                validnavigation = true;
+                                window.onbeforeunload = null;
+                                var url = "/Employee/vcontact/contact";
+                                window.location = encodeURI("/" + fcode + url);
+                            }
+                            function caselist() {
+                                validnavigation = true;
+                                window.onbeforeunload = null;
+                                var url = "/Employee/vmatter/matter/Pending";
+                                window.location = encodeURI("/" + fcode + url);
+                            }
+                            function tasklist() {
+                                validnavigation = true;
+                                window.onbeforeunload = null;
+                                var url = "/Employee/ViewLead";
+                                window.location = encodeURI("/" + fcode + url);
+                            }
+                            function matterlist() {
+                                validnavigation = true;
+                                window.onbeforeunload = null;
+                                var url = "/Employee/vmatter/matter";
+                                window.location = encodeURI("/" + fcode + url);
+                            }
+                        </script>
+                        <div class="col-md-2 col-sm-2">
+                            <button class="qcreate_icon" id="menumatter">
+                                <i class="fa fa-briefcase"></i>
+                                <p> New Cases</p>
+                                <p id="hmattercount"></p>
+                            </button>
+                        </div>
+                        <div class="col-md-2 col-sm-2">
+                            <button class="qcreate_icon" id="modelEvent">
+                                <i class="fa fa-calendar"></i>
+                                <p> Events</p>
+                                <p id="heventcount"></p>
+                            </button>
+                        </div>
+                        <div class="col-md-2 col-sm-2">
+                            <button class="qcreate_icon" id="modelTask">
+                                <i class="fa fa-file-text-o"></i>
+                                <p> Tasks</p>
+                                <p id="htaskcount"></p>
+                            </button>
+                        </div>
+                        <div class="col-md-2 col-sm-2">
+                            <button class="qcreate_icon" id="modelNote">
+                                <i class="fa fa-sticky-note"></i>
+                                <p> Notes</p>
+                                <p id="hnotecount"></p>
+                            </button>
+                        </div>
+                        <div class="col-md-2 col-sm-2">
+                            <button class="qcreate_icon" id="modelCall">
+                                <i class="fa fa-phone"></i>
+                                <p>Calls</p>
+                                <p id="hcallcount"></p>
+                            </button>
+                        </div>
+                        <div class="col-md-2 col-sm-2">
+                            <button class="qcreate_icon" id="modelMessage">
+                                <i class="fa fa-envelope-open-o"></i>
+                                <p>New Messages</p>
+                                <p id="hcountmessage"></p>
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div>
+                            <fieldset style="background:#f1f1f1;">
+                                <legend>Case Chart via case subject</legend>
+                                <div><canvas id="myChart" style="padding: 0;margin: auto;display: block; "> </canvas></div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div>
+                            <fieldset style="background:#f1f1f1;">
+                                <legend>Case Chart </legend>
+                                <div><canvas id="myChart2" style="padding: 0;margin: auto;display: block; "> </canvas></div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <fieldset>
+                        <legend>Recent Activity</legend>
+                        <div id="loadractivity">
+                            <div id="loadactivitydata">
+                            </div>
+                            <div id="footeractivitydata">
+                            </div>
+                        </div>
+                </div><!-- /.box -->
+                <div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="timer">
+                    <p style="text-align:center; margin:0; padding:0 0 10px 0;text-transform: uppercase;font-size: 14px;">Timer</p>
+                    <div class="timer-c">
+                        <button id="starttimer1" type="button" class="btn starttimer" title="Start Timer"> <i class="fa fa-play timer-icon"></i></button>
+                        <button id="stoptimer1" type="button" class="btn starttimer" title="Stop Timer" style="display:none"><span class="glyphicon glyphicon-pause"></span></button>
+                        <p class="time" id="countdown3">0h:0m:0s</p>
+                    </div>
+                    <div class="timer-txt" id="timernotes" style="display:none">
+                        <textarea style="margin: 0px; width: 100%; height: 55px; margin-bottom:10px;" id="timerdata"></textarea>
+                        <div class="timer-btn">
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal" id="modeltimer">Save</button>
+                            <button type="button" class="btn btn-warning" id="canceltimerw">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="cal" id="demo2"></div>
+                <div class="box box-primary" style="margin-top:10px;">
+                    <div class="box-header">
+                        <i class="ion ion-calendar"></i>
+                        <h3 class="box-title">Upcoming Activities</h3>
+                    </div><!-- /.box-header -->
+                    <div class="box-body" style="margin-top:-15px;">
+                        <marquee scrolldelay="150" direction="up" onmouseover="this.stop();" onmouseout="this.start();">
+                            <ul class="todo-list" style="height:66px;">
+                                @{
+                                    dynamic notificationupcomning = Session["upconingevent"];
+                                    dynamic notificationupcomningevent = notificationupcomning.Count;
+                                    string QueryString3 = Request.Url.AbsolutePath;
+                                    string[] QueryArray3 = QueryString3.Split('/');
+                                    var firm3 = QueryArray3[1];
+                                    var evicon = "";
+                                    var etitle = "";
+                                    var datalink = "";
+                                }
+                                @foreach (var std1 in notificationupcomning)
+                                {
+                                    if (std1.EventType == "Event")
+                                    {
+                                        evicon = "fa fa-calendar";
+                                        etitle = "Upcoming Event";
+                                        datalink = "/" + firm3 + "/employee/EventsingleView/";
+                                    }
+                                    else if (std1.EventType == "Call")
+                                    {
+                                        evicon = "fa fa-phone";
+                                        etitle = "Upcoming Call";
+                                        datalink = "/" + firm3 + "/employee/CallsingleView/";
+                                    }
+                                    else if (std1.EventType == "Task")
+                                    {
+                                        evicon = "fa fa-file-text-o";
+                                        etitle = "Upcoming Task";
+                                        datalink = "/" + firm3 + "/employee/TasksingleView/";
+                                    }
+                                    else if (std1.EventType == "Note")
+                                    {
+                                        evicon = "fa fa-sticky-note";
+                                        etitle = "Upcoming Note";
+                                        datalink = "/" + firm3 + "/employee/NotesingleView/";
+                                    }
+                                    else
+                                    {
+                                        evicon = "";
+                                    }
+                                    <li>
+                                        <a href="javascript:void()" title="@etitle" id="ndatalink1" data-link="@datalink" data-val="@Convert.ToBase64String(QueryAES.EncryptAes(std1.id.ToString()))"><span class="text" style="color:black;font-weight:normal"><i class="@evicon"></i> @std1.tsubject</span></a>
+                                        <small class="label label-info"><i class="fa fa-clock-o"></i> @String.Format("{0:dd/MM/yyyy}", std1.sdate)</small>
+                                    </li>
+                                }
+                            </ul>
+                        </marquee>
+                    </div><!-- /.box-body -->
+                </div><!-- /.box -->
+            </div>
+        </section>
+        <!-- /.content -->
+    </aside>
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- Modal -->
+            <div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+                <div class="modal-dialog modal-lg">
+                    <!-- Modal content-->
+                    <div class="modal-content mymodels" id="mymodels">
+                    </div>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+    </div>
+    <!-- /#page-wrapper -->
+    <div id="myOverlay" class="overlay">
+        <div class="overlay-content">
+            <div class="spinner2">
+                <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .overlay {
+            height: 100%;
+            width: 100%;
+            display: none;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0, 0.4);
+        }
+
+        .overlay-content {
+            position: relative;
+            top: 46%;
+            width: 80%;
+            text-align: center;
+            margin-top: 30px;
+            margin: auto;
+            color: white;
+        }
+
+        .overlay .closebtn {
+            position: absolute;
+            top: 20px;
+            right: 45px;
+            font-size: 60px;
+            cursor: pointer;
+            color: white;
+        }
+
+            .overlay .closebtn:hover {
+                color: #ccc;
+            }
+    </style>
+    <script type="text/javascript">
+  $("#lessractivity").css("display", "none");
+    function openload() {
+        $('#myOverlay').css("display", "block");
+    }
+    function closeload() {
+        $('#myOverlay').css("display", "none");
+    }
+        var chartarray = new Array();
+        var chartcount = new Array();
+        chartarray = [];
+        chartcount = [];
+        var chartsubject = "";
+        var charttotal = "";
+        var opencasechart = "";
+        var closecasechart = "";
+        var charttotal = "";
+        loadchart();
+        function loadchart() {
+            var d1 = $.ajax({
+                async: true,
+                url: "/api/CallApi/Casegraphbycasesubject",
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+                    chartarray = [];
+                    chartcount = [];
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        try {
+                            var obj = JSON.parse(response.Data);
+                        }
+                        catch (er) {
+                        }
+                    }
+                    else {
+                        // alert("not found");
+                    }
+                    var dataT = "";
+                    var dataT2 = "";
+                    $.when(
+                        $.each(obj, function (i, val) {
+                            chartarray.push(val.SubjectName);
+                            chartcount.push(val.total);
+                            opencasechart = val.opencase;
+                            closecasechart = val.closecase;
+                        })
+                    ).then(function () {
+                        dataT = {
+                            labels: chartarray,
+                            datasets: [{
+                                label: "Total Case",
+                                data: chartcount,
+                                fill: false,
+                                backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(153, 102, 255)", "rgb(201, 203, 207)", "rgb(181, 203, 207)"],
+                                borderColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(153, 102, 255)", "rgb(201, 203, 207)"],
+                                borderWidth: 1
+                            }]
+                        };
+                        var ctx = $("#myChart").get(0).getContext("2d");
+                        var myNewChart = new Chart(ctx, {
+                            type: 'doughnut',
+                            data: dataT,
+                            options: {
+                                responsive: true,
+                                title: { display: true, text: 'MyKase Case Chart' },
+                                legend: { position: 'bottom' },
+                            }
+                        });
+                        dataT2 = {
+                            labels: ['Pending Case', 'Dispose Case'],
+                            datasets: [{
+                                label: "Total Case",
+                                data: [opencasechart.toString(), closecasechart.toString()],
+                                fill: false,
+                                backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(153, 102, 255)", "rgb(201, 203, 207)", "rgb(181, 203, 207)"],
+                                borderColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(153, 102, 255)", "rgb(201, 203, 207)"],
+                                borderWidth: 1
+                            }]
+                        };
+                        var ctx2 = $("#myChart2").get(0).getContext("2d");
+                        var myNewChart2 = new Chart(ctx2, {
+                            type: 'pie',
+                            data: dataT2,
+                            options: {
+                                responsive: true,
+                                title: { display: true, text: 'MyKase Case Chart' },
+                                legend: { position: 'bottom' },
+                            }
+                        });
+                    });
+                },
+                error: function () {
+                    alert('Error!');
+                }
+            });
+        }
+        setInterval(function () {
+            var tempdata = localStorage.getItem("setname1");
+            if (tempdata != "") {
+                loadactivity(1);
+                localStorage.setItem("setname1", "");
+            }
+        }, 3000);
+        var pageindex = 1, pagesize = 10, recordcount = 0, totrecord = 0;
+        $(document).on('click', '#getdatabypagenum', function () {
+            pageindex = $("#pagnumvalue").val();
+            if (Math.sign(pageindex) == 1) {
+                var pageindesx = $("#sotopage").text();
+                if (pageindex <= parseInt(pageindesx)) {
+                    loadactivity(pageindex);
+                }
+                else {
+                    alert("Please enter a valid page number.");
+                }
+            }
+            else {
+                alert("Please enter a valid page number.");
+            }
+        });
+        loadactivity(pageindex);
+@*Load activity details*@
+        function loadactivity(pageindex) {
+            $("#loadactivitydata").html("");
+            openload();
+            var formdata = new FormData();
+            formdata.append("pagenum", pageindex);
+            formdata.append("pagesize", pagesize);
+            var qty1 = 0;
+            var html = '';
+            $.ajax({
+                async: true,
+                url: "/api/CallApi/Loadactivity",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    $("#footeractivitydata").html("");
+                    if (String(response.Data) == "[]") {
+                        closeload();
+                        return false;
+                    }
+                    var obj = JSON.parse(response.Data);
+                    var length = obj.length;
+                    $.each(obj, function (index, a) {
+                        if (index === 0) {
+                            firstvalue = a.rownum;
+                        }
+                        if (index === (length - 1)) {
+                            var pnext = pageindex;
+                            var pprev = pageindex;
+                            var pageno = pageindex;
+                            var totdata = a.totRow;
+                            var totpage = 0;
+                            if (a.totRow > 0) {
+                                pnext = parseInt(pnext) + 1;
+                                if (pnext == 0) pnext = 1;
+                                pprev = parseInt(pageno) - 1;
+                                if (pprev == 0) pprev = 1;
+                                totpage = parseInt(totdata) / parseInt(pagesize);
+                                if (parseInt(totdata) % parseInt(pagesize) != 0) {
+                                    totpage = parseInt(totpage) + 1;
+                                }
+                                $("#pagnumvalue").attr("max", totpage);
+                            }
+                            var tfot = '';
+                            tfot += '<table style="width:100%"><tfooter><tr><td colspan = "12">'
+                            tfot += '<div style="float:left;padding-top: 7px;font-size:13px;">Page Number <b style="font-size:12px;">' + pageindex + '</b> &nbsp;of <b style="font-size:12px;"><span id="sotopage">' + parseInt(totpage) + '</span> Pages</b>'
+                            tfot += '&nbsp;&nbsp;|&nbsp;<b style="font-size:12px;">Total ' + a.totRow + ' Entries</b>'
+                            tfot += '&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enter Page No: <input type="number" id="pagnumvalue" min="1"  style="width: 30px;"><button type="button" id="getdatabypagenum" style="margin-left:10px;">Go</button>'
+                            tfot += '</div>'
+                            tfot += '<div style="float:right;">'
+                            if (a.totRow <= length) {
+                            }
+                            else if (pageno == 1) {
+                            }
+                            else if (pageno == totpage) {
+                                tfot += '<a id="paginate" class="btn btn-default btn-mail" title="Previous Page" href="javascript:void()" index="' + pprev + '" ><i class="glyphicon glyphicon-chevron-left"></i> Previous </a>'
+                            }
+                            else {
+                                tfot += '<a id="paginate" class="btn btn-default btn-mail" title="Previous Page" href="javascript:void()" index="' + pprev + '" ><i class="glyphicon glyphicon-chevron-left"></i>  Previous </a>'
+                            }
+                            if (pageno < totpage) {
+                                tfot += '<a id="paginate" class="btn btn-default btn-mail" title="Next Page" href="javascript:void()" index="' + pnext + '" style="margin-left:10px;" >Next <i class="glyphicon glyphicon-chevron-right"></i></a></div >'
+                            }
+                            tfot += '</td >'
+                            tfot += '</tr ></tfooter></table>'
+                            $("#footeractivitydata").append(tfot);
+                            closeload();
+                        }
+                        qty1 = qty1 + 1;
+                        html += '<ul class="todo-list">'
+                        var linkpage = "";
+                        var recentactivitycss = "";
+                        var recenttext = "";
+                        var recentlabel = "";
+                        var recentlabelmode = "";
+                        if (a.rownum % 2 == 0) {
+                            ulcolor = "background: #f2dede";
+                        }
+                        else {
+                            ulcolor = "background: #dff0d8";
+                        }
+                        if (a.ntype == "Matter") {
+                            linkpage = "/" + firmname + "/Employee/mattersingleview/";
+                        }
+                        else if (a.ntype == "Contact") {
+                            linkpage = "/" + firmname + "/Employee/Contactsingleview/";
+                        }
+                        else if (a.ntype == "File") {
+                            linkpage = "/" + firmname + "/firm/DirectoryList/0";
+                        }
+                        else if (a.ntype == "Workflow") {
+                            linkpage = "/" + firmname + "/Employee/WorkFlowNUserActivity";
+                        }
+                        else if (a.ntype == "Call") {
+                            linkpage = "/" + firmname + "/Employee/Callsingleview/";
+                        }
+                        else if (a.ntype == "Note") {
+                            linkpage = "/" + firmname + "/Employee/notesingleview/";
+                        }
+                        else if (a.ntype == "Task") {
+                            linkpage = "/" + firmname + "/Employee/tasksingleview/";
+                        }
+                        else if (a.ntype == "Event") {
+                            linkpage = "/" + firmname + "/Employee/eventsingleview/";
+                        }
+                        else if (a.ntype == "Lead") {
+                            linkpage = "/" + firmname + "/Employee/LeadSingleView/";
+                        }
+                        else if (a.ntype == "User") {
+                           // linkpage = "/" + firmname + "/Employee/UserList/";
+                        }
+                        else if (a.ntype == "TimeEntry") {
+                            linkpage = "/" + firmname + "/Employee/ViewTimer/";
+                        }
+                        else if (a.ntype == "CustomForm") {
+                            linkpage = "/" + firmname + "/Employee/ViewCustomForm/";
+                        }
+                        else if (a.ntype == "Client") {
+                            linkpage = "/" + firmname + "/Employee/ClientList/";
+                        }
+                        else if (a.ntype == "editcall") {
+                            linkpage = "/" + firmname + "/Employee/Callsingleview/";
+                        }
+                        else if (a.ntype == "editnote") {
+                            linkpage = "/" + firmname + "/Employee/notesingleview/";
+                        }
+                        else if (a.ntype == "edittask") {
+                            linkpage = "/" + firmname + "/Employee/tasksingleview/";
+                        }
+                        else if (a.ntype == "editevent") {
+                            linkpage = "/" + firmname + "/Employee/eventsingleview/";
+                        }
+                        else if (a.ntype == "editcactivity") {
+                            linkpage = "/" + firmname + "/firm/CustomActivitySingleView/";
+                        }
+                        else if (a.ntype == "cactivity") {
+                            linkpage = "/" + firmname + "/firm/CustomActivitySingleView/";
+                        }
+                        else if (a.ntype == "ImportProspect") {
+                            linkpage = "/" + firmname + "/Employee/ViewLead";
+                        }
+                        else if (a.ntype == "ImportContact") {
+                            linkpage = "/" + firmname + "/Employee/vcontact/contact";
+                        }
+                        else if (a.ntype == "ImportCase") {
+                            linkpage = "/" + firmname + "/Employee/vmatter/matter";
+                        }
+                        else if (a.ntype == "ocreatefile") {
+                            linkpage = "/" + firmname + "/firm/DirectoryList/0";
+                        }
+                        if (a.ntype == "CreateFile") {
+                            linkpage = "/" + firmname + "/firm/DirectoryList/0";
+                        }
+                        if (a.ntype == "Matter") {
+                            recentlabel = "Case";
+                        }
+                        else if (a.ntype == "Lead") {
+                            recentlabel = "Prospect";
+                        }
+                        else if (a.ntype == "Knowledge") {
+                            linkpage = "#";
+                        }
+                        else if (a.ntype == "CreateFile") {
+                            recentlabel = "File";
+                        }
+                        else if (a.ntype == "CustomForm") {
+                            recentlabel = "Custom Form";
+                        }
+                        else if (a.ntype == "TimeEntry") {
+                            recentlabel = "Time Entry";
+                        }
+                        else if (a.ntype == "Add Case Alert") {
+                            recentlabel = "Case Alert";
+                        }
+                        else if (a.ntype == "Edit Case Alert") {
+                            recentlabel = "Case Alert";
+                        }
+                        else if (a.ntype == "ocreatefile") {
+                            recentlabel = "File";
+                        }
+                        else if (a.ntype == "editcall") {
+                            recentlabel = "Call";
+                        }
+                        else if (a.ntype == "editnote") {
+                            recentlabel = "Note";
+                        }
+                        else if (a.ntype == "edittask") {
+                            recentlabel = "Task";
+                        }
+                        else if (a.ntype == "editevent") {
+                            recentlabel = "Event";
+                        }
+                        else if (a.ntype == "editcactivity") {
+                            recentlabel = "Custom Activity";
+                        }
+                        else if (a.ntype == "cactivity") {
+                            recentlabel = "Custom Activity";
+                        }
+                        else if (a.ntype == "ImportProspect") {
+                            recentlabel = "Prospect";
+                        }
+                        else if (a.ntype == "ImportContact") {
+                            recentlabel = "Contact";
+                        }
+                        else if (a.ntype == "ImportCase") {
+                            recentlabel = "Case";
+                        }
+                        else if (a.ntype == "acsubject") {
+                            recentlabel = "Case";
+                        }
+                        else if (a.ntype == "ecsubject") {
+                            recentlabel = "Case";
+                        }
+                        else if (a.ntype == "dcsubject") {
+                            recentlabel = "Case";
+                        }
+                        else if (a.ntype == "actype") {
+                            recentlabel = "Contact";
+                        }
+                        else if (a.ntype == "ectype") {
+                            recentlabel = "Contact";
+                        }
+                        else if (a.ntype == "dctype") {
+                            recentlabel = "Contact";
+                        }
+                        else if (a.ntype == "cmgroup") {
+                            recentlabel = "Message";
+                        }
+                        else if (a.ntype == "emgroup") {
+                            recentlabel = "Message";
+                        }
+                        else if (a.ntype == "rmgroup") {
+                            recentlabel = "Message";
+                        }
+                        else if (a.ntype == "delocrfile") {
+                            recentlabel = "File";
+                        }
+                        else if (a.ntype == "User") {
+                            recentlabel = "New User";
+                        }
+                        else if (a.ntype == "aknow") {
+                            recentlabel = "Knowledge Mgmt.";
+                        }
+                        else if (a.ntype == "ccnotes") {
+                            recentlabel = "Case";
+                        }
+                        else if (a.ntype == "rcnotes") {
+                            recentlabel = "Case";
+                        }
+                        else {
+                            recentlabel = a.ntype;
+                        }
+                        if (a.nmode == "edit") {
+                            recentlabelmode = "You have updated";
+                            if (a.ntype == "User") {
+                                recentlabel = "Profile";
+                                linkpage = "/" + firmname + "/employee/UserProfile";
+                            }
+                        }
+                        else {
+                            if (a.ntype == "aknow") {
+                                recentlabelmode = "You have uploaded file in";
+                            }
+                            if (a.ntype == "Knowledge") {
+                                recentlabelmode = "You have added file in";
+                            }
+                            else {
+                                recentlabelmode = "You have Created New";
+                            }
+                            if (a.ntype == "Edit Case Alert") {
+                                recentlabelmode = "You have updated ";
+                            }
+                            else {
+                                recentlabelmode = "You have Created New";
+                            }
+                            if (a.ntype == "File") {
+                                recentlabelmode = "You have assigned";
+                            }
+                            if (a.ntype == "changepassword") {
+                                recentlabelmode = "You have changed password.";
+                            }
+                            if (a.ntype == "ImportProspect") {
+                                recentlabelmode = "You have imported Prospects";
+                            }
+                            if (a.ntype == "ImportContact") {
+                                recentlabelmode = "You have imported contacts.";
+                            }
+                            if (a.ntype == "ImportCase") {
+                                recentlabelmode = "You have imported Cases.";
+                            }
+                            if (a.ntype == "accessrights") {
+                                recentlabelmode = "You have made changes in access rights.";
+                            }
+                            if (a.ntype == "homepage") {
+                                recentlabelmode = "You have made changes in home page.";
+                            }
+                            if (a.ntype == "removeprospect") {
+                                recentlabelmode = "You have removed prospect.";
+                            }
+                            if (a.ntype == "confav") {
+                                recentlabelmode = "You have added contact in favorite";
+                            }
+                            if (a.ntype == "conunfav") {
+                                recentlabelmode = "You have removed contact from favorite.";
+                            }
+                            if (a.ntype == "Createdir") {
+                                recentlabelmode = "You have created folder.";
+                            }
+                            if (a.ntype == "deletetimer") {
+                                recentlabelmode = "You have removed time entry.";
+                            }
+                            if (a.ntype == "delevent") {
+                                recentlabelmode = "You have removed event";
+                            }
+                            if (a.ntype == "delnote") {
+                                recentlabelmode = "You have removed note";
+                            }
+                            if (a.ntype == "deltask") {
+                                recentlabelmode = "You have removed task";
+                            }
+                            if (a.ntype == "delcall") {
+                                recentlabelmode = "You have removed call";
+                            }
+                            if (a.ntype == "removefile") {
+                                recentlabelmode = "You have removed file.";
+                            }
+                            if (a.ntype == "deuser") {
+                                recentlabelmode = "You have disabled user";
+                            }
+                            if (a.ntype == "enuser") {
+                                recentlabelmode = "You have enabled user";
+                            }
+                            if (a.ntype == "declient") {
+                                recentlabelmode = "You have disabled client";
+                            }
+                            if (a.ntype == "enclient") {
+                                recentlabelmode = "You have enabled client";
+                            }
+                            if (a.ntype == "delcontact") {
+                                recentlabelmode = "You have removed contact";
+                            }
+                            if (a.ntype == "delmatter") {
+                                recentlabelmode = "You have removed case";
+                            }
+                            if (a.ntype == "delfolder") {
+                                recentlabelmode = "You have removed folder";
+                            }
+                            if (a.ntype == "CreateFile") {
+                                recentlabelmode = "You have uploaded";
+                            }
+                            if (a.ntype == "ocreatefile") {
+                                recentlabelmode = "You have created";
+                            }
+                            if (a.ntype == "editnote") {
+                                recentlabelmode = "You have updated";
+                            }
+                            if (a.ntype == "edittask") {
+                                recentlabelmode = "You have updated";
+                            }
+                            if (a.ntype == "editcall") {
+                                recentlabelmode = "You have updated";
+                            }
+                            if (a.ntype == "editevent") {
+                                recentlabelmode = "You have updated";
+                            }
+                            if (a.ntype == "editcactivity") {
+                                recentlabelmode = "You have updated";
+                            }
+                            if (a.ntype == "filesync") {
+                                recentlabelmode = "You have marked document for sync";
+                            }
+                             if (a.ntype == "acsubject") {
+                                recentlabelmode = "You have created case subject";
+                            }
+                             if (a.ntype == "ecsubject") {
+                                recentlabelmode = "You have edited case subject";
+                            }
+                             if (a.ntype == "dcsubject") {
+                                recentlabelmode = "You have removed case subject";
+                            }
+                             if (a.ntype == "actype") {
+                                recentlabelmode = "You have created contact type";
+                            }
+                             if (a.ntype == "ectype") {
+                                recentlabelmode = "You have edited contact type";
+                            }
+                             if (a.ntype == "dctype") {
+                                recentlabelmode = "You have removed contact type";
+                            }
+                             if (a.ntype == "cmgroup") {
+                                recentlabelmode = "You have created message group";
+                            }
+                             if (a.ntype == "emgroup") {
+                                recentlabelmode = "You have edited message group";
+                            }
+                             if (a.ntype == "rmgroup") {
+                                recentlabelmode = "You have removed message group";
+                            }
+                             if (a.ntype == "delocrfile") {
+                                recentlabelmode = "You have removed ocr document";
+                            }
+                            if (a.ntype == "ccnotes") {
+                                recentlabelmode = "You have created case note";
+                            }
+                            if (a.ntype == "rcnotes") {
+                                recentlabelmode = "You have removed case note";
+                            }
+                            if (a.ntype == "User") {
+                                recentlabelmode = "You have created new user";
+                            }
+                        }
+                        if (a.ntype == "Note" && recentlabelmode == "You have updated") {
+                        }
+                        else if (a.ntype == "changepassword" || a.ntype=="filesync") {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + '</span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.date_time) + '</small></li>'
+                        }
+                        else if (a.ntype == "accessrights" || a.ntype == "homepage" || a.ntype == "removeprospect" || a.ntype == "confav" || a.ntype == "conunfav" || a.ntype == "confav" || a.ntype == "Createdir" || a.ntype == "deletetimer" || a.ntype == "delevent" || a.ntype == "delnote" || a.ntype == "deltask" || a.ntype == "delcall") {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + '</span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.date_time) + '</small></li>'
+                        }
+                        else if (a.ntype == "removefile" || a.ntype == "deuser" || a.ntype == "enuser" || a.ntype == "declient" || a.ntype == "enclient") {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + '</span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.date_time) + '</small></li>'
+                        }
+                        else if (a.ntype == "delcontact" || a.ntype == "delmatter" || a.ntype == "delfolder") {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + '</span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.date_time) + '</small></li>'
+                        }
+                        else if (a.ntype == "acsubject" || a.ntype == "ecsubject" || a.ntype == "dcsubject") {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + '</span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.date_time) + '</small></li>'
+                        }
+                        else if (a.ntype == "actype" || a.ntype == "ectype" || a.ntype == "dctype") {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + '</span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.date_time) + '</small></li>'
+                        }
+                        else if (a.ntype == "cmgroup" || a.ntype == "emgroup" || a.ntype == "rmgroup" || a.ntype == "delocrfile" || a.ntype == "aknow") {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + '</span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.notification) + '</small></li>'
+                        }
+                        else if (a.ntype == "ccnotes" || a.ntype == "rcnotes" || a.ntype=="User" ) {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + '</span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.date_time) + '</small></li>'
+                        }
+                        else if (a.ntype == "Edit Case Alert" || a.ntype == "Add Case Alert" || a.ntype == "Activity Alert" || a.ntype == "Edit Case Alert") {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + ' - ' + recentlabel + '</span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.date_time) + '</small></li>'
+                        }
+                        else if (a.ntype == "CustomForm" || a.ntype == "CreateFile" || a.ntype == "Workflow" || a.ntype == "User" || a.ntype == "TimeEntry" || a.ntype == "Client") {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + ' - <a href="' + linkpage + '">' + recentlabel + '</a></span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.date_time) + '</small></li>'
+                        }
+                        else {
+                            html += '<li class="recent" style="' + ulcolor + '"><span class="text">' + recentlabelmode + ' - <a href="javascript:void()" id="nlinkdata" data-link="' + linkpage + '" data-val="' + a.typeid + '">' + recentlabel + '</a></span><small class="label label-info"><i class="fa fa-clock-o"></i> ' + formatDatetoIST(a.date_time) + '</small></li>'
+                        }
+                        html += '</ul>'
+                    });
+                    $("#loadactivitydata").hide().append(html).fadeIn('fast');
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                    closeload();
+                }
+            });
+        }
+        $(document).on('click', '#paginate', function () {
+            /* your code here */
+            pageindex = $(this).attr("index");
+            loadactivity(pageindex);
+        });
+        $(document).on("click", "#nlinkdata", function () {
+            var urls = $(this).attr("data-link");
+            var uid = $(this).attr("data-val");
+            url_redirect({
+                url: urls,
+                method: "post",
+                data: { "token": uid }
+            });
+        });
+        $(document).on("click", "#ndatalink1", function () {
+            var url1 = $(this).attr("data-link");
+            var uid1 = $(this).attr("data-val");
+            url_redirect({
+                url: url1,
+                method: "post",
+                data: { "token": uid1 }
+            });
+        });
+        jQuery('#password').click(function (e) {
+            openload();
+            var url = "/Client/ChangePassword";
+            $('.mymodels').load(url, function (result) {
+                closeload();
+                $('#myModal').modal({ show: true });
+            });
+        });
+    </script>

@@ -1,0 +1,437 @@
+﻿@{
+    ViewBag.Title = "InvoiceSetting";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    table {
+        background: none !important;
+    }
+</style>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/InvoiceOtherAddress.js?2.4"></script>
+<script>
+    $(document).ready(function () {
+        $("#clearnewseach").click(function () {
+            $("#searchdata").val("").keyup();
+        });
+        $("#searchdata").on("keyup", function () {
+            var value = $("#searchdata").val().toLowerCase();
+            $("#ocrlist tbody tr ").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
+<section id="header">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="text-left">
+                    <a class="goback" href="/@Session["firmcode"]/bill/InvoiceSetting"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+                    <p class="ctitle"> Biller Address List</p>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="table-header" style="justify-content: flex-end;">
+                    <div class="actions3">
+                        <div class="button13" title="Add Tax" style=" background: #0369A1; border: 1px solid #0369A1;">
+
+                            <div class="text-padding">
+                                <div class="text1">
+                                    <a href="javascript:void()" id="multipleaddress" style="color:#ffffff;"><img class="" alt="" src="/newassets/img/plus-icon.png"> Add Address</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="actions3" style="position: relative; margin: 15px 15px 15px 0px; float:right;">
+                            <div class="dropdown-toggle button13" id="" type="button" data-toggle="dropdown" title="Export" aria-haspopup="true" aria-expanded="false">
+                                <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()"> Export</a></div>
+                                </div>
+                            </div>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="javascript:void()" onclick="tableToExcelnewBefore('ocrlist', 'Invoice Address List')" title="Export to Excel"> Export to Excel</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="row">
+                <div class="col-md-12">
+                    <form id="savedata" enctype="multipart/form-data">
+                        <div class="tablearea" style="margin:0;">
+                            <div class="tablecontainer">
+                                <table id="ocrlist" class="dataTable table-panel">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <div class="thbg" style="padding: 5px;">Sl. No.</div>
+                                            </th>
+
+                                            <th width="35%">
+                                                <div class="thbg" style="display: flex; align-items: center; gap: 10px;">
+                                                    <input type="text" placeholder="Address" id="searchdata" style="width: 100px; padding: 2px 5px;">
+                                                    <span class="glyphicon glyphicon-search" id="searchdatas" style="cursor: pointer;"></span>
+                                                </div>
+                                            </th>
+
+                                            <th width="25%" onclick="sortTable(2)">
+                                                <div class="thbg" style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <span>State</span>
+                                                    <span class="fa fa-fw fa-sort"></span>
+                                                </div>
+                                            </th>
+
+                                            <th width="25%" onclick="sortTable(3)">
+                                                <div class="thbg" style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <span>Phone No</span>
+                                                    <span class="fa fa-fw fa-sort"></span>
+                                                </div>
+                                            </th>
+
+                                            <th width="25%" onclick="sortTable(4)">
+                                                <div class="thbg" style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <span>Email</span>
+                                                    <span class="fa fa-fw fa-sort"></span>
+                                                </div>
+                                            </th>
+
+                                            <th width="25%" onclick="sortTable(4)">
+                                                <div class="thbg" style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <span>Website</span>
+                                                    <span class="fa fa-fw fa-sort"></span>
+                                                </div>
+                                            </th>
+
+                                            <th width="25%" onclick="sortTable(5)">
+                                                <div class="thbg" style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <span>GSTNO</span>
+                                                    <span class="fa fa-fw fa-sort"></span>
+                                                </div>
+                                            </th>
+
+                                            <th width="25%" onclick="sortTable(6)">
+                                                <div class="thbg" style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <span>PAN</span>
+                                                    <span class="fa fa-fw fa-sort"></span>
+                                                </div>
+                                            </th>
+
+                                            <th width="25%" onclick="sortTable(7)">
+                                                <div class="thbg" style="display: flex; align-items: center; justify-content: center;">
+                                                    <span>SAC</span>
+                                                    <span class="fa fa-fw fa-sort" style="margin-left: 5px;"></span>
+                                                </div>
+                                            </th>
+
+                                            <th width="25%">
+                                                <div class="thbg" style="padding: 5px;">Status</div>
+                                            </th>
+
+                                            <th width="10%">
+                                                <div class="thbg" style="padding: 5px;">Action</div>
+                                            </th>
+                                        </tr>
+
+                                    </thead>
+                                    <tbody id="assignuserdata"></tbody>
+                                </table>
+                                <div><center><span id="datastatus"></span></center></div>
+                            </div>
+                        </div>
+                        <div class="box-footer clearfix">
+                            <ul class="pagination pagination-sm no-margin pull-right"></ul>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@*<section class="wrapper">
+        <div class="container-main">
+            <div>
+                <h2 class="title"> Biller Address List </h2>
+                <aside class="right-side">
+                    <section class="content">
+                        <form id="savedata" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form ">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group form-horizontal">
+
+                                                    <div class="table-panel table-responsive">
+
+                                                        <div class="table-panel">
+                                                            <div class="settingpanel">
+                                                                <div class="col-md-6">
+                                                                    <div id="casetfooter">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <ul class="pull-right">
+                                                                        <li>
+                                                                            <a href="javascript:void()" class="sbtbtn" id="multipleaddress" type="button"> Add Address </a>
+                                                                        </li>
+                                                                        <li><span>|</span></li>
+                                                                        <li>
+                                                                            <select class="form-control pull-left" name="state" id="maxRows" style="background-color: #ebebeb !important;
+        padding-right: 20px !important;
+        border-radius: 20px !important;
+        height: 30px !important;
+        margin-top: -5px !important;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        padding-left: 15px !important;
+        background: #ebebeb url(/newassets/images/selectbox_arrow.png) no-repeat right !important;
+        -webkit-appearance: none;
+        background-position-x: 99%;
+        margin-bottom: 10px !important;">
+                                                                                <option value="5000">Show All Rows</option>
+                                                                                <option value="10">10</option>
+                                                                                <option value="15" selected>15</option>
+                                                                                <option value="20">20</option>
+                                                                                <option value="50">50</option>
+                                                                                <option value="70">70</option>
+                                                                                <option value="100">100</option>
+                                                                            </select>
+                                                                        </li>
+
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="">
+                                                                <div class="form-actions hidden-print">
+                                                                    <div class="btn-group">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <script>
+                                                function tableToExcelnewBefore(tableID, filename = '') {
+                                                    const para = document.createElement("div");
+                                                    //para.innerText = "This is a paragraph";
+                                                    //para.style = "display:none";
+                                                    para.id = "tempexport";
+                                                    document.body.appendChild(para);
+                                                    document.getElementById("tempexport").innerHTML = document.getElementById(tableID).outerHTML;
+                                                    $('#tempexport table tr').find('td:eq(10),th:eq(10)').remove();
+                                                    tableToExcelnew("tempexport", filename = '')
+                                                    document.getElementById("tempexport").remove();
+                                                }
+                                                function sortTable(n) {
+                                                    try {
+                                                        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+                                                        table = document.getElementById("ocrlist");
+                                                        switching = true;
+                                                        //Set the sorting direction to ascending:
+                                                        dir = "asc";
+                                                        /*Make a loop that will continue until
+                                                        no switching has been done:*/
+                                                        while (switching) {
+                                                            //start by saying: no switching is done:
+                                                            switching = false;
+                                                            rows = table.rows;
+                                                            /*Loop through all table rows (except the
+                                                            first, which contains table headers):*/
+                                                            for (i = 1; i < (rows.length - 1); i++) {
+                                                                //start by saying there should be no switching:
+                                                                shouldSwitch = false;
+                                                                /*Get the two elements you want to compare,
+                                                                one from current row and one from the next:*/
+                                                                x = rows[i].getElementsByTagName("TD")[n];
+                                                                y = rows[i + 1].getElementsByTagName("TD")[n];
+                                                                /*check if the two rows should switch place,
+                                                                based on the direction, asc or desc:*/
+                                                                if (dir == "asc") {
+                                                                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                                                                        //if so, mark as a switch and break the loop:
+                                                                        shouldSwitch = true;
+                                                                        break;
+                                                                    }
+                                                                } else if (dir == "desc") {
+                                                                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                                                                        //if so, mark as a switch and break the loop:
+                                                                        shouldSwitch = true;
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                            if (shouldSwitch) {
+                                                                /*If a switch has been marked, make the switch
+                                                                and mark that a switch has been done:*/
+                                                                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                                                                switching = true;
+                                                                //Each time a switch is done, increase this count by 1:
+                                                                switchcount++;
+                                                            } else {
+                                                                /*If no switching has been done AND the direction is "asc",
+                                                                set the direction to "desc" and run the while loop again.*/
+                                                                if (switchcount == 0 && dir == "asc") {
+                                                                    dir = "desc";
+                                                                    switching = true;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    catch (er) {
+                                                        //alert(er.message);
+                                                    }
+                                                }
+                                            </script>
+                        </form>
+                    </section>
+                </aside>
+            </div>
+        </div>
+    </section>*@
+<div id="myOverlay" class="overlay" style="display:block !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script>
+    function tableToExcelnewBefore(tableID, filename = '') {
+        const para = document.createElement("div");
+        //para.innerText = "This is a paragraph";
+        //para.style = "display:none";
+        para.id = "tempexport";
+        document.body.appendChild(para);
+        document.getElementById("tempexport").innerHTML = document.getElementById(tableID).outerHTML;
+        $('#tempexport table tr').find('td:eq(10),th:eq(10)').remove();
+        tableToExcelnew("tempexport", filename = '')
+        document.getElementById("tempexport").remove();
+    }
+    function sortTable(n) {
+        try {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("ocrlist");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+        catch (er) {
+            //alert(er.message);
+        }
+    }
+</script>

@@ -1,0 +1,233 @@
+﻿@{
+    Layout = null;
+}
+@{
+    var id = Request.Url.Segments[1];
+}
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Content/multipleselect/selectize.js"></script>
+<script src="~/Content/multipleselect/index.js"></script>
+<link href="~/Content/multipleselect/dist/css/selectize.bootstrap2.css" rel="stylesheet" />
+<link href="~/Content/multipleselect/dist/css/jquery.magicsearch.min.css" rel="stylesheet" />
+<script src="~/Scripts/Firm/Pages/ConfigTaskEdit.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script>
+     var filesize =@ViewBag.filesize;
+</script>
+<style>
+    .selectize-dropdown {
+        position: unset !important;
+    }
+</style>
+<div class="modal-header btn-primary">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Edit Task
+    </h4>
+</div>
+<div class="modal-body " style="height:500px; overflow-y:scroll;">
+    <!-- Main content -->
+    <form id="savetaskform" enctype="multipart/form-data">
+        <!-- Start About boxes -->
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Linked to</legend>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Client </label>
+                        <div class="col-md-9">
+                            <select name="contact" class="form-control" id="contact1">
+                                <option value="" selected>Select Client...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Case<span class="required" aria-required="true">*</span></label>
+                        <div class="col-md-9">
+                            <select name="matter" class="form-control" id="matter1" required>
+                                <option value="">Select Case...</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Task</legend>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Subject <span class="required" aria-required="true">*</span></label>
+                        <div class="col-md-9">
+                            <input class="form-control" name="subject" maxlength="49" type="text" id="subject1" placeholder="Add Subject..." required />
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Due Date <span class="required" aria-required="true">*</span></label>
+                        <div class="col-md-9">
+                            <input class="form-control" name="dt" type="date" placeholder="Date/Time" id="dt1" required />
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Status</label>
+                        <div class="col-md-9">
+                            <select name="" class="form-control" id="status1">
+                                <option value="Not Completed">Not Completed</option>
+                                <option value="Completed">Completed</option>
+                                <option value="In Progress">In Progress</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Description</label>
+                        <div class="col-md-9">
+                            <textarea ID="details1" cols="15"></textarea>
+                            <div class="grid-container" style="display:none">
+                                <div id="editor">
+                                </div>
+                                <script>
+                                    initSample();
+                                    CKEDITOR.replace('details1', {
+                                        toolbar:
+                                            [
+                                                { name: 'basicstyles', items: ['Bold', 'Italic'] },
+                                                { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                { name: 'tools', items: ['Maximize',] }
+                                            ],
+                                        height: 80,
+                                        width: 400
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Participants</legend>
+                    <div class="form-group form-horizontal" style="display:none">
+                        <label class="control-label col-md-3">Priority </label>
+                        <div class="col-md-9">
+                            <select name="" class="form-control" id="priority1">
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal" style="display:none">
+                        <label class="control-label col-md-3">Repeat</label>
+                        <div class="col-md-9">
+                            <select name="" class="form-control" id="repeat1">
+                                <option value="Never">Never</option>
+                                <option value="Every day">Every day</option>
+                                <option value="Every week">Every week</option>
+                                <option value="Every 2 weeks">Every 2 weeks</option>
+                                <option value="Every month">Every month</option>
+                                <option value="Every year">Every year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Assigned to </label>
+                        <div class="col-md-9">
+                            <label class="control-label col-md-3">User <span class="required" aria-required="true">*</span></label>
+                            @Html.DropDownList("user1", new SelectList(ViewBag.Fruits, "val", "label"), "Select", new { @id = "user1", @class = "demodefault ", @multiple = "multiple" })
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal" style="display:none">
+                        <label class="control-label col-md-3"></label>
+                        <div class="col-md-9">
+                            <label class="control-label col-md-3">Contacts <span class="required" aria-required="true">*</span></label>
+                            <select name="" class="form-control" id="acontact1"></select>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Tags</label>
+                        <div class="col-md-9">
+                            <input class="form-control" type="text" maxlength="49" id="tags1" placeholder="Tags..." />
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-3">Attachments</label>
+                        <div class="col-md-9">
+                            <input class="form-control" name="postedFile" id="postedFile" type="file" multiple placeholder="Add description..." />
+                            (Please upload a file up to 20MBs only..)
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal" style="margin-top:10px;">
+                        <label class="control-label col-md-3">Email Assignees</label>
+                        <div class="col-md-9">
+                            <label class="switch">
+                                <input type="checkbox" id="assign1" name="assign1" value="1">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="modal-footer">
+                    <input type="submit" id="savetask" class="btn save" value="save">
+                    <button type="button" id="close" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+        <!-- /.content -->
+    </form>
+</div>
+<script>
+    $('#user1').selectize({
+        //maxItems: 3
+    });
+    var $select = $("#user1").selectize();
+    if (id != "") {
+        setTimeout(function () {
+            var formData = new FormData();
+            formData.append("token", id);
+            formData.append("type", "Task");
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/api/callApi/ActivtiyAssignUser", // Controller/View
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        var dataarray = [];
+                        $.each(response.Data, function (i, b) {
+                            try {
+                                var selectize = $select[0].selectize;
+                                var selecteduser = b.auserid;
+                                dataarray.push(selecteduser)
+                            }
+                            catch (er) {
+                                alert(er.message);
+                            }
+                            selectize.setValue(dataarray)
+                        });
+                    },
+                    failure: function (response) {
+                        alert(data.responseText);
+                    },
+                    error: function (response) {
+                        alert(data.responseText);
+                    }
+                });
+        }, 1000);
+    }
+    else {
+    }
+</script>

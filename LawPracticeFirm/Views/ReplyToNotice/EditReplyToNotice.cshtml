@@ -1,0 +1,306 @@
+﻿@model ZoomMeetingApplication.Entities.usp_GetReplyToNoticeDetailByID_Result
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Themes/ckeditor/ckeditor.js"></script>
+<script src="~/Themes/ckeditor/samples/js/sample.js"></script>
+<link href="~/Themes/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script src="~/Scripts/AddReplyTonotice.js"></script>
+@using (Html.BeginForm("EditReplyToNotice", "ReplyToNotice", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <section class="wrapper">
+        <div class="container">
+            <h2>Update Reply To Notice</h2>
+            <div id="page-wrapper">
+                <div class="container-fluid showcontent" id="showcontent">
+                    <div class="box">
+                        <div class="box-header" style="padding:5px;">
+                            <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp"></ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Main content -->
+                <form id="savecallform" enctype="multipart/form-data">
+                    <!-- Start About boxes -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Case Status</label>
+                                    @Html.HiddenFor(model => model.NoticeID)
+                                    @*<input type="hidden" name="userId" value=@Model.NoticeID>*@
+                                    @Html.RadioButtonFor(model => model.CaseStatus, "Active", new { name = "monthlyBy", Style = "border - bottom: 1px solid #ccc !important;", @placeholder = "Active", @checked = "checked" })
+                                    @Html.Label("Active")
+                                    @Html.RadioButtonFor(model => model.CaseStatus, "Closed", new { name = "monthlyBy", Style = "border - bottom: 1px solid #ccc !important;", @placeholder = "New" })
+                                    @Html.Label("Closed")
+                                    @Html.RadioButtonFor(model => model.CaseStatus, "New", new { name = "monthlyBy", Style = "border - bottom: 1px solid #ccc !important;", @placeholder = "New" })
+                                    @Html.Label("New")
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Notice Type</label>
+                                    @Html.DropDownListFor(model => model.NoticeType, new List<SelectListItem>
+   { new SelectListItem{Text="Select", Value=""},
+     new SelectListItem{Text="Statutory", Value="Statutory"},
+     new SelectListItem{Text="Non-Statutory", Value="Non-Statutory"}}, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;" })
+                                    @Html.ValidationMessageFor(model => model.NoticeType, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Mode of Service/Delivery</label>
+                                    @Html.DropDownListFor(model => model.ModeofServiceorDelivery, new List<SelectListItem>
+   { new SelectListItem{Text="Select", Value=""},
+     new SelectListItem{Text="Post", Value="Post"},
+     new SelectListItem{Text="Courier", Value="Courier"},
+                                    new SelectListItem{Text="Email", Value="Email"},
+                                    new SelectListItem{Text="By Hand", Value="By Hand"} }, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtmodeofservice" })
+                                    @Html.ValidationMessageFor(model => model.ModeofServiceorDelivery, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Reply Addressed to (Individual/ Company)</label>
+                                    @Html.TextAreaFor(model => model.ReplyAddressedto, 10, 40, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtreplyaddress" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Addressee Address</label>
+                                    @Html.TextAreaFor(model => model.AddresseeAddress, 10, 40, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtaddressaddress" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Other Details of Addressee (Parentage/ Spouse)</label>
+                                    @Html.TextAreaFor(model => model.OtherDetailsofAddressee, 10, 40, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtotherdetailsofaddress" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Notice Received by Client</label>
+                                    @Html.TextAreaFor(model => model.NoticeReceivedbyClient, 10, 40, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtnoticerecievedbyclient" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Notice Brought by Client for Reply</label>
+                                    @Html.TextAreaFor(model => model.NoticeBroughtbyClientforReply, 10, 40, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Reply to Notice Created On</label>
+                                    @Html.TextBoxFor(model => model.ReplytoNoticeCreatedOn,
+        new { type = "date", @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @Value = Model.ReplytoNoticeCreatedOn != null ? Model.ReplytoNoticeCreatedOn.Value.ToString("yyyy-MM-dd") : "n/a", onkeydown = "return false" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Assignment of Task</label>
+                                    @Html.DropDownListFor(model => model.AssignmentofTask, new List<SelectListItem>
+   { new SelectListItem{Text="Select", Value=""},
+     new SelectListItem{Text="To Self", Value="To Self"},
+     new SelectListItem{Text="Colleague", Value="Colleague"}
+                                     }, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;" })
+                                    @Html.ValidationMessageFor(model => model.AssignmentofTask, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Notice Title</label>
+                                    @Html.TextAreaFor(model => model.NoticeTitle, 10, 40, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Respondent's Name (Individual/ Company/ Attorney)</label>
+                                    @Html.TextAreaFor(model => model.RespondentsName, 10, 40, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtrespondentname" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Respondent's Address</label>
+                                    @Html.TextAreaFor(model => model.RespondentsAddress, 10, 40, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtrespondentaddress" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Other Details of Respondent (Parentage/ Spouse)</label>
+                                    @Html.TextAreaFor(model => model.OtherDetailsofRespondent, 10, 40, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtotherdetailsrespondent" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Notice Reference</label>
+                                    @Html.TextAreaFor(model => model.NoticeReference, 10, 40, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtnoticereference" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Reply Subject</label>
+                                    @Html.TextBoxFor(model => model.ReplySubject, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtreplysubject" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>
+                                        Reply Through (Details of Advocate/Law Firm)
+                                    </label>
+                                    @Html.TextBoxFor(model => model.ReplyThrough, new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtreplythrough" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Date of Reply</label>
+                                    @Html.TextBoxFor(model => model.DateofReply,
+        new { type = "date", @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtdateofreply", @Value = Model.DateofReply != null ? Model.DateofReply.Value.ToString("yyyy-MM-dd") : "n/a", onkeydown = "return false" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Create Reply</label>
+                                    @Html.TextAreaFor(model => model.CreateReply, new { @id = "CreateNotice", @class = "form-control", @rows = "200" })
+                                    @Html.ValidationMessageFor(model => model.CreateReply, "", new { @class = "text-danger" })
+                                    <script>
+                                        CKEDITOR.replace("CreateNotice");
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Date of Delivery</label>
+                                    @Html.TextBoxFor(model => model.DateofDelivery,
+        new { type = "date", @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @Value = Model.DateofDelivery != null ? Model.DateofDelivery.Value.ToString("yyyy-MM-dd") : "n/a", onkeydown = "return false" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Date of Receipt (PROOF)</label>
+                                    @Html.TextBoxFor(model => model.DateofReceipt,
+        new { type = "date", @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "txtdateofreceipt", @Value = Model.DateofReceipt.Value.ToString("yyyy-MM-dd"), onkeydown = "return false" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>TAT set for Assignee (Generation of Alerts)</label>
+                                    @Html.TextBoxFor(model => model.GenerationofAlerts,
+new { type = "date", @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @Value = Model.GenerationofAlerts != null ? Model.GenerationofAlerts.Value.ToString("yyyy-MM-dd") : "n/a", onkeydown = "return false", @id = "txtdate" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Current Status</label>
+                                    @Html.TextAreaFor(model => model.CurrentStatus,
+new { @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <label>Uploaded File</label>
+                    <div class="table-panel table-responsive">
+                        <div style="overflow-x:scroll;">
+                            <table id="example" class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>FileName</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablevalue">
+                                    @foreach (var item in ViewBag.MyList)
+                                    {
+                                        <tr>
+                                            <td>@item.FileName</td>
+                                            <td> <a href="~/ReplyToNotice/DownloadFile?filePath=@item.FileUrl">download</a></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label>Upload Files</label>
+                                    @*@Html.TextBoxFor(model => model.Files, "", new { @type = "file", @multiple = "multiple", @class = "form-control", Style = "border - bottom: 1px solid #ccc !important; height: 30px !Important;", @id = "postedFile" })*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 ">
+                            @*<input type="submit" id="savenotice" class="btn btn-primary  pull-center" value="save">*@
+                            <button type="submit" id="savenotice" class="sbtbtn">Submit</button>
+                            @*<input type="submit" id="savenotice" class="btn btn-primary" style="padding-left:10%;" value="Save">*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10" style="color:green">
+                            @ViewBag.Message
+                        </div>
+                    </div>
+                    <!-- /.content -->
+            </div>
+    </section>
+}

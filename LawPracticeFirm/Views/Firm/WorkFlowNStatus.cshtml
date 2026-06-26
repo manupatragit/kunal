@@ -1,0 +1,161 @@
+﻿@{
+    Layout = null;
+}
+@{
+    var id = Request.Url.Segments[4];
+}
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/WfStatus.js"></script>
+<script>
+   var strid =@id
+         $('form[id="frmstatus"]').validate({
+            submitHandler: function (form) {
+                var tskid = localStorage.getItem("taskid");
+                 // var strid = GetParameterValues('id');
+                 var strstatus = $("#drpstatus").val();
+                 var formData = new FormData();
+                 formData.append("id", strid);
+                 formData.append("status", strstatus);
+              //  alert(tskid);
+              //  alert(strid);
+                var f1 =  $.ajax(
+                     {
+                         type: "POST",
+                         url: "/api/WorkFlowNewApi/NxtStageUserdetail", // Controller/View
+                         dataType: 'json',
+                         data: formData,
+                         headers: { id: strid, tid: tskid },
+                         contentType: 'application/json;charset=utf-8',
+                         processData: false,
+                         success: function (response) {
+                             if (response.Status == true) {
+                                 var datas = JSON.stringify(response);
+                                 //alert(datas);
+                                var obj = JSON.parse(response.Data);
+                                 $.each(obj, function (i, val) {
+                                    // alert(val.EmailId);
+                                     $("#hidemail").val(val.EmailId);
+                                 });
+                                 //  $('#wfdata').html(strtable);
+                                // alert(datas);
+                             }
+                         },
+                         failure: function (data) {
+                             alert(data.responseText);
+                         },
+                         error: function (data) {
+                             alert(data.responseText);
+                         }
+                    });
+                $.when(f1).then(function (a1) {
+                  //  alert("IN");
+                    alert($("#hidemail").val());
+                    $.ajax(
+                        {
+                            type: "POST",
+                            url: "/api/WorkFlowNewApi/UpdateStatus", // Controller/View
+                            dataType: 'json',
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success: function (data) {
+                                $("#frmstatus")[0].reset();
+                                new PNotify({
+                                    title: 'Success!',
+                                    text: ' Updated Successfully',
+                                    type: 'success',
+                                    delay: 3000
+                                });
+                                //  var datas = JSON.stringify(data);
+                                // localStorage.setItem("tskid", data.Data.toString());
+                                localStorage.setItem("wfstgupdate", "1");
+                                // window.location.href = "SPL/Firm/WorkFlowNUserActivity";
+                            },
+                            failure: function (data) {
+                                alert(data.responseText);
+                            },
+                            error: function (data) {
+                                alert(data.responseText);
+                            }
+                        });
+                }, function (jqXHR, textStatus, errorThrown) {
+                    //  alert('Either j1 or j2 failed!');
+                });
+               /*  var f1 =
+                 $.when(f1).then(function (a1) {
+                     alert("in");
+                     alert($("#hidemail").val());
+                     $.ajax(
+                         {
+                             type: "POST",
+                             url: "/api/WorkFlowNewApi/UpdateStatus", // Controller/View
+                             dataType: 'json',
+                             data: formData,
+                             contentType: false,
+                             processData: false,
+                             success: function (data) {
+                                 $("#frmstatus")[0].reset();
+                                 new PNotify({
+                                     title: 'Success!',
+                                     text: ' Updated Successfully',
+                                     type: 'success',
+                                     delay: 3000
+                                 });
+                                 //  var datas = JSON.stringify(data);
+                                 // localStorage.setItem("tskid", data.Data.toString());
+                                 localStorage.setItem("wfstgupdate", "1");
+                                 // window.location.href = "SPL/Firm/WorkFlowNUserActivity";
+                             },
+                             failure: function (data) {
+                                 alert(data.responseText);
+                             },
+                             error: function (data) {
+                                 alert(data.responseText);
+                             }
+                         });
+                 }, function (jqXHR, textStatus, errorThrown) {
+                     //  alert('Either j1 or j2 failed!');
+                 });
+    */
+             }
+         });
+</script>
+<div class="modal-header btn-primary">
+    <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Update Status
+    </h4>
+</div>
+<div class="modal-body ">
+    <!-- Main content -->
+    <form id="frmstatus" enctype="multipart/form-data">
+        <!-- Start About boxes -->
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Status</legend>
+                    <div class="form-group form-horizontal">
+                        <input type="hidden" id="hidemail" />
+                        <select name="drpstatus" class="form-control" id="drpstatus" required></select>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-actions hidden-print">
+                    <div class="btn-group">
+                        <div class="modal-footer">
+                            <input type="submit" id="btnsave" class="btn save" value="Save">
+                            <button type="button" id="closemodel" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.content -->
+    </form>
+</div>

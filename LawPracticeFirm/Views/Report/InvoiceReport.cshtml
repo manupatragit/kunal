@@ -1,0 +1,674 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/Scripts/Firm/Pages/InvoiceReport.js?3.1"></script>
+<script>
+    var roleids = "@Session["sessionroleid"]";
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<style>
+    a {
+        color: #555555;
+    }
+
+    .trcolor td {
+        color: #f52525 !important;
+    }
+
+    .trcolorcanceled td {
+        background: #ccc !important;
+    }
+
+    a.morelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span {
+        display: none;
+    }
+
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+
+    .database_table {
+        margin-bottom: 10px;
+        overflow: auto;
+    }
+</style>
+
+
+<main class="wrapper report_wrapper">
+    <section id="header">
+        <div class="container-main">
+            <div class="text-left">
+                <p class="ctitle">Billing Reports</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="main_content">
+        <div class="horizontal-tabs">
+            <div class="tabs">
+                <div class="tab-button-base1">
+                    <div class="text1" id="alink_invoicecreated" style="cursor:pointer;"><a href="/@Session["firmcode"]/report/InvoiceReport" title="Invoice Report">Invoice</a> </div>
+                </div>
+                <div class="tab-button-base">
+                    <div class="text1" id="alink_expensecreated"><a href="/@Session["firmcode"]/report/ExpenseCreated" title="Expense Report">Expense Created</a> </div>
+                </div>
+            </div>
+        </div>
+        <div class="mid-section ec_bg">
+            <div class="row report_row">
+                <form id="idinvreportformat">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Client Name</label>
+                            <select type="text" id="searchname" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Matters Name</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="mattername" name="ecmatter">
+                                <option value="" selected="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Invoice Type</label>
+                            <select type="text" id="InvoiceType" class="form-control selctInputFormat" style="background-color: white !important;">
+                                <option value="">Both</option>
+                                <option value="Taxable">Taxable</option>
+                                <option value="Nonaxable">Non-Taxable</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Invoice Status</label>
+                            <select type="text" id="InvoiceStatus" class="form-control selctInputFormat" style="background-color: white !important;">
+                                <option value="">Invoice Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="settled">settled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Creation Date</label>
+                            <div class="row gy-sm-4">
+                                <div class="col-md-6">
+                                    <input class="form-control inputFormat" id="searchfrom" onkeypress="return false;" type="date" placeholder="from">
+                                </div>
+                                <div class="col-md-6">
+                                    <input class="form-control inputFormat" id="searchto" onkeypress="return false;" type="date" placeholder="to">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="from-group">
+                            <label class="formLabel colorDark">&nbsp;&nbsp;</label>
+                            <div class="row gy-sm-4">
+                                <div class="col-md-8">
+                                    <button class="btn btn-primary" type="button" style="width:100%;" id="searchdatas">Generate Report</button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-secondary" type="button" style="width:100%;" id="expClearReport">Clear All</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4" id="paystatusdiv" style="display:none">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Payment Status</label>
+                            <select type="text" id="PaymentStatus" class="form-control selctInputFormat" style="background-color: white !important;">
+                                <option value="">Select</option>
+                                <option value="PaymentReceived">Payment Received</option>
+                                <option value="">Cheque Status</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4" style="display:none" id="chqstatusdiv">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Cheque Status</label>
+                            <select type="text" id="ChequeStatus" class="form-control selctInputFormat" style="background-color: white !important;">
+                                <option value="">Select</option>
+                                <option value="1">Cleared</option>
+                                <option value="2">Bounced</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="notfound" id="pdatastatus" style="display:none;">
+            <img src="~/newassets/img/not-found.png" />
+            <h4><span id="dtNotFound">No data found</span></h4>
+
+        </div>
+
+
+        <div class="tabuler_section">
+            <div class="table-responsive" id="invoicetabparentdiv">
+                <section id="table" style="margin-top:15px;">
+                    <div class="container-main">
+                        <div class="table">
+                            <div class="card-header">
+                                <div class="content1" style="padding-bottom:20px;">
+                                    <div class="text-and-supporting-text1">
+
+                                    </div>
+                                    <div class="table-header">
+                                        <div class="actions3">
+
+                                            <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                                                <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                                                <div class="text-padding">
+                                                    <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                                    <div class="button13 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png" style="rotate: 180deg;">
+                                                        <div class="text-padding">
+                                                            <div class="text1"><a href="javascript:void()" id="download" title="Column Selection">Download Report</a></div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+
+                                                <ul class="dropdown-menu settingaction">
+                                                    <li><a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a></li>
+                                                    <li><a href="javascript:void()" id="opdf" title="export to pdf"> export to pdf</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="database_table">
+                                <table id="invlist" class="table-panel" style="overflow-x:auto">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <div class="thbg">Sl. No.</div>
+                                            </th>
+                                            <th onclick="sortTable(1)" class="invoicenubmer">
+                                                <div class="thbg">
+                                                    Invoice Number&nbsp;&nbsp;&nbsp; <span class="fa fa-sort fa-fw pull-right"></span>
+                                                </div>
+                                            </th>
+                                            <th onclick="sortTable(2)" class="clientname">
+                                                <div class="thbg">
+                                                    Client Name &nbsp;&nbsp;&nbsp; <span class="fa fa-sort fa-fw pull-right"></span>
+                                                </div>
+                                            </th>
+                                            <th onclick="sortTable(3)" class="invMatterName">
+                                                <div class="thbg">
+                                                    Matter Name &nbsp;&nbsp;&nbsp; <span class="fa fa-sort fa-fw pull-right"></span>
+                                                </div>
+                                            </th>
+                                            <th onclick="sortTable(4)" class="invdate">
+                                                <div class="thbg">
+                                                    Invoice Date&nbsp;&nbsp;&nbsp; <span class="fa fa-sort fa-fw pull-right"></span>
+                                                </div>
+                                            </th>
+                                            <th class="invamount">
+                                                <div class="thbg">Amount</div>
+                                            </th>
+                                            <th class="PaidAmt">
+                                                <div class="thbg">Pay Received</div>
+                                            </th>
+                                            <th class="PaymentType">
+                                                <div class="thbg">Payment Type </div>
+                                            </th>
+                                            <th class="ChequeStatus">
+                                                <div class="thbg">Cheque Status </div>
+                                            </th>
+                                            <th class="famt">
+                                                <div class="thbg">Pay Due</div>
+                                            </th>
+                                            <th onclick="sortTable(10,1)" class="Inovicedate">
+                                                <div class="thbg">
+                                                    Created On &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span class="fa fa-sort fa-fw pull-right"></span>
+                                                </div>
+                                            </th>
+                                            <th onclick="sortTable(11)" class="icreatedby">
+                                                <div class="thbg">
+                                                    Created By &nbsp;&nbsp;&nbsp; <span class="fa fa-sort fa-fw pull-right"></span>
+                                                </div>
+                                            </th>
+                                            <th onclick="sortTable(12,1)" class="cdate">
+                                                <div class="thbg">
+                                                    Due Date &nbsp;&nbsp;&nbsp; <span class="fa fa-sort fa-fw pull-right"></span>
+                                                </div>
+                                            </th>
+                                            <th class="Invoicetype">
+                                                <div class="thbg"> Invoice Type </div>
+                                            </th>
+                                            <th class="InvoiceStatus">
+                                                <div class="thbg"> Invoice Status </div>
+                                            </th>
+                                            <th class="invdownload">
+                                                <div class="thbg">Version History </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="assignuserdata"></tbody>
+                                </table>
+                                <div>
+                                    <center>
+                                        <div class="notfound" id="datastatus">
+                                            <img src="~/newassets/img/not-found.png" />
+                                            <h4>No Report Generated</h4>
+                                            <p>Use the filter above to generate your customized report.</p>
+                                        </div>
+                                    </center>
+                                </div>
+                            </div>
+                            <div class="pagination">
+                                <div class="pagination-button-group">
+                                    <div id="prev" class="pagination-button-group-base">
+                                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                    </div>
+                                    <div id="pageNumbers" class="pagination-button-group-base1">
+                                    </div>
+
+                                    <div id="next" class="pagination-button-group-base8">
+                                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-parent">
+                                    <div class="input">
+                                        <div class="content">
+                                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                        </div>
+                                        <div class="help-icon">
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-group">
+                                        <div class="text-and-supporting-text">
+                                            <div id="divGo" class="text9">Go</div>
+                                        </div>
+                                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div id="myModalCustomizedcolumn" class="modal right fade myModal in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    
+                </div><br>
+                      <div class="row">
+                          <div class="col-md-12">
+                              <ul id="invoicerpt">
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invoicenubmer" checked><a href="#">Invoice Number</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="clientname" checked><a href="#">Client Name</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invMatterName"><a href="#">Matter Name</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invdate" checked><a href="#">Invoice Date</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invamount" checked><a href="#">Amount</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="icreatedby"><a href="#">Created By</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="cdate" checked><a href="#">Due Date</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invdownload" checked><a href="#">Download</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Invoicetype" checked><a href="#">Invoice Type</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="InvoiceStatus" checked><a href="#">Invoice Status</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="PaymentType"><a href="#">Payment Type</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ChequeStatus"><a href="#">Cheque Status </a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="PaidAmt"><a href="#">Pay Received</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="famt"><a href="#">Pay Due</a></li>
+                                  <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Inovicedate"><a href="#">Created On </a></li>
+                              </ul>
+                          </div>
+                      </div>
+            </div>
+            @*<div class="modal-footer">
+                <button class="btn btn-secondary" id="ClearCustomSelection">Clear</button>
+                <button class="btn btn-primary" id="SaveCustomSelection">Confirm</button>
+            </div>*@
+        </div>
+    </div>
+</div>
+
+
+
+@*<div><center><span id="datastatus"></span></center></div>
+<div class="table-panel">
+    <div class="settingpanel">
+        <div class="col-md-6">
+            <div style="float: left;padding: 0 10px 0 0; display:block;">
+                <ul>
+                    <li>
+                        <div class="btn-group dropup">
+                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                customize field
+                            </a>
+                            <ul class="dropdown-menu settingshowhide" id="invoicerpt" style="width:275px; height: 220px !important; overflow-y:scroll;">
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invoicenubmer" checked><a href="#">Invoice Number</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="clientname" checked><a href="#">Client Name</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invMatterName"><a href="#">Matter Name</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invdate" checked><a href="#">Invoice Date</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invamount" checked><a href="#">Amount</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="icreatedby"><a href="#">Created By</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="cdate" checked><a href="#">Due Date</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invdownload" checked><a href="#">Download</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Invoicetype" checked><a href="#">Invoice Type</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="InvoiceStatus" checked><a href="#">Invoice Status</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="PaymentType"><a href="#">Payment Type</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ChequeStatus"><a href="#">Cheque Status </a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="PaidAmt"><a href="#">Pay Received</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="famt"><a href="#">Pay Due</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Inovicedate"><a href="#">Created On </a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div id="invfooter"></div>
+        </div>
+        <div class="col-md-6">
+            <ul class="pull-right">
+                <li>
+                    <div class="btn-group dropup">
+                        <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Action Selected
+                        </a>
+                        <ul class="dropdown-menu settingaction">
+                            <li><a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a></li>
+                            <li><a href="javascript:void()" id="opdf" title="export to pdf"> export to pdf</a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>*@
+<div id="myModalpayment" class="modal fade" role="dialog" style="z-index:2000;" data-backdrop="false">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" id="closesharebox" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <span id="spanhead"> Invoice Payment Details</span>
+                </h4>
+            </div>
+            <div class="minebody modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="table-panel table-responsive" style="overflow-x:auto">
+                                        <table id="invlistpay" class="dataTable table">
+                                            <thead>
+                                                <tr>
+                                                    <th><div class="thbg">Date</div></th>
+                                                    <th><div class="thbg">Payment Mode</div></th>
+                                                    <th><div class="thbg">Pay Received</div></th>
+                                                    <th><div class="thbg">Bank Name</div></th>
+                                                    <th><div class="thbg">DD NO</div></th>
+                                                    <th><div class="thbg">DD Date</div></th>
+                                                    <th><div class="thbg">Cheque No</div></th>
+                                                    <th><div class="thbg">Cheque Date</div></th>
+                                                    <th><div class="thbg">Ref No</div></th>
+                                                    <th><div class="thbg">Other Details</div></th>
+                                                    <th><div class="thbg">Payment History</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="PaymentDetailsdiv"></tbody>
+                                        </table>
+                                        <div id="paymentdetaisnoresultdiv" style="text-align:center;display:none">No result found</div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        /*					PAGINATION
+        - on change max rows select options fade out all rows gt option value mx = 5
+        - append pagination list as per numbers of rows / max rows option (20row/5= 4pages )
+        - each pagination li on click -> fade out all tr gt max rows * li num and (5*pagenum 2 = 10 rows)
+        - fade out all tr lt max rows * li num - max rows ((5*pagenum 2 = 10) - 5)
+        - fade in all tr between (maxRows*PageNum) and (maxRows*pageNum)- MaxRows
+        */
+        getPagination('#invlist');
+        function getPagination(table) {
+            $('#maxRows').on('change', function () {
+                $('.pagination').html('');						// reset pagination
+                var trnum = 0;									// reset tr counter
+                var maxRows = parseInt($(this).val());
+                // alert(maxRows);// get Max Rows from select option
+                var totalRows = $(table + ' tbody tr ').length;
+                // alert(totalRows);// numbers of rows
+                $('#invlist tbody tr').each(function () {			// each TR in  table and not the header
+                    trnum++;
+                    //alert(trnum);// Start Counter
+                    if (trnum > maxRows) {						// if tr number gt maxRows
+                        $(this).hide();							// fade it out
+                    } if (trnum <= maxRows) { $(this).show(); }// else fade in Important in case if it ..
+                });											//  was fade out to fade it in
+                if (totalRows > maxRows) {						// if tr total rows gt max rows option
+                    var pagenum = Math.ceil(totalRows / maxRows);
+                    // alert(pagenum);// ceil total(rows/maxrows) to get ..
+                    //	numbers of pages
+                    for (var i = 1; i <= pagenum;) {			// for each page append pagination li
+                        $('.pagination').append('<li style="cursor:pointer" data-page="' + i + '">\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <span>'+ i++ + '<span class="sr-only">(current)</span></span>\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </li>').show();
+                    }											// end for i
+                } 												// end if row count > max rows
+                $('.pagination li:first-child').addClass('active'); // add active class to the first li
+                $('.pagination li').on('click', function () {		// on click each page
+                    var pageNum = $(this).attr('data-page');
+                    // alert(pageNum);// get it's number
+                    var trIndex = 0;							// reset tr counter
+                    $('.pagination li').removeClass('active');	// remove active class from all li
+                    $(this).addClass('active');					// add active class to the clicked
+                    $('#invlist tbody tr').each(function () {		// each tr in table not the header
+                        trIndex++;
+                        // alert(trIndex);
+                        // tr index counter
+                        // if tr index gt maxRows*pageNum or lt maxRows*pageNum-maxRows fade if out
+                        if (trIndex > (maxRows * pageNum) || trIndex <= ((maxRows * pageNum) - maxRows)) {
+                            $(this).hide();
+                        } else { $(this).show(); } 				//else fade in
+                    }); 										// end of for each tr in table
+                });										// end of on click pagination list
+            });
+            // end of on select change
+            // END OF PAGINATION
+        }
+    </script>
+</div>
+<script>
+    function sortTable(n) {
+        try {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("invlist");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+        catch (er) {
+        }
+    }
+</script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+
+@*<script>
+    $(document).on('click', '#alink_invoice', function () {
+        openload();
+        $("#alink_expensecreated").removeClass("active");
+        $("#alink_timeentry").removeClass("active");
+        $("#alink_invoice").addClass("active");
+        $("#alink_task").removeClass("active");
+        $("#alink_activity").removeClass("active");
+        $("#alink_users").removeClass("active");
+        $("#alink_contacts").removeClass("active");
+       // $("#divcontent").load("/Report/InvoiceReport");
+        closeload();
+    });
+
+</script>*@
+
+<script>
+    $(document).ready(function () {
+        $("#ColumnSelectionopen").click(function () {
+            $("#myModalCustomizedcolumn").modal('show'); // Opens the modal
+        });
+
+        $(document).click(function (event) {
+            if ($(event.target).is(".myModal")) {
+                $("#myModalCustomizedcolumn").modal('hide'); // Closes the modal
+            }
+        });
+    });
+</script>

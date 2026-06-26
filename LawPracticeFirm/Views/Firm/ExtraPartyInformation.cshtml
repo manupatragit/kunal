@@ -1,0 +1,332 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<script>
+    var token = "@ViewBag.token";
+</script>
+<script>
+    $(document).on('keypress', '#MobileNo,#AdharCardNo', function (event) {
+        var regex = new RegExp("^[0-9]+$");
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (!regex.test(key)) {
+            event.preventDefault();
+            return false;
+        }
+    });
+</script>
+<input type="hidden" id="hdnid" name="hdnid" value="" />
+<section class="wrapper">
+    <div class="container showcontent" id="showcontent">
+        <div class="row">
+            <h2 class="title">EXTRA PARTY INFORMATION [case information - court format] </h2>
+            <div class="form-group col-md-6">
+                <label>Name of Extra Party <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                <input type="text" class="form-control" id="PartyName" name="PartyName" required maxlength="200" />
+            </div>
+            <div class="form-group col-md-6">
+                <label>S/o, W/o,D/o <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                <input type="text" class="form-control" id="FatherName" name="FatherName" maxlength="100" />
+            </div>
+            <div class="form-group col-md-12">
+                <label>Address <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                <textarea type="text" class="form-control" id="Address" name="Address" rows="3" cols="5" maxlength="2000"></textarea>
+            </div>
+            <div class="form-group col-md-6">
+                <label> Aadhaar Card No</label>
+                <input type="text" class="form-control" id="AdharCardNo" maxlength="12" name="AdharCardNo" min-le />
+            </div>
+            <div class="form-group col-md-6">
+                <label>Gender <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                <select class="form-control" id="Gender"><option value="Male" selected>Male</option><option value="Female">Female</option></select>
+            </div>
+            <div class="form-group col-md-6">
+                <label>Date of Birth <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                <input type="date" class="form-control" id="DateOfBirth" data-date-format="DD mm YYYY" onkeypress="return false;" name="DateOfBirth" />
+            </div>
+            <div class="form-group col-md-6">
+                <label>Nationality </label>
+                <select class="form-control" id="Nationality" name="Nationality"><option value="Indian">Indian</option></select>
+            </div>
+            <div class="form-group col-md-6">
+                <label>Mobile No <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                <input type="text" class="form-control" id="MobileNo" name="MobileNo" maxlength="10" />
+            </div>
+            <div class="form-group col-md-6">
+                <label>Email <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                <input type="text" class="form-control" id="Email" name="Email" maxlength="50" />
+            </div>
+            &nbsp;&nbsp; <button type="button" id="btnSave" class=" sbtbtn pull-right" style="margin-left:5px;">Save</button>
+            &nbsp;&nbsp;<button type="button" id="btnUpdate" class=" sbtbtn pull-right" style="margin-left:5px;">Update</button>
+            &nbsp;&nbsp;<button type="button" id="btnCancel" class="sbtbtn pull-right" style="margin-left:5px;">Cancel</button>
+        </div>
+        <div class="row">
+            <h2 class="title">Saved Party Information</h2>
+            <div class="table-panel table-responsive" data-example-id="hoverable-table" id="home">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Extra Party Name</th>
+                            <th>S/o,W/o,D/o</th>
+                            <th>Address</th>
+                            <th>Aadhaar Card No</th>
+                            <th>Gender</th>
+                            <th>DOB</th>
+                            <th>Nationality</th>
+                            <th>Mobile</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody_data"></tbody>
+                </table>
+                <center><div id="dataStatus"></div></center>
+            </div>
+        </div>
+        <button type="button" class="sbtbtn pull-right" id="btnprintCaseextraparty">Print</button>
+    </div>
+</section>
+<!-- Modal -->
+<div class="modal fade" id="caseFillingDates" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Case Filling Dates</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Submit Date</th>
+                                    <th>Return Date</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody_casefillingdates"></tbody>
+                            <tfoot>
+                                <tr>
+                                    <td><input type="date" class="form-control" placeholder="Submit Date" id="submitDate" onkeypress="return false;" name="submitDate" /></td>
+                                    <td><input type="date" class="form-control" placeholder="Return Date" id="returnDate" onkeypress="return false;" name="returnDates" /></td>
+                                    <td>
+                                        <button type="button" id="c_btnsave" class="btn btn-success btn-sm"><i class="fa fa-floppy-o"></i></button>
+                                        <button type="button" id="c_btnupdate" class="btn btn-success btn-sm"><i class="fa fa-upload"></i></button>
+                                        <button type="button" id="c_btncancel" class="btn btn-default btn-sm"><i class="fa fa-window-close"></i></button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="CasePeritioner" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Case Peritioner</h4>
+            </div>
+            <div class="modal-body">
+                <h2 class="title">PLAINTIFF/PETITIONER/COMPLAINANT/APPELLANT/DEGREE HOLDER ETC.<small>(PLEASE FILL UP ALL THE RELEVANT FIELDS & (*) FIELDS ARE MANDATORY )</small></h2>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label>Name of Plaintiff/Complainant etc. <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="CompName" />
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label>S/o,W/o,D/o <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_Gaurdian" />
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label>Address<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <textarea type="text" maxlength="2000" class="form-control" id="p_Address" rows="3" cols="4"></textarea>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Adhar Card No<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_adharcard" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Pin Code<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_pincode" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Gender<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <select class="form-control" id="p_gender"><option>Select gender</option><option value="Male">Male</option><option value="FeMale">FeMale</option></select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Nationality<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <select class="form-control" id="p_Nationality"><option>Select Nationality</option><option value="Indian">Indian</option></select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Date of Birth<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="date" class="form-control" id="p_dob" onkeypress="return false;" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Age<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_age" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Mobile No<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_mobileno" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Email<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_email" />
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label>Act/Section<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_actsection" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>valuation of Suit<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_valuation" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <div class="col-md-12">
+                            <label>Court Fee ascertained</label>
+                            <input type="text" class="form-control" id="p_courtfeeasc" />
+                        </div>
+                        <div class="col-md-12">
+                            <label>Court Fee paid/deposited</label>
+                            <input type="text" class="form-control" id="p_courtfeedeposit" />
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label>Police Station<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_polstn" />
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label>F.I.R. No. & Year<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_firno" />
+                    </div>
+                </div>
+                <h2 class="title">DEFENDANT/ACCUSED/RESPONDENT/JUDGEMENT DEBTOR ETC. <small>(PLEASE FILL UP THE RELEVENT FIELDS)</small></h2>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label>*Name of Defendant/Accused etc.</label>
+                        <input type="text" class="form-control" id="p_name2" />
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label>*S/o,W/o,D/o </label>
+                        <input type="text" class="form-control" id="p_gardian2" />
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label>Address<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <textarea type="text" maxlength="2000" class="form-control" id="p_Address2" rows="3" cols="4"></textarea>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Adhar Card No<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_adharcard2" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Pin Code<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_pincode2" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Gender<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <select class="form-control" id="p_gender2"><option>Select gender</option><option value="Male">Male</option><option value="FeMale">FeMale</option></select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Nationality<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <select class="form-control" id="p_Nationality2"><option>Select Nationality</option><option value="Indian">Indian</option></select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Date of Birth<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="date" class="form-control" id="p_dob2" onkeypress="return false;" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Age<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_age2" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Mobile No<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_mobileno2" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Email<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_email2" />
+                    </div>
+                </div>
+                <h2 class="title">ADVOCATE FOR PLAINTIFF/COMPLAINANT/PETITIONER/DECREE HOLDERR ETC.</h2>
+                <div class="row">
+                    <div class="form-group col-md-7">
+                        <label>*Name of Advocate</label>
+                        <input type="text" class="form-control" id="p_advoname" />
+                    </div>
+                    <div class="form-group col-md-5">
+                        <label>*Bar Regn.No.</label>
+                        <input type="text" class="form-control" id="p_barno" />
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label>Address<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <textarea type="text" maxlength="2000" class="form-control" id="p_AdvoAddress" rows="3" cols="4"></textarea>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Mobile No<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_mobileno3" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Email<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="form-control" id="p_email3" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btnsaveCasePret">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="~/Scripts/Firm/Pages/Extrapartyinformation.js?1.3"></script>
+<script type="text/javascript" src="~/Scripts/Firm/Pages/CaseFilingDates.js"></script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

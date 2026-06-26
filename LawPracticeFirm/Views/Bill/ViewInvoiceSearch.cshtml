@@ -1,0 +1,310 @@
+﻿@{
+    ViewBag.Title = "InvoiceSetting";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+<i class="pp-icon-user"></i>
+<style>
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+</style>
+<script>
+        var roleids ="@role";
+</script>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script src="~/Scripts/Firm/Pages/ViewInvoiceSearch.js?1.2"></script>
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            @if (role.ToString() == "1")
+            {
+                <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            }
+            else if (role.ToString() == "2")
+            {
+                <li><a href="/@Session["firmcode"]/employee/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            }
+            <li><a href="/@Session["firmcode"]/Bill/ViewInvoice/">Invoice List</a></li>
+            <li class="active">Invoice</li>
+        </ol>
+        <h1><span class="fa fa-rupee"></span> Invoice List</h1>
+    </section>
+    <script>
+        $(document).ready(function () {
+            $("#searchdata").on("keyup", function () {
+                var value = $("#searchdata").val().toLowerCase();
+                $("#invlist tbody tr ").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+    <SCRIPT language=Javascript>
+       <!--
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode != 46 && charCode > 31
+                && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+        //-->
+    </SCRIPT>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="">
+                    <div class="box-header">
+                        @*<btn class="btn btn-success pull-right publish" id="publish"><span class="glyphicon glyphicon-plus"></span> Publish Page</btn>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <form id="fileupload" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <div class="form-group form-horizontal" style="overflow-x:auto">
+                            <div class="box">
+                                <div class="box-header" style="padding:5px;">
+                                    <ul class="btn_panel no-margin pull-right" style="padding:0;">
+                                        <li>
+                                            <select class="form-control pull-left" name="state" id="maxRows" style="width:143px !important">
+                                                <option value="5000">Show All Rows</option>
+                                                <option value="10">10</option>
+                                                <option value="15" selected>15</option>
+                                                <option value="20">20</option>
+                                                <option value="50">50</option>
+                                                <option value="70">70</option>
+                                                <option value="100">100</option>
+                                            </select>
+                                        </li>
+                                        <li>
+                                            <btn class="btn btn-primary" onclick="tableToExcelnew('invlist', 'Invoice List')" title="Export to Excel"><span class="glyphicon glyphicon-save"></span> Excel</btn>
+                                        </li>
+                                        <li>
+                                            <p style="float:left;padding:1px 1px 0 0">Search :</p>
+                                        </li>
+                                        <li>
+                                            <input type="text" placeholder="Search.." id="searchdata" class="form-control" style="width:150px !important">
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <table id="invlist" border="1px solid" class="dataTable table table-bordered table-striped" style="overflow-x:auto">
+                                <thead>
+                                    <tr>
+                                        <th bgcolor="DIMGRAY" width="70px;">Sl. No.</th>
+                                        <th bgcolor="DIMGRAY" width="150px;" onclick="sortTable(1)" style="cursor:pointer" width="100px;">Invoice Number&nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                        <th bgcolor="DIMGRAY" width="160px;" onclick="sortTable(2)" style="cursor:pointer">Client Name &nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                        <th bgcolor="DIMGRAY" onclick="sortTable(3)" style="cursor:pointer" width="130px;">Invoice Date&nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                        <th bgcolor="DIMGRAY" onclick="sortTable(4)" style="cursor:pointer" width="100px;">Amount &nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                        <th bgcolor="DIMGRAY" onclick="sortTable(5)" style="cursor:pointer" width="130px;">Due Amount &nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                        <th bgcolor="DIMGRAY" onclick="sortTable(6)" style="cursor:pointer" width="140px;">Created By &nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                        <th bgcolor="DIMGRAY" width="100px;" onclick="sortTable(7)" style="cursor:pointer">Date &nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                        @if (role.ToString() != "3")
+                                        {
+                                            <th bgcolor="DIMGRAY" width="120px;" style="cursor:pointer">Action </th>
+                                        }
+                                        <th bgcolor="DIMGRAY" width="130px;" style="cursor:pointer">Download </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assignuserdata"></tbody>
+                            </table>
+                            <div><center><span id="datastatus"></span></center></div>
+                            <div class="box-footer clearfix">
+                                <ul class="pagination pagination-sm no-margin pull-right"></ul>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </form>
+    </section>
+</aside>
+<div id="tokens"></div>
+<script>
+    /*					PAGINATION
+    - on change max rows select options fade out all rows gt option value mx = 5
+    - append pagination list as per numbers of rows / max rows option (20row/5= 4pages )
+    - each pagination li on click -> fade out all tr gt max rows * li num and (5*pagenum 2 = 10 rows)
+    - fade out all tr lt max rows * li num - max rows ((5*pagenum 2 = 10) - 5)
+    - fade in all tr between (maxRows*PageNum) and (maxRows*pageNum)- MaxRows
+    */
+    getPagination('#invlist');
+    function getPagination(table) {
+        $('#maxRows').on('change', function () {
+            $('.pagination').html('');						// reset pagination
+            var trnum = 0;									// reset tr counter
+            var maxRows = parseInt($(this).val());
+            //alert(maxRows);
+            // alert(maxRows);// get Max Rows from select option
+            var totalRows = $(table + ' tbody tr ').length;
+            // alert(totalRows);// numbers of rows
+            $('#invlist tbody tr').each(function () {			// each TR in  table and not the header
+                trnum++;
+                //alert(trnum);// Start Counter
+                if (trnum > maxRows) {						// if tr number gt maxRows
+                    $(this).hide();							// fade it out
+                } if (trnum <= maxRows) { $(this).show(); }// else fade in Important in case if it ..
+            });											//  was fade out to fade it in
+            if (totalRows > maxRows) {						// if tr total rows gt max rows option
+                var pagenum = Math.ceil(totalRows / maxRows);
+                // alert(pagenum);// ceil total(rows/maxrows) to get ..
+                //	numbers of pages
+                for (var i = 1; i <= pagenum;) {			// for each page append pagination li
+                    $('.pagination').append('<li data-page="' + i + '">\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <span>'+ i++ + '<span class="sr-only">(current)</span></span>\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </li>').show();
+                }											// end for i
+            } 												// end if row count > max rows
+            $('.pagination li:first-child').addClass('active'); // add active class to the first li
+            $('.pagination li').on('click', function () {		// on click each page
+                var pageNum = $(this).attr('data-page');
+                // alert(pageNum);// get it's number
+                var trIndex = 0;							// reset tr counter
+                $('.pagination li').removeClass('active');	// remove active class from all li
+                $(this).addClass('active');					// add active class to the clicked
+                $('#invlist tbody tr').each(function () {		// each tr in table not the header
+                    trIndex++;
+                    // alert(trIndex);
+                    // tr index counter
+                    // if tr index gt maxRows*pageNum or lt maxRows*pageNum-maxRows fade if out
+                    if (trIndex > (maxRows * pageNum) || trIndex <= ((maxRows * pageNum) - maxRows)) {
+                        $(this).hide();
+                    } else { $(this).show(); } 				//else fade in
+                }); 										// end of for each tr in table
+            });										// end of on click pagination list
+        });
+        // end of on select change
+        // END OF PAGINATION
+    }
+</script>
+<script>
+    function sortTable(n) {
+        try {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("invlist");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+        catch (er) {
+            //alert(er.message);
+        }
+    }
+</script>
+<!-- Modal -->
+<div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<!-- /.col-lg-12 -->
+<!-- /.container-fluid -->
+<!-- /#page-wrapper -->
+<div id="myOverlay1" class="overlay">
+    @*//<span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>*@
+    <div class="overlay-content">
+        <div class="ocrloader">
+        </div>
+        <br>
+        @*<div class="progress">
+                <div class="progress-bar progress-bar-success myprogress" role="progressbar" style="width:0%">0%</div>
+            </div>*@
+        <span style="margin:0 auto; padding-top:30px"><center>Please wait while we extracting the text from file estimated time <span id="esttime"></span> ...</span>
+        <span style="margin:0 auto; padding-top:30px;clear:both"><center>Do not close the window</center></span>
+    </div>
+</div>

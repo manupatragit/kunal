@@ -1,0 +1,634 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<script>
+    var type = 11;
+    var filesize =@ViewBag.filesize;
+    var id = "@ViewBag.token";
+    var ptype = "@ViewBag.type";
+    var viewtype = "@ViewBag.viewtype";
+    $(document).ready(function () {
+        var thisvalue = ptype;
+         if (thisvalue == "Prospect") {
+            $("#content").show();
+            $("#logindiv").css("display", "none");
+            $("#prospectdiv").css("display", "block");
+            $("#cttypeotherdiv").css("display", "none");
+            $("#coinfodiv").show();
+            $("#cowebsitediv").show();
+        }
+        else {
+            $("#content").show();
+            $("#logindiv").css("display", "none");
+            $("#prospectdiv").css("display", "none");
+            $("#cttypeotherdiv").css("display", "none");
+            $("#coinfodiv").show();
+            $("#cowebsitediv").show();
+        }
+    });
+    @*var usertoken = "@ViewBag.userid";*@
+            //console.log(type);
+</script>
+<script>
+    $(document).ready(function () {
+        try {
+            var ddlCountry = $('#cocountry');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    // alert(JSON.stringify(d));
+                    $.each(d.Data, function (i, country) {
+                        //alert(i.CountryId);
+                        ddlCountry.append($("<option selected></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                    ddlCountry.append($("<option value='' ></option>").val('').html('Select'));
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //auto state
+        try {
+            var CountryId = "India";
+            //alert(CountryId);
+            var ddlState = $('#costate');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#cocity');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    // alert(JSON.stringify(d));
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //State details by country id
+        $("#cocountry").change(function () {
+            // alert($(this).val());
+            var CountryId = $(this).val();
+            if (CountryId != "India") {
+                $("#ostate").css("display", "unset");
+                $("#ocity").css("display", "unset");
+                $("#lstate").css("display", "none");
+                $("#lcity").css("display", "none");
+                return false;
+            }
+            else {
+                $("#ostate").css("display", "none");
+                $("#ocity").css("display", "none");
+                $("#lstate").css("display", "unset");
+                $("#lcity").css("display", "unset");
+            }
+            //alert(CountryId);
+            var ddlState = $('#costate');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#cocity');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    // alert(JSON.stringify(d));
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#costate").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#cocity');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+    });
+</script>
+<script src="~/Scripts/Firm/Pages/EditContacts.js?2.9"></script>
+<script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+<link href="~/Manupanel/jquerydatetimepicker/jquery.datetimepicker.css" rel="stylesheet" />
+<script src="~/Manupanel/jquerydatetimepicker/jquery.js"></script>
+<script src="~/Manupanel/jquerydatetimepicker/jquery.datetimepicker.js"></script>
+<style>
+    /*#content .form-control {
+        width: 90% !important;
+    }
+    #content .col-md-4 {
+       clear:both;
+    }*/
+    #content .radio-inline, .checkbox-inline {
+        padding-left: 0px;
+        margin-left: 10px;
+        display: block !important;
+        padding-top: 3px;
+    }
+</style>
+<section class="wrapper" style="margin:unset !important">
+    @*<div id="wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header" style="padding:5px;">
+                        <ul class="btn_panel no-margin pull-right" style="padding:0;">
+                            <li><btn class="btn btn-success pull-left " id="New" title="New Contacts" style="background-color:#dc3545;border-color:#dc3545"><span class="glyphicon glyphicon-plus"></span> New</btn></li>
+                            <li><btn class="btn btn-danger pull-right publish" id="resetcf" title="Reset All Custom Fields"><span class="glyphicon glyphicon-refresh"></span> Reset</btn></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+    <form id="savecontact" enctype="multipart/form-data" autocomplete="new-text" @*onsubmit="return validateform()"*@>
+        <div class="container-main">
+            <h2 class="title">
+                <span id="updatelabel" style="margin: 0;padding: 0 0 14px 0;font-size: 24px;color: #0059c1;font-weight: 300;">View</span> Contacts
+                @if (ViewBag.viewtype != "1")
+                {
+                    <span id="updatecontact" style="cursor:pointer;font-size:17px;color: #0059c1;" title="Edit Contacts" class="glyphicon glyphicon-edit save"></span>
+                }
+            </h2>
+            <div class="ec_bg">
+                <div class="row" style="padding-bottom: 5px;">
+                    <div class="col-md-12">
+                        <table cellspacin="0" cellpadding="0">
+                            <tbody>
+                                <tr>
+                                    <td width="20px"><input type="radio" id="fullselectusertype" name="fullselectusertype" class="fselectusertype" value="user" checked="" disabled></td>
+                                    <td><label>Individual</label></td>
+                                    <td width="20px">&nbsp;</td>
+                                    <td width="20px" align="left"><input type="radio" id="fullselectusertype" name="fullselectusertype" class="fselectusertype" value="company" disabled></td>
+                                    <td><label>Company</label></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">FIRST NAME <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <input class="form-control form-control-sm inputFormat" id="cofname" name="cofname" required type="text" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">MIDDLE NAME</label>
+                                <input class="form-control form-control-sm inputFormat" id="comname" name="comname" type="text" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                @*<label class="formLabel colorDark">LAST NAME <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>*@
+                                <label class="formLabel colorDark">LAST NAME </label>
+                                <input class="form-control form-control-sm inputFormat" id="colname" name="colname" type="text" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">DESIGNATION</label>
+                                <input class="form-control form-control-sm inputFormat" id="codesignation" name="codesignation" type="text" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4" id="fullcompanydiv" style="display:none">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">COMPANY NAME</label>
+                                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" id="cocomanyname" name="cocomanyname">
+                                    <option value="" selected="">COMPANY Name  </option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-12" id="coothercomanynamediv" style="display:none">
+                                <input type="text" id="coothercomanyname" placeholder="Enter Company Name" class="form-control" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4" id="fullcompanystructure" style="display:none">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label id="lblComStructure">Company Structure </label>
+                                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" id="fcompanystructure" name="fcompanystructure"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">MOBILE NUMBER <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <input class="form-control form-control-sm inputFormat" maxlength="10" onkeypress="return isNumberKey(event)" id="comobile" required name="comobile" type="text" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">Email Id @*<span class="required" aria-required="true" style="color:red"><b>*</b> </span>*@</label>
+                                <input class="form-control form-control-sm inputFormat" id="coemail" name="coemail" type="email" autocomplete="new-text" maxlength="100">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">Landline Number</label>
+                                <input class="form-control form-control-sm inputFormat" maxlength="16" onkeypress="return restrictAlphabetsfax(event)" id="colandline" name="colandline" type="text" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">AADHAR CARD NO</label>
+                                <input class="form-control form-control-sm inputFormat" id="coaadharno" name="coaadharno" type="text" maxlength="12" onkeypress="return isNumberKey(event)" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">CONTACT ADDRESS</label>
+                                <input class="form-control form-control-sm inputFormat" id="coaddress" name="coaddress" type="text" autocomplete="new-text" maxlength="200">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">Pin </label>
+                                <input class="form-control form-control-sm inputFormat" onkeypress="return isNumberKey(event)" id="copin" name="copin" type="text" maxlength="6" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">Country </label>
+                                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="cocountry" id="cocountry"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">State </label>
+                                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="costate" id="costate">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">Çity</label>
+                                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="cocity" id="cocity">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">CONTACT TYPE <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="ecoctype" required id="ecoctype">
+                                    <option value="" selected="">Select </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row" id="cowebsitediv">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">Website</label>
+                                <input class="form-control form-control-sm inputFormat" id="cowebsite" name="cowebsite" type="text" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row" id="coinfodiv">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">Additional Information</label>
+                                <input class="form-control form-control-sm inputFormat" id="coinfo" name="coinfo" type="text" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="pangstdiv">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label id="gstno">GSTIN No </label>
+                                <input class="form-control form-control-sm inputFormat" id="gstin" name="gstin" type="text" maxlength="20" autocomplete="new-text">
+                                <label id="lblgstin-error" class="errors" style="color:red"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row" id="pandiv">
+                            <div class="form-group col-md-12">
+                                <label id="pannolbl">PAN No </label>
+                                <input class="form-control form-control-sm inputFormat" id="panno" name="panno" type="text" maxlength="15" autocomplete="new-text">
+                                <label id="lblpanno-error" class="errors" style="color:red"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark">Documents</label>
+                                <input class="form-control form-control-sm inputFormat" id="coattechment" name="coattechment" type="file">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="prospectdiv">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">SOURCE / REFERENCE </label>
+                                    <select name="cosource" id="cosource" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                                </div>
+                            </div>
+                            <div class="row" id="cosourcediv" style="display:none">
+                                <div class="form-group col-md-12">
+                                    <input class="form-control form-control-sm inputFormat" placeholder="ENTER OTHERS SOURCE / REFERENCE" id="coothersource" name="coothersource" type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">PROSPECT TYPE </label>
+                                    <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="coptype" id="coptype"></select>
+                                </div>
+                            </div>
+                            <div class="row" id="coptypediv" style="display:none">
+                                <div class="form-group col-md-12">
+                                    <input class="form-control form-control-sm inputFormat" placeholder="ENTER PROSPECT TYPE" id="cootherptype" name="cootherptype" type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Matter Type</label>
+                                    <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" id="cocasetype" name="cocasetype"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="display:none" id="docdiv">
+                    </div>
+                </div>
+                <div id="cttypeotherdiv" style="display:none">
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <input class="form-control form-control-sm inputFormat" placeholder="ENTER CONTACT TYPE" id="othercttype" name="othercttype" type="text">
+                        </div>
+                    </div>
+                </div>
+                <div id="logindiv" style="display:none">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">USERID <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <input class="form-control form-control-sm inputFormat" id="couserid" name="couserid" type="text" autocomplete="new-text">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">PASSWORD <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <input class="form-control form-control-sm inputFormat" id="copassword" name="copassword" type="password" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">CONFIRM PASSWORD <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <input class="form-control form-control-sm inputFormat" id="cocpassword" name="cocpassword" type="password" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row" id="content">
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-4 ">
+                        <input type="hidden" id="action" name="action">
+                        &nbsp;&nbsp;<button type="submit" id="addcontact" class="sbtbtn pull-right" style="display:none;" value="Save">Save</button>
+                        <span id="CreateClientdiv" style="display:none"><button type="submit" id="CreateClient" class="sbtbtn pull-right" style="margin-right:15px;display:none" value="Save">Create as Client</button></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Custom Field
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger alert-dismissable validpanel">
+                            <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12" id="addcustomf">
+                                        <form role="form" id="form2">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4">Custom Field Name <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" value="" id="txtcustomFieldName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4">Custom Field Type <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                                                <div class="col-md-8">
+                                                    <select class="form-control selctInputFormat" style="background-color: white !important;" id="ctype">
+                                                        <option value="0">-Select Any-</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div id="common">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4" id="listid">List options</label>
+                                                    <div class="col-md-8">
+                                                        <input class="form-control" data-val="true" id="txtcustomFieldvalue" />
+                                                        <p style="clear:both">(Add the options you would like to have in the drop down list list, separate values with a comma.)</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group" style="clear:both">
+                                                <label class="control-label col-md-4">Is Required :</label>
+                                                <div class="col-md-8">
+                                                    <label class="switch">
+                                                        <input type="checkbox" id="chkRequired" name="assign" value="1">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="addfield">Add Field</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="closemodal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

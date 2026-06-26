@@ -1,0 +1,226 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script>
+    $(document).on('keypress', '#tags', function (event) {
+        var regex = new RegExp("^[a-zA-Z ]+$");
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (!regex.test(key)) {
+            event.preventDefault();
+            return false;
+        }
+    });
+</script>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Content/multipleselect/selectize.js"></script>
+<script src="~/Content/multipleselect/index.js"></script>
+<link href="~/Content/multipleselect/dist/css/selectize.bootstrap2.css" rel="stylesheet" />
+<link href="~/Content/multipleselect/dist/css/jquery.magicsearch.min.css" rel="stylesheet" />
+<script>
+    $(document).on('click', 'div.selectize-input div.item', function (e) {
+        var select = $('#assignto').selectize();
+        var selectSizeControl = select[0].selectize;
+        // 1. Get the value
+        var selectedValue = $(this).attr("data-value");
+        // 2. Remove the option
+        select[0].selectize.removeItem(selectedValue);
+        select[0].selectize.refreshItems();
+        select[0].selectize.refreshOptions();
+        $(".div.selectize-input div.item").css("padding", "7px 10px");
+    });
+</script>
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+     var filesize =@ViewBag.filesize;
+</script>
+<style>
+    .selectize-dropdown {
+        position: unset !important;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/CreateNotice.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            @if (role.ToString() == "1")
+            {
+                <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            }
+            else if (role.ToString() == "2")
+            {
+                <li><a href="/@Session["firmcode"]/employee/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            }
+            <li class="active">Notice</li>
+        </ol>
+        <h1><span class="glyphicon glyphicon-new-window"></span>  &nbsp;&nbsp;Create Notice</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header" style="padding:5px;">
+                        <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp"></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Main content -->
+            <form id="savecallform" enctype="multipart/form-data">
+                <!-- Start About boxes -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <fieldset>
+                            <legend>New Notice</legend>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Subject <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-5">
+                                    <input class="form-control" name="nsubject" type="text" placeholder="Notice Subject" id="nsubject" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Notice Body</label>
+                                <div class="col-md-9">
+                                    <textarea id="details" cols="15" class="valid" aria-invalid="false" style="margin: 0px; width: 384px; height: 93px;"></textarea>
+                                    <div class="grid-container" style="display:none">
+                                        <div id="editor">
+                                        </div>
+                                        <script>
+                                            initSample();
+                                            CKEDITOR.replace('details', {
+                                                toolbar:
+                                                    [
+                                                        { name: 'basicstyles', items: ['Bold', 'Italic'] },
+                                                        { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                        { name: 'tools', items: ['Maximize',] }
+                                                    ],
+                                                height: 80,
+                                                width: 420
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Notice Date <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-5">
+                                    <input class="form-control" name="ndate" type="date" placeholder="Notice Date" id="ndate" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Name of Party <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-5">
+                                    <input class="form-control" name="nparty" type="text" placeholder="Name of Party" id="nparty" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Address of Party <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-5">
+                                    <input class="form-control" name="aparty" type="text" placeholder="Address of Party" id="aparty" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Place <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-5">
+                                    <input class="form-control" name="place" type="text" placeholder="Place" id="place" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Name of other Party <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-5">
+                                    <input class="form-control" name="noparty" type="text" placeholder="Name of other Party " id="noparty" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Address of other Party <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-5">
+                                    <input class="form-control" name="aoparty" type="text" placeholder="Address of other Party" id="aoparty" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Attachments </label>
+                                <div class="col-md-5">
+                                    <input class="form-control" name="postedFile" type="file" placeholder="Attachment" multiple id="postedFile" />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Assign User </label>
+                                <div class="col-md-5">
+                                    @Html.DropDownList("user", new SelectList(ViewBag.Fruits, "val", "label"), "Select", new { @id = "user", @class = "demodefault ", @multiple = "multiple" })
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3"></label>
+                                <div class="col-md-5">
+                                    <input type="button" id="savenotice" class="btn save" value="save">
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <!-- /.content -->
+            </form>
+        </div>
+    </section>
+</aside>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script>
+    $('#user').selectize({
+    });
+</script>

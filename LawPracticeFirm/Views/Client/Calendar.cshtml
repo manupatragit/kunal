@@ -1,0 +1,458 @@
+﻿@{
+    ViewBag.Title = "Calendar";
+    Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+}
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+<script>
+   var type = '@ViewBag.type'
+</script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<aside class="right-side">
+    <section class="content-header">
+        <input type="hidden" id="hidid" />
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/client/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Calender</li>
+        </ol>
+        <div class="heading">
+            <h1><span class="glyphicon glyphicon-calendar"></span> Calendar</h1>
+        </div>
+    </section>
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+    </style>
+    <!-- /.content -->
+</aside>
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <input type="hidden" id="hidid" />
+        <ul class="dropdown-menu" id="bd" style="width:116px !important; top:0 !important;">
+            <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox" id="event" name="event" checked>Show Event</a></li>
+            <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" id="task" name="task">Show Task</a></li>
+        </ul>
+    </section>
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-md-3" style="display:none">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <div id="demo2"></div>
+                    </div>
+                </div><!-- /. box -->
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <h3 class="box-title">.</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="btn-group" style="width: 100%; margin-bottom: 10px;">
+                        </div><!-- /btn-group -->
+                    </div>
+                </div>
+            </div><!-- /.col -->
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-body no-padding">
+                        <!-- THE CALENDAR -->
+                        <div id="calendar"></div>
+                    </div><!-- /.box-body -->
+                </div><!-- /. box -->
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </section><!-- /.content -->
+</aside><!-- /.right-side -->
+<
+<!-- Modal -->
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+    </div>
+<!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+    </div>
+<!-- /.container-fluid -->
+    </div>
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="overlay-content">
+            <div class="spinner2">
+                <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.print.css" rel="stylesheet" media="print" />
+<link href="~/Manupanel/calender/dist/jquery.datetimepicker.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
+<script src="~/Manupanel/calender/dist/jquery.datetimepicker.min.js"></script>
+<script>
+    $(document).ready(function () {
+        function openload() {
+            $('#myOverlay').css("display", "block");
+        }
+        function closeload() {
+            $('#myOverlay').css("display", "none");
+        }
+        var dt = new Date();
+        var urls = "/api/matterApi/LoadEvent";
+        var urls2 = "/api/matterApi/LoadTask";
+        if ($("#event").is(":checked")) {
+            calenderdata();
+        }
+        //event filetr
+        $('#event').click(function () {
+            if ($("#task").is(":checked")) {
+                if ($(this).is(":checked")) {
+                    $('#calendar').fullCalendar('removeEvents');
+                    calenderdata();
+                    calenderdata1();
+                }
+                if ($(this).is(":not(:checked)")) {
+                    $('#calendar').fullCalendar('removeEvents');
+                    calenderdata1();
+                }
+            }
+            if ($("#task").is(":not(:checked)")) {
+                if ($(this).is(":checked")) {
+                    $('#calendar').fullCalendar('removeEvents');
+                    calenderdata();
+                }
+                if ($(this).is(":not(:checked)")) {
+                    $('#calendar').fullCalendar('removeEvents');
+                    //calenderdata();
+                }
+            }
+            closeload();
+        });
+        //task filetr
+        $('#task').click(function () {
+            if ($("#event").is(":checked")) {
+                if ($(this).is(":checked")) {
+                    $('#calendar').fullCalendar('removeEvents');
+                    calenderdata();
+                    //alert("checked");
+                    calenderdata1();
+                    //  alert("checked1");
+                }
+                if ($(this).is(":not(:checked)")) {
+                    $('#calendar').fullCalendar('removeEvents');
+                    calenderdata();
+                }
+            }
+            if ($("#event").is(":not(:checked)")) {
+                if ($(this).is(":checked")) {
+                    $('#calendar').fullCalendar('removeEvents');
+                    calenderdata1();
+                }
+                if ($(this).is(":not(:checked)")) {
+                    $('#calendar').fullCalendar('removeEvents');
+                    //calenderdata();
+                }
+            }
+        });
+        //calenderdata1();
+        $('#demo2').datetimepicker({
+            date: new Date(),
+            viewMode: 'YMD',
+            onDateChange: function () {
+                dt = this.getValue();
+                if (dt != null) {
+                    $('#event').prop('checked', true);
+                    $('#task').prop('checked', true);;
+                    calenderdata();
+                    calenderdata1();
+                }
+            }
+        });
+        var fcode = localStorage.getItem("FirmCode");
+        var strid = "";
+        calenderdata();
+        calenderdata2();
+        function calenderdata2() {
+            var events = [];
+            var f1 = $.ajax({
+                async: true,
+                url: '/api/WorkFlowNewApi/CalendarViewdata',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        var obj = JSON.parse(response.Data);
+                    }
+                    else {
+                        alert("not found");
+                    }
+                    $.each(obj, function (i, val) {
+                        strid = val.UserCaseId;
+                    });
+                    if (strid.length > 1) {
+                        strid = strid.substring(0, strid.length - 1);
+                    }
+                    $("#hidid").val(strid);
+                },
+                error: function () {
+                    alert('Error!11111');
+                }
+            });
+            $.when(f1).then(function (a1) {
+                var formData = new FormData();
+                formData.append("id", $("#hidid").val(1613));
+                $.ajax({
+                    async: true,
+                    url: '/Client/CalendarViewDataDetail',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        $.each(data, function (i, v) {
+                            events = [];
+                            events.push({
+                                title: v.Casetype,
+                                description: v.CaseNo + v.description,
+                                start: v.start_date,
+                                end: v.start_date,
+                                color: '#069'
+                            });
+                        });
+                        calender1(events);
+                    },
+                    error: function (error) {
+                    }
+                });
+            }, function (jqXHR, textStatus, errorThrown) {
+                alert('Either j1 or j2 failed!');
+            });
+            function calender1(event) {
+                $('#calendar').fullCalendar('addEventSource', event);
+                $('#calendar').fullCalendar({
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay,listWeek'
+                    },
+                    contentHeight: 400,
+                    //defaultDate: dt,
+                    timeFormat: 'h(:mm)a',
+                    navLinks: true, // can click day/week names to navigate views
+                    //eventLimit: true, // allow "more" link when too many events
+                    eventColor: '#1860a3',
+                    eventRender: function (event, element) {
+                        element.popover({
+                            title: event.title + '<button id="ids" data-toggle="popover" type="button" class="close" aria-hidden="true">&times;</button></div>',
+                            animation: true,
+                            delay: 300,
+                            html: true,
+                            placement: 'bottom',
+                            content: '<br><a href="/' + fcode + '/firm/ViewData/' + strid + '" target="_blank">more</a>',
+                            trigger: 'click',
+                            container: 'body'
+                        });
+                    },
+                    events: event,
+                });
+            }
+        }
+        function calenderdata() {
+            $.ajax({
+                async: true,
+                url: '/Client/CalendarViewDataDetailNxtHeardt',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    $.each(data, function (i, v) {
+                        events = [];
+                        events.push({
+                            title: v.Casetype,
+                            description: v.CaseNo + v.Casetype,
+                            start: v.Disposeddt,
+                            end: v.Disposeddt,
+                            color: '#069'
+                        });
+                    });
+                    calender(events);
+                },
+                error: function (error) {
+                    //alert('failed');
+                }
+            });
+            function calender(event) {
+                $('#calendar').fullCalendar('removeEvents');
+                $('#calendar').fullCalendar('addEventSource', event);
+                $('#calendar').fullCalendar({
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay,listWeek'
+                    },
+                    contentHeight: 400,
+                    timeFormat: 'h(:mm)a',
+                    navLinks: true, // can click day/week names to navigate views
+                    //eventLimit: true, // allow "more" link when too many events
+                    eventColor: '#1860a3',
+                    //selectable: true,
+                    //selectHelper: true,
+                    eventRender: function (event, element) {
+                        element.popover({
+                            title: event.title + '<button id="ids" data-toggle="popover" type="button" class="close" aria-hidden="true">&times;</button></div>',
+                            animation: true,
+                            delay: 300,
+                            html: true,
+                            placement: 'bottom',
+                            content: '<br><a href="/' + fcode + '/firm/ViewData/' + strid + '" target="_blank">more</a>',
+                            trigger: 'click',
+                            container: 'body'
+                        });
+                    },
+                    events: event,
+                });
+            }
+        }
+        ///////////////////////
+        function calenderdata1() {
+            var events1 = [];
+            //alert("data");
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: urls2,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        //alert(datas);
+                    }
+                    else {
+                        alert("not found");
+                    }
+                    $.each(response.Data, function (i, v) {
+                        //alert(v.tsubject);
+                        events1.push({
+                            title: v.tsubject,
+                            description: v.tdetails,
+                            start: v.duedate,
+                            //end: newedate,
+                            //color: v.ecolor,
+                            allDay: v.eallday
+                        });
+                        // alert(JSON.stringify(events.title);
+                    });
+                    calender1(events1);
+                },
+                error: function (error) {
+                    alert('failed');
+                }
+            });
+            function calender1(event) {
+                $('#calendar').fullCalendar('addEventSource', event);
+                $('#calendar').fullCalendar('gotoDate', dt);
+                $('#calendar').fullCalendar({
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay,listWeek'
+                    },
+                    contentHeight: 400,
+                    defaultDate: dt,
+                    timeFormat: 'h(:mm)a',
+                    navLinks: true, // can click day/week names to navigate views
+                    //eventLimit: true, // allow "more" link when too many events
+                    eventColor: '#1860a3',
+                    eventRender: function (event, element) {
+                        element.popover({
+                            title: event.title + '<button id="ids" data-toggle="popover" type="button" class="close" aria-hidden="true">&times;</button></div>',
+                            animation: true,
+                            delay: 300,
+                            html: true,
+                            placement: 'bottom',
+                            content: '<p><b>Start</b>:' + event.start.format("DD-MMM-YYYY HH:mm a") + "</p><p><b>End:</b>:" + (event.end != null ? event.end.format("DD-MMM-YYYY HH:mm a") : '') + "</p><p><b>Description:</b>:" + event.description + "</div>",
+                            trigger: 'click',
+                            container: 'body'
+                        });
+                    },
+                    events: event
+                });
+            }
+        }
+        $(document).on("click", "#ids", function () {
+            $('.popover').css("display", "none");
+        });
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#modelEvent').click(function (e) {
+            var url = "/firm/ConfigEvent";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal').modal();
+            });
+        });
+        $('#modelTask').click(function (e) {
+            var url = "/firm/ConfigTask";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal').modal();
+            });
+        });
+    });
+</script>

@@ -1,0 +1,716 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+
+
+
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+
+    .ms-options ul li {
+        display: block !important;
+    }
+</style>
+<style>
+    .tvalue {
+        font-size: 32px;
+        font-weight: 600;
+        color: #181D27;
+        padding: 6px 0 11px 0;
+    }
+
+    .tvaluecontainer {
+    }
+
+    .am {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .panel-default {
+        border-color: #ddd;
+        box-shadow: 0 1px 4px 0 rgba(18, 52, 77, .03), 0 1px 4px 0 rgba(18, 52, 77, .12);
+    }
+
+    .panel-body {
+        padding: 10px;
+    }
+
+    .title {
+        padding: 10px 0 14px 0;
+    }
+
+    .b-box {
+        padding: 10px 15px;
+        border: 1px solid #E9EAEB;
+        box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+        border-radius: 12px;
+    }
+
+    .sbtbtn {
+        margin-bottom: 0px;
+        margin-right: 0;
+        margin-top: 20px;
+        width: 100%;
+        padding: 5px 12px;
+    }
+
+    .card .header {
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    #chart-area-department {
+        position: relative;
+        height: 222px !important;
+        width: auto !important;
+        left: 8px;
+    }
+
+    #chart-area-location {
+        position: relative;
+        height: 222px !important;
+        width: auto !important;
+        left: 9px;
+    }
+
+    #chart-area-contested {
+        position: relative;
+        width: auto !important;
+        height: 251px !important;
+        margin: 12px 0 0 0;
+        max-width: 100%;
+    }
+
+    #chart-area-subCourt {
+        position: relative;
+        height: 251px !important;
+        margin: 0px 0 0 0;
+        width: auto !important;
+        top: -17px;
+    }
+
+
+    .card .content {
+        background-color: rgba(0, 0, 0, 0);
+        box-shadow: none;
+        padding: 1px;
+        height: 247px;
+        width: 100%;
+    }
+
+    .card-container, .front, .back {
+        width: 100%;
+        height: 290px;
+        border-radius: 16px;
+    }
+
+    .front, .back {
+        box-shadow: none !important;
+        background-color: transparent !important;
+    }
+
+    .card .header {
+        background: transparent !important;
+        padding: 8px 0;
+    }
+
+    .back .table > thead > tr > th {
+        vertical-align: bottom;
+        border-bottom: 1px solid #fff;
+        color: #414651;
+        font-weight: 500 !important;
+        font-size: 14px;
+    }
+
+    .back .table > tbody > tr > td {
+        padding: 2px 8px;
+        line-height: 1.428571429;
+        vertical-align: top;
+        border-top: none;
+        font-size: 14px;
+        color: #414651;
+        font-weight: 400 !important;
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+        border-radius: 5px;
+        height: 8px
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+            border-radius: 10px
+        }
+
+    #ptfooter ul {
+        list-style-type: none;
+    }
+
+        #ptfooter ul li {
+            float: left;
+            padding: 0 3px;
+        }
+</style>
+<script src="~/Manupanel/Chart/Chart.min.js"></script>
+<script src="~/CssJsfiles/js/jszip.min.js"></script>
+<script src="~/CssJsfiles/js/pptxgen.min.js"></script>
+<script src="~/Scripts/Firm/Pages/PmrdaCaseReport.js?1"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-center">
+                    <p class="ctitle">PMRDA COURT CASES</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+<section class="wrapper" style="margin: 25px 0 0 0;">
+    <div class="container-main showcontent" id="showcontent">
+        <div class="panel-group" role="tablist" aria-multiselectable="true">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="b-box shadow1">
+                        <div class="tvaluecontainer">
+                            <p class="am">Total Matters </p>
+                            <p><label class="tvalue" id="lblmattercountcountbyzone"></label></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="b-box shadow1">
+                        @*<lebel class="am">Next Hearing Filter</lebel>*@
+
+                        <table cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                                <td>
+                                    <label class="control-label">Court  </label>
+                                    <select id="compCourt" class="form-control selctInputFormat">
+                                        <option value="" disabled selected>All</option>
+                                   
+                                    </select>
+                                </td>
+                                <td width="15px">&nbsp;</td>
+                                <td>
+                                    <label>Department</label>
+                                    <select id="compDepart" class="form-control selctInputFormat">
+                                        <option value="" disabled selected>All</option>
+                                        <option value="Administration">Administration</option>
+                                        <option value="Building Permission">Building Permission</option>
+                                        <option value="Planning">Planning</option>
+                                        <option value="Land & Estate">Land & Estate</option>
+                                        <option value="Accounts & Finance">Accounts & Finance</option>
+                                        <option value="Engineering 1">Engineering 1</option>
+                                        <option value="Engineering 2">Engineering 2</option>
+                                        <option value="Illegal Construction Demolition">Illegal Construction Demolition</option>
+                                        <option value="Fire">Fire</option>
+                                        <option value="Sky Sign">Sky Sign</option>
+                                        <option value="Arbitration">Arbitration</option>
+                                        <option value="I.T.">I.T.</option>
+                                    </select>
+                                </td>
+                                <td width="15px">&nbsp;</td>
+                                <td>
+                                    <label class="control-label">Advocate</label>
+                                    <select id="compAdvocate" class="form-control selctInputFormat">
+                                        <option value="" disabled selected>All</option>
+                    
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+
+                                @*<td>
+                                    <label class="control-label">Year  </label>
+                                    <select id="yearValue" class="form-control selctInputFormat">
+                                        <option value="" disabled selected>All</option>
+                                    </select>
+                                </td>*@
+                                @*<td width="15px">&nbsp;</td>*@
+                                <td>
+                                    <label class="control-label">Status </label>
+                                    <select id="CaseStatus" class="form-control selctInputFormat">
+                                        <option value="" disabled selected>All</option>
+                                    </select>
+                                </td>
+                                <td width="15px">&nbsp;</td>
+                                <td><button type="button" id="GrphsearchResult" class="btn btn-primary" style="width:100%;margin-top:21px;">Search</button></td>
+                                <td width="15px">&nbsp;</td>
+                                <td><button type="button" id="GrphsearchResultClear" class="btn btn-secondary" style="width: 100%; margin-top: 21px;">Clear</button></td>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true" style="margin:25px 0;">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="b-box shadow">
+                        <div class="card-container manual-flip">
+                            <div class="card">
+                                <!-- FRONT SIDE -->
+                                <div class="front">
+                                    <div style="height: 45px; border-bottom: none !important;" class="header">
+
+
+                                        Court Wise Cases
+                                        <button class="btn btn-simple pull-right"
+                                                onclick="rotateCard(this)"
+                                                title="Manual Rotation"
+                                                style="padding:0;">
+                                            <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                <defs>
+                                                    <style>
+                                                        .a {
+                                                            fill: none;
+                                                            stroke: #0961b8;
+                                                            stroke-linecap: round;
+                                                            stroke-miterlimit: 10;
+                                                            stroke-width: 2px;
+                                                        }
+                                                    </style>
+                                                </defs>
+                                                <g transform="translate(1 1.405)">
+                                                    <g transform="translate(12.572 12.986) rotate(180)">
+                                                        <path class="a"
+                                                              d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411"
+                                                              transform="translate(-729.781 -195.43)" />
+                                                        <path class="a"
+                                                              d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44"
+                                                              transform="translate(-729.781 -195.43)" />
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="content">
+                                        <div id="court-list-wrapper"
+                                             style="max-height:250px; overflow-y:auto; overflow-x:hidden; padding-right:8px;">
+                                            <!-- We'll inject rows here -->
+                                            <div id="court-list"></div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- BACK SIDE -->
+                                <div class="back">
+                                    <div style="height:45px; border-bottom: none !important;" class="header">
+                                        <button class="btn btn-simple pull-right"
+                                                onclick="rotateCard(this)"
+                                                style="padding:0;">
+                                            <img src="/newassets/images/flip_back_btn.png" alt="Flip back" />
+                                        </button>
+                                    </div>
+
+                                    <div class="content" style="align-items: flex-start; overflow-y: auto">
+                                        <table class="table-panel">
+                                            <thead>
+                                                <tr>
+                                                    <th width="80%">
+                                                        <div class="thbg">Court</div>
+                                                    </th>
+                                                    <th width="20%">
+                                                        <div class="thbg">Total</div>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="bindCourtTableBody">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div> <!-- /back -->
+                            </div> <!-- /card -->
+                        </div> <!-- /card-container -->
+                    </div> <!-- /b-box -->
+                </div> <!-- /col-md-4 -->
+
+
+                <div class="col-md-4">
+                    <div class="b-box shadow">
+                        <div class="card-container manual-flip">
+                            <div class="card">
+
+                                <!-- FRONT SIDE -->
+                                <div class="front">
+                                    <div style="height: 45px; border-bottom: none !important;" class="header">
+                                        Status Wise Cases
+                                        <button class="btn btn-simple pull-right"
+                                                onclick="rotateCard(this)"
+                                                title="Manual Rotation"
+                                                style="padding:0;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                <defs>
+                                                    <style>
+                                                        .a {
+                                                            fill: none;
+                                                            stroke: #0961b8;
+                                                            stroke-linecap: round;
+                                                            stroke-miterlimit: 10;
+                                                            stroke-width: 2px;
+                                                        }
+                                                    </style>
+                                                </defs>
+                                                <g transform="translate(1 1.405)">
+                                                    <g transform="translate(12.572 12.986) rotate(180)">
+                                                        <path class="a"
+                                                              d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411"
+                                                              transform="translate(-729.781 -195.43)" />
+                                                        <path class="a"
+                                                              d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44"
+                                                              transform="translate(-729.781 -195.43)" />
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="content">
+                                        <div id="status-chart-wrapper"
+                                             style="height:250px; overflow:hidden;">
+                                            <canvas id="status-chart"
+                                                    style="width:100%; height:250px;"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- BACK SIDE -->
+                                <div class="back">
+                                    <div style="height:45px; border-bottom: none !important;" class="header">
+                                        <button class="btn btn-simple pull-right"
+                                                onclick="rotateCard(this)"
+                                                style="padding:0;">
+                                            <img src="/newassets/images/flip_back_btn.png" alt="Flip back" />
+                                        </button>
+                                    </div>
+
+                                    <div class="content" style="align-items: flex-start; overflow-y: auto; max-height:250px;">
+                                        <table class="table-panel">
+                                            <thead>
+                                                <tr>
+                                                    <th width="80%">
+                                                        <div class="thbg">Status</div>
+                                                    </th>
+                                                    <th width="20%">
+                                                        <div class="thbg">Total</div>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="bindStatusTableBody">
+                                                <!-- rows injected by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div> <!-- /back -->
+
+                            </div> <!-- /card -->
+                        </div> <!-- /card-container -->
+                    </div> <!-- /b-box -->
+                </div> <!-- /col-md-4 -->
+
+                <div class="col-md-4">
+                    <div class="b-box shadow">
+                        <div class="card-container manual-flip">
+                            <div class="card">
+                                <!-- FRONT SIDE -->
+                                <div class="front">
+                                    <div style="height:45px; border-bottom:none !important;" class="header">
+                                        Adv-wise Cases
+                                        <button class="btn btn-simple pull-right"
+                                                onclick="rotateCard(this)"
+                                                title="Manual Rotation"
+                                                style="padding:0;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                <defs>
+                                                    <style>
+                                                        .a {
+                                                            fill: none;
+                                                            stroke: #0961b8;
+                                                            stroke-linecap: round;
+                                                            stroke-miterlimit: 10;
+                                                            stroke-width: 2px;
+                                                        }
+                                                    </style>
+                                                </defs>
+                                                <g transform="translate(1 1.405)">
+                                                    <g transform="translate(12.572 12.986) rotate(180)">
+                                                        <path class="a"
+                                                              d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411"
+                                                              transform="translate(-729.781 -195.43)" />
+                                                        <path class="a"
+                                                              d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44"
+                                                              transform="translate(-729.781 -195.43)" />
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="content" style="padding-top:10px;">
+
+                                        <!-- dynamic legend goes here -->
+                                        <div id="adv-legend"
+                                             style="font-size:13px; margin-bottom:8px; line-height:1.4; flex-wrap:wrap; display:flex; gap:8px;">
+                                        </div>
+
+                                        <!-- Scrollable chart area -->
+                                        <div id="advocate-chart-wrapper"
+                                             style="max-height:300px; overflow-y:auto; overflow-x:hidden; padding-right:8px;">
+                                            <canvas id="advocate-chart" style="width:100%; min-height:300px;"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- BACK SIDE -->
+                                <div class="back">
+                                    <div style="height:45px; border-bottom:none !important;" class="header">
+                                        <button class="btn btn-simple pull-right"
+                                                onclick="rotateCard(this)"
+                                                style="padding:0;">
+                                            <img src="/newassets/images/flip_back_btn.png" alt="Flip back" />
+                                        </button>
+                                    </div>
+
+                                    <div class="content" style="align-items:flex-start; overflow-y:auto; max-height:250px;">
+                                        <table class="table-panel">
+                                            <thead>
+                                                <tr id="adv-head-row">
+                                                    <!-- we'll inject <th>Advocate</th> + <th>Status1</th> ... via JS -->
+                                                </tr>
+                                            </thead>
+                                            <tbody id="bindAdvocateTableBody">
+                                                <!-- injected by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- /back -->
+                            </div><!-- /card -->
+                        </div><!-- /card-container -->
+                    </div><!-- /b-box -->
+                </div><!-- /col-md-4 -->
+
+
+            </div>
+            <div class="row " style="margin-top: 10px;">
+                <div class="col-md-4">
+                    <div class="b-box shadow" style="padding:16px;">
+                        <!-- Header -->
+                        <div style="
+            font-size:16px;
+            font-weight:600;
+            color:#000;
+            margin-bottom:10px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;">
+                            <span>Status Summary</span>
+                        </div>
+
+                        <!-- Scrollable table wrapper -->
+                        <div style="
+            max-height:260px;
+            overflow-y:auto;
+            border:1px solid #d2691e;
+            border-radius:3px;">
+
+                            <table style="width:100%; border-collapse:collapse; font-size:14px; color:#000;">
+                                <thead>
+                                    <tr style="background:#fafafa; position:sticky; top:0; z-index:2;">
+                                        <th style="
+                            border:1px solid #d2691e;
+                            padding:6px 8px;
+                            font-weight:600;
+                            text-align:left;">
+                                            Current Status
+                                            <span style="font-size:11px; vertical-align:middle; color:#444;">▼</span>
+                                        </th>
+                                        <th style="
+                            border:1px solid #d2691e;
+                            padding:6px 8px;
+                            font-weight:600;
+                            text-align:right;">
+                                            Count
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="statusSummaryBody">
+                                    <!-- rows get injected here -->
+                                </tbody>
+
+                                <tfoot>
+                                    <tr style="background:#fafafa; font-weight:600;">
+                                        <td style="
+                            border:1px solid #d2691e;
+                            padding:6px 8px;">
+                                            Total
+                                        </td>
+                                        <td style="
+                            border:1px solid #d2691e;
+                            padding:6px 8px;
+                            text-align:right;"
+                                            id="statusSummaryTotal">
+                                            0
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="b-box shadow">
+                        <div class="card-container manual-flip">
+                            <div class="card">
+
+                                <!-- FRONT SIDE -->
+                                <div class="front">
+                                    <div style="height:45px; border-bottom:none !important;" class="header">
+                                        Department Wise Cases
+                                        <button class="btn btn-simple pull-right"
+                                                onclick="rotateCard(this)"
+                                                title="Manual Rotation"
+                                                style="padding:0;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                <defs>
+                                                    <style>
+                                                        .a {
+                                                            fill: none;
+                                                            stroke: #0961b8;
+                                                            stroke-linecap: round;
+                                                            stroke-miterlimit: 10;
+                                                            stroke-width: 2px;
+                                                        }
+                                                    </style>
+                                                </defs>
+                                                <g transform="translate(1 1.405)">
+                                                    <g transform="translate(12.572 12.986) rotate(180)">
+                                                        <path class="a"
+                                                              d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411"
+                                                              transform="translate(-729.781 -195.43)" />
+                                                        <path class="a"
+                                                              d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44"
+                                                              transform="translate(-729.781 -195.43)" />
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="content">
+                                        <div id="dept-chart-wrapper"
+                                             style="height:250px; overflow:hidden;">
+                                            <canvas id="dept-chart"
+                                                    style="width:100%; height:250px;"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- BACK SIDE -->
+                                <div class="back">
+                                    <div style="height:45px; border-bottom:none !important;" class="header">
+                                        <button class="btn btn-simple pull-right"
+                                                onclick="rotateCard(this)"
+                                                style="padding:0;">
+                                            <img src="/newassets/images/flip_back_btn.png" alt="Flip back" />
+                                        </button>
+                                    </div>
+
+                                    <div class="content" style="align-items:flex-start; overflow-y:auto; max-height:250px;">
+                                        <table class="table-panel" style="width:100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th width="80%">
+                                                        <div class="thbg">Department</div>
+                                                    </th>
+                                                    <th width="20%">
+                                                        <div class="thbg">Total</div>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="bindDepartmentTableBody">
+                                                <!-- rows injected by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div> <!-- /back -->
+
+                            </div> <!-- /card -->
+                        </div> <!-- /card-container -->
+                    </div> <!-- /b-box -->
+                </div> <!-- /col-md-4 -->
+
+            </div>
+        </div>
+    </div>
+
+</section>
+
+    <div id="myOverlayDashboard" class="overlay">
+        <div class="overlay-content">
+            <div class="spinner2">
+                <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+            </div>
+        </div>
+    </div>

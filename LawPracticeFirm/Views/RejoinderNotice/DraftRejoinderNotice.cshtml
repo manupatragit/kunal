@@ -1,0 +1,281 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    var userid = Session["sessionuserid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+<script>
+    var userid = "@userid";
+     var roleid = "@role";
+</script>
+<style>
+    #searchnoticeTile {
+        border-box: box-sizing !important;
+        /*background-image: url(../../Content/assets/searchicon.png) !important;
+        background-position: 14px 12px !important;*/
+        background-repeat: no-repeat !important;
+        /*font-size: 16px !important;*/
+        /*padding: 14px 20px 12px 45px !important;*/
+        /*border: none !important;*/
+        border-bottom: 1px solid #ddd !important;
+        width: 280px;
+    }
+
+    #myInput {
+        border-box: box-sizing !important;
+        background-repeat: no-repeat !important;
+        font-size: 16px !important;
+        padding: 14px 20px 12px 45px !important;
+        border-bottom: 1px solid #ddd !important;
+    }
+
+    .settingshowhide li {
+        margin-left: 10px !important;
+    }
+</style>
+<section class="wrapper">
+    <div class="container-main">
+        <p class="title">Received Rejoinder Notice For Approval</p>
+        <div class="table-panel">
+            <div style="overflow-x:scroll;">
+                <label id="NotExist" style="display:none"></label>
+                <table id="example" class="table">
+                    <thead>
+                        <tr id="newnoticeheadrow">
+                            <th>S.No</th>
+                            <th class="noticefrom" data-column="Rejoinder" data-order="desc">Rejoinder </th>
+                            <th class="noticesubject" data-column="RejoinderSubject" data-order="desc">Rejoinder Subject</th>
+                            <th class="noticetitle" data-column="NoticeTitle" data-order="desc">
+                                <div class="thbg">
+                                    <div style="float:left;width:80%">
+                                        <input type="text" id="noticeTitless" placeholder="Notice Title" class="form-control pull-left" style="width:100px;">
+                                    </div>
+                                    <div style="float:left;width:20%">
+                                        <span class="glyphicon glyphicon-search" id="searchdatatitl"></span>
+                                        <span class="glyphicon glyphicon-remove" id="clearnewsearchforsendertitl" title="Click here to reset search" style="display:none;"></span>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="statutory" data-column="NoticeType" data-order="desc">Notice Type</th>
+                            <th class="noticedate" data-column="DateofNotice" data-order="desc">Notice Date </th>
+                            <th class="pending" data-column="CaseStatus" data-order="desc">
+                                <div class="form-group">
+                                    <select id="ddlnoticestatus" class="form-control form-control-sm">
+                                        <option value="" selected> Notice Status </option>
+                                        <option value="Active"> Active</option>
+                                        <option value="InActive"> In/Active</option>
+                                        <option value="Settled">Settled</option>
+                                        <option value="Convert to case">Convert to case</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="dispatched" data-column="DateofDelivery" data-order="desc">Date of Delivery</th>
+                            <th width="100px;" class="servedon" data-column="DateofReceipt" data-order="desc">Date of Receipt </th>
+                            <th class="remark" data-column="CreateRejoinder" data-order="desc">Notice Text </th>
+                            <th class="managerapprove">
+                                Approval Status
+                            </th>
+                            <th class="generationofalerts" data-column="GenerationofAlerts" data-order="desc">Generation of Alerts </th>
+                            <th class="dateofdispatchofnotice" data-column="DateofDispatchofNotice" data-order="desc">Date of Dispatch of Notice </th>
+                            <th class="dateofserviceofnotice" data-column="DateofServiceofNotice" data-order="desc">Date of Service of Notice </th>
+                            <th class="dateofreceivingreply" data-column="DateofReceivingReply" data-order="desc">Date of Receiving Reply </th>
+                            <th class="modeofreceipt" data-column="ModeofReceipt" data-order="desc">Mode of Receipt </th>
+                            <th class="dateofrejoinder" data-column="DateofRejoinder" data-order="desc">Date of Rejoinder </th>
+                            <th width="100px;" class="modeofdeliveryofrejoinder" data-column="ModeofDeliveryofRejoinder" data-order="desc">Mode of Delivery of Rejoinder </th>
+                            <th class="rejoinderaddressedto" data-column="RejoinderAddressedto" data-order="desc">Rejoinder Addressed to </th>
+                            <th class="addresseeaddress" data-column="AddresseeAddress" data-order="desc">Addressee Address </th>
+                            <th class="otherdetailsofaddressee" data-column="OtherDetailsofAddressee" data-order="desc">Other Details of Addressee </th>
+                            <th class="noticeandreplyreference" data-column="NoticeandReplyReference" data-order="desc">Notice and Reply Reference</th>
+                            <th class="rejoinderthrough" data-column="RejoinderThrough" data-order="desc">Rejoinder Through </th>
+                            <th class="currentstatus" data-column="CurrentStatus" data-order="desc">Current Status </th>
+                            <th class="CreatedByName" data-column="CreatedByName" data-order="desc">Created By </th>
+                            <th class="dateofcreatingrejoinder" data-column="DateofCreatingRejoinder" data-order="desc">Date of Creating Rejoinder </th>
+                            <th class="attachment">Attachment</th>
+                            <th class="noticesenddate">Notice Sent Date</th>
+                            <th class="noticeTrackingId">Consignment No.</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="Rejoindertablevalue"></tbody>
+                </table>
+                <center> <div id="rejoindernonotice"> </div></center>
+            </div>
+            <div class="table-panel">
+                <div class="settingpanel">
+                    <div class="col-md-6" id="footer-data">
+                        <div style="float: left;padding: 0 10px 0 0;">
+                            <ul>
+                                <li>
+                                    <div class="btn-group dropup">
+                                        <a href="javascript:void()" class="dropdown-toggle selctInputFormat" style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                            Customize Fields
+                                        </a>
+                                        <ul class="dropdown-menu settingshowhide" id="od" style="width:250px">
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="noticefrom" checked><a href="#">Rejoinder</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="noticesubject" checked><a href="#">Rejoinder Subject</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="noticetitle" checked><a href="#">Notice Title</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="statutory" checked><a href="#">Notice Type</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="noticedate" checked><a href="#">Notice Date</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="pending" checked><a href="#">Notice Status</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dispatched"><a href="#">Date of Delivery </a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="remark" checked><a href="#">Notice Draft</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="managerapprove" checked><a>Status for Manager/Client</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="servedon"><a href="#" class="dropdown-item">Date of Receipt</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="generationofalerts"><a href="#">Generation of Alerts</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofdispatchofnotice"><a href="#">Date of Dispatch of Notice</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofserviceofnotice"><a href="#">Date of Service of Notice</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofreceivingreply"><a href="#">Date of Receiving Reply</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="modeofreceipt"><a href="#">Mode of Receipt</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofrejoinder"><a href="#">Date of Rejoinder</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="modeofdeliveryofrejoinder"><a href="#">Mode of Delivery of Rejoinder</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="rejoinderaddressedto"><a href="#" class="dropdown-item">Rejoinder Addressed to</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="addresseeaddress"><a href="#">Addressee Address</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="otherdetailsofaddressee"><a href="#">Other Details of Addressee</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="noticeandreplyreference"><a href="#">Notice and Reply Reference</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="rejoinderthrough"><a href="#">Rejoinder Through</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="currentstatus"><a href="#">Current Status</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="CreatedByName"><a>Created By</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofcreatingrejoinder"><a href="#">Date of Creating Rejoinder</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="noticeTrackingId"><a href="#">Consignment No.</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="attachment" checked><a>Attachments</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="listingTablefooter"></div>
+                    </div>
+                    <div class="col-md-6" style="padding-right:20px">
+                        <ul class="pull-right">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="myModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <a href="#" class="close" data-dismiss="modal">&times;</a>
+                            <h3 class="modal-title">Delete Rejoinder Notice</h3>
+                        </div>
+                        <div class="modal-body">
+                            <h4>Are you sure you want to Remove this Rejoinder Notice?</h4>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                            <a href="#" class="btn btn-success" onclick="DeleteRejoinder()">Confirm</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="modal fade" id="ViewLogModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice Logs</h3>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sender Name</th>
+                            <th>Receiver Name</th>
+                            <th>Notice Sent On</th>
+                            <th>Status</th>
+                            <th>Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modlbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ViewMoreModal">
+    <div class="modal-dialog">
+        <div class="modal-content viewmore">
+            <div class="modal-header" style="background-color:#fff !important">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+            </div>
+            <div class="modal-body">
+                <span id="viewmorecontent"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="NoticeStatusModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice Status</h3>
+            </div>
+            <div class="modal-body" style="height:200px;">
+                <div class="col-lg-12">
+                    <label>Status :</label>
+                    <select class="form-control" id="notistatus">
+                        <option value="Approve">Approve</option>
+                        <option value="Reject">Reject</option>
+                    </select>
+                </div>
+                <div class="col-lg-12">
+                    <label><span style="color:red;">*</span>Feedback :</label>
+                    <textarea class="form-control" id="feedbacktext"></textarea>
+                </div>
+                <br />
+                <div class="col-lg-12" style="padding-top: 10px;">
+                    <button type="button" id="statusnoticebtn" class="sbtbtn" style="background-color:#007bff" value="Save">save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myDocumentModal" class="modal fade myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="NoticeDraftModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice</h3>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sr no.</th>
+                            <th>File</th>
+                            <th>Created By</th>
+                            <th>Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="draftnoticemodlbody"></tbody>
+                </table>
+                <center> <div id="nodraftnotice"> </div></center>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Notice/DraftRejoinderNotice.js?1.8"></script>
+<script src="~/Scripts/Notice/commonviewmore.js?1.8"></script>

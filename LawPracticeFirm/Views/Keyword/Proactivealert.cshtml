@@ -1,0 +1,316 @@
+﻿
+@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+
+}
+
+<script src="~/CssJsfiles/js/jquery-1.12.4.js"></script>
+<script src="~/CssJsfiles/js/jquery-ui.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Keyword/ProactiveAlerts.js?3.1" type="text/javascript" language="javascript"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<style>
+    #opentrademarkdetails {
+        cursor: pointer;
+
+    }
+    .progress-container {
+        width: 240px;
+        height: 10px;
+        background-color: #E9EAEB;
+        border-radius: 6px;
+        margin: 6px 0 0 10px;
+        position: relative;
+    }
+
+    /* The colored portion of the progress bar */
+    .progress-bar {
+        height: 100%;
+        background-color: #0369A1; /* Adjust color as needed */
+        border-radius: 6px;
+        width: 0; /* Start at 0% width */
+        transition: width 0.3s ease-in-out;
+    }
+
+    /* Optional text styling */
+    #quotaText {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+    }
+    .custom-hr {
+        border: none;
+        border-top: 1px dashed #000;
+        margin: 20px 0;
+    }
+    .nav > li > a {
+        position: relative;
+        display: block;
+        padding: 10px 0px 10px 0px;
+        margin: 0 30px 0 0px;
+        color: #6B7280;
+    }
+    .nav-tabs li.active a {
+        color: #0369A1 !important;
+        cursor: default !important;
+        background-color: #fff !important;
+        border: 2px solid #fff !important;
+        border-bottom-color: #0369a1 !important;
+    }
+    .nav-tabs > li > a:hover {
+        border-color: transparent;
+        border-bottom: 2px solid #0369a1;
+    }
+    .nav > li > a:hover, .nav > li > a:focus {
+        text-decoration: none;
+        background-color: transparent;
+    }
+    .progressbarcontainer {
+        list-style-type: none;
+        border: 1px solid #E9EAEB;
+        border-radius: 8px;
+        padding: 4px;
+        overflow: hidden;
+        width: 450px;
+    }
+    .progressbarcontainer li {
+        float:left;
+    }
+    .pbarvalue {
+        background: #f5f5f5;
+        padding: 4px;
+        border-radius: 3px;
+    }
+    .actenabled {
+        background: #ECFDF3;
+        color: #027A48;
+        border-radius: 16px;
+        padding: 2px 5px;
+        font-size: 12px !important;
+        font-weight: 500;
+    }
+    .actdisabled {
+        background: #f5f5f5;
+        color: #414651;
+        border-radius: 16px;
+        padding: 2px 5px;
+        font-size: 12px !important;
+        font-weight: 500;
+    }
+
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Proactive Alert</p>
+        </div>
+    </div>
+</section>
+<section class="wrapper">
+    <input type="hidden" id="hdnusercaseid" value="0" />
+    <div class="container-main">
+        <div>
+            <form enctype="multipart/form-data" autocomplete="off" id="proactivealertform">
+                <div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            
+                            @if (role.ToString() == "1")
+                            {
+                                <ul class="nav nav-tabs" style="display:inline-block;">
+                                    <li class="active"><a class="tabstyle" id="proactiveKeywordlink" href="#"> Keyword Management</a></li>
+                                    <li><a class="tabstyle" id="proactivecaselink" href="#" style="margin:0;"> Alert History</a></li>
+                                </ul>
+
+                            }
+                            else
+                            {  
+                        <ul class="nav nav-tabs" style="display:inline-block;">
+                            <li class="active"><a class="tabstyle" id="proactiveKeywordlink" href="#"> Keyword Management</a></li>
+                            <li><a class="tabstyle" id="proactivecaselink" href="#" style="margin:0;"> Alert History</a></li>
+                        </ul>
+
+                            }
+
+                        </div>
+                        @if (role.ToString() == "1")
+                        {
+                            <div class="col-md-8">
+                                <ul class="progressbarcontainer pull-right">
+                                    <li><div id="quotaText" style="text-align:end"></div></li>
+                                    <li>
+                                        <div class="progress-container">
+                                            <div id="progressBar" class="progress-bar"></div>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <input id="kquatoa" value="0" type="hidden" />
+                                <input id="balancequota" value="0" type="hidden" />
+                            </div>
+                            <!--<div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-6" id="quotaText"></div>
+                    <div class="col-md-6 progress-container">
+                        <div id="progressBar" class="progress-bar"></div>
+                    </div>
+                </div>-->
+
+                            @*<label>Keyword Quota:&nbsp;</label><label id="lblquota">0</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label>Added Keyword:&nbsp;</label><label id="lblAddedKeyword">0</label>*@
+
+                            <!--</div>-->
+                        }
+                    </div>
+
+                    <div class="row" style="padding:20px 0 0 0;">
+                        <div class="col-md-3">
+                            <label>Add Keyword<span class="required " aria-required="true"><b> *</b> </span></label>
+                            <input class="inputFormat" style=" width:100%;" maxlength="50" id="txtkeyword" name="txtkeyword" type="text" title="Enter keyword" placeholder="Enter Keyword for Alerts">
+
+                        </div>
+                        <div class="col-md-3">
+                            <label>Select Court<span class="required " aria-required="true"><b> *</b> </span></label>
+                            <select name="divcourt" id="divcourt" class="form-control selctInputFormat" onchange="fn_OnChangeCourt(this.value);"></select>
+                        </div>
+                        <div class="col-md-3" id="divcourtname-div" style="display:none;">
+                            <label>Court<span class="required " aria-required="true"><b> *</b> </span></label>
+                            <select name="divcourtname" id="divcourtname" class="form-control selctInputFormat"></select>
+                        </div>
+                        <div class="col-md-3" id="divcourtnamerera-div" style="display:none;">
+                            <label>Court<span class="required " aria-required="true"><b> *</b> </span></label>
+                            <select name="divcourtnamerera" id="divcourtnamerera" class="form-control selctInputFormat"></select>
+                        </div>
+                        @if (role.ToString() == "1")
+                        {
+                            <div class="col-md-3">
+
+                                <span data-toggle="collapse" data-target="#demo" style="display:none;">
+                                    <img src="~/newassets/images/info_icon.png" style="cursor: pointer; margin-left: 5px; padding: 2px 22px 0px 0px;" />
+                                </span>
+                                <div id="demo" class="collapse"
+                                     style="border: 1px solid rgb(143, 213, 0); background:white; right:100px; padding: 4px; width: 360px;top:26px;z-index:1000;position: absolute">
+                                    <p>Pro-active alerts feature is currently not available for Dharwad Bench and Kalaburagi Bench of Karnataka High Court and Telangana High Court.</p>
+                                </div>
+                                <button type="button" id="btnsearch" class="btn btn-primary" value="SAVE" style="margin:24px 0 0 0;"><img src="~/newassets/img/plus-icon.png" /> Add</button>
+
+                            </div>
+                        }
+                        else
+                        {
+                            @*<div class="col-md-3">
+
+                <a class="sbtbtn" id="proactivecaselink" href="#"> View Cases</a>
+
+            </div>*@
+                        }
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<section id="table" style="margin:0;">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1" style="padding:0 14px 0;">
+                    <div class="text-and-supporting-text1">
+
+                        <h5>Keywords Added</h5>
+
+                    </div>
+                    @*<div class="table-header" style="">
+                        <div class="actions3" style="position:relative;">
+                            <div class="dropdown-toggle button13" id="" type="button" data-toggle="dropdown" title="Export">
+                                <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()"> Export</a></div>
+                                </div>
+                            </div>
+                            <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                <li>
+                                    <div id="" title="Export to Excel"><span style="padding: 0 5px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                </li>
+                                <li>
+                                    <div title="Export to PDF" id=""><span style="padding: 0 5px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</div>
+                                </li>
+                                <li>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>*@
+                </div>
+            </div>
+            <div class="tablearea" style="margin:0;">
+                <div class="tablecontainer" style="overflow-x:hidden;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table-panel">
+                                <thead>
+                                    <tr>
+                                        <th><div class="thbg">S.NO</div></th>
+                                        <th><div class="thbg">Date</div></th>
+                                        <th><div class="thbg">Keyword</div></th>
+                                        <th><div class="thbg">Court</div></th>
+                                        <th><div class="thbg">Action</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bindKeywordData"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="pagination" id="pagenatedArea" >
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                        @*<div class="text">a</div>*@
+                        @*<span id="pageNumbers" class="pages"></span>*@
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+

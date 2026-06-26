@@ -1,0 +1,1706 @@
+﻿@{
+    var firmcode121 = Session["FirmCode"];
+}
+<script>
+</script>
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<link href="~/Manupanel/css/Pdashboard.css?2.4" rel="stylesheet" />
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https:/resources/demos/style.css">
+<script src="~/dist/multipleSelect/jquery.multiselect.js"></script>
+<link href="~/dist/multipleSelect/jquery.multiselect.css" rel="stylesheet" />
+@*<script src="https://code.jquery.com/jquery-1.12.4.js"></script>*@
+@*<script>
+    $(function () {
+        $("#tabs").tabs();
+    });
+    function SetTab(strtabid) {
+        if (strtabid == "tab1") {
+            $("#frmnew1").attr("src", "/@firmcode121/chat/ChannelListQTDetail");
+        }
+        else if (strtabid == "tab2") {
+            $("#frmnew1").attr("src", "/@firmcode121/chat/PrivateChannelListQTDetail");
+        }
+        else if (strtabid == "tab3") {
+            $("#frmnew1").attr("src", "/@firmcode121/chat/InvitedchatQT");
+        }
+    }
+</script>*@
+@*<script src="~/Scripts/Firm/Pages/CommanDashboard.js"></script>*@
+<script>
+    $(document).ready(function () {
+        jQuery('#alertmember').multiselect({
+            columns: 1,
+            search: true,
+            selectAll: false
+        });
+        function openload() {
+            $("#myOverlay").css("display", "block");
+        }
+        function closeload() {
+            $("#myOverlay").css("display", "none");
+        }
+        $('div .dropdown-menu').on('click', function (e) {
+            $(".dropdown-menushowhid").css("height", "100px !important;")
+            // The event won't be propagated up to the document NODE and
+            // therefore delegated events won't be fired
+            if (e.target.className == "chktaskmembergroups1") {
+                $(".taskmembercls1").prop('checked', $("#chktaskmembergroups1").prop('checked'));
+                var favorite = [];
+                var i = 0;
+                var chkname = '';
+                $.each($("input[id='chkTaskgroup1']:checked"), function () {
+                    if (chkname == "") {
+                        chkname = $(this).attr("tempusername");
+                    }
+                    i = i + 1;
+                });
+                if (i == 0) {
+                    $("#lblTeammemberSelect1").text("Select");
+                    chkname = "";
+                }
+                else {
+                    if (i > 1) {
+                        $("#lblTeammemberSelect1").text("All");
+                    }
+                    else {
+                        $("#lblTeammemberSelect1").text("Selected (" + chkname + ")");
+                    }
+                }
+            }
+        });
+        $(document).on('change', '#chkTaskgroup1', function () {
+            var favorite = [];
+            var i = 0;
+            var chkname = '';
+            $.each($("input[id='chkTaskgroup1']:checked"), function () {
+                if (chkname == "") {
+                    chkname = $(this).attr("tempusername");
+                }
+                i = i + 1;
+            });
+            if (i == 0) {
+                $("#lblTeammemberSelect1").text("Select");
+                chkname = "";
+            }
+            else {
+                if (chkname.length > 8) {
+                    chkname = chkname.substring(0, 8) + "...";
+                }
+                else {
+                }
+                if (i > 1) {
+                    $("#lblTeammemberSelect1").text("Selected (" + chkname + " +)");
+                }
+                else {
+                    $("#lblTeammemberSelect1").text("Selected (" + chkname + ")");
+                }
+            }
+        });
+        function loadCaseUser(caseid, target) {
+            $(target).empty();
+            if (target == "#member") {
+                var optiont1 = '<li><input id="chktaskmembergroups" type="checkbox" class="chktaskmembergroups"   value="" ><a href="#" class="dropdown-item">All Members</a></li>';
+                $(target).append(optiont1);
+            }
+            else if (target == "#alertmember") {
+                var optiont1 = '<li><input id="chktaskmembergroups1" type="checkbox" class="chktaskmembergroups1"   value="" ><a href="#" class="dropdown-item">All Members</a></li>';
+                $(target).append(optiont1);
+            }
+            else {
+                var optiont1 = '<option value="" >Select</option>';
+                $(target).append(optiont1);
+            }
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/BindCaseAssignuser",
+                headers: {
+                    "caseid": caseid
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        var obj = JSON.parse(response.Data);
+                    }
+                    else {
+                        //alert("not found");
+                    }
+                    var html3 = '';
+                    var option2 = '';
+                    var option3 = '';
+                    $("#alertmember").empty();
+                    $.each(obj, function (i, a) {
+                        if (target == "#alertmember") {
+                            //html3 += '<li><input id="chkTaskgroup1" type="checkbox" class="shcheckbox1 taskmembercls1" tempUserName="' + a["UserId"] + '" name="fname" value="' + a["auser"] + '" ><a href="#" class="dropdown-item">' + a["UserId"] + '</a></li>'
+
+                            var option = '<option value="' + a["auser"] + '" > ' + a["UserId"] + '</option>';
+                            $(target).append(option);
+                        }
+                        else {
+                            var option = '<option value="' + a["auser"] + '" > ' + a["UserId"] + '</option>';
+                            $(target).append(option);
+                        }
+                    });
+                    $("#alertmember").multiselect('reload');
+                   // $(target).append(html3);
+                    //End of foreach Loop
+                    //console.log(response);
+                }, //End of AJAX Success function
+                failure: function (response) {
+                    alert(data.responseText);
+                }, //End of AJAX failure function
+                error: function (response) {
+                    alert(response.responseText);
+                } //End of AJAX error function
+            });
+        }
+        $("#sidebindcommucase").change(function () {
+           
+            var clientds = $("#sidebindcommucase").val();
+            if (clientds != "") {
+                loadCaseUser(clientds, "#alertmember");
+            }
+            else {
+                $('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+            }
+        });
+        filesize = 5120;
+        $("#homelinkcommu").click(function () {
+            $("#homelinkcommu").addClass("active");
+            $("#homelinktask").removeClass("active");
+            $("#homelinkcase").removeClass("active");
+            $("#homelinkconctact").removeClass("active");
+            $("#homelinktimer").removeClass("active");
+            $('#sideaddcommu').toggle("slide", { direction: "right" }, 500);
+        });
+        function resetselectcommu() {
+            $("#sidebindcommuclient").prop("selectedIndex", 0);
+            $("#sidebindcommucase").prop("selectedIndex", 0);
+            $("#alertmember").prop("selectedIndex", 0);
+            $("#inftypecommu").prop("selectedIndex", 0);
+            $("#savetaskcommu")[0].reset();
+            $("#lblTeammemberSelect1").text("Select");
+            $("#CommfileList").html("");
+            selectedFilesComm = [];
+        }
+        $("#SaveCommuclient").click(function () {
+            debugger;
+            var val = [];
+            var membersids = "";
+            //$('.taskmembercls1:checkbox:checked').each(function (i) {
+            //    val[i] = $(this).val();
+            //    membersids += val[i] + ",";
+            //});
+            var member = $("#alertmember").val();
+            var formData = new FormData();
+            var caseid = $("#sidebindcommucase").val();
+            var inftype = $("#inftypecommu").val();
+            var Subject = $('#sidebindcommusubject').val();
+            var details = $("#taskdetailscommu").val();
+            //var member = membersids.replace(/,/g, "");
+            if (caseid == "") {
+                alert("select matter");
+                document.getElementById("sidebindcommucase").focus();
+                return false;
+            }
+            if (member == "" || member== null) {
+                alert("select Team member");
+                document.getElementById("alertmember").focus();
+                return false;
+            }
+            if (Subject == "") {
+                alert("Please enter the Subject name.");
+                document.getElementById("sidebindcommusubject").focus();
+                return false;
+            }
+            if (details == "") {
+                alert("Please enter the communication details.");
+                document.getElementById("taskdetailscommu").focus();
+                return false;
+            }
+            var tempsize = 0;
+            var tottempsize = 0;
+            var totalFiles = selectedFilesComm.length; //document.getElementById("attachmentcommu").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = selectedFilesComm[i]; //document.getElementById("attachmentcommu").files[i];
+                var filename = file.name;
+                if (filename.length > 100) {
+                    alert("The name of the file cannot exceed the limit of 100 characters. Please check file name: " + filename);
+                    return false;
+                }
+                var Extresponse = checkfileext(filename);
+                if (String(Extresponse) == "false") {
+                    return false;
+                }
+                formData.append("FileUpload", file);
+                try {
+                    if (typeof (file) != "undefined") {
+                        size = parseFloat(file.size / 1024).toFixed(2);
+                        tottempsize = parseFloat(tottempsize) + parseFloat(size);
+                        tempsize = parseFloat(size);
+                    }
+                }
+                catch (err) {
+                    //alert(err.message);
+                }
+                tempsize = tempsize.toFixed(2);
+            }
+            formData.append("caseid", caseid);
+            formData.append("member", member);
+            formData.append("inftype", inftype);
+            formData.append("details", details);
+            formData.append("subject", Subject);
+            formData.append("savemykasefileid", "");
+            //read assign using list
+            openload();
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/SaveCaseCommunique",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Data.Result == "") {
+                        alert("Communication sent successfully.");
+                        resetselectcommu();
+                        closeload();
+                    }
+                    else {
+                        alert(response.Data);
+                        closeload();
+                    }
+                }, //End of AJAX Success function
+                failure: function (response) {
+                    alert(response.responseText);
+                    closeload();
+                }, //End of AJAX failure function
+                error: function (response) {
+                    alert(response.responseText);
+                    closeload();
+                } //End of AJAX error function
+            });
+        });
+    });
+</script>
+<style>
+</style>
+<!--for quick Entry page-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('input.timepicker').timepicker({});
+    });
+</script>
+
+<div class="quickentrypanel">
+    <!--Start quick Entry form-->
+
+    <div id="sideaddtask" class="formpanel" style="display:none">
+        <!--for add task-->
+        <h2>Add Task <sup>New</sup></h2>
+        <form id="savetaskform" enctype="multipart/form-data" novalidate="novalidate">
+            <div style="background:#fafafa;">
+                <table cellpadding="0" cellspacing="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td align="left">
+                                <label>CLIENT</label>
+                                <input type="text" id="taskcontact" name="taskcontact" class="form-control" autocomplete="off">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left">
+                                <label>Matter Name </label>
+                                <select class="form-control" id="matter" name="matter">
+                                    <option value="" selected="">Select</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left">
+                                <table align="center" width="100%" cellspacing="0" cellpadding="0">
+                                    <tbody>
+                                        <tr>
+                                            <td align="left" width="42%">
+                                                <label>TASK Type <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                <select class="form-control" id="tasktype" name="tasktype">
+                                                    <option value="" selected="">Select</option>
+                                                </select>
+                                            </td>
+                                            <td align="center" width="6%">&nbsp;</td>
+                                            <td align="left" width="42%">
+                                                <label>TEAM Member<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                <select class="form-control" id="member" name="member">
+                                                    <option value="" selected="">Select</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left">
+                                <table align="center" width="100%" cellspacing="0" cellpadding="0">
+                                    <tbody>
+                                        <tr>
+                                            <td align="left" width="62%">
+                                                <label>DUE Date <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                <input type="date" id="taskduedate" class="form-control">
+                                            </td>
+                                            <td align="center" width="6%">&nbsp;</td>
+                                            <td align="left" width="22%">
+                                                <label>ACTION By Date <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                <input type="date" autocomplete="off" id="actionbydate" class="form-control">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr class="taskdes">
+                            <td align="left">
+                                <label>NOTE</label>
+                                <textarea cols="25" id="taskdetails" class="form-control" style="min-height:67px;" maxlength="2000" placeholder="Max 2000 characters allowed"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table align="center" width="100%" cellspacing="0" cellpadding="0" style="margin-top:5px;">
+                    <tbody>
+                        <tr>
+                            <td align="right" width="42%"><button type="button" id="newtaskreset" class="s_btn">new task </button></td>
+                            <td align="center" width="6%">|</td>
+                            <td align="left" width="42%"><button type="button" id="SaveCaseTask" class="s_btn col_blue">save task</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+        <!--Start quick Entry form-->
+    </div>
+    <!--Start communication form-->
+    <div id="sideaddcommu" class="formpanel" style="display:none">
+        <input type="hidden" id="commuclienthide">
+        <input type="hidden" id="commucliennamethide">
+        <input type="hidden" id="commucompanyidsnamethide">
+        <section class="right_panel">
+            <div class="modal_header">
+                <span class="header_icon">
+                    <img src="/newassets/img/quickbar/addComment.svg" alt="addComment">
+                </span>
+                <h4 class="modal_title">Add Communication</h4>
+            </div>
+            <form id="savetaskcommu" class="form_container" enctype="multipart/form-data" autocomplete="new-text">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="field_wrapper">
+                                @*<div class="form-group">
+            <label class="formLabel colorDark">Client Name<span class="required " aria-required="true"><b> *</b> </span></label>
+            <input type="text" id="sidebindcommuclient" name="sidebindcommuclient" class="form-control" autocomplete="new-text">
+        </div>*@
+                                <div class="form-group">
+                                    <label class="formLabel colorDark">Matter Name<span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <select class="form-control selctInputForm" id="sidebindcommucase">
+                                        <option value="" selected="">Select</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="formLabel colorDark">Subject<span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input type="text" id="sidebindcommusubject" name="sidebindcommusubject" class="form-control" autocomplete="new-text">
+                                </div>
+                                <div class="form-group">
+                                    <label class="formLabel colorDark">Message<span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <textarea cols="25" id="taskdetailscommu" class="form-control " style="min-height:60px; border: 1px solid #ccc !important; border-radius: 4px !important;" maxlength="2000" autocomplete="new-text" placeholder="Max 2000 characters allowed"></textarea>
+                                    <span style="text-align: right; display: block; font-size: 12px; color: gray;">0/2000</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="formLabel colorDark">Add Member<span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <select multiple class="selctInputFormat" name="languageSelect[]" id="alertmember"></select>
+                                </div>
+                                <!-- From Uiverse.io by escannord -->
+                                @*<div class="dragUpload">*@
+
+            @*<div class="labelFile" id="commuattachtitle" title="upload Attachment" style="padding-top: 0; padding-bottom: 10px;">
+                <div class="buttonsOf">
+                    <div class="upload_window">
+                        <h6>Choose From Local Drive</h6>
+                        <div class="browsetaskfile1">
+                            <input type="file" class="postedFile" id="attachmentcommu" name="postedFile" multiple="" placeholder="Add receipts...">
+                        </div>
+
+                    </div>
+                    <div class="upload_window" style="margin-top:18px;">
+                        <h6>Choose From Mykase Drive</h6>
+                        <div title="No file chosen" class="browsetaskfile browsetaskfile1" id="browsefilecommunique" module="expense">
+                            <button type="button">Choose Files</button>
+                            <span id="browsefilelblcommunique">No file chosen</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>*@
+
+                                <div class="dragUpload" id="commuattachtitle">
+                                    <div class="upload-icon"> <img src="/newassets/img/upload-cloud.svg"> </div>
+                                    <p class="upload-text">Choose a file</p>
+                                    <p class="upload-subtext">
+                                    <div class="upload-buttons" style="padding-top:7px;">
+                                        <label for="attachmentcommu" class="upload-btn">Local Drive</label>
+                                        @*<label title="No file chosen" class="upload-btn browsetaskfile browsetaskfile1" id="browsefilecommunique" module="communication">
+                                            MyKase Drive
+                                        </label>*@
+                                        <input type="file" class="postedFile" id="attachmentcommu" name="postedFile" multiple="" placeholder="Add receipts..." style="display:none;">
+                                    </div>
+                                    <div id="CommfileList" style="margin-top:10px;"></div>
+                                </div>
+
+                            @*</div>*@
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal_footer">
+                <button class="btn btn-secondary" id="idresetClientcommon">Reset</button>
+                @*<a href="/MANU22/firm/CreateCase" style="border:0px; font-weight:400;" id="SaveCommu" title="Add Communication" class="button4">*@
+                <a href="#" style="border:0px; font-weight:400;" id="SaveCommuclient" title="Add Communication" class="button4">
+                    <span><img src="/newassets/img/quickbar/addComment_white.svg" style="padding: 0; border: 0;"></span>Add Communication
+                </a>
+            </div>
+        </section>
+    </div>
+    <!--End communication form-->
+    @*<div id="sideaddcommu" class="formpanel" style="display:none">
+
+            <h2>Add Communication <sup>New</sup></h2>
+            <form id="savetaskcommu" enctype="multipart/form-data">
+                <div class="qtf_wrapper">
+                    <table cellpadding="0" cellspacing="0" width="100%">
+                        <tbody>
+                            <tr style="display:none;">
+                                <td align="left">
+                                    <label>CLIENT <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </label>
+                                    <input type="text" id="sidebindcommuclient" name="sidebindcommuclient" class="form-control fp_input" autocomplete="off">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left">
+                                    <label>Matter Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <select class="form-control fp_select" id="sidebindcommucase">
+                                        <option value="" selected="">Select</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left">
+                                    <table align="center" width="100%" cellspacing="0" cellpadding="0">
+                                        <tbody>
+                                            <tr>
+                                                <td align="left" width="42%">
+                                                    <label>ALERT Members <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                    <p class="dropdown-toggle fp_select" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <label id="lblTeammemberSelect1" style="color: #7c7777;font-size: 12px;font-weight: 500;">Select </label>
+                                                    </p>
+                                                    <ul class="dropdown-menu  dropdown-menushowhid settingshowhide" id="alertmember" style="position: absolute;top: 155px; right: 0; z-index: 10000;height:115px !important;left:0; width:auto"></ul>
+                                                </td>
+                                                <td align="center" width="6%">&nbsp;</td>
+                                                <td align="left" width="42%">
+                                                    <label>Subject <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </label>
+                                                    <input type="text" id="sidebindcommusubject" name="sidebindcommusubject" class="form-control fp_input" autocomplete="new-text">
+                                                </td>
+                                                <td align="center" width="6%" style="display:none;">&nbsp;</td>
+                                                <td align="left" width="42%" style="display:none;">
+                                                    <label>COMMUNICATION Via<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                    <select class="form-control fp_select" id="inftypecommu">
+                                                        <option value="" selected="">Select</option>
+                                                        <option value="E-mail">E-mail</option>
+                                                        <option value="Chat/Text">Chat/Text</option>
+                                                        <option value="Call">Call</option>
+                                                        <option value="Meeting">Meeting</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr class="taskdes">
+                                <td>
+                                    <label>NOTE</label>
+                                    <textarea cols="25" class="form-control fp_txtbox" id="taskdetailscommu" style="min-height:100px;" maxlength="2000" placeholder="Max 2000 characters allowed"></textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table align="left" width="100%" cellspacing="0" cellpadding="0" style="margin-top:10px;">
+                        <tbody>
+                            <tr>
+                                <td align="center" width="10%">&nbsp;</td>
+                                <td align="center" width="30%">
+                                    <div class="btn-group dropup  fp_select">
+                                        <span style="cursor:pointer;padding:0 5px 0 0" title="upload Attachment" class="dropdown-toggle s_btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            attachments
+                                        </span>
+                                        <ul class="dropdown-menu settingaction" style="width:200px;">
+                                            <li>   <input type="file" id="attachmentcommu" multiple class="form-control inputbg" /></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td align="center" width="15%"><button type="button" id="newcommureset" class="fpbtn_grey">new </button></td>
+                                <td align="center" width="15%"><button type="button" id="SaveCommuclient" class="fpbtn_blue">send</button></td>
+                                <td align="center" width="15%">&nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+
+        </div>*@
+    @if ((Session["sessionroleid"].ToString() == "1") || (Convert.ToInt32(Session["IsCreateSidetimer"]) == 1))
+    {
+        <div id="sidelogtimer" class="formpanel" style="display:none">
+            <!--for add task-->
+            <h2>Log Time <sup>New</sup></h2>
+            <form id="savecallform" enctype="multipart/form-data">
+                <div>
+                    <table cellpadding="0" cellspacing="0" width="100%">
+                        <tbody>
+                            <tr>
+                                <td align="left">
+                                    <table cellspacing="0" cellpadding="0" width="100%">
+                                        <tbody>
+                                            <tr>
+                                                <td width="30%" align="center" valign="middle">
+                                                    <span class="timerhidden">
+                                                        <p id="taskstarttimer1" type="button" class=" taskstarttimer" title="Start Timer" style="cursor: pointer; display: block;width: 50px;height: 50px; border-radius: 50%;border: 2px solid "> <i class="fa fa-play timer-icon" style="padding: 14px 0 0 5px;font-size:20px;"></i></p>
+                                                    </span>
+                                                    <span class="timerhidden">
+                                                        <p id="taskstoptimer1" type="button" class=" taskstarttimer" style="cursor: pointer; display: none;width: 50px;height: 50px; border-radius: 50%;border: 2px solid "><span class="glyphicon glyphicon-pause" style="padding: 10px 0 0 1px;font-size:20px;"></span></p>
+                                                    </span>
+                                                    <span class="timerhidden" style="display:none">
+                                                        <p class="dropdown-toggle"> <i class="glyphicon glyphicon-time" style="cursor:default !important;"></i> <span id="secondtimer" style="cursor:default;">0h:0m:0s</span></p>
+                                                    </span>
+                                                </td>
+                                                <td width="70%">
+                                                    <label>CLIENT <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                    <input type="text" id="timecontact" name="timecontact" class="form-control" autocomplete="off" />
+                                                    <label>Matter Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                    <select class="form-control" id="timematter" required>
+                                                        <option value="" selected="">Select</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left">
+                                    <label>TASK <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <select class="form-control" id="item" required>
+                                        <option value="" selected="selected">Select </option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left">
+                                    <table align="left" width="100%" cellspacing="0" cellpadding="0">
+                                        <tbody>
+                                            <tr>
+                                                <td align="left" width="50%">
+                                                    <label>DATE <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                    <input class="form-control" name="dt" type="date" placeholder="Date" id="dt" required="">
+                                                </td>
+                                                <td align="left" width="3%">&nbsp;</td>
+                                                <td align="left" width="47%">
+                                                    <label>TIMER</label>
+                                                    <input class="form-control valid" name="duration" type="text" required="" id="duration2" placeholder="Format: 1h 10m 1s" value="0h:0m:0s" aria-invalid="false">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr class="taskdes">
+                                <td>
+                                    <label>BRIEF</label>
+                                    <textarea cols="25" class="form-control" id="details" style="min-height:67px;" maxlength="2000"></textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table align="left" width="100%" cellspacing="0" cellpadding="0" style="margin-top:10px;">
+                        <tbody>
+                            <tr>
+                                <td align="right" width="42%">
+                                    <div class="btn-group dropup">
+                                        <span style="cursor:pointer;padding:0 5px 0 0" title="upload Attachment" class="dropdown-toggle s_btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            attachments
+                                        </span>
+                                        <ul class="dropdown-menu settingaction" style="width:200px;">
+                                            <li> <input type="file" id="postedfile" style="border-bottom:none !important;" class="form-control"></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td align="center" width="6%">|</td>
+                                <td align="left" width="42%"><button type="button" id="savetimeentry" class="s_btn col_blue">save</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+            <!--Start quick Entry form-->
+        </div>
+    }
+    <!--Start chat -->
+    <style>
+        .ui-widget {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 12px;
+        }
+    </style>
+    <div id="chatmodalview1" class="chatmodal_a" style="display:none">
+        <div class="chatmodal_a-content">
+            <img src="/NewDesign/images/v_btn.png" class="close_a" id="reminderClose" width="22px" height="22" onclick="$('#chatmodalview1').hide();">
+            <!--for add task-->
+            <input type="hidden" id="userid" value="@Session["sessionuserid"].ToString()" />
+            <div class="container" style="width:100%!important">
+                <div class="row">
+                    <div id="tabs">
+                        <ul>
+                            <li><a href="#tabs-3" onclick="SetTab(this.id)" id="tab3">Join Chat</a></li>
+                            <li><a href="#tabs-2" onclick="SetTab(this.id)" id="tab2">Private Channel</a></li>
+                            <li><a href="#tabs-4" onclick="SetTab(this.id)" id="tab4">Chat Setting</a></li>
+                        </ul>
+                        <div id="tabs-2" style="padding: 0px 5px 0 5px !important;">
+                            <p><iframe id="frmnew1" src="/@firmcode121/chat/PrivateChannelListQTDetail" style="height:500px;width:98%;border:none;padding:10px 0 0 0;overflow-y:scroll"></iframe></p>
+                        </div>
+                        <div id="tabs-3" style="padding: 0px 5px 0 5px !important;">
+                            <p><iframe id="frmnew1" src="/@firmcode121/chat/InvitedchatQT" style="height:500px;width:98%;border:none;padding:10px 0 0 0;overflow-y:scroll"></iframe></p>
+                        </div>
+                        <div id="tabs-4" style="padding: 0px 5px 0 5px !important;">
+                            <p>
+                                <div style="padding:0 0 0 0">
+                                    <br />
+                                    <h2 class="title">Enable / Disable Chat Reminder</h2><br />
+                                    <a href="javascript:void()" class="sbtbtn" title="Click here to enable / disable chat reminder pop up" id="lnkchatdisablenew">Disable Chat Reminder</a>
+                                    <br /> <br />
+                                    <br /> <br />
+                                </div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End chat -->
+    <!--Start quick Entry icon-->
+    @{
+        var _dashmatter = Convert.ToString(Session["dashmatter"]);
+        if (_dashmatter.ToString() == "display:unset")
+        {
+            _dashmatter = "display:block";
+        }
+        var _dashchat = Convert.ToString(Session["dashchat"]);
+        if (_dashchat.ToString() == "display:unset")
+        {
+            _dashchat = "display:block";
+        }
+    }
+    <div class="toolbar_wrapper icon-bar1">
+        <ul style="padding: 7px;">
+            <li style="@_dashmatter">
+                <a id="homelinkcommu" href="#">
+                    <img src="~/newassets/img/quickbar/addComment.svg" alt="addComment">
+                    <span>Add Commu.</span>
+                </a>
+            </li>
+        </ul>
+
+    </div>
+    @*<div class="icon-bar1">
+            <a href="javascirpt:void()" id="homelinkcommu" title="Add Communique" style="@_dashmatter"><img src="~/newassets/images/add_comm_icon.png" width="36" height="36" alt="Add Communiqué" /></a>
+            <a id="chatlink" title="Chat" style="cursor:pointer;@_dashchat"><img src="~/newassets/images/chat_iconqt.png" width="36" height="36" alt="Chat" /></a>
+        </div>*@
+    <!--End quick Entry icon-->
+</div>
+<!--End quick Entry page-->
+<!-- ./wrapper -->
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+<script type="text/javascript">
+    var nusername = "";
+    var npassword = "";
+    var usertype = "";
+    $('.hspass').hide();
+    $('#sidebindcaseclient').on('keyup', function () {
+        /* your code here */
+        var txtlength = $("#sidebindcaseclient").val().length;
+        if (txtlength > 0) {
+        }
+        else {
+            $("#shortcasemap").val("");
+            $("#checkclient").val("");
+            $("#commoncaseloginpanel").hide();
+            $("#casesideuserid").val("");
+            $("#casesidepassword").val("");
+            $("#casesidecpassword").val("");
+            $("#caseclientcontact").find('option').remove().end().append('<option value="">Client Contact</option>');
+        }
+    });
+    $(".selectusertype").change(function () {
+        $("#shortcasemap").val("");
+        $("#checkclient").val("");
+        $('#sidebindcaseclient').val("");
+        $("#commoncaseloginpanel").hide();
+        $("#casesideuserid").val("");
+        $("#casesidepassword").val("");
+        $("#casesidecpassword").val("");
+        $("#caseclientcontact").find('option').remove().end().append('<option value="">Client Contact</option>');
+    });
+    $('#sidebindcaseclient').on('keyup', function () {
+        //code to be executed
+        $("#commoncaseloginpanel").hide();
+        usertype = $("input[name='selectusertype']:checked").val();
+    }).on('keydown', function (e) {
+        $("#clientname").val("");
+        if (e.keyCode == 8)
+            $("#casesideuserid").val("");
+        $("#casesidepassword").val("");
+        $("#casesidecpassword").val("");
+    });
+    $(function () {
+        $("#sidebindcaseclient").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                $.ajax({
+                    async: true,
+                    url: '/Firm/CaseClientCompanyFilterUser',
+                    data: "{ 'prefix': '" + request + "','type': '" + usertype + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#shortcasemap").val(map[item].id);
+                $("#checkclient").val(map[item].isclient);
+                if (String(map[item].isclient) == "0") {
+                    $("#commoncaseloginpanel").show();
+                }
+                else {
+                    $("#commoncaseloginpanel").hide();
+                }
+                if (map[item].utype == "Company") {
+                    requestid = map[item].CompanyID;
+                    var formData = new FormData();
+                    formData.append("prefix", requestid)
+                    $("#caseclientcontact").find('option').remove().end().append('<option value="">Client Contact</option>');
+                    $.ajax({
+                        url: '/api/CallApi/loadcompanycontacts',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        type: 'POST',
+                        success: function (response) {
+                            var obj = JSON.parse(response.Data);
+                            $.each(obj, function (i, a) {
+                                var option = '<option value="' + a.val + '" >  ' + a["label"] + '</option>';
+                                $("#caseclientcontact").append(option);
+                            }); //End of foreach Loop
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                }
+                return item;
+            }
+        });
+    });
+</script>
+<script>
+    $(function () {
+        $("#sidefname").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ContactsFilterUser',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#shortcasemap").val(map[item].id);
+                $("#checkclient").val(map[item].isclient);
+                if (String(map[item].isclient) == "0") {
+                    $("#commoncaseloginpanel").show();
+                }
+                else {
+                    $("#commoncaseloginpanel").hide();
+                }
+                requestid = map[item].CompanyID;
+                var formData = new FormData();
+                formData.append("id", requestid);
+                formData.append("type", map[item].id);
+                $("#caseclientcontact").find('option').remove().end().append('<option value="">Client Contact</option>');
+                $.ajax({
+                    url: '/api/CallApi/SingleContactsDetails',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
+                    success: function (response) {
+                        var obj = JSON.parse(response.Data);
+                        $.each(obj, function (i, a) {
+                            $("#sidefname").val((map[item].LabelName).trim());
+                            if (map[item].ProfileType != null) {
+                                $('#commoncontacttype option[value="' + map[item].ProfileType + '"]').attr("selected", true);
+                            }
+                            if (a.CompanyId != null) {
+                                $('#commancompanyname option[value="' + a.CompanyId + '"]').attr("selected", true);
+                            }
+                            $("#sideMPhone").val(a.mobno);
+                            $("#sideEmail").val(a.cemail);
+                            $("#sidedesignation").val(a.Designation);
+                        }); //End of foreach Loop
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+                return item;
+            }
+        });
+    });
+</script>
+<script>
+    loadmatter1("@Session["sessionuserid"]", "sidebindcommucase","@Session["Companyid"]");
+    function loadmatter1(clientid, mtypes, companyids = null) {
+        if (mtypes != "") {
+            $('#' + mtypes).empty().append('<option value="">Select matter</option>').find('option:first').attr("selected", "selected");
+            getcasebyajax1(clientid, mtypes, companyids);
+        }
+    }
+    function getcasebyajax1(clientid, matteridslbl, companyids = null) {
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/LoadMatterforclient",
+            headers: {
+                "clientid": clientid,
+                "companyids": companyids
+            },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                }
+                else {
+                    //alert("not found");
+                }
+                $.each(JSON.parse(response.Data), function (i, a) {
+                    var mattername = a.mname;
+                    var mid = a.Id;
+                    if (mattername == null) {
+                        mattername = "";
+                        mid = "";
+                    }
+                    else {
+                        var option = '<option value="' + mid + '" > ' + mattername + '</option>';
+                        $("#" + matteridslbl).append(option);
+                    }
+                });
+                //console.log(response);
+            },
+            failure: function (response) {
+                alert(data.responseText);
+            },
+            error: function (response) {
+                alert(data.responseText);
+            }
+        });
+    }
+    $(function () {
+        $("#taskcontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                var clientds = map[item].id;
+                if (clientds != "") {
+                    loadmatter1(clientds, "matter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+            }
+        });
+    });
+    $(function () {
+        $("#timecontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                var clientds = map[item].id;
+                if (clientds != "") {
+                    loadmatter1(clientds, "timematter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+            }
+        });
+    });
+    $(function () {
+        $("#ddlExpenceClient").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#exclienthide").val(map[item].id);
+                var clientds = map[item].id;
+                if (clientds != "") {
+                    loadmatter1(clientds, "ddlExpenceCase");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+            }
+        });
+    });
+    $(function () {
+        $("#client").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                var clientds = map[item].id;
+                if (clientds != "") {
+                    loadmatter1(clientds, "cmatter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+            }
+        });
+    });
+</script>
+<script>
+    //chat quick tab start
+    //function ShowChatReminderDiv() {
+    //    $.ajax({
+    //        async: true,
+    //        url: '/api/ChatApi/CheckChatJoinedByUser',
+    //        processData: false,
+    //        contentType: false,
+    //        type: 'POST',
+    //        success: function (response) {
+    //            if (response.Data.length > 0 && (sessionStorage.getItem("hidtempchatdisable") == null || sessionStorage.getItem("hidtempchatdisable") == "null")) {
+    //                $("#divChatReminder").show();
+    //                $("#lnkchatdisablenew").text("Disable Chat Reminder");
+    //            }
+    //            else {
+    //                $("#divChatReminder").hide();
+    //                $("#lnkchatdisablenew").text("Enable Chat Reminder");
+    //            }
+    //        },
+    //        error: function (response) {
+    //            alert(response.responseText);
+    //        }
+    //    });
+    //}
+    //setInterval("ShowChatReminderDiv()", 60000);
+    //chat quick tab end
+    let selectedFilesComm = [];
+    $(document).ready(function () {
+        //chat quick tab start
+        //$("#chatlink").click(function () {
+        //    $("#chatmodalview1").show();
+        //});
+        //$(document).on('click', '#lnkchatdisablenew', function () {
+        //    if (sessionStorage.getItem("hidtempchatdisable") == "1") {
+        //        sessionStorage.setItem("hidtempchatdisable", "null");
+        //        $("#divChatReminder").show();
+        //        $("#lnkchatdisablenew").text("Disable Chat Reminder");
+        //    }
+        //    else {
+        //        sessionStorage.setItem("hidtempchatdisable", "1");
+        //        $("#divChatReminder").hide();
+        //        $("#lnkchatdisablenew").text("Enable Chat Reminder");
+        //    }
+        //});
+        //$(document).on('click', '#reminderClose', function () {
+        //    $("#chatmodalview1").hide();
+        //});
+       // ShowChatReminderDiv();
+        //chat quick tab end
+        try {
+            var sesh1 = sessionStorage.getItem("h1");
+            var sesm1 = sessionStorage.getItem("m1");
+            var sess1 = sessionStorage.getItem("s1");
+            if (sesh1 == 0 && sesm1 == 0 && sess1 == 0) {
+                h1 = 00;
+                m1 = 00;
+                s1 = 00;
+            }
+            else if (sesh1 == "undefined" && sesm1 == "undefined" && sess1 == "undefined") {
+                h1 = 00;
+                m1 = 00;
+                s1 = 00;
+                $("#secondtimer").html("0h:0m:0s");
+            }
+            else if (sesh1 == null && sesm1 == null && sess1 == null) {
+                h1 = 00;
+                m1 = 00;
+                s1 = 00;
+                $("#secondtimer").html("0h:0m:0s");
+            }
+            else if (sesh1 == "NaN" && sesm1 == "NaN" && sess1 == "NaN") {
+                h1 = 00;
+                m1 = 00;
+                s1 = 00;
+                $("#secondtimer").html("0h:0m:0s");
+            }
+            else {
+                window.clearInterval(t11);
+                clearTimeout(t11);
+                h1 = sesh1;
+                m1 = sesm1;
+                s1 = sess1;
+                $("#taskstarttimer1").css("display", "none");
+                $("#taskstoptimer1").css("display", "block");
+                setTimeout(function () {
+                    timesr11();
+                }, 1000);
+            }
+            var interval11 = 1;
+            var timestamp11 = new Date("July 20, 2016 " + h1 + ':' + m1 + ':' + s1);
+            var t11 = '';
+            function timesr11() {
+                if (h1 == "null" && m1 == "null" && s1 == "null") {
+                    h1 = 00;
+                    m1 = 00;
+                    s1 = 00;
+                }
+                timestamp11 = new Date("July 20, 2016 " + h1 + ':' + m1 + ':' + s1);
+                t11 = window.setInterval(function () {
+                    timestamp11 = new Date(timestamp11.getTime() + interval11 * 1000);
+                    document.getElementById('secondtimer').innerHTML = timestamp11.getHours() + 'h:' + timestamp11.getMinutes() + 'm:' + timestamp11.getSeconds() + 's';
+                    document.getElementById('duration2').value = timestamp11.getHours() + 'h:' + timestamp11.getMinutes() + 'm:' + timestamp11.getSeconds() + 's';
+                    sessionStorage.setItem("h1", timestamp11.getHours());
+                    sessionStorage.setItem("m1", timestamp11.getMinutes());
+                    sessionStorage.setItem("s1", timestamp11.getSeconds());
+                }, Math.abs(interval11) * 1000);
+            }
+            function starttime1() {
+                $("#taskstarttimer1").css("display", "none");
+                $("#taskstoptimer1").css("display", "block");
+                var sesh1 = sessionStorage.getItem("h1");
+                var sesm1 = sessionStorage.getItem("m1");
+                var sess1 = sessionStorage.getItem("s1");
+                if (sesh1 != null && sesm1 != null && sess1 != null) {
+                    h1 = sesh1;
+                    m1 = sesm1;
+                    s1 = sess1;
+                }
+                else {
+                    h1 = 00;
+                    m1 = 00;
+                    s1 = 00;
+                }
+                timesr11();
+            }
+            $("#taskstarttimer1").click(function () {
+                if (sesh1 == "NaN" && sesm1 == 'NaN' && sess1 == 'NaN') {
+                    sessionStorage.setItem("h1", 00);
+                    sessionStorage.setItem("m1", 00);
+                    sessionStorage.setItem("s1", 00);
+                }
+                else if (sesh1 == "null" && sesm1 == 'null' && sess1 == 'null') {
+                    sessionStorage.setItem("h1", 00);
+                    sessionStorage.setItem("m1", 00);
+                    sessionStorage.setItem("s1", 00);
+                }
+                else {
+                    sessionStorage.setItem("h1", sessionStorage.getItem("h1"));
+                    sessionStorage.setItem("m1", sessionStorage.getItem("m1"));
+                    sessionStorage.setItem("s1", sessionStorage.getItem("s1"));
+                }
+                starttime1();
+            });
+            $("#taskstoptimer1").click(function () {
+                if (window.confirm("Do you really want to stop timer?")) {
+                    localStorage.setItem("tasktimervalue", $("#duration2").val());
+                    $("#taskstarttimer1").css("display", "block");
+                    $("#taskstoptimer1").css("display", "none");
+                    sessionStorage.setItem("h2", sessionStorage.getItem("h1"));
+                    sessionStorage.setItem("m2", sessionStorage.getItem("m1"));
+                    sessionStorage.setItem("s2", sessionStorage.getItem("s1"));
+                    sessionStorage.setItem("h1", 0);
+                    sessionStorage.setItem("m1", 0);
+                    sessionStorage.setItem("s1", 0);
+                    window.clearInterval(t11);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        $("#stoptimers").click(function () {
+            localStorage.setItem("tasktimervalue", $("#duration2").val());
+            $("#taskstarttimer1").css("display", "block");
+            $("#taskstoptimer1").css("display", "none");
+            sessionStorage.setItem("h2", sessionStorage.getItem("h1"));
+            sessionStorage.setItem("m2", sessionStorage.getItem("m1"));
+            sessionStorage.setItem("s2", sessionStorage.getItem("s1"));
+            sessionStorage.setItem("h1", 0);
+            sessionStorage.setItem("m1", 0);
+            sessionStorage.setItem("s1", 0);
+            window.clearInterval(t11);
+        });
+        $("#savetimeentry").click(function () {
+            var contact = $('#timecontact').val();
+            var matter = $('#timematter').val();
+            var item = $('#item').val();
+            var dt = $('#dt').val();
+            if (contact == "") {
+                alert("select client");
+                $('#timecontact').focus();
+                return false;
+            }
+            if (matter == "") {
+                alert("select matter");
+                $('#timematter').focus();
+                return false;
+            }
+            if (item == "") {
+                alert("select task");
+                $('#item').focus();
+                return false;
+            }
+            if (dt == "") {
+                alert("select date");
+                $('#dt').focus();
+                return false;
+            }
+            var duration = $('#duration2').val();
+            duration = String(duration).replace(/([a-zA-Z ])/g, "");
+            var patt3 = /[0-9]{1,2}[:][0-9]{1,2}[:][0-9]{1,2}$/m;
+            var result1 = String(duration).match(patt3);
+            if (result1 == null) {
+                new PNotify({
+                    title: 'Warning!',
+                    text: 'Please Enter Correct Call Duration Formate: 00h:00m:00s',
+                    type: 'Warning',
+                    delay: 3000
+                });
+                return false;
+            }
+            var array = duration.split(":");
+            var ahour = String(array[0]).replace(/\D/g, '');
+            var amin = String(array[1]).replace(/\D/g, '');
+            var asec = String(array[2]).replace(/\D/g, '');
+            if (ahour > 23) {
+                new PNotify({
+                    title: 'Warning!',
+                    text: 'Hour should be less than 24 hour ',
+                    type: 'Warning',
+                    delay: 3000
+                });
+                return false;
+            }
+            if (amin > 59) {
+                new PNotify({
+                    title: 'Warning!',
+                    text: 'Minute should be less than 60 minutes ',
+                    type: 'Warning',
+                    delay: 3000
+                });
+                return false;
+            }
+            if (asec > 59) {
+                new PNotify({
+                    title: 'Warning!',
+                    text: 'Second should be less than 60 seconds',
+                    type: 'Warning',
+                    delay: 3000
+                });
+                return false;
+            }
+            var details = $('#details').val();
+            var formData = new FormData();
+            var tempsize = 0;
+            var tottempsize = 0;
+            var totalFiles = document.getElementById("postedfile").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("postedfile").files[i];
+                var filename = file.name;
+                if (filename.length > 100) {
+                    alert("The name of the file cannot exceed the limit of 100 characters. Please check file name: " + filename);
+                    return false;
+                }
+                var Extresponse = checkfileext(filename);
+                if (String(Extresponse) == "false") {
+                    return false;
+                }
+                formData.append("FileUpload", file);
+                try {
+                    if (typeof (file) != "undefined") {
+                        size = parseFloat(file.size / 1024).toFixed(2);
+                        tottempsize = parseFloat(tottempsize) + parseFloat(size);
+                        tempsize = parseFloat(size);
+                    }
+                }
+                catch (err) {
+                    //alert(err.message);
+                }
+                tempsize = tempsize.toFixed(2);
+            }
+            formData.append("contact", contact);
+            formData.append("matter", matter);
+            formData.append("item", item);
+            formData.append("dt", dt);
+            formData.append("duration", duration);
+            formData.append("details", details);
+            try {
+                openload();
+            }
+            catch (er) {
+            }
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/api/callApi/PostSaveTimer", // Controller/View
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    //},
+                    success: function (data) {
+                        $("#savecallform")[0].reset();
+                        new PNotify({
+                            title: 'Success!',
+                            text: 'Time Entry Added Successfully',
+                            type: 'success',
+                            delay: 3000
+                        });
+                        localStorage.setItem("savetimeentry", "1");
+                        localStorage.setItem("tasktimervalue", $("#duration2").val());
+                        $("#taskstarttimer1").css("display", "block");
+                        $("#taskstoptimer1").css("display", "none");
+                        sessionStorage.setItem("h2", sessionStorage.getItem("h1"));
+                        sessionStorage.setItem("m2", sessionStorage.getItem("m1"));
+                        sessionStorage.setItem("s2", sessionStorage.getItem("s1"));
+                        sessionStorage.setItem("h1", 0);
+                        sessionStorage.setItem("m1", 0);
+                        sessionStorage.setItem("s1", 0);
+                        window.clearInterval(t11);
+                        closeload();
+                    }, //End of AJAX Success function
+                    failure: function (data) {
+                        alert(data.responseText);
+                        closeload();
+                    }, //End of AJAX failure function
+                    error: function (data) {
+                        alert(data.responseText);
+                        closeload();
+                    } //End of AJAX error function
+                });
+        });
+
+        $("#idresetClientcommon").click(function () {
+            $('#savetaskcommu')[0].reset();
+        });
+
+        
+    });
+    $(document).ready(function () {
+
+        
+        $('#attachmentcommu').on('change', function (e) {
+            debugger;
+            selectedFilesComm = [];
+            var fileCount = this.files.length;
+            if (fileCount > 0) {
+                $("#attachmentcommu").attr("title", "Document Attached");
+            }
+            else {
+                $("#attachmentcommu").attr("title", "upload Attachment");
+            }
+
+            const files = Array.from(e.target.files);
+            selectedFilesComm = [...selectedFilesComm, ...files];
+            //displayFiles();
+            displayFilesComm();
+            this.value = '';
+        });
+
+        $(document).on('click', '.remove-file-comm', function () {
+            const index = $(this).data('index');
+            selectedFilesComm.splice(index, 1);
+            displayFilesComm();
+        });
+        $(document).on('click', '.remove-file-add-comm', function () {
+            const index = $(this).data('index');
+            selectedFilesComm.splice(index, 1);
+            displayExistingAddCommunication();
+        });
+        function displayFilesComm() {
+            const fileList = $('#CommfileList');
+            fileList.empty();
+            const fCount = selectedFilesComm.length;
+            selectedFilesComm.slice(0, 5).forEach((file, index) => {
+                const fileItem = $(`
+            <div class="file-item">
+                <span class="file-name">${file.name}</span>
+                <span class="remove-file-comm" data-index="${index}" style="cursor:pointer;color:red;margin-left:10px;">✖</span>
+            </div>
+        `);
+                fileList.append(fileItem);
+            });
+            if (fCount > 5) {
+                const remaining = fCount - 5;
+                fileList.append(`
+            <div class="file-summary" style="margin-top:5px;color:#555;">
+                +${remaining} more (Total ${fCount} files selected)
+            </div>
+        `);
+            }
+            updateFileInputComm();
+        }
+        function updateFileInputComm() {
+            const dt = new DataTransfer();
+            selectedFilesComm.forEach(file => dt.items.add(file));
+            document.getElementById('CommfileList').files = dt.files;
+        }
+        $("#attachmentcommu").change(function () {
+            var fileCount = this.files.length;
+            if (fileCount > 0) {
+                $("#commuattachtitle").attr("title", "Document Attached");
+            }
+            else {
+                $("#commuattachtitle").attr("title", "upload Attachment");
+            }
+            displayFilesComm();
+        });
+        })
+</script>
+<script>
+    $(".toggle-password").click(function () {
+        $(this).toggleClass("fa-eye fa-eye-slash");
+        var input = $($(this).attr("toggle"));
+        if (input.attr("type") == "password") {
+            input.attr("type", "text");
+        } else {
+            input.attr("type", "password");
+        }
+    });
+</script>
+<style>
+    .dragUpload {
+        text-align: center;
+        padding: 10px 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .upload-icon {
+        display: inline-flex;
+        width: 42px;
+        height: 42px;
+        border: 1px solid #E9EAEB;
+        border-radius: 10px;
+        justify-content: center;
+        align-content: center;
+        padding: 10px;
+        margin-bottom: 5px;
+    }
+
+    .upload-text {
+        font-size: 14px;
+        color: #535862;
+        margin-bottom: 1px;
+        font-weight: 400;
+    }
+
+    .upload-subtext {
+        font-size: 11px;
+        color: #535862;
+        font-weight: 400;
+        margin-bottom: 3px;
+    }
+
+    .upload-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .upload-btn {
+        padding: 8px 16px !important;
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px !important;
+    }
+
+    .chatmodal_a {
+        position: fixed;
+        z-index: 9999999999;
+        padding-top: 20px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.8);
+    }
+
+    .chatmodal_a-content {
+        background-color: #fefefe;
+        margin: 0px auto 0;
+        padding: 10px 10px;
+        border: 1px solid #000;
+        border-radius: 5px;
+        width: 80%;
+        height: 600px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+    }
+
+    .close_a {
+        position: relative;
+        right: -20px;
+        top: -22px;
+        float: right;
+    }
+
+        .close_a:hover, .close_a:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    .file-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 200px;
+    }
+    .file-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f4f4f4;
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+</style>

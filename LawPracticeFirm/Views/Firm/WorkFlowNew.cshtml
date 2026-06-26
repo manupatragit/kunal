@@ -1,0 +1,199 @@
+﻿@{
+    ViewBag.Title = "WorkFlowNew";
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<h2>WorkFlowNew</h2>
+<i class="pp-icon-user"></i>
+
+<!-- Page Content -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+
+<script>
+    var type = '@ViewBag.type'
+@*File action by strid*@
+    function FillAction(strid) {
+        var data1 = { '1': 'Submit', '2': 'Edit' };
+        var s1 = $('<select id="drpAction" />');
+        for (var val in data1) {
+            $('<option />', { value: val, text: data1[val] }).appendTo(s1);
+        }
+        s1.appendTo($("#divstage1"));
+
+        if (strid.value == "2") {
+            var url = "/firm/WorkFlowNewStage2";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal1').modal({ show: true });
+            });
+        }
+    }
+@*Add stage*@
+    function AddStage(str) {
+        var strdrp = document.getElementById("drptotstage");
+        var strdrpstage = document.getElementById("stage");
+        $("#stage").empty();
+        var option1 = "<option value=\"0\" >- Select Any -</option>";
+        $("#stage").append(option1);
+        for (var i = 1; i <= str.value; i++) {
+            var option = document.createElement("option");
+            option.value = i.toString();
+            option.text = "Stage " + i.toString();
+            strdrpstage.appendChild(option);
+        }
+
+    }
+
+    function ShowModal(strval) {
+        if (strval.value == "1") {
+            $('#myModal').modal({ show: true });
+        }
+        else if (strval.value == "2") {
+            var url = "/firm/WorkFlowNewStage2";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal1').modal({ show: true });
+            });
+        }
+        else if (strval.value == "3") {
+            var url = "/firm/WorkFlowNewStage3";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal1').modal({ show: true });
+            });
+        }
+
+    }
+@*Fill form task details*@
+    function FillFormTask(strid) {
+          if (strid.value == "1") {
+            $('#myModal').modal('hide');
+            var url = "/firm/WorkFlowNewForm";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal1').modal({ show: true });
+            });
+
+        }
+        else if (strid.value == "2") {
+            $('#myModal').modal('hide');
+            var url = "/firm/WorkFlowNewTask";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal1').modal({ show: true });
+            });
+
+        }
+    }
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Workflow</li>
+        </ol>
+        <div class="heading">
+            <h1><span class="glyphicon glyphicon-briefcase"></span> Workflow</h1>
+
+        </div>
+    </section>
+    <div class="modal-body ">
+        <section class="content">
+            <form id="workflow" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-lg-12">
+
+                        <label>No. Of Stages</label><span style="color:red"><b>*</b></span>
+                        <select id="drptotstage" onchange="AddStage(this)">
+                            <option value="0">Select Any</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                        <label>Stage</label><span style="color:red"><b>*</b></span>
+                        <select id="stage" onchange="ShowModal(this)">
+                            <option value="0">-Select Stage-</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+</aside>
+<!-- Modal -->
+<div id="myModal1" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Stage 1
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger alert-dismissable validpanel">
+                            <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                            . <a href="#" class="alert-link">Alert Link</a>.
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form role="form" id="form2">
+                                            <div class="form-group">
+                                                <label>Type</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                <select name="drptype" class="form-control" id="drptype" onchange="FillFormTask(this)">
+                                                    <option value="0">Select ...</option>
+                                                    <option value="1">Form</option>
+                                                    <option value="2">Task</option>
+                                                </select>
+
+                                            </div>
+                                            <div class="form-group" style="display:none">
+                                                <label>Form</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                <div id="divstage"></div>
+                                            </div>
+                                            <div id="common" style="display:none">
+                                                <div class="form-group">
+                                                    <label id="listid">Action</label>
+                                                    <div id="divstage1"></div>
+                                                </div>
+                                            </div>
+                                            <div id="common1" style="display:none">
+                                                <div class="form-group">
+                                                    <label id="listid">User</label>
+                                                    <div id="divUser">
+                                                    </div>
+                                                </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer" style="display:none">
+                <button type="submit" class="btn btn-success" id="addfield">Add</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

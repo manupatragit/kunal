@@ -1,0 +1,274 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+</style>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+    var loginid = "@ViewBag.loginid";
+    var type = "@ViewBag.typename";
+</script>
+<script>
+    openloader();
+    var ajaxTime = new Date().getTime();
+    var formData = new FormData();
+    formData.append("loginid", loginid);
+    $.ajax({
+        async: true,
+        url: '/api/EmployeeApi/CaseUserDetail',
+        type: 'POST',
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            var totalTime = new Date().getTime() - ajaxTime;
+            console.log("Userdetails:" + totalTime);
+            if (response.Status == true) {
+                var datas = JSON.stringify(response);
+                var obj = JSON.parse(response.Data);
+            }
+            else {
+                //  alert("not found");
+            }
+            var it = 2;
+            var bclass = '';
+            var bdata = '';
+            $.each(obj, function (i, val) {
+                $("#name").val(val.cfname);
+                $("#email").val(val.cemail);
+                $("#mobile").val(val.cmobile);
+                $("#landline").val(val.clandline);
+                $("#address").val(val.caddress);
+                $('#country').val(val.country);
+                $('#state').val(val.cstate);
+                $("#city").val(val.ccity);
+                $("#hidid").val(val.Id);
+                $("#barno").val(val.BARNo);
+                if (val.cphoto != null) {
+                    $("#output_image").attr("src", val.cphoto)
+                }
+                if (val.IsTwoFactor == "1") {
+                    $("#twostep").prop("checked", true);
+                }
+                else {
+                    $("#twostep").prop("checked", false);
+                }
+                closeloader();
+            });
+        },
+        error: function () {
+            // alert('Error!');
+        }
+    });
+</script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<section class="wrapper" style="margin:unset !important">
+    <div class="container showcontent" id="showcontent">
+        <h2 class="title">@ViewBag.typename</h2>
+        <div class="col-md-12">
+            <div class="row">
+                <br>
+                <section class="content">
+                    <div class="row">
+                        <form id="saveclient" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-10 contact-details">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <input type="hidden" id="hidid" />
+                                                            <label><span class="control-label col-md-12"> User Name </span></label>
+                                                            <div class="col-md-12">
+                                                                <input autofocus="" readonly class="form-control" placeholder="Full Name" type="text" value="" name="name" id="name" required="">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label><span class="control-label col-md-12"> Email </span></label>
+                                                            <div class="col-md-12">
+                                                                <input autofocus="" readonly class="form-control" placeholder="Email" type="text" value="" name="email" id="email" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label><span class="control-label col-md-12" for="Home"> Mobile </span></label>
+                                                            <div class="col-md-12">
+                                                                <input class="form-control" readonly onkeypress="return restrictAlphabets(event)" placeholder="Mobile Number" type="text" name="mobile" value="" id="mobile">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label><span class="control-label col-md-12" for="Mobile"> Land Line </span></label>
+                                                            <div class="col-md-12">
+                                                                <input class="form-control" vplaceholder="landline Number" name="landline" type="text" value="" id="landline" readonly>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label><span class="control-label col-md-12" for="Office"> Address </span></label>
+                                                            <div class="col-md-12">
+                                                                <input class="form-control" placeholder="Address" type="text" value="" id="address" readonly>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label><span class="control-label col-md-12"> Country </span></label>
+                                                            <div class="col-md-12">
+                                                                <input class="form-control" type="text" placeholder="country" name="country" id="country" readonly />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label><span class="control-label col-md-12"> State </span></label>
+                                                            <div class="col-md-12">
+                                                                <input class="form-control" type="text" placeholder="state" name="state" id="state" readonly />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label> <span class="control-label col-md-12"> City </span></label>
+                                                            <div class="col-md-12">
+                                                                <input class="form-control" type="text" placeholder="City" name="city" id="city" readonly />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label><span class="control-label col-md-12" for="Mobile"> Membership No. </span></label>
+                                                            <div class="col-md-12">
+                                                                <input class="form-control" placeholder="Membership No." name="barno" type="text" value="" id="barno" readonly>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <div class="col-md-10">
+                                                                <div class="grid-container" style="display:none">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6" id="content">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 contact-photo" style="padding-top:8px">
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <div>
+                                                            <div class="fileupload-new thumbnail"> <img src="~/PanelDesign/images/Default_User_pic_new.png" alt="" id="output_image"> </div>
+                                                            <div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="myOverlay" class="overlay" style="display:block !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

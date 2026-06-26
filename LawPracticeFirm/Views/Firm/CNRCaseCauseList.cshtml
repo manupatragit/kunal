@@ -1,0 +1,122 @@
+﻿@{
+    Layout = null;
+}
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+<link href="/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<script>
+    var token = "@ViewBag.token"
+</script>
+<script>
+    $(document).ready(function () {
+        loadcauselist();
+        function loadcauselist() {
+            $table = '';
+            $table = $('<table id=""  width="100%" class="table"  style="overflow-x:auto;" /><tr><th>').addClass('dataTable table table-bordered table-striped');
+            $header = $('<thead >').html('');
+            $head1 = $('<tr><th width="12%" class="Activity"  style="text-align: left; ">SL No.</th><th class="Status" style="text-align: center;" >CauseList Details</th><th style="text-align: center; padding-top: 12px; width:200px;" class="Date">Matter</th><th style="text-align: center; padding-top: 12px;" class="Date">Court</th><th style="text-align: center; padding-top: 12px;" class="Date">Bench Name</th><th style="text-align: center; padding-top: 12px;" class="Date">CauseList Date</th></tr> ');
+            $header.append($head1);
+            $table.append($header);
+            $('#contentdata').append($table);
+            var html = '';
+            var q = 0;
+            var formData = new FormData();
+            formData.append("id", token);
+            try {
+                $.ajax({
+                    async: true,
+                    type: "POST",
+                    url: "/Firm/CNRLoadCauseList",
+                    dataType: 'json',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        var datas1 = JSON.stringify(data);
+                        if (data == "") {
+                            $('#causeliststatus').append("No Cause list Available.");
+                        }
+                        $.each(data, function (index, a) {
+                            q = q + 1;
+                            var $row = $('<tr />');
+                            $row.append($('<td class="s" />').html("<span>" + q + ""));
+                            $row.append($('<td class="s" />').html("<span>" + a.Filetext + ""));
+                            $row.append($('<td class="s" />').html("<span>" + a.Casename + ""));
+                            $row.append($('<td class="s" />').html("<span>" + a.CourtId + ""));
+                            $row.append($('<td class="s" />').html("<span>" + a.Bench + ""));
+                            $row.append($('<td class="s" />').html("<span>" + a.Causelistdate + ""));
+                            $table.append($row);
+                        });
+                        $('#contentdata').append($table);
+                    },
+                    failure: function (data) {
+                        alert(data.responseText);
+                    },
+                    error: function (data) {
+                        alert(data.responseText);
+                    }
+                });
+            }
+            catch (err) {
+                alert(err.message);
+            }
+        }
+    });
+</script>
+<div class="modal-header btn-primary">
+    <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Matter Cause List
+    </h4>
+</div>
+<div class="modal-body " style="height:505px; overflow-y:scroll;">
+    <aside class="">
+        <section class="content" style="overflow:auto !important">
+            <div id="page-wrapper">
+                <div class="container-fluid showcontent" id="showcontent">
+                    <div class="">
+                        <div class="box-header">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /.box-header -->
+        <!-- /.panel-heading -->
+        <!-- Main content -->
+        <!-- Main content -->
+        <section class="content" style="overflow:auto !important">
+            <div id="contentdata"></div>
+            <center><div id="causeliststatus"></div></center>
+        </section>
+        <!-- /.content -->
+        <!-- /.content -->
+    </aside>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+</div>

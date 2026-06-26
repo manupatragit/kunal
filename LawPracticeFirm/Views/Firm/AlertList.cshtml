@@ -1,0 +1,253 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 10px;
+        font-size: 12.5px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #f3f4f5;
+    }
+</style>
+<script type="text/javascript">
+    function openload() {
+        $('#myOverlay').css("display", "block");
+    }
+    function closeload() {
+        $('#myOverlay').css("display", "none");
+    }
+    var pageindex = 1, pagesize = 10, recordcount = 0, totrecord = 0;
+    $(document).on('click', '#getdatabypagenum', function () {
+        pageindex = $("#pagnumvalue").val();
+        if (pageindex != "undefined") {
+            if (Math.sign(pageindex) == 1) {
+                var pageindesx = $("#sotopage").text();
+                if (pageindex <= parseInt(pageindesx)) {
+                    loaddata(pageindex);
+                }
+                else {
+                    alert("Please enter a valid page number.");
+                }
+            }
+            else {
+                alert("Please enter a valid page number.");
+            }
+        }
+    });
+    loaddata(pageindex);
+    function loaddata(pageindex) {
+        $("#bindalertdata").html("");
+        var formdata = new FormData();
+        formdata.append("pagenum", pageindex);
+        formdata.append("pagesize", pagesize);
+        var qty1 = 0;
+        var html = '';
+        var ajaxTime1 = new Date().getTime();
+        openload();
+        $.ajax({
+            async: true,
+            url: "/api/CallApi/BindSentAlertListCaseWatch",
+            data: formdata,
+            processData: false,
+            contentType: false,
+            type: 'POST',
+            success: function (response) {
+                // alert(response.Data);
+                var totalTime1 = new Date().getTime() - ajaxTime1;
+                console.log("activity:" + totalTime1);
+                $("#footeractivitydata").html("");
+                if (String(response.Data) == "No Record Found") {
+                    closeload();
+                    return false;
+                }
+                var obj = JSON.parse(response.Data);
+                var datas = JSON.stringify(response);
+                var length = obj.data.length;
+                try {
+                    $.each(obj.data, function (index, a) {
+                        if (index === 0) {
+                            firstvalue = a.RowNo;
+                        }
+                        if (index === (length - 1)) {
+                            var pnext = pageindex;
+                            var pprev = pageindex;
+                            var pageno = pageindex;
+                            var totdata = a.TotalRecord;
+                            var totpage = 0;
+                            if (a.TotalRecord > 0) {
+                                pnext = parseInt(pnext) + 1;
+                                if (pnext == 0) pnext = 1;
+                                pprev = parseInt(pageno) - 1;
+                                if (pprev == 0) pprev = 1;
+                                totpage = parseInt(totdata) / parseInt(pagesize);
+                                if (parseInt(totdata) % parseInt(pagesize) != 0) {
+                                    totpage = parseInt(totpage) + 1;
+                                }
+                                $("#pagnumvalue").attr("max", totpage);
+                            }
+                            var tfot = '';
+                            tfot += '<table style="width:100%"><tfooter><tr><td colspan = "12">'
+                            tfot += '<div style="float:left;padding-top: 7px;font-size:13px;">Page Number <b style="font-size:12px;">' + pageindex + '</b> &nbsp;of <b style="font-size:12px;"><span id="sotopage">' + parseInt(totpage) + '</span> Pages</b>'
+                            tfot += '&nbsp;&nbsp;|&nbsp;<b style="font-size:12px;">Total ' + a.TotalRecord + ' Entries</b>'
+                            tfot += '&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enter Page No: <input type="number" id="pagnumvalue" min="1"  style="width: 30px;"><button type="button" id="getdatabypagenum" style="margin-left:10px;">Go</button>'
+                            tfot += '</div>'
+                            tfot += '<div style="float:right;">'
+                            if (a.totRow <= length) {
+                            }
+                            else if (pageno == 1) {
+                            }
+                            else if (pageno == totpage) {
+                                tfot += '<a id="paginate" class="btn btn-default" title="Previous Page" href="javascript:void()" index="' + pprev + '" > Previous </a>'
+                            }
+                            else {
+                                tfot += '<a id="paginate" class="btn btn-default" title="Previous Page" href="javascript:void()" index="' + pprev + '" > Previous </a>'
+                            }
+                            if (pageno < totpage) {
+                                tfot += '<a id="paginate" class="btn btn-default" title="Next Page" href="javascript:void()" index="' + pnext + '" style="margin-left:10px;" >Next</a></div >'
+                            }
+                            tfot += '</td >'
+                            tfot += '</tr ></tfooter></table>'
+                            $("#footeractivitydata").append(tfot);
+                            closeload();
+                        }
+                        qty1 = qty1 + 1;
+                        html += '<tr>'
+                        var linkpage = "";
+                        var recentactivitycss = "";
+                        var recenttext = "";
+                        var recentlabel = "";
+                        var recentlabelmode = "";
+                        html += '<td>' + a.SMSText + '</td>'
+                        html += '<td>' + formatDatetoIST(a.SentOn) + '</td>'
+                        html += '</tr>'
+                    });
+                }
+                catch (rt) {
+                    closeload();
+                }
+                $("#bindalertdata").hide().append(html).fadeIn('fast');
+                closeload();
+            },
+            error: function (response) {
+                alert(response.responseText);
+                closeload();
+            }
+        });
+    }
+    $(document).on('click', '#paginate', function () {
+        /* your code here */
+        pageindex = $(this).attr("index");
+        loaddata(pageindex);
+    });
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Alert List</li>
+        </ol>
+        <h1><i class="glyphicon glyphicon-bell" aria-hidden="true"></i> Alert List</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div style="overflow-x:auto;">
+                    <div class="col-md-12">
+                        <div>
+                            <div id="updatePanel" style="display: block;" class="dataTable table table-bordered table-striped">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th bgcolor="DIMGRAY">Alert Message</th>
+                                            <th bgcolor="DIMGRAY" width="200px;">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bindalertdata">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="footeractivitydata">
+                            </div>
+                            <center>
+                                <button type="button" id="loadmore" dataval="10" style="display: none;margin-top:15px" class="btn btn-default" title="Load more cases">More...</button>
+                                <a href="#top" id="gotop" class="label label-default" title="Go to Top" style="float:right;display:none;margin-bottom:20px; margin-top:5px;"><i class="glyphicon glyphicon-arrow-up"></i> Got to Top</a>
+                            </center>
+                        </div>
+                    </div>
+                </div>
+                <div><center><span id="datastatus"></span></center></div>
+                <div class="box-footer clearfix">
+                    <ul class="pagination pagination-sm no-margin pull-right"></ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</aside>
+<script src="~/PanelDesign/vendor/bootstrap/js/bootstrap.min.js"></script>
+<div id="myOverlay" class="overlay" style="display:block !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

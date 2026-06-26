@@ -1,0 +1,679 @@
+﻿
+@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+
+    .ms-options ul li {
+        display: block !important;
+    }
+</style>
+<style>
+    .tvalue {
+        font-size: 32px;
+        font-weight: 600;
+        color: #181D27;
+        padding: 6px 0 11px 0;
+    }
+
+    .tvaluecontainer {
+        
+    }
+
+    .am {
+        font-size: 14px;
+        font-weight:600;
+    }
+.panel-default {
+    border-color: #ddd;
+    box-shadow: 0 1px 4px 0 rgba(18, 52, 77, .03), 0 1px 4px 0 rgba(18, 52, 77, .12);
+}
+.panel-body {
+    padding: 10px;
+}
+.title {
+    padding: 10px 0 14px 0;
+}
+    .b-box {
+        padding: 10px 15px;
+        border: 1px solid #E9EAEB;
+        box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+        border-radius: 12px;
+    }
+.sbtbtn {
+    margin-bottom: 0px;
+    margin-right: 0;
+    margin-top: 20px;
+    width: 100%;
+    padding: 5px 12px;
+}
+
+.card .header {
+    font-size: 14px;
+    font-weight:500;
+}
+    #chart-area-AgaintBy {
+        position: relative;
+        height: 190px !important;
+        margin: 0 0 0 0;
+        width: auto !important;
+        left: 16px;
+        top:-8px;
+    }
+    #chart-area-courttype {
+        position: relative;
+        height: 222px !important;
+        margin: 0;
+        width: auto !important;
+        top: -23px;
+    }
+    #chart-area-CourtStatus {
+        position: relative;
+        height: 130px !important;
+        width: auto !important;
+        left: -12px;
+    }
+
+    #chart-area-statetype {
+        position: relative;
+        height: 190px !important;
+        margin: 0 0 0 0;
+        width: auto !important;
+        left: 16px;
+        top: -8px;
+    }
+
+   
+.card .content {
+    background-color: rgba(0, 0, 0, 0);
+    box-shadow: none;
+    padding: 1px;
+    height: 247px;
+    width: 100%;
+}
+.card-container, .front, .back {
+    width: 100%;
+    height: 290px;
+    border-radius: 16px;
+}
+    .front, .back {
+        box-shadow: none !important;
+        background-color:transparent !important;
+    }
+    .card .header {
+        background: transparent !important;
+        padding:8px 0;
+    }
+    .back .table > thead > tr > th {
+        vertical-align: bottom;
+        border-bottom: 1px solid #fff;
+        color: #414651;
+        font-weight: 500 !important;
+        font-size: 14px;
+    }
+    .back .table > tbody > tr > td {
+        padding: 2px 8px;
+        line-height: 1.428571429;
+        vertical-align: top;
+        border-top: none;
+        font-size: 14px;
+        color: #414651;
+        font-weight: 400 !important;
+    }
+    
+::-webkit-scrollbar {
+    width: 10px;
+    border-radius: 5px;
+    height: 8px
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    border-radius: 10px
+}
+    
+</style>
+<script src="~/Manupanel/Chart/Chart.min.js"></script>
+<script src="~/Scripts/Firm/Pages/CaseWiseReport.js?1.8"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="text-left">
+                    <p class="ctitle"> BOM Dashboard</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-right" style="display: flex; justify-content: flex-end;">
+                <button type="button" id="IdExcelExport" style="cursor: pointer; margin: 0 10px 0 0px;" class="button9" title="Export to Excel"><img class="plus-icon" alt="" src="/newassets/img/upload-icon.png"> Export to Excel</button>
+                <button type="button" id="Resetgrapah" style="cursor: pointer; background: #075985; color: #ffffff; padding: 10px 20px;" class="button9">Reset</button>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="wrapper" style="margin: 25px 0 0 0;">
+
+    <div class="container-main" id="showcontent">
+       <div class="panel-group" role="tablist" aria-multiselectable="true">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="b-box shadow1">
+                                <div class="tvaluecontainer">
+                                    <p class="am">Total Matters <p class="loader1">
+                                        <img src="/newassets/images/loader.gif" style="width: 50px; position: absolute; z-index: 999; left: 140px;top: 23px;" />
+                                    </p>
+                                    <p><label class="tvalue" id="lblmattercountcountbyzone"></label></p>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="col-md-9">
+                            <div class="b-box shadow1">
+                                @*<label class="am">Next Hearing Filter</label>*@
+                                @*<div style="display: flex; align-items: center; gap: 20px;">
+                                    <label class=" am control-label">
+                                        <input type="radio" id="chkHearingDate" name="filterType" style="cursor:pointer" value="0">
+                                        Next Hearing Date
+                                    </label>
+                                    <label class=" am control-label">
+                                        <input type="radio" id="chkFilingDate" name="filterType" value="1" style="cursor:pointer">
+                                        Filing Date
+                                    </label>
+                                </div>*@
+                                <div style="display:flex; align-items:center; gap:20px;">
+                                    <label class="am control-label" for="chkHearingDate">
+                                        <input type="radio" id="chkHearingDate" name="filterType" value="0" style="cursor:pointer" checked>
+                                        Next Hearing Date
+                                    </label>
+
+                                    <label class="am control-label" for="chkFilingDate">
+                                        <input type="radio" id="chkFilingDate" name="filterType" value="1" style="cursor:pointer">
+                                        Filing Date
+                                    </label>
+                                </div>
+                                <table cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td>
+                                            <label class="control-label">From </label>
+                                            <input type="date" id="grphhearingfrom" name="hearingfrom" class="form-control inputFormat" style="background: #fff !important; border: 1px solid #e2e2e2;">
+                                        </td>
+                                        <td width="15px">&nbsp;</td>
+                                        <td>
+                                            <label class="control-label">To </label>
+                                            <input type="date" id="grphhearingto" name="hearingto" class="form-control inputFormat" style="background: #fff !important; border: 1px solid #e2e2e2;">
+                                        </td>
+                                        <td width="15px">&nbsp;</td>
+                                        <td><button type="button" id="Grphsearchnexthering" class="btn btn-primary" style="width:100%;margin-top:21px;">Search</button></td>
+                                        <td width="15px">&nbsp;</td>
+                                        <td><button type="button" id="Grphclearnextdate" class="btn btn-secondary" style="width: 100%; margin-top: 21px;">Clear</button></td>
+                                    </tr>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                
+        </div>
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true" style="margin:25px 0;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="b-box shadow">
+                                <div class="card-container manual-flip">
+                                    <div class="card">
+                                        <div class="front">
+                                            <div style="height:45px; border-bottom: none !important;" class="header">
+                                                <p class="loader2"><img src="/newassets/images/loader.gif" style="width: 50px; position: absolute; z-index: 999;
+                                                    left: 105px;top: 140px;" /></p>
+                                                Court Status <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation" style="padding:0;">
+                                                    <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                        <defs>
+                                                            <style>
+                                                                .a {
+                                                                    fill: none;
+                                                                    stroke: #0961b8;
+                                                                    stroke-linecap: round;
+                                                                    stroke-miterlimit: 10;
+                                                                    stroke-width: 2px;
+                                                                }
+                                                            </style>
+                                                        </defs>
+                                                        <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="content">
+                                                <div id="canvas-holder-CourtStatus">
+                                                    <canvas id="chart-area-CourtStatus" />
+                                                </div>
+                                            </div>
+                                        </div> <!-- end front panel -->
+                                        <div class="back">
+                                            <div style="height: 45px; border-bottom: none !important;" class="header">
+                                                <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card" style="padding:0;">
+                                                    <img src="/newassets/images/flip_back_btn.png">
+                                                </button>
+                                            </div>
+                                            <div class="content" style="align-items: flex-start; overflow-y: auto">
+                                                <table class="table-panel">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="30%"><div class="thbg">Status</div></th>
+                                                            <th width="5%"><div class="thbg">Total</div></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="bindCourtchartstatus"></tbody>
+                                                </table>
+                                            </div>
+                                        </div> <!-- end back panel -->
+                                    </div> <!-- end card -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="b-box shadow">
+                                <div class="card-container manual-flip">
+                                    <div class="card">
+                                        <div class="front">
+                                            <div style="height: 45px; border-bottom: none !important;" class="header">
+                                                <p class="loader2"><img src="/newassets/images/loader.gif" style="width: 50px; position: absolute; z-index: 999;
+                                                    left: 105px;top: 140px;" /></p>
+                                                Zone Wise Matter <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation" style="padding:0;">
+                                                    <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                        <defs>
+                                                            <style>
+                                                                .a {
+                                                                    fill: none;
+                                                                    stroke: #0961b8;
+                                                                    stroke-linecap: round;
+                                                                    stroke-miterlimit: 10;
+                                                                    stroke-width: 2px;
+                                                                }
+                                                            </style>
+                                                        </defs>
+                                                        <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="content">
+                                                <div id="canvas-holder-StateType">
+                                                    <canvas id="chart-area-statetype" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="back">
+                                            <div style="height: 45px; border-bottom: none !important;" class="header">
+                                                <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card" style="padding:0;">
+                                                    <img src="/newassets/images/flip_back_btn.png">
+                                                </button>
+                                            </div>
+                                            <div class="content" style="align-items: flex-start; overflow-y: auto; overflow-x: hidden; ">
+                                                <table class="table-panel">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="30%"><div class="thbg">Zone</div></th>
+                                                            <th width="5%"><div class="thbg">Total</div></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="bindzonewisestatus"></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="b-box shadow">
+                                <div class="card-container manual-flip">
+                                    <div class="card">
+                                        <div class="front">
+                                            <div style="height: 45px; border-bottom: none !important;" class="header">
+                                                <p class="loader4"><img src="/newassets/images/loader.gif" style="width: 50px; position: absolute; z-index: 999;
+                                                    left: 105px;top: 140px;" /></p>
+                                                Court-Wise Cases <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation" style="padding:0;">
+                                                    <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                        <defs>
+                                                            <style>
+                                                                .a {
+                                                                    fill: none;
+                                                                    stroke: #0961b8;
+                                                                    stroke-linecap: round;
+                                                                    stroke-miterlimit: 10;
+                                                                    stroke-width: 2px;
+                                                                }
+                                                            </style>
+                                                        </defs>
+                                                        <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="content">
+                                                <div id="canvas-holder-6">
+
+                                                    <canvas id="chart-area-courttype"></canvas>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="back">
+                                            <div style="height: 45px; border-bottom: none !important;" class="header">
+                                                <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card" style="padding:0;">
+                                                    <img src="/newassets/images/flip_back_btn.png">
+                                                </button>
+                                            </div>
+                                            <div class="content" style="align-items: flex-start;">
+                                                <table class="table-panel">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="30%"><div class="thbg">Court</div></th>
+                                                            <th width="5%"><div class="thbg">Total</div></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="bindcourtwisestatus"></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="b-box shadow">
+                                <div class="card-container manual-flip">
+                                    <div class="card">
+                                        <div class="front">
+                                            <div style="height: 45px; border-bottom: none !important;" class="header">
+                                                <p class="loader5"><img src="/newassets/images/loader.gif" style="width: 50px; position: absolute; z-index: 999;
+                                                    left: 105px;top: 140px;" /></p>
+                                                Against/By The Party Name <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation" style="padding:0;">
+                                                    <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                        <defs>
+                                                            <style>
+                                                                .a {
+                                                                    fill: none;
+                                                                    stroke: #0961b8;
+                                                                    stroke-linecap: round;
+                                                                    stroke-miterlimit: 10;
+                                                                    stroke-width: 2px;
+                                                                }
+                                                            </style>
+                                                        </defs>
+                                                        <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)" /><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)" /></g></g>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="content">
+                                                <div id="canvas-holder-AgaintBy">
+                                                    <canvas id="chart-area-AgaintBy" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="back">
+                                            <div style="height: 45px; border-bottom: none !important;" class="header">
+                                                <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card" style="padding:0;">
+                                                    <img src="/newassets/images/flip_back_btn.png">
+                                                </button>
+                                            </div>
+                                            <div class="content" style="align-items: flex-start; overflow-y: auto">
+                                                <table class="table-panel">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="30%"><div class="thbg">Type</div></th>
+                                                            <th width="5%"><div class="thbg">Total</div></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="bindAgaintBythe"></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        </div>
+         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true" style="margin:0 0 10px 0;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="b-box" style="padding:10px;">
+                                <div style="border-bottom: 1px solid #ccc; padding: 0; margin: 0 0 7px 0; height: 35px;" class="header">
+
+                                    Court Cases Count <strong id="idcourtcasecount"></strong><p class="loader6"><img src="/newassets/images/loader.gif" style="width: 50px; position: absolute; z-index: 999;left: 150px;top: 140px;" /></p>
+                                </div>
+                                <div class="" style="overflow-y:auto;height: 300px;">
+                                    <table class="table-panel">
+                                        <thead>
+                                            <tr>
+                                                <th width="85%"><div class="thbg">Court Name</div></th>
+                                                <th><div class="thbg">Total</div></th>
+                                </tr>
+                                </thead>
+                                <tbody id="tblbodyCourtType"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="b-box" style="padding:10px;">
+                                <div style=" height: 35px; border-bottom: 1px solid #ccc; padding: 0; margin: 0 0 7px 0;" class="header">
+                                    Advocate Case Count <strong id="idadvocatecount"></strong> <p class="loader7"><img src="/newassets/images/loader.gif" style="width: 50px; position: absolute; z-index: 999; left: 150px;top: 140px;" /></p>
+                                </div>
+                                <div style="overflow-y: auto; overflow-x: auto; height: 300px;">
+                                    <table class="table-panel">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="thbg">
+                                                        Advocate name
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" style="min-width: 120px;">
+                                                        User Id
+                                                    </div>
+                                                </th>
+
+                                                <th>
+                                                    <div class="thbg">
+                                                        Matter Count
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="GarphbindMatterData"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="b-box" style="padding:10px;">
+                                <div style=" height: 35px; border-bottom: 1px solid #ccc; padding: 0; margin: 0 0 7px 0;" class="header">
+                                    User Case Count <strong id="idusercount"></strong><p class="loader7"><img src="/newassets/images/loader.gif" style="width: 50px; position: absolute; z-index: 999; left: 150px;top: 140px;" /></p>
+                                </div>
+                                <div style="overflow-y:auto;height: 300px;">
+                                    <table class="table-panel">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="thbg">
+                                                        User name
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" style="min-width: 120px;">
+                                                        User Id
+                                                    </div>
+                                                </th>
+
+                                                <th>
+                                                    <div class="thbg">
+                                                        Matter Count
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="GarphbindMatterUserData"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+        </div>
+    </div>
+
+</section>
+<div id="myModalCourtComplex" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Court Complex Details
+                </h4>
+
+            </div>
+            <div class="modal-body  partynamebody " id="" style="height:425px; overflow-y:scroll;background:white;">
+                <div class="row" style="margin-bottom: 10px;">
+                    <div class="col-md-12">
+                        <button type="button" id="CourtComplexExport" style="cursor:pointer;" class="btn btn-primary pull-right">Export To Excel</button>
+                    </div>
+                </div>
+                <table class="table-panel">
+                    <thead>
+                        <tr>
+                            <th><div class="thbg">Court</div></th>
+                            <th><div class="thbg">Court Complex</div></th>
+                            <th><div class="thbg">Matter Name</div></th>
+                            <th><div class="thbg">Court Case No</div></th>
+                            <th><div class="thbg">Court Status</div></th>
+                            <th><div class="thbg">Next Hearing</div></th>
+                            <th><div class="thbg">Matter Filing Date</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="bindcourtname"></tbody>
+                    <tr></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+<div id="myModalReportMatterDetails" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="IdUserDetails">
+                    @*Matter Details*@
+                </h4>
+            </div>
+            <div class="modal-body  partynamebody " id="" style="height:425px; overflow-y:scroll;background:white;">
+                <table class="table-panel">
+                    <thead>
+                        <tr>
+                            <th><div class="thbg">Court</div></th>
+                            <th><div class="thbg">Court Name</div></th>
+                            <th><div class="thbg">Court Case No</div></th>
+                            <th><div class="thbg">Matter Name</div></th>
+                            <th><div class="thbg">Court Status</div></th>
+                            <th><div class="thbg">Next Hearing</div></th>
+                            <th><div class="thbg">Matter Filing Date</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="bindreportmatterdetails"></tbody>
+                    <tr></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <input type="hidden" id="exportrecords">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Export Report
+                </h4>
+            </div>
+            <div class="modal-body  partynamebody " id="" style="height:505px; overflow-y:scroll;background:white;">
+                <table class="table " style="font-size:12px;">
+                    <thead>
+                        <tr style="font-size: 12px;">
+                            <th><div class="thbg">Page No.</div></th>
+                            <th><div class="thbg">FileName</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="printexport"></tbody>
+                    <tr></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myOverlay" class="overlay2">
+
+</div>
+
+<div id="myOverlayDashboard" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+
+

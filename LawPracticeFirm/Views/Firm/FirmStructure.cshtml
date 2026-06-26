@@ -1,0 +1,602 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+}
+<script>
+    var roleid = "@role";
+    var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter = "@Session["dashmatter"]";
+
+</script>
+<script src="~/Scripts/Firm/Pages/FirmStructure.js?1.9" type="text/javascript"></script>
+<style>
+
+
+    .upload-box {
+        display: flex;
+        align-items: center;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px 10px;
+        margin: auto;
+    }
+    .btn:disabled {
+        opacity: 1 !important;
+        pointer-events: none; /* still prevents click */
+    }
+
+    .upload-icon {
+        margin-right: 12px;
+        align-items: center;
+    }
+
+    .upload-label {
+        cursor: pointer;
+        color: #007bff;
+        font-weight: 600;
+        margin-right: 6px;
+        text-decoration: none;
+    }
+
+        .upload-label:hover {
+            text-decoration: underline;
+        }
+
+    .upload-info {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .customdrop .dropdown-menu .dropdown-item {
+        font-size: 14px;
+        font-weight: normal;
+        padding: 3px 7px;
+        display: block;
+        text-decoration: none !important;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        color: #000;
+    }
+
+    .upload-label3 {
+        text-decoration: none;
+        margin: 0;
+        color: #285e8e;
+        font-weight: 600;
+        padding-right: 50px;
+    }
+
+    .opennewcat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .notFound {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+        .notFound img {
+            width: 450px;
+        }
+
+    #info-wrapper-1 {
+        position: relative;
+        display: inline-block;
+    }
+
+    #info-icon-1 {
+        cursor: pointer;
+        width: 18px;
+    }
+
+    #info-text-1 {
+        display: none;
+        position: absolute;
+        bottom: 24px;
+        left: 0;
+        width: 330px;
+        background: #fff;
+        border: 1px solid #8fd500;
+        border-radius: 4px;
+        padding: 4px 6px;
+        font-size: 12px;
+        line-height: 1.3;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        z-index: 1000;
+    }
+
+    #info-wrapper-1:hover #info-text-1 {
+        display: block;
+    }
+/*
+    #alertSettingsTable thead th {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 3;
+        border-bottom: 2px solid #dee2e6;
+    }*/
+
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Organization Settings</p>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1">
+                    <div class="text-and-supporting-text1">
+                        <div id="noticelogodiv" style="display:none;">
+                            <input type="hidden" id="nfilepath">
+
+                            <div class="upload-box">
+                                @*<div class="form-group">
+
+                                        <label for="attachment" class="upload-label">Upload Company logo (Max. 160×139px)</label>
+                                        <input type="file" id="attachment" name="attachments">
+                                    </div>*@
+
+                                <div class="upload-icon"> <img src="/newassets/img/upload-cloud.svg"> </div>
+                                <div class="form-group">
+                                    <label for="attachment">
+                                        <span style="font-size: 18px; font-weight: 600; color: #0369A1; cursor: pointer" title="Upload Logo.">Upload Company logo</span>
+                                    </label>
+                                    <div><p>(Format: PNG, JPG, JPEG)</p></div>
+                                    <input type="file" class="form-control-file" name="attachments" id="attachment" style="display:none;">
+
+                                    <!-- Filename + remove button -->
+                                    <div id="fileInfo" style="margin-top:10px; display:none;">
+                                        <span id="fileName" style="font-weight:600;"></span>
+                                        <span id="removeLogoFile" style="color:red; cursor:pointer; margin-left:10px;">✖</span>
+                                    </div>
+                                </div>
+                                <div style="margin-left: 20px;">
+                                    <span class="upload-info">
+                                        <span class="glyphicon glyphicon-upload upload-box" id="uploadnoyilogo" title="Publish Logo" style="cursor:pointer; font-size:20px;margin-bottom: 5px;padding: 5px 5px;">
+                                            <span style=" font-size: 18px; margin-left: 5px; ">Publish</span>
+                                        </span>
+                                        <a href="" id="nsignsource" download="" style="font-size:10px;display:none">
+                                            <span class="glyphicon glyphicon-download upload-box" title="Download Logo" style="cursor: pointer; font-size: 20px; margin-bottom: 5px; padding: 5px 5px; ">
+                                                <span style=" font-size: 18px; margin-left: 5px; ">Download</span>
+                                            </span>
+                                        </a>
+                                        <span class="glyphicon glyphicon-trash upload-box" id="Removenotilogo" title="Remove Logo" style="cursor: pointer; font-size: 18px; display: none; margin-bottom: 5px; padding: 5px 5px; ">
+                                            <span style=" font-size: 18px; margin-left: 5px; ">Remove</span>
+                                        </span>
+
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-header" style="padding-top:14px;">
+                        <div class="actions3">
+                            <button class="btn btn-secondary opennewcat" id="opennewcat"> <img src="~/newassets/img/plus-icon-black.png" /> Add New Category</button>
+                            @if (role.ToString() == "1")
+                            {
+                                @*<div class="button13">
+                                        <img class="chevron-down-icon" alt="" src="/newassets/img/document-icon.png">
+                                        <div class="text-padding btn-group ">
+                                            <a href="javascript:void()" class="text dropdown-toggle " data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Set Alert</a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a href="javascript:void()" id="OpenAlertSettings"><img src="/newassets/img/upload-cloud-01.png">Set Alert</a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void()" id="OpenAlertSettingsDay" title="Create Online Document"><img src="/newassets/img/file-plus-03.png"> Set Alert Days</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>*@
+
+                                <div class="dropdown customdrop">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
+                                        <img src="~/newassets/img/bell-01.png" alt="">
+                                        Set Alert
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item" href="javascript:void()" id="OpenAlertSettings"><img src="/newassets/img/setAlert.svg">Set Alert</a>
+                                        <a class="dropdown-item" href="javascript:void()" id="OpenAlertSettingsDay" title="Create Online Document" style="padding-top:10px;"><img src="/newassets/img/setAlertDay.svg"> Set Alert Days</a>
+
+                                    </div>
+                                </div>
+
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+                <div class="tablecontainer">
+
+                    <div class="table-panel table-responsive" id="activityreport" style="display:none;margin-top:5px !important">
+                        <table id="loadactivity" class="table-panel">
+                            <thead>
+                                <tr>
+                                    <th width="15px;"><div class="thbg">Sl.No</div></th>
+                                    <th width="100px;">
+                                        <div class="thbg">
+                                            <select id="sttypefilter" class="form-control">
+                                                <option value="" selected="">Type</option>
+                                                <option value="Branch">Branch</option>
+                                                <option value="Department">Department</option>
+                                                <option value="Designation">Designation</option>
+                                            </select>
+                                        </div>
+                                    </th>
+                                    <th width="100px;"><div class="thbg">Name</div></th>
+                                    <th width="140px;"><div class="thbg">Date</div></th>
+                                    <th width="5%"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="loadactivitydata"></tbody>
+                        </table>
+                        <div class="table-panel">
+                            <div class="settingpanel">
+                                <div class="pagination" id="pagenatedArea">
+                                    <div class="pagination-button-group">
+                                        <div id="prev" class="pagination-button-group-base">
+                                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                        </div>
+                                        <div id="pageNumbers" class="pagination-button-group-base1">
+                                        </div>
+
+                                        <div id="next" class="pagination-button-group-base8">
+                                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-parent">
+                                        <div class="input">
+                                            <div class="content">
+                                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                            </div>
+                                            <div class="help-icon">
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-group">
+                                            <div class="text-and-supporting-text">
+                                                <div id="divGo" class="text9">Go</div>
+                                            </div>
+                                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</section>
+
+@* Delete popup started *@
+
+<div id="myModalOrgCnf" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/delete-notice.png" style="margin:-10px 0px 0 -13px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4>Remove Category</h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgRUSure">Are you sure you want to remove this category.</p>
+            </div>
+            <div class="footer_buttons modal-footer">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="deleteOrgDetails">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* Delete popup ended *@
+
+<div id="myOverlay" class="overlay" style="z-index:9999;">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+
+<div id="OpenNewCatgory" class="modal fade in" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog manuModal1" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closereject" data-dismiss="modal">×</button>
+                <div class="modal-title">
+                    <div class="icon_header_pulse">
+                        <span class="pulse_div">
+                            <img src="/newassets/img/newCategory.svg" alt="reject">
+                        </span>
+                    </div>
+                    <span class="ctitle" id="fstitle">New Category</span>
+
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="savedatastructure" enctype="multipart/form-data" name="savedata">
+                    <div class="row ">
+                        @if (role.ToString() == "1")
+                        {
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark "><span> Type <span class="required" aria-required="true">*</span></span></label>
+                                    <select id="sttype" class="form-control selctInputFormat">
+                                        <option value="" selected="">Select</option>
+                                        <option value="Branch">Branch</option>
+                                        <option value="Department">Department</option>
+                                        <option value="Designation">Designation</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="formLabel colorDark "><span> Name <span class="required" aria-required="true">*</span> </span></label>
+                                <input class="form-control inputFormat" type="text" id="stname" placeholder="Enter Name">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width:100%;">Cancel</button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary" id="Savestructure" style="width:100%;">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalAlertOnOff" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog manuModal1" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closereject" data-dismiss="modal">×</button>
+                <div class="modal-title">
+                    <div class="icon_header_pulse">
+                        <span class="pulse_div">
+                            <img src="/newassets/img/setAlert.svg" alt="reject">
+                        </span>
+                    </div>
+                    <span class="ctitle" id="fstitle">Set Alert ON/OFF </span>
+
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="form_wrapper">
+                    <div class="row">
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Users<span class="required" aria-required="true">*</span></label>
+
+                                <select name="UserAlertOnOff" class="form-control selctInputFormat" style="background-color: white !important;" id="UserAlertOnOff" required="">
+                                    <option value="" selected="selected">Select</option>
+                                </select>
+
+                            </div>
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Alert Status<span class="required" aria-required="true">*</span></label>
+
+                                <select name="UserAlertOnOffStatus" class="form-control selctInputFormat" style="background-color: white !important;" id="UserAlertOnOffStatus" required="">
+                                    <option value="1" selected="selected">On</option>
+                                    <option value="0">Off</option>
+                                </select>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width:100%;">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-primary" id="savealertOnOff" data-type="" style="width:100%;">Confirm</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Alert On-Off Users List-->
+<div id="alertSettingsModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Alert Settings</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3 d-flex align-items-center">
+
+                    <input type="text"
+                           id="searchUsername"
+                           class="form-control"
+                           placeholder="Search User Name"
+                           style="margin-bottom:10px; width:40%;">
+
+                    <div id="info-wrapper-1">
+                        <img src="~/newassets/img/info-circle.png" id="info-icon-1" alt="info" style="cursor: pointer;">
+
+                        <div id="info-text-1">
+                            <p style=" font-size: 12px; font-weight: 500; ">This action will turn off all alerts, including Next Hearing, Date Change, Cause List, Case Index, Order, Proactive, and WhatsApp alerts.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                @*<div class="mb-3">
+            <input type="text"
+                   id="searchUsername"
+                   class="form-control"
+                   placeholder="Search Username" style="margin-bottom:10px; width:40%;">
+            <div id="info-wrapper-1" style="margin-left: 6px; position: relative;">
+                <img src="~/newassets/img/info-circle.png" id="info-icon-1" alt="info" style="cursor: pointer;">
+                <div id="info-text-1">
+                    <p>This will off all type of alerts- Next Hearing, Proactive and WhatsApp Alert.</p>
+                </div>
+            </div>
+        </div>*@
+                <div style="max-height:350px; overflow-y:auto;">
+                    <table class="table table-bordered" id="alertSettingsTable">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>User Name</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        </tbody>
+
+                    </table>
+                    </div>
+
+                </div>
+
+            </div>
+    </div>
+</div>
+
+<!--Start Set Alert Day-->
+<div id="myModalAlertDay" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog manuModal1" style="width:400px;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closereject" data-dismiss="modal">×</button>
+                <div class="modal-title">
+                    <div class="icon_header_pulse">
+                        <span class="pulse_div">
+                            <img src="/newassets/img/setAlertDay.svg" alt="reject">
+                        </span>
+                    </div>
+                    <span class="ctitle" id="fstitle">Set Alert Days</span>
+
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Users:<span class="required" aria-required="true">*</span></label>
+
+                            <select name="UserListAlertDays" class="form-control selctInputFormat" style="background-color: white !important;" id="UserListAlertDays" required="">
+                                <option value="" selected="selected">Select</option>
+                            </select>
+
+                        </div>
+                        <div class="form-group ">
+                            <label class="formLabel colorDark">Alert Before Days:<span class="required" aria-required="true">*</span></label>
+
+                            <select name="UserAlertdays" class="form-control selctInputFormat" style="background-color: white !important;" id="UserAlertdays" required="">
+                                <option value="1">1</option>
+                                <option value="2" selected="selected">2</option>
+                            </select>
+
+                        </div>
+                        <!-- /.row (nested) -->
+                    </div>
+
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top:0 !important;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width:100%;">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-primary" id="savealertdays" data-type="" style="width:100%;">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--END Set Alert Day-->

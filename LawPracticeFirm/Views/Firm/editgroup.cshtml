@@ -1,0 +1,157 @@
+﻿@{
+    Layout = null;
+}
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Content/multipleselect/selectize.js"></script>
+<link href="~/Content/multipleselect/dist/css/selectize.bootstrap2.css" rel="stylesheet" />
+<link href="~/Content/multipleselect/dist/css/jquery.magicsearch.min.css" rel="stylesheet" />
+<style>
+    .selectize-input {
+        border: none !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+        -webkit-border-radius: unset !important;
+        -moz-border-radius: unset !important;
+        border-radius: unset !important;
+        border-bottom: 1px solid #ccc !important;
+    }
+
+    .selectize-input {
+        width: 105%;
+    }
+</style>
+<div class="modal-header btn-primary">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Edit Message Group
+    </h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12" id="addcustomf">
+                            <form id="savemessageform" enctype="multipart/form-data">
+                                <div class="form-group form-horizontal">
+                                    <label class="control-label col-xs-3">Group Name: <span class="required" aria-required="true">*</span></label>
+                                    <div class="col-xs-8">
+                                        <input class="form-control" name="subject" type="text" id="groupname1" placeholder="Group Name" required style="margin-left:-5px; width: 364px !IMPORTANT;   margin: 0 0 12px 0 !important;" />
+                                    </div>
+                                </div>
+                                <div class=" form-horizontal" style="width:100%;display:block">
+                                    <label class="control-label col-xs-3">Select Users: <span class="required" aria-required="true">*</span> </label>
+                                    <div class="col-xs-8">
+                                        @Html.DropDownList("select-user1", new SelectList(ViewBag.Fruits, "val", "label"), "Please select", new { @id = "select-user1", @class = "demodefault ", @multiple = "multiple", @style = "width:108%" })
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.row (nested) -->
+                    </div>
+                    <!-- /.panel-body -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="sbtbtn" id="editdata">Save</button>
+                </div>
+                <!-- /.panel -->
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+</div>
+<script>
+    $('#select-user1').selectize({
+        //maxItems: 3
+    });
+    var $select = $("#select-user1").selectize();
+    var tokenid = "@ViewBag.tokenid";
+    if (tokenid != "") {
+        setTimeout(function () {
+            var formData = new FormData();
+            formData.append("token", tokenid);
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/api/callApi/SingleMessageGroup", // Controller/View
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Status == true) {
+                            var datas = JSON.stringify(response);
+                            var obj = JSON.parse(response.Data);
+                        }
+                        else {
+                            //alert("not found");
+                        }
+                        $.each(obj, function (i, a) {
+                            try {
+                                $("#groupname1").val(a.Groupname);
+                                var selectize = $select[0].selectize;
+                                var selecteduser = a.GroupUser;
+                                var array = selecteduser.split(",");
+                                selectize.setValue(array)
+                            }
+                            catch (er) {
+                                //alert(er.message);
+                            }
+                        });
+                    },
+                    failure: function (response) {
+                        alert(data.responseText);
+                    },
+                    error: function (response) {
+                        alert(data.responseText);
+                    }
+                });
+        }, 1000);
+    }
+    else {
+        // alert(tokenid);
+    }
+        $("#editdata").click(function () {
+        var formData = new FormData();
+        var groupname = $('#groupname1').val();
+        var user = $('#select-user1').val();
+        if (user == null) {
+            new PNotify({
+                title: 'Warning!',
+                text: 'Please Select users',
+                type: 'error',
+                delay: 3000
+            });
+            return false;
+        }
+        formData.append("groupname", groupname);
+        formData.append("user", user);
+        formData.append("token", tokenid);
+        $.ajax(
+            {
+                type: "POST",
+                url: "/api/callApi/EditGroup", // Controller/View
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    $("#savemessageform")[0].reset();
+                    new PNotify({
+                        title: 'Success!',
+                        text: 'Group updated Successfully',
+                        type: 'success',
+                        delay: 3000
+                    });
+                    localStorage.setItem("groupmessage", 1);
+                    //  $('#myModal').modal('toggle');
+                }, //End of AJAX Success function
+                failure: function (data) {
+                    alert(data.responseText);
+                }, //End of AJAX failure function
+                error: function (data) {
+                    alert(data.responseText);
+                } //End of AJAX error function
+            });
+    });
+</script>

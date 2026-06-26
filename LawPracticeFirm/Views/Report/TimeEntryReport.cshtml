@@ -1,0 +1,881 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/Scripts/Firm/Pages/TimeEntryReport.js?2.4"></script>
+<script>
+    var roleids = "@Session["sessionroleid"]";
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<style>
+    a.morelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span {
+        display: none;
+    }
+
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+</style>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+
+<main class="wrapper report_wrapper">
+    <section id="header">
+        <div class="container-main">
+            <div class="text-left">
+                <p class="ctitle">Time Entry Reports</p>
+            </div>
+        </div>
+    </section>
+    <section class="main_content">
+        <div class="mid-section ec_bg">
+            <input type="hidden" id="hdnisaddedval" value="0" />
+            <div class="row report_row">
+                <form id="idtimreportformat">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">User</label>
+                            @if (role.ToString() == "1")
+                            {
+                                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpUser" name="ddlExpUser"></select>
+                            }
+                            else
+                            {
+                                <span style="display:none" id="ddlExpUser" name="ddlExpUser"></span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Client</label>
+                            <input type="hidden" id="tetimecontactvalue">
+                            <input type="text" id="tetimecontact" name="tetimecontact" class="form-control inputFormat" autocomplete="new-text" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Matter</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="tematter" name="tematter">
+                                <option value="" selected="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Billing Type</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="TimeentrytypeReport" name="TimeentrytypeReport">
+                                <option value="" selected="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Task Type</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="teitem"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Matter List Type</label>
+                            <div class="row gy-sm-4">
+                                <div class="col-md-6">
+                                    <div class="radio radiobtn form-control inputFormat">
+                                        <label>
+                                            <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+                                            Log
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="radio radiobtn form-control inputFormat">
+                                        <label>
+                                            <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+                                            Modified
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Creation Date</label>
+                            <div class="row gy-sm-4">
+                                <div class="col-md-6">
+                                    <input class="form-control inputFormat" id="datefrom" onkeypress="return false;" type="date" placeholder="from">
+                                </div>
+                                <div class="col-md-6">
+                                    <input class="form-control inputFormat" id="dateto" onkeypress="return false;" type="date" placeholder="to">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">&nbsp;&nbsp;</label>
+                            <div class="row gy-sm-4">
+                                <div class="col-md-8">
+                                    <button class="btn btn-primary" type="button" style="width:100%;" id="searchdatas">Generate Report</button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-secondary" type="button" style="width:100%;" id="timClearReport">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="tabuler_section">
+            <div class="table-responsive" id="invoicetabparentdiv">
+                <section id="table" style="margin-top:15px;">
+                    <div class="container-main">
+                        <div class="table">
+                            <div class="card-header">
+                                <div class="content1" style="padding-bottom:20px;">
+                                    <div class="text-and-supporting-text1">
+
+                                    </div>
+                                    <div class="table-header">
+                                        <div class="actions3">
+
+                                            <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                                                <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                                                <div class="text-padding">
+                                                    <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                                    <div class="button13 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        @*<img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">*@
+                                                        <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png" style="rotate: 180deg;">
+                                                        <div class="text-padding">
+                                                            <div class="text1"><a href="javascript:void()" id="download" title="Column Selection">Report Download</a></div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <ul class="dropdown-menu settingaction">
+                                                    <li><a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a></li>
+                                                    <li><a href="javascript:void()" id="opdf" title="export to pdf"> export to pdf</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="updatePanel" class="table-panel table-responsive" style="margin-top:5px; overflow:auto">
+                            </div>
+                            <div class="pagination">
+                                <div class="pagination-button-group">
+                                    <div id="prev" class="pagination-button-group-base">
+                                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                    </div>
+                                    <div id="pageNumbers" class="pagination-button-group-base1">
+
+                                    </div>
+
+                                    <div id="next" class="pagination-button-group-base8">
+                                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-parent">
+                                    <div class="input">
+                                        <div class="content">
+                                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                        </div>
+                                        <div class="help-icon">
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-group">
+                                        <div class="text-and-supporting-text">
+                                            <div id="divGo" class="text9">Go</div>
+                                        </div>
+                                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+</main>
+
+
+<div class="table-panel" style="display:none;">
+    <div class="settingpanel">
+        <div class="col-md-6">
+            <div style="float: left;padding: 0 10px 0 0;">
+                <ul>
+                    <li>
+                        <div class="btn-group dropup">
+                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                customize field
+                            </a>
+                            <ul class="dropdown-menu settingshowhide" id="od" style="width:275px; height: 220px !important; overflow-y:scroll;">
+                                <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="matter" checked>Matter Name</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="client" checked>Client</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="date" checked>Date</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="duration" checked>Duration</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="createdby">User</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="item" checked>Task Type</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="timertype">Type</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="tdetails" checked>Notes</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="documents">attachments</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div id="tfooter">
+            </div>
+        </div>
+        <div class="col-md-6" @*style="display:none;"*@>
+            <ul class="pull-right">
+                <li><span>|</span></li>
+                <li>
+                    <div class="btn-group dropup">
+                        <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Action Selected
+                        </a>
+                        <ul class="dropdown-menu settingaction">
+                            @if (role.ToString() == "1")
+                            {
+                                <li>
+                                    <a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void()" id="opdf" title="export to pdf">
+                                        export to pdf
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                if (Convert.ToInt32(ViewBag.export) == 1)
+                                {
+                                    <li>
+                                        <a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void()" id="opdf" title="export to pdf">
+                                            export to pdf
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<div id="myModalCustomizedcolumn" class="modal right fade myModal in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="margin-top: 15px;margin-left: 5px; ">
+                        <ul id="bindcolumnmaster">
+                            <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="matter" checked>Matter Name</a></li>
+                            <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="client" checked>Client</a></li>
+                            <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="date" checked>Date</a></li>
+                            <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="duration" checked>Duration</a></li>
+                            <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="createdby">User</a></li>
+                            <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="item" checked>Task Type</a></li>
+                            <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="timertype">Type</a></li>
+                            <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="tdetails" checked>Notes</a></li>
+                            <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="documents">attachments</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function sortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("example");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<script>
+    $("#tetimecontact").change(function () {
+        var client = $("#tetimecontact").val();
+        if (client == "") {
+            $("#tetimecontactvalue").val("");
+            $('#tematter').empty();
+        }
+    });
+    $(document).ready(function () {
+        $("#tetimecontact").autocomplete({
+            disabled: true
+        });
+    });
+    //$("#filterclient").change(function () {
+    //    var flval = $("#filterclient").val();
+    //    if (flval != "") {
+    //        loadmatter1(flval, "filtercasescheduler");
+    //    }
+    //});
+    //$("#ifilterclient").change(function () {
+    //    var flval = $("#ifilterclient").val();
+    //    if (flval != "") {
+    //        loadmatter1(flval, "ifiltercasescheduler");
+    //    }
+    //});
+    //$("#dfilterclient").change(function () {
+    //    var flval = $("#dfilterclient").val();
+    //    if (flval != "") {
+    //        loadmatter1(flval, "dfiltercasescheduler");
+    //    }
+    //});
+    //$("#ofilterclient").change(function () {
+    //    var flval = $("#ofilterclient").val();
+    //    if (flval != "") {
+    //        loadmatter1(flval, "ofiltercasescheduler");
+    //    }
+    //});
+    //$("#afilterclient").change(function () {
+    //    var flval = $("#afilterclient").val();
+    //    if (flval != "") {
+    //        loadmatter1(flval, "afiltercasescheduler");
+    //    }
+    //});
+    function loadmatter2(clientid, mtypes) {
+        if (mtypes != "") {
+            $('#' + mtypes).append('<option value="">Select Matter</option>').find('option:first').attr("selected", "selected");
+            getcasebyajax12(clientid, mtypes);
+        }
+    }
+    function getcasebyajax12(clientid, matteridslbl) {
+        try {
+            openload();
+        }
+        catch
+        {
+        }
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/LoadMatterforclient",
+            headers: {
+                "clientid": clientid,
+                "companyids": ""
+            },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                }
+                else {
+                    //alert("not found");
+                }
+                var obj = JSON.parse(response.Data);
+                if (matteridslbl == "filtercasescheduler") {
+                    $("#filtercasescheduler").empty();
+                    var optiontempy = '<option value="" >Matters</option>';
+                    $("#" + matteridslbl).append(optiontempy);
+                }
+                $.each(obj, function (i, a) {
+                    var mattername = a.mname;
+                    var mid = a.Id;
+                    if (mattername == null) {
+                        mattername = "";
+                        mid = "";
+                    }
+                    else {
+                        var option = '<option value="' + mid + '" > ' + mattername + '</option>';
+                        $("#" + matteridslbl).append(option);
+                    }
+                });
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            },
+            failure: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            },
+            error: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            }
+        });
+    }
+    //$(function () {
+    //    $("#sidebindcommuclient").typeahead({
+    //        hint: true,
+    //        highlight: true,
+    //        minLength: 3,
+    //        source: function (request, response) {
+    //            request = request.replace(/"/g, "").replace(/\\/g, "");
+    //            $.ajax({
+    //                async: true,
+    //                url: '/Firm/ClientFilter',
+    //                data: "{ 'prefix': '" + request + "'}",
+    //                dataType: "json",
+    //                type: "POST",
+    //                contentType: "application/json; charset=utf-8",
+    //                success: function (data) {
+    //                    items = [];
+    //                    map = {};
+    //                    $.each(data, function (i, item) {
+    //                        var id = item.val;
+    //                        var name = item.label;
+    //                        var utype = item.utype;
+    //                        var isclient = item.isclient;
+    //                        var CompanyID = item.CompanyID;
+    //                        var ProfileType = item.ProfileType;
+    //                        var LabelName = item.LabelName;
+    //                        map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+    //                        items.push(name);
+    //                    });
+    //                    response(items);
+    //                    $(".dropdown-menu").css("height", "auto");
+    //                    $(".typeahead li").removeClass("active");
+    //                },
+    //                error: function (response) {
+    //                    alert(response.responseText);
+    //                },
+    //                failure: function (response) {
+    //                    alert(response.responseText);
+    //                }
+    //            });
+    //        },
+    //        updater: function (item) {
+    //            var clientds = map[item].id;
+    //            var clientdnames = map[item].name;
+    //            $("#commuclienthide").val(clientds);
+    //            $("#commucliennamethide").val(clientdnames);
+    //            if (clientds != "") {
+    //                $('#sidebindcommucase').empty();
+    //                loadmatter1(clientds, "sidebindcommucase");
+    //            }
+    //            else {
+    //                $('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+    //            }
+    //            return item;
+    //        }
+    //    });
+    //});
+    //$(function () {
+    //    $("#taskcontact").typeahead({
+    //        hint: true,
+    //        highlight: true,
+    //        minLength: 3,
+    //        source: function (request, response) {
+    //            request = request.replace(/"/g, "").replace(/\\/g, "");
+    //            $.ajax({
+    //                async: true,
+    //                url: '/Firm/ClientFilter',
+    //                data: "{ 'prefix': '" + request + "'}",
+    //                dataType: "json",
+    //                type: "POST",
+    //                contentType: "application/json; charset=utf-8",
+    //                success: function (data) {
+    //                    items = [];
+    //                    map = {};
+    //                    $.each(data, function (i, item) {
+    //                        var id = item.val;
+    //                        var name = item.label;
+    //                        var utype = item.utype;
+    //                        var isclient = item.isclient;
+    //                        var CompanyID = item.CompanyID;
+    //                        var ProfileType = item.ProfileType;
+    //                        var LabelName = item.LabelName;
+    //                        map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+    //                        items.push(name);
+    //                    });
+    //                    response(items);
+    //                    $(".dropdown-menu").css("height", "auto");
+    //                    $(".typeahead li").removeClass("active");
+    //                },
+    //                error: function (response) {
+    //                    alert(response.responseText);
+    //                },
+    //                failure: function (response) {
+    //                    alert(response.responseText);
+    //                }
+    //            });
+    //        },
+    //        updater: function (item) {
+    //            $("#member").css("height", "100px !important;")
+    //            var clientds = map[item].id;
+    //            if (clientds != "") {
+    //                $('#tematter').empty();
+    //                loadmatter1(clientds, "tematter");
+    //            }
+    //            else {
+    //                //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+    //            }
+    //            return item;
+    //        }
+    //    });
+    //});
+    $(function () {
+        $("#tetimecontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                var clientds = map[item].id;
+                $("#tetimecontactvalue").val(clientds);
+                if (clientds != "") {
+                    $('#tematter').empty();
+                    loadmatter2(clientds, "tematter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+            }
+        });
+    });
+    //$(function () {
+    //    $("#ddlExpenceClient").typeahead({
+    //        hint: true,
+    //        highlight: true,
+    //        minLength: 3,
+    //        source: function (request, response) {
+    //            request = request.replace(/"/g, "").replace(/\\/g, "");
+    //            $.ajax({
+    //                async: true,
+    //                url: '/Firm/ClientFilter',
+    //                data: "{ 'prefix': '" + request + "'}",
+    //                dataType: "json",
+    //                type: "POST",
+    //                contentType: "application/json; charset=utf-8",
+    //                success: function (data) {
+    //                    items = [];
+    //                    map = {};
+    //                    $.each(data, function (i, item) {
+    //                        var id = item.val;
+    //                        var name = item.label;
+    //                        var utype = item.utype;
+    //                        var isclient = item.isclient;
+    //                        var CompanyID = item.CompanyID;
+    //                        var ProfileType = item.ProfileType;
+    //                        var LabelName = item.LabelName;
+    //                        map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+    //                        items.push(name);
+    //                    });
+    //                    response(items);
+    //                    $(".dropdown-menu").css("height", "auto");
+    //                    $(".typeahead li").removeClass("active");
+    //                },
+    //                error: function (response) {
+    //                    alert(response.responseText);
+    //                },
+    //                failure: function (response) {
+    //                    alert(response.responseText);
+    //                }
+    //            });
+    //        },
+    //        updater: function (item) {
+    //            $("#exclienthide").val(map[item].id);
+    //            var clientds = map[item].id;
+    //            if (clientds != "") {
+    //                $('#ddlExpenceCase').empty();
+    //                loadmatter1(clientds, "ddlExpenceCase");
+    //            }
+    //            else {
+    //                //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+    //            }
+    //            return item;
+    //        }
+    //    });
+    //});
+    //$(function () {
+    //    $("#client").typeahead({
+    //        hint: true,
+    //        highlight: true,
+    //        minLength: 3,
+    //        source: function (request, response) {
+    //            request = request.replace(/"/g, "").replace(/\\/g, "");
+    //            $.ajax({
+    //                async: true,
+    //                url: '/Firm/ClientFilter',
+    //                data: "{ 'prefix': '" + request + "'}",
+    //                dataType: "json",
+    //                type: "POST",
+    //                contentType: "application/json; charset=utf-8",
+    //                success: function (data) {
+    //                    items = [];
+    //                    map = {};
+    //                    $.each(data, function (i, item) {
+    //                        var id = item.val;
+    //                        var name = item.label;
+    //                        var utype = item.utype;
+    //                        var isclient = item.isclient;
+    //                        var CompanyID = item.CompanyID;
+    //                        var ProfileType = item.ProfileType;
+    //                        var LabelName = item.LabelName;
+    //                        map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+    //                        items.push(name);
+    //                    });
+    //                    response(items);
+    //                    $(".dropdown-menu").css("height", "auto");
+    //                    $(".typeahead li").removeClass("active");
+    //                },
+    //                error: function (response) {
+    //                    alert(response.responseText);
+    //                },
+    //                failure: function (response) {
+    //                    alert(response.responseText);
+    //                }
+    //            });
+    //        },
+    //        updater: function (item) {
+    //            var clientds = map[item].id;
+    //            if (clientds != "") {
+    //                $('#cmatter').empty();
+    //                loadmatter1(clientds, "cmatter");
+    //            }
+    //            else {
+    //                //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+    //            }
+    //            return item;
+    //        }
+    //    });
+    //});
+</script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#ColumnSelectionopen").click(function () {
+            $("#myModalCustomizedcolumn").modal('show'); // Opens the modal
+        });
+
+        $(document).click(function (event) {
+            if ($(event.target).is(".myModal")) {
+                $("#myModalCustomizedcolumn").modal('hide'); // Closes the modal
+            }
+        });
+    });
+</script>
+

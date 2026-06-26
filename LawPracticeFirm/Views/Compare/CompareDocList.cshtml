@@ -1,0 +1,1076 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+@{
+    var firmcode = Session["FirmCode"];
+}
+<style>
+    .glyphicon-eye-open, .glyphicon-trash, .fa-download {
+        color: black !important;
+    }
+</style>
+<style>
+    .modal_a {
+        position: fixed;
+        z-index: 9999999999;
+        padding-top: 20px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.8);
+    }
+
+    .modal_a-content {
+        background-color: #fefefe;
+        margin: 0px auto 0;
+        padding: 10px 10px;
+        border: 1px solid #000;
+        border-radius: 5px;
+        width: 90%;
+        height: 600px;
+        font-size: 16px;
+    }
+
+    .close_a {
+        position: relative;
+        right: -20px;
+        top: -22px;
+        float: right;
+    }
+
+        .close_a:hover, .close_a:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    .historyWrapper .quota_wrapper {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin: 15px 0px;
+    }
+
+        .historyWrapper .quota_wrapper label {
+            border: 1px solid lightgray;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+</style>
+<style type="text/css" id="cssID">
+    #comparison-toolbar-fullscreen {
+        display: none !important;
+    }
+
+    .progressbarcontainer {
+        list-style-type: none;
+        border: none;
+        border-radius: 8px;
+        padding: 0;
+        overflow: hidden;
+        width: 390px;
+    }
+
+        .progressbarcontainer li {
+            float: left;
+        }
+
+    .pbarvalue {
+        background: #f5f5f5;
+        padding: 4px;
+        border-radius: 3px;
+    }
+
+    #totdeleteddoc {
+        background: #f5f5f5;
+        padding: 4px;
+        border-radius: 3px;
+    }
+
+    .progress-container {
+        width: 240px;
+        height: 10px;
+        background-color: #E9EAEB;
+        border-radius: 6px;
+        margin: 6px 0 0 10px;
+        position: relative;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: #0369A1;
+        border-radius: 6px;
+        width: 0;
+        transition: width 0.3s ease-in-out;
+}
+
+    .comparison-container {
+        display: none;
+        width: 100%;
+        height: 100vh;
+        flex-direction: column;
+    }
+
+    .comparison-header {
+        background: #ffffff;
+        color: rgb(0, 0, 0);
+        padding: 0px 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: #37474f 2px 2px 7px 1px;
+    }
+
+    .comparison-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        margin: 10px 0px;
+    }
+
+    .document-panel {
+        flex: 1;
+        overflow-y: auto;
+        border-right: 2px solid #ddd;
+        background: #fafafa;
+    }
+
+        .document-panel:last-child {
+            border-right: none;
+        }
+
+    .document-header {
+        text-align: center;
+        background: #eceff1;
+        padding: 10px;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .document-content {
+        padding: 20px;
+    }
+
+    .document-page {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+        .document-page img {
+            width: 100%;
+            border: 1px solid #bbb;
+            background: white;
+        }
+
+    .highlight-box {
+        position: absolute;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: border-color 0.1s, background-color 0.1s;
+    }
+
+        .highlight-box.state-equal:hover {
+            background-color: rgba(41, 121, 255, 0.1);
+        }
+
+    .state-deleted {
+        background-color: var(--deleted-bg);
+    }
+
+    .state-inserted {
+        background-color: var(--inserted-bg);
+    }
+
+    .clicked {
+        border: 2px solid var(--clicked-border) !important;
+        background-color: rgba(41, 121, 255, 0.2) !important;
+        z-index: 5;
+    }
+
+    .clicked-target {
+        animation: pulse 1s;
+    }
+
+    @@keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(41, 121, 255, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 10px 15px rgba(41, 121, 255, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(41, 121, 255, 0);
+        }
+    }
+
+    .highlight-box.unmatched-primary {
+        background-color: rgba(255, 182, 193, 0.4); /* lightgreen with transparency */
+    }
+    /* Unmatched secondary = light red */
+    .highlight-box.unmatched-secondary {
+        background-color: rgba(144, 238, 144, 0.4);
+        /* lightpink with transparency */
+    }
+</style>
+<script src="~/Scripts/Compare/Compare.js?2.8"></script>
+<section id="header" class="compareDoc">
+    <div class="container-main">
+        <div class="text-left">
+            <h2 class="ctitle" id="dynamiciprheader" style="margin-top: 0px; margin-bottom: 20px;">Compare Documents</h2>
+        </div>
+    </div>
+</section>
+<section id="nav" style="border-bottom: 1px solid #E9EAEB; overflow: hidden;">
+    <div class="container-main">
+        <ul class="snav">
+            <li class=""><a href="/@firmcode/Compare/CompareNewDoc" title="Compare Documents" id="comparenow">Compare Documents</a></li>
+            <li class="active"><a href="/@firmcode/Compare/CompareDocList" class="tabstyle">History</a></li>
+        </ul>
+    </div>
+</section>
+<section style="margin:20px 0;">
+    <div class="card-header">
+        <div class="content1" style="justify-content: space-between; padding:0;">
+            <div class="left_input">
+                <div style="font-size: 16px; font-weight: 600; color: #374151; padding:10px 0 0 0;">Previous Compared Documents</div>
+            </div>
+            <div class="table-header">
+                <div class="actions3">
+                    <label for="myfile" style="font-size: 14px; font-weight: 500; color: #535862;margin:0;"><span id="totdeleteddoc"></span> Deleted Files <span style="padding:0 5px;">|</span></label>
+                    <ul class="progressbarcontainer pull-right">
+                        <li style="text-align: end;">
+                            <div id="quotaText">Loading...</div>
+                        </li>
+                        <li>
+                            <div class="progress-container">
+                                <div id="progressBar" class="progress-bar"></div>
+                            </div>
+                        </li>
+                    </ul>
+
+
+                    <!-- Hidden inputs if needed for JS logic -->
+                    <input id="kquatoa" value="0" type="hidden" />
+                    <input id="balancequota" value="0" type="hidden" />
+
+
+                    <div id="ColumnSelectionopen" class="button13 dropup">
+                        <a href="javascript:void()">
+                            <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png"> Customize
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="wrapper compareDoc">
+    <div class="container-main">
+        <div class="historyWrapper">
+            @*<h2 class="title">Compare Document</h2>*@
+            @*<div class="quota_wrapper">
+                    <label for="myfile">Total Quota: <span id="totdoc"></span></label>
+                    <label for="myfile">Used Quota: <span id="totuseddoc"></span></label>
+                    <label for="myfile">Balance Quota: <span id="totleftdoc"></span></label>
+                    <label for="myfile">Deleted Files: <span id="totdeleteddoc"></span></label>
+                </div>*@
+
+            @*<div class="row" style="margin-top:15px;margin-bottom:15px;">
+                    <div class="col-md-12">
+                    </div>
+                </div>*@
+            <div class="content-header" style="margin-bottom: 27px;">
+                <div class="table-panel table-responsive">
+                    <div style="overflow-x:auto;">
+                        <table class="table-panel" id="cexample1">
+                            <thead>
+                                <tr>
+                                    <th class="eDate" onclick="sortTable(0,1)">
+                                        <div class="thbg">
+                                            Date<span class="fa fa-fw fa-sort pull-right"></span>
+                                        </div>
+                                    </th>
+                                    @*<th class="vCompName" onclick="sortTable(1)">*@
+                                    <th>
+                                        <div class="thbg">
+                                            @*Compared File Name*@
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="name" placeholder="Compared File Name" class="form-control pull-left" style="width:120px;">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="btnsearch" style="margin:5px 0 0 -14px;float:right"></span>
+                                                <span id="clearnewseach" style="display:none;font-size:15px;color:black; font-weight:200;cursor:pointer;">x</span>
+                                            </div>
+                                            @*<span class="fa fa-fw fa-sort pull-right"></span>*@
+                                        </div>
+                                    </th>
+                                    <th class="vFCompURL" onclick="sortTable(2)" width="8%"><div class="thbg">Status<span class="fa fa-fw fa-sort pull-right"></span></div></th>
+                                    @*<th class="dexpiryDate" onclick="sortTable(3,1)">*@
+                                    <th>
+                                        <div class="thbg">
+                                            Expiry Date
+
+                                            <a href="#" data-toggle="modal" data-target="#spnDateOfApp22" style="padding-left:10px;"><img width="15px" height="15px" src="~/newassets/img/quickbar/calendar.svg" alt="calender" /></a>
+                                            @*<span class="fa fa-fw fa-sort pull-right"></span>*@
+                                            @*<div class="btn-group" style="margin-top: -4px;">
+                                                    <button type="button" style="height: 23px;" class="taskoutboxbtnicon dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <span class="glyphicon glyphicon-calendar" id="spnDateOfApp"></span>
+                                                        <span class="sr-only">Toggle Dropdown</span>
+                                                    </button>
+                                                    <div id="dropdown-menu1" style="width: 325px;height:38px; position: absolute;z-index: 1000;top: 28px;background: #FFF;border: 1px solid;display:none;right: 0 !important;left: auto !important;border-radius:10px !important">
+                                                        <ul>
+                                                            <li style="padding:4px 5px 8px 5px; float:left">
+                                                                <input type="date" title="From date" id="datefrom" class="form-control pull-left;" style="width:125px;" onkeypress="return false" />
+                                                            </li>
+                                                            <li style="padding:4px 5px 8px 5px; float:left">
+                                                                <input type="date" title="To date" id="dateto" class="form-control " style="width:125px;" onkeypress="return false" />
+                                                            </li>
+                                                            <li style="padding:4px 5px 8px 5px; float:left">
+                                                                <span class="glyphicon glyphicon-search" id="btnsearchBydate" style="padding:4px 0 0 14px;background:none"></span>
+                                                            </li>
+                                                            <li style="padding:4px 5px 8px 5px; float:left">
+                                                                <span class="glyphicon glyphicon-remove" id="clearDateseach" title="Click here to clear Filing date" style="display: none; width: 7%; cursor: pointer; font-size:10px; padding:2px 0 0 0;"></span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                </div>*@
+                                        </div>
+                                    </th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="doclist"></tbody>
+                        </table>
+                        <center>
+                            <div class="notfound" id="pdatastatus" style="display:none;">
+                                <img src="~/newassets/img/not-found.png" />
+                                <h4><span id="dtNotFound"></span></h4>
+
+                            </div>
+                        </center>
+                    </div>
+                    <div class="pagination" id="tradePagination">
+                        <div class="pagination-button-group">
+                            <div id="prev" class="pagination-button-group-base">
+                                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                            </div>
+                            <div id="pageNumbers" class="pagination-button-group-base1">
+                            </div>
+                            <div id="next" class="pagination-button-group-base8">
+                                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-parent">
+                            <div class="input">
+                                <div class="content">
+                                    <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                </div>
+                                <div class="help-icon">
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-group">
+                                <div class="text-and-supporting-text">
+                                    <div id="divGo" class="text9">Go</div>
+                                </div>
+                                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    @*<div class="settingpanel">
+                            <div class="col-md-5" style="margin-top:25px;">
+                                <div class="row">
+                                        <ul>
+                                            <li>
+                                                <div class="btn-group dropup">
+                                                    <a href="javascript:void()" style="background-color: #ebebeb; margin-top: -3px !important" class="dropdown-toggle form-control selctInputFormat" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0;"></span>
+                                                        Customize Field
+                                                    </a>
+                                                    <ul class="dropdown-menu settingshowhide" id="EColli" style="width:200px;">
+                                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDate" checked><a href="#" class="dropdown-item">Date</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="vCompName" checked><a href="#" class="dropdown-item">Compared File Name</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="vFCompURL" checked> <a href="#" class="dropdown-item">Status</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dexpiryDate" checked><a href="#" class="dropdown-item">Expiry Date</a></li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                            <li style="margin-left:20px;">
+                                                <div id="ecfootercompare"></div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="row" style="padding:10px 0 10px 0px;">
+                                    <div class="col-md-4">
+                                        <div class="row">
+                                            <div class="col-md-9">
+                                                <label>Compared File Name</label>
+                                                <input class="form-control inputbg" placeholder="Enter File Name" id="name" type="text" maxlength="200">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <span class="sbtbtn" id="clearnewseach" title="Click here to reset search" style="float: right; margin-top: 20px; display: none;">x</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Expiry From Date</label>
+                                        <input class="form-control inputbg" id="datefrom" onkeypress="return false;" type="date">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Expiry To Date</label>
+                                        <input class="form-control inputbg" id="dateto" onkeypress="return false;" type="date">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" id="btnsearch" class="sbtbtn" style="width:100%;margin: 16px 0 0 0;padding: 5px 0;">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+
+
+                    <div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+                        <div class="modal-dialog modal-lg">
+                            <!-- Modal content-->
+                            <div class="modal-content mymodels" id="mymodels">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="comparemodal" class="modal_a" style="display:none">
+                        <div class="modal_a-content">
+                            <img src="/NewDesign/images/v_btn.png" class="close_a" id="mclose" width="22px" height="22">
+                                <div class="comparison-container" id="comparisonContainer">
+                                    <div class="comparison-header">
+                                        @*<button onclick="resetApp()">← Back</button>*@
+                                        <h2>Comparison View</h2>
+
+                                    </div>
+                                    <div class="comparison-body" id="comparisonBody">
+                                        <div class="document-panel">
+                                            <div class="document-header">Primary</div>
+                                            <div class="document-content" id="primaryContent"></div>
+                                        </div>
+                                        <div class="document-panel">
+                                            <div class="document-header">Secondary</div>
+                                            <div class="document-content" id="secondaryContent"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<div id="myModalCustomizedcolumn" class="modal right fade myModal in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 mt-10" style="overflow-y:scroll; max-height: 750px;">
+
+                        <ul id="EColli">
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDate" checked><a href="#" class="dropdown-item">Date</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="vCompName" checked><a href="#" class="dropdown-item">Compared File Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="vFCompURL" checked> <a href="#" class="dropdown-item">Status</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dexpiryDate" checked><a href="#" class="dropdown-item">Expiry Date</a></li>
+                        </ul>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $('#spnDateOfApp').on('click', function (e) {
+        $("#dropdown-menu1").show();
+    });
+
+    $(document).click(function (e) {
+        if (!$(e.target).closest("#dropdown-menu1, #toggleCalendar").length) {
+            $("#dropdown-menu1").hide();
+        }
+    });
+
+    function sortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("cexample1");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 1; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function psortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("pexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function osortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("oexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        $("#ectimecontact").autocomplete({
+            disabled: true
+        });
+    });
+    $("#filterclient").change(function () {
+        var flval = $("#filterclient").val();
+        if (flval != "") {
+            loadmatter1(flval, "filtercasescheduler");
+        }
+    });
+    function loadmatter1(clientid, mtypes) {
+        if (mtypes != "") {
+            $('#' + mtypes).append('<option value="">Select Matter</option>').find('option:first').attr("selected", "selected");
+            getcasebyajax1(clientid, mtypes);
+        }
+    }
+    function getcasebyajax1(clientid, matteridslbl) {
+        try {
+            openload();
+        }
+        catch
+        {
+        }
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/LoadMatterforclient",
+            headers: {
+                "clientid": clientid
+            },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                }
+                else {
+                    //alert("not found");
+                }
+                var obj = JSON.parse(response.Data);
+                if (matteridslbl == "filtercasescheduler") {
+                    $("#filtercasescheduler").empty();
+                    var optiontempy = '<option value="" >Matters</option>';
+                    $("#" + matteridslbl).append(optiontempy);
+                }
+                $.each(obj, function (i, a) {
+                    var mattername = a.mname;
+                    var mid = a.Id;
+                    if (mattername == null) {
+                        mattername = "";
+                        mid = "";
+                    }
+                    else {
+                        var option = '<option value="' + mid + '" > ' + mattername + '</option>';
+                        $("#" + matteridslbl).append(option);
+                    }
+                });
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+                //console.log(response);
+            },
+            failure: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            },
+            error: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            }
+        });
+    }
+    $(function () {
+        $("#taskcontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#member").css("height", "100px !important;")
+                var clientds = map[item].id;
+                if (clientds != "") {
+                    $('#ecmatter').empty();
+                    loadmatter1(clientds, "ecmatter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+            }
+        });
+    });
+    $(function () {
+        $("#ectimecontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                var clientds = map[item].id;
+                $("#ectimecontactvalue").val(clientds);
+                if (clientds != "") {
+                    $('#ecmatter').empty();
+                    loadmatter1(clientds, "ecmatter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+            }
+        });
+    });
+</script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+
+@* calender modal started *@
+<div class="modal fade" id="spnDateOfApp22" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="display: flex !important; justify-content: space-between;">
+                <h5 class="modal-title" id="exampleModalLabel">&nbsp;</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-check-label" for="rdusers">
+                        Select Expiry Date
+                    </label>
+
+                    <div style="display:flex; gap:15px;">
+                        <input type="date" title="From date" id="datefrom" class="form-control" onkeypress="return false" />
+                        <input type="date" title="To date" id="dateto" class="form-control " onkeypress="return false" />
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="modal-footer flex-end" style="margin-top:20px;">
+                <button type="button" id="btnsearchBydate" class="btn btn-primary">Search</button>
+                <button type="button" id="clearDateseach" class="btn btn-primary">Reset</button>
+                @*<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

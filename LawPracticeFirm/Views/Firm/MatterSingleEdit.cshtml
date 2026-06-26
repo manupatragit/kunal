@@ -1,0 +1,2041 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+@{
+    var id = ViewBag.token;
+}
+<script>
+    var id ="@id";
+    var filesize =@ViewBag.filesize;
+    var type = 8;
+</script>
+<script type='text/javascript'>
+    if (String(id) != "") {
+        localStorage.setItem("contacttoken", id);
+    }
+    if (String(id) == "") {
+        var urls = window.location.href;
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": localStorage.getItem("contacttoken") }
+        });
+    }
+    function goodbye(e) {
+        localStorage.setItem("contacttoken", id);
+        if (!e) e = window.event;
+        //e.cancelBubble is supported by IE - this will kill the bubbling process.
+        e.cancelBubble = true;
+        //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+        //e.stopPropagation works in Firefox.
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+    window.onbeforeunload = goodbye;
+</script>
+<style>
+    .radio input[type="radio"], .radio-inline input[type="radio"], .checkbox input[type="checkbox"], .checkbox-inline input[type="checkbox"] {
+        float: none;
+        margin-left: 0;
+    }
+
+    .radio-inline + .radio-inline, .checkbox-inline + .checkbox-inline {
+        margin: 0;
+    }
+
+    .zyx span {
+        text-transform: capitalize;
+        padding: 0 5px 0 0;
+    }
+
+    .radio-inline, .checkbox-inline {
+        display: block !important;
+        padding-left: 0 !important;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/MatterSingleEdit.js"></script>
+<script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+<link href="~/Manupanel/jquerydatetimepicker/jquery.datetimepicker.css" rel="stylesheet" />
+<script src="~/Manupanel/jquerydatetimepicker/jquery.js"></script>
+<script src="~/Manupanel/jquerydatetimepicker/jquery.datetimepicker.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<style>
+    input[readonly] {
+        cursor: text !important;
+        background-color: #fff !important;
+    }
+
+    .typeahead {
+        position: relative !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+    }
+
+    .selectize-input {
+        width: 92% !important;
+        margin: 0 0 0 0;
+        border-radius: 0 !important;
+    }
+
+    .selectize-control {
+        margin: 0 0 6px 0;
+    }
+</style>
+<script>
+</script>
+<script src="~/Content/multipleselect/selectize.js"></script>
+<link href="~/Content/multipleselect/dist/css/selectize.bootstrap2.css" rel="stylesheet" />
+<link href="~/Content/multipleselect/dist/css/jquery.magicsearch.min.css" rel="stylesheet" />
+<script>
+    $(document).on('click', 'div.selectize-input div.item', function (e) {
+        var select = $('#assignto').selectize();
+        var selectSizeControl = select[0].selectize;
+        // 1. Get the value
+        var selectedValue = $(this).attr("data-value");
+        // 2. Remove the option
+        select[0].selectize.removeItem(selectedValue);
+        select[0].selectize.refreshItems();
+        select[0].selectize.refreshOptions();
+        $(".div.selectize-input div.item").css("padding", "7px 10px");
+    });
+</script>
+<script type="text/javascript">
+    function validationcourt() {
+        if (document.getElementById("drpcourtname").value == "0") {
+            alert("please select court");
+            return false;
+        }
+    }
+    function hiddivSCDE() {
+        document.getElementById('drptype').value = "0";
+        document.getElementById('txtno').value = "";
+        document.getElementById('drpYear').value = "0";
+        $("#divcaseno").toggle();
+        $("#divcasetype").toggle();
+        $("#divdiaryno").hide();
+        if (document.getElementById('divSCDECD').value == "1") {
+            $("#divcaseno").hide();
+            $("#divcasetype").hide();
+            $("#divdiaryno").toggle();
+        }
+    }
+    function divdisplay() {
+        $("#drpYear").empty();
+        $("#drpbench").empty();
+        $("#drptype").empty();
+        $("#drpNCBench").empty();
+        $("#divdiaryno").hide();
+        $("#divSCDE").hide();
+        document.getElementById('drpGoa').value = "";
+        document.getElementById('divSCDECD').value = "0";
+        document.getElementById('txtDiaryNo').value = "";
+        document.getElementById('divcasetype').style.display = "block";
+        document.getElementById('divcaseno').style.display = "block";
+        document.getElementById('divRH').style.display = "none";
+        document.getElementById('divJK').style.display = "none";
+        document.getElementById('divNC').style.display = "none";
+        document.getElementById('savebtn').style.display = "none";
+        document.getElementById("divKA").style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById('divTN').style.display = "none";
+        document.getElementById('divBH').style.display = "none";
+        document.getElementById('divMP').style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById("divMH").style.display = "none";
+        document.getElementById('divUP').style.display = "none";
+        document.getElementById('divGH').style.display = "none";
+        document.getElementById('lblcourtname').innerHTML = "";
+        document.getElementById('Court').style.display = "none";
+        document.getElementById('lbldistrictname').style.display = "none";
+        var crtid = document.getElementById('drpcourtname').value;
+        var courtname = document.getElementById('drpcourtname').value;
+        var x = document.getElementById("drpcourtname");
+        //added by umesh on 28 jan 20
+        FillStampRegister();
+        if (crtid != "0") {
+            $.ajax({
+                type: "POST",
+                url: "/firm/Addcaseyear?crtid=" + crtid,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpYear").append("<option value='0'>Select Case Year</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        var caseyearlength = data[i].caseyear;
+                    }
+                    startYear = new Date().getFullYear()
+                    for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                        $("#drpYear").append("<option value='" + i + "'>" + i + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            document.getElementById('lbldistrictname').innerHTML = "";
+            var selectedText = $("#drpcourtname").find("option:selected").text();
+            document.getElementById('lbldistrictname').style.display = "block";
+            document.getElementById('Court').style.display = "block";
+            document.getElementById('savebtn').style.display = "block";
+            document.getElementById('lbldistrictname').innerHTML = "<center><h3>Selected: <span>" + selectedText + "</span> </h3></center><hr style='border:1px solid #e6cfcf;margin-top:10px; margin-bottom:0px;'>"
+            if (crtid == 'SC') {
+                $("#divSCDE").toggle();
+                document.getElementById('divcasetype').style.display = "block";
+                document.getElementById('divcaseno').style.display = "block";
+            }
+            if (crtid == 'MH') {
+                document.getElementById("divMHGoa").style.display = "block";
+                document.getElementById("divMH").style.display = "block";
+            }
+            if (crtid == 'KA') {
+                document.getElementById('divKA').style.display = "block";
+            }
+            if (crtid == 'NC' || crtid == 'NL' || crtid == 'IT' || crtid == 'CE' || crtid == 'DT' || crtid == 'CF') {
+                document.getElementById('divNC').style.display = "block";
+                getbench(crtid);
+            }
+            if (crtid != 'CF') {
+                document.getElementById('divncdrcstate').style.display = "none";
+                document.getElementById('divncdrcDistrict').style.display = "none";
+            }
+            if (crtid == 'TN') {
+                document.getElementById("divTN").style.display = "block";
+                document.getElementById("divTNBench").style.display = "block";
+            }
+            if (crtid == 'RH') {
+                document.getElementById('divRH').style.display = "block";
+                document.getElementById('divRHBench').style.display = "block";
+            }
+            if (crtid == 'JK') {
+                document.getElementById('divJK').style.display = "block";
+                document.getElementById('divJKBench').style.display = "block";
+            }
+            if (crtid == 'BH') {
+                document.getElementById("divBH").style.display = "block";
+                document.getElementById("divBHBench").style.display = "block";
+            }
+            if (crtid == 'MP') {
+                document.getElementById("divMP").style.display = "block";
+                document.getElementById("divMPBench").style.display = "block";
+            }
+            if (crtid == 'UP') {
+                document.getElementById('divUP').style.display = "block";
+                document.getElementById('divUPBench').style.display = "block";
+                //added by umesh on 28 jan 20
+                FillBenchType();
+            }
+            if (crtid == 'GH') {
+                document.getElementById('divGH').style.display = "block";
+                document.getElementById('divGHBench').style.display = "block";
+            }
+            if (crtid != 'IT') {
+                getCasetype(crtid, '', '', '');
+            }
+            else {
+                $.ajax({
+                    type: "POST",
+                    url: "/AddCase/AddcasetypeITCE?crtid=" + crtid + "&courttitle=&side=",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#drptype").append("<option value='0'>-Select Case Type-</option>");
+                        for (var i = 0; i < data.length; i++) {
+                            $("#drptype").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                        }
+                    },
+                    error: function (data) {
+                    }
+                });
+            }
+        }
+    }
+    function showaddingcasetype() {
+        $("#drpYear").empty();
+        $("#drpbench").empty();
+        $("#drptype").empty();
+        $("#drpNCBench").empty();
+        $("#divdiaryno").hide();
+        $("#divSCDE").hide();
+        document.getElementById('drpGoa').value = "";
+        document.getElementById('divSCDECD').value = "0";
+        document.getElementById('txtDiaryNo').value = "";
+        document.getElementById('divcasetype').style.display = "block";
+        document.getElementById('divcaseno').style.display = "block";
+        document.getElementById('divRH').style.display = "none";
+        document.getElementById('divJK').style.display = "none";
+        document.getElementById('divNC').style.display = "none";
+        document.getElementById('savebtn').style.display = "none";
+        document.getElementById("divKA").style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById('divTN').style.display = "none";
+        document.getElementById('divBH').style.display = "none";
+        document.getElementById('divMP').style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById("divMH").style.display = "none";
+        document.getElementById('divUP').style.display = "none";
+        document.getElementById('lblcourtname').innerHTML = "";
+        document.getElementById('Court').style.display = "none";
+        document.getElementById('lbldistrictname').style.display = "none";
+        document.getElementById('drpcourtname').value = 'SC';
+        var crtid = document.getElementById('drpcourtname').value;
+        var courtname = document.getElementById('drpcourtname').value;
+        var x = document.getElementById("drpcourtname");
+        crtid = "SC";
+        if (crtid != "0") {
+            $.ajax({
+                type: "POST",
+                url: "/firm/Addcaseyear?crtid=" + crtid,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpYear").append("<option value='0'>Select Case Year</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        var caseyearlength = data[i].caseyear;
+                    }
+                    startYear = new Date().getFullYear()
+                    for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                        $("#drpYear").append("<option value='" + i + "'>" + i + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            document.getElementById('lbldistrictname').innerHTML = "";
+            var selectedText = $("#drpcourtname").find("option:selected").text();
+            document.getElementById('lbldistrictname').style.display = "block";
+            document.getElementById('Court').style.display = "block";
+            document.getElementById('savebtn').style.display = "block";
+            // document.getElementById('lblcourtname').innerHTML = "<h3>Selected: <span>" + x.options[i].innerText + "</span> </h3>";  //x.options[i].innerText;
+            document.getElementById('lbldistrictname').innerHTML = "<center><h3>Selected: <span>" + "SUPREME COURT" + "</span> </h3></center><hr style='border:1px solid #e6cfcf;margin-top:10px; margin-bottom:0px;'>"
+            if (crtid == 'SC') {
+                $("#divSCDE").toggle();
+                document.getElementById('divcasetype').style.display = "block";
+                document.getElementById('divcaseno').style.display = "block";
+                $.ajax({
+                    type: "POST",
+                    url: "/AddCase/AddcasetypeITCE?crtid=" + crtid + "&courttitle=&side=",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#drptype").append("<option value='0'>-Select Case Type-</option>");
+                        for (var i = 0; i < data.length; i++) {
+                            $("#drptype").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                        }
+                    },
+                    error: function (data) {
+                    }
+                });
+            }
+        }
+    }
+@*Add bench by crtid*@
+    function benchadd(crtid) {
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/AddBenchtype?bench=" + crtid,
+            dataType: "json",
+            success: function (data) {
+                $("#drpNCBench").append("<option value='0'>-Select Bench / Type-</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#drpNCBench").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+    function getbench(crtid) {
+        var str = "";
+        benchadd(crtid);
+    }
+@*Hide district div*@
+    function hiddivNCDRCDistrict() {
+        if (document.getElementById('drpNCBench').value == "E") {
+            var stateid = document.getElementById("drpncdrcstate").value;
+            fillNCDRCDistrict(stateid);
+            document.getElementById("divncdrcDistrict").style.display = "block";
+        }
+        else {
+            document.getElementById('divncdrcDistrict').style.display = "none";
+        }
+    }
+    function fillNCDRCState(crtid, benchid) {
+        if (benchid == "E") {
+            $("#drpncdrcstate").html("");
+            document.getElementById('divncdrcDistrict').style.display = "block";
+        }
+        else {
+            document.getElementById('divncdrcDistrict').style.display = "none";
+        }
+        $("#drpncdrcstate").html("");
+        $("#drpncdrcstate").empty;
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/AddFillTriDistrictState?courtid=" + crtid + "&courttype=" + document.getElementById("divSCHCDistrict").value,
+            dataType: "json",
+            success: function (data) {
+                $("#drpncdrcstate").append("<option value='0'>-Select the state.-</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#drpncdrcstate").append("<option value='" + data[i].Stateid + "'>" + data[i].Statename + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Fill NCDR details*@
+    function fillNCDRCDistrict(stateid) {
+        $("#drpncdrcDistrict").html("");
+        $("#drpncdrcDistrict").empty;
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/AddFillTriDistrictStatebyStateid?stateid=" + stateid,
+            dataType: "json",
+            success: function (data) {
+                $("#drpncdrcDistrict").append("<option value='0'>-Select District Forum-</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#drpncdrcDistrict").append("<option value='" + data[i].DistrictId + "'>" + data[i].District + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*GEt case type details*@
+    function getCasetype(crtid, bench, side, vcourttitle) {
+        if (crtid == 'TN' && bench == '') {
+            document.getElementById('divTNBench').value = '';
+            return;
+        }
+        if (crtid == 'RH' && bench == '') {
+            document.getElementById('divRHBench').value = '';
+            return;
+        }
+        if (crtid == 'JK' && bench == '') {
+            document.getElementById('divJKBench').value = '';
+            return;
+        }
+        if (crtid == 'NC' && bench == '') {
+            document.getElementById('drpNCBench').value = '';
+            return;
+        }
+        if (crtid == 'UP' && bench == '') {
+            document.getElementById('divUPBench').value = '';
+            return;
+        }
+        if (crtid == 'GH' && bench == '') {
+            document.getElementById('divGHBench').value = '';
+            return;
+        }
+        if (crtid != "MH" && crtid != "TN" && crtid != "RH" && crtid != "UP" && crtid != "GH" && crtid != "JK" && crtid != "BH" && crtid != "MP" && crtid != "NC" && crtid != "CE" && crtid != "IT" && crtid != "DT") {
+            $.ajax({
+                type: "POST",
+                url: "/AddCase/Addcasetype?crtid=" + crtid + "&courttitle=" + vcourttitle + "&side=" + side,
+                dataType: "json",
+                success: function (data) {
+                    $("#drptype").append("<option value='0'>-Select Case Type-</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        $("#drptype").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+        else {
+            if (vcourttitle != 'Goa' && bench == '') {
+                document.getElementById('drpbench').innerHtml = "";
+                $("#drpbench").empty;
+                $.ajax({
+                    type: "POST",
+                    url: "/AddCase/GetBenchName?crtid=" + crtid,
+                    dataType: "json",
+                    success: function (data) {
+                        $("#drpbench").append("<option value='0'>-Select Bench / Type-</option>");
+                        for (var i = 0; i < data.length; i++) {
+                            $("#drpbench").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                        }
+                    },
+                    error: function (data) {
+                    }
+                });
+            }
+            else {
+                $.ajax({
+                    type: "POST",
+                    url: "/AddCase/Addcasetype?crtid=" + crtid + "&courttitle=" + vcourttitle + "&bench=" + bench + "&side=" + side,
+                    dataType: "json",
+                    success: function (data) {
+                        $("#drptype").append("<option value='0'>-Select Case Type-</option>");
+                        for (var i = 0; i < data.length; i++) {
+                            $("#drptype").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                        }
+                    },
+                    error: function (data) {
+                    }
+                });
+            }
+        }
+    }
+</script>
+<script type="text/javascript">
+    function resetcasewatch() {
+        document.getElementById("divSCHCDistrict").selectedIndex = "0";
+        document.getElementById('HighCourt').style.display = 'none';
+        document.getElementById('DistrictCourt').style.display = 'none';
+        document.getElementById('drpcourtcomplexestb').style.display = 'none';
+        document.getElementById('drpdistrictcourtname').style.display = 'none';
+        document.getElementById('drpcompestbcourt').style.display = 'none';
+        document.getElementById('lbldistrictname').innerHTML = "";
+        document.getElementById('divncdrcstate').style.display = 'none';
+        document.getElementById('divncdrcDistrict').style.display = 'none';
+        $("#drpdistrictcourtname").val("");
+        $('#drpcourtname').empty();
+        $('#drpcourtnameDC').empty();
+        $("#drpYear").empty();
+        $("#drptype").empty();
+        $("#drpNCBench").empty();
+        $("#divdiaryno").hide();
+        $("#divSCDE").hide();
+        $("#drpGoa").val = "";
+        $('#casedetails').val('');
+        $('#txtno').val('');
+        $('#drpncdrcstate').empty();
+        $('#drpncdrcDistrict').empty();
+        $('#drpdcourtcnr').val("");
+        document.getElementById('drpbench').style.border = "unset";
+        document.getElementById('drpside').style.border = "unset";
+        document.getElementById('divTNBench').style.border = "unset";
+        document.getElementById('divJKBench').style.border = "unset";
+        document.getElementById('divRHBench').style.border = "unset";
+        document.getElementById('divBHBench').style.border = "unset";
+        document.getElementById('divMPBench').style.border = "unset";
+        document.getElementById('divUPBench').style.border = "unset";
+        document.getElementById('divGHBench').style.border = "unset";
+        document.getElementById('drpNCBench').style.border = "unset";
+        document.getElementById('drpNCBench').style.border = "unset";
+        document.getElementById('drptype').style.border = "unset";
+        document.getElementById('drptype').style.border = "unset";
+        document.getElementById('txtno').style.border = "unset";
+        document.getElementById('txtDiaryNo').style.border = "unset";
+        document.getElementById('txtno').style.border = "unset";
+        document.getElementById('txtno').style.border = "unset";
+        document.getElementById('drpYear').style.border = "unset";
+        document.getElementById('drpcourtnameDC').style.border = "unset";
+        document.getElementById('drpcourtcomplexestb').style.border = "unset";
+        document.getElementById('drpcompestbcourt').style.border = "unset";
+        document.getElementById('drptype').style.border = "unset";
+        document.getElementById('txtno').style.border = "unset";
+        document.getElementById('txtno').style.border = "unset";
+        document.getElementById('drpYear').style.border = "unset";
+        document.getElementById('divSCDECD').value = "0";
+        document.getElementById('txtDiaryNo').value = "";
+        document.getElementById('divcasetype').style.display = "block";
+        document.getElementById('divcaseno').style.display = "block";
+        document.getElementById('divRH').style.display = "none";
+        document.getElementById('divJK').style.display = "none";
+        document.getElementById('divNC').style.display = "none";
+        document.getElementById('savebtn').style.display = "none";
+        document.getElementById("divKA").style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById('divTN').style.display = "none";
+        document.getElementById('divBH').style.display = "none";
+        document.getElementById('divMP').style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById("divMH").style.display = "none";
+        document.getElementById('divUP').style.display = "none";
+        document.getElementById('divGH').style.display = "none";
+        document.getElementById('lblcourtname').innerHTML = "";
+        document.getElementById('Court').style.display = "none";
+    }
+@*Fill case type*@
+    function fillCasetype() {
+        var bench = document.getElementById('drpbench').value;
+        var side = document.getElementById('drpside').value;
+        var crtid = document.getElementById('drpcourtname').value;
+        document.getElementById("drptype").innerHTML = '';
+        getCasetype(crtid, bench, side, '');
+    }
+@*Hide div*@
+    function hiddiv() {
+        $("#drpYear").empty();
+        document.getElementById("drpbench").innerHTML = "";
+        document.getElementById("drpside").innerHTML = "";
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('drpGoa').value == 'Goa') {
+            $.ajax({
+                type: "POST",
+                url: "/firm/Addcaseyear?crtid=" + document.getElementById('drpGoa').value,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpYear").append("<option value='0'>Select Case Year</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        var caseyearlength = data[i].caseyear;
+                    }
+                    startYear = new Date().getFullYear()
+                    for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                        $("#drpYear").append("<option value='" + i + "'>" + i + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            document.getElementById('divMH').style.display = "none";
+            getCasetype('MH', '', '', 'Goa');
+        }
+        else {
+            $.ajax({
+                type: "POST",
+                url: "/firm/Addcaseyear?crtid=" + document.getElementById('drpcourtname').value,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpYear").append("<option value='0'>Select Case Year</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        var caseyearlength = data[i].caseyear;
+                    }
+                    startYear = new Date().getFullYear()
+                    for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                        $("#drpYear").append("<option value='" + i + "'>" + i + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            document.getElementById('divMH').style.display = "block";
+            getCasetype('MH', '', '', '');
+        }
+    }
+@*Fill side*@
+    function fillside() {
+        $("#drptype").empty();
+        var bench = document.getElementById('drpbench').value;
+        document.getElementById("drpside").innerHTML = '';
+        GetSide(bench);
+    }
+@*Get side*@
+    function GetSide(benchid) {
+        document.getElementById('drpside').innerHtml = "";
+        $("#drpside").empty;
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/GetSide?benchid=" + benchid + "&court=" + document.getElementById("drpcourtname").value,
+            dataType: "json",
+            success: function (data) {
+                $("#drpside").append("<option value='0'>-Select Side-</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#drpside").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Hide TN div*@
+    function hiddivTN() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divTNBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divTNBench').value == "1") {
+            getCasetype('TN', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divTNBench').value == "0") {
+            getCasetype('TN', '0', '', '');
+            return;
+        }
+    }
+@*Hide RH div*@
+    function hiddivRH() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divRHBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divRHBench').value == '1') {
+            getCasetype('RH', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divRHBench').value == '0') {
+            getCasetype('RH', '0', '', '');
+            return;
+        }
+    }
+@*Hide NC div*@
+    function hiddivNC() {
+        if (document.getElementById('drpcourtname').value == "NC" || document.getElementById('drpcourtname').value == "CE" || document.getElementById('drpcourtname').value == "IT"
+            || document.getElementById('drpcourtname').value == "DT") {
+            document.getElementById("drptype").innerHTML = "";
+            if (document.getElementById('drpNCBench').value == '') {
+                document.getElementById("drptype").innerHTML = "";
+            }
+            getCasetype(document.getElementById('drpcourtname').value, document.getElementById('drpNCBench').value, '', '');
+        }
+        if (document.getElementById('drpcourtname').value == "CF") {
+            if (document.getElementById('drpNCBench').value == "B") {
+                document.getElementById('divncdrcstate').style.display = "none";
+                document.getElementById('divncdrcDistrict').style.display = "none";
+            }
+            else if (document.getElementById('drpNCBench').value == "C" || document.getElementById('drpNCBench').value == "E") {
+                fillNCDRCState("CF", document.getElementById('drpNCBench').value);
+                document.getElementById('divncdrcstate').style.display = "block";
+            }
+            else {
+                document.getElementById('divncdrcstate').style.display = "none";
+            }
+        }
+        return;
+    }
+@*Hide JK div*@
+    function hiddivJK() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divJKBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divJKBench').value == '1') {
+            getCasetype('JK', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divJKBench').value == '0') {
+            getCasetype('JK', '0', '', '');
+            return;
+        }
+    }
+@*Hide BH div*@
+    function hiddivBH() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divBHBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divBHBench').value == "1") {
+            getCasetype('BH', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divBHBench').value == "0") {
+            getCasetype('BH', '0', '', '');
+            return;
+        }
+    }
+@*Hide MP div*@
+    function hiddivMP() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divMPBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divMPBench').value == "01") {
+            getCasetype('MP', '01', '', '');
+            return;
+        }
+        if (document.getElementById('divMPBench').value == "02") {
+            getCasetype('MP', '02', '', '');
+            return;
+        }
+        if (document.getElementById('divMPBench').value == "03") {
+            getCasetype('MP', '03', '', '');
+            return;
+        }
+    }
+@*Hide UP div*@
+    function hiddivUP() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divUPBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divUPBench').value == '1') {
+            getCasetype('UP', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divUPBench').value == '0') {
+            getCasetype('UP', '0', '', '');
+            return;
+        }
+    }
+@*Hide GH div*@
+    function hiddivGH() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divGHBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divGHBench').value == '1') {
+            getCasetype('GH', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divGHBench').value == '0') {
+            getCasetype('GH', '0', '', '');
+            return;
+        }
+        if (document.getElementById('divGHBench').value == '2') {
+            getCasetype('GH', '2', '', '');
+            return;
+        }
+        if (document.getElementById('divGHBench').value == '3') {
+            getCasetype('GH', '3', '', '');
+            return;
+        }
+    }
+@*Validation*@
+    function validation() {
+        if (document.getElementById('divSCHCDistrict').value == '1') {
+            document.getElementById('drpcourtname').value = "SC";
+        }
+        if (document.getElementById('divSCHCDistrict').value == '1' || document.getElementById('divSCHCDistrict').value == '2' || document.getElementById('divSCHCDistrict').value == '4') {
+            if (document.getElementById('drpcourtname').value != "0") {
+                if (document.getElementById('drpcourtname').value == "MH") {
+                    if (document.getElementById('drpGoa').value != "Goa") {
+                        if (document.getElementById('drpbench').value == "Select Bench" || document.getElementById('drpbench').value == "" || document.getElementById('drpbench').value == "0") {
+                            alert("please select bench");
+                            document.getElementById('drpbench').focus();
+                            return false;
+                        }
+                        if (document.getElementById('drpside').value == "" || document.getElementById('drpside').value == "Select Side" || document.getElementById('drpside').value == "0") {
+                            alert("please select side");
+                            document.getElementById('drpside').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "TN") {
+                    if (document.getElementById('divTNBench').value == "") {
+                        if (document.getElementById('divTNBench').value == "Select Bench" || document.getElementById('divTNBench').value == "" || document.getElementById('divTNBench').value == "0") {
+                            alert("please select bench");
+                            document.getElementById('divTNBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "JK") {
+                    if (document.getElementById('divJKBench').value == "Select Bench" || document.getElementById('divJKBench').value == "") {
+                        alert("please select bench");
+                        document.getElementById('divJKBench').focus();
+                        return false;
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "RH") {
+                    if (document.getElementById('divRHBench').value == "") {
+                        if (document.getElementById('divRHBench').value == "Select Bench" || document.getElementById('divRHBench').value == "") {
+                            alert("please select bench");
+                            document.getElementById('divRHBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "BH") {
+                    if (document.getElementById('divBHBench').value == "") {
+                        if (document.getElementById('divBHBench').value == "Select Bench" || document.getElementById('divBHBench').value == "" || document.getElementById('divBHBench').value == "0") {
+                            alert("please select type");
+                            document.getElementById('divBHBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "MP") {
+                    if (document.getElementById('divMPBench').value == "") {
+                        if (document.getElementById('divMPBench').value == "Select Bench" || document.getElementById('divMPBench').value == "" || document.getElementById('divMPBench').value == "0") {
+                            alert("please select type");
+                            document.getElementById('divMPBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "UP") {
+                    if (document.getElementById('divUPBench').value == "") {
+                        if (document.getElementById('divUPBench').value == "Select Bench" || document.getElementById('divUPBench').value == "") {
+                            alert("please select bench");
+                            document.getElementById('divUPBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "GH") {
+                    if (document.getElementById('divGHBench').value == "") {
+                        if (document.getElementById('divGHBench').value == "Select Bench" || document.getElementById('divGHBench').value == "") {
+                            alert("please select bench");
+                            document.getElementById('divGHBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value != "") {
+                    if (document.getElementById('drpcourtname').value == "NC" || document.getElementById('drpcourtname').value == "NL" || document.getElementById('drpcourtname').value == "DT") {
+                        if (document.getElementById('drpNCBench').value == "Select Bench" || document.getElementById('drpNCBench').value == "0") {
+                            alert("please select bench");
+                            document.getElementById('drpNCBench').focus();
+                            return false;
+                        }
+                    }
+                    if (document.getElementById('drpcourtname').value == "IT" || document.getElementById('drpcourtname').value == "CE") {
+                        if (document.getElementById('drpNCBench').value == "Select Bench" || document.getElementById('drpNCBench').value == "0") {
+                            alert("please select bench");
+                            document.getElementById('drpNCBench').focus();
+                            return false;
+                        }
+                    }
+                    if (document.getElementById('drpcourtname').value != "NC" && document.getElementById('drpcourtname').value != "NL" || document.getElementById('drpcourtname').value == "DT") {
+                        if (document.getElementById('drpcourtname').value != "SC") {
+                            if (document.getElementById('drptype').value == "Select Case Type" || document.getElementById('drptype').value == "0") {
+                                alert("please select case type");
+                                document.getElementById('drptype').focus();
+                                return false;
+                            }
+                        }
+                        else {
+                            if (document.getElementById('divSCDECD').value == "0") {
+                                if (document.getElementById('drptype').value == "Select Case Type" || document.getElementById('drptype').value == "0") {
+                                    alert("please select case type");
+                                    document.getElementById('drptype').focus();
+                                    return false;
+                                }
+                                if (document.getElementById('txtno').value == "") {
+                                    alert("please enter case no.");
+                                    document.getElementById('txtno').focus();
+                                    return false;
+                                }
+                                if (document.getElementById('drpcourtname').value != "NC" && document.getElementById('drpcourtname').value != "NL") {
+                                    if (document.getElementById('txtno').value != "") {
+                                        if (/\//.test(document.getElementById('txtno').value)) {
+                                            alert("/ not allowed in caseno");
+                                            document.getElementById('txtno').focus();
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                if (document.getElementById('txtDiaryNo').value == "") {
+                                    alert("please enter diary no.");
+                                    document.getElementById('txtDiaryNo').focus();
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    if (document.getElementById('drpcourtname').value != "SC") {
+                        if (document.getElementById('txtno').value == "") {
+                            alert("please enter case no.");
+                            document.getElementById('txtno').focus();
+                            return false;
+                        }
+                        if (document.getElementById('drpcourtname').value != "NC" && document.getElementById('drpcourtname').value != "NL") {
+                            if (document.getElementById('txtno').value != "") {
+                                if (/\//.test(document.getElementById('txtno').value)) {
+                                    alert("/ not allowed in caseno");
+                                    document.getElementById('txtno').focus();
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    if (document.getElementById('drpYear').value == "" || document.getElementById('drpYear').value == "0") {
+                        alert("please select case year");
+                        document.getElementById('drpYear').focus();
+                        return false;
+                    }
+                }
+            }
+        }
+        else {
+            if (document.getElementById('drpcourtnameDC').value == "") {
+                alert("please Select the state.");
+                document.getElementById('drpcourtnameDC').focus();
+                return false;
+            }
+            if (document.getElementById('drpdistrictcourtname').value == "0") {
+                alert("please select district");
+                document.getElementById('drpdistrictcourtname').focus();
+                return false;
+            }
+            if (document.getElementById('drpcourtcomplexestb').value == "") {
+                alert("please select court complex / court establishment");
+                document.getElementById('drpcourtcomplexestb').focus();
+                return false;
+            }
+            if (document.getElementById('drpcompestbcourt').value == "") {
+                alert("please select district court");
+                document.getElementById('drpcompestbcourt').focus();
+                return false;
+            }
+            if (document.getElementById('drptype').value == "") {
+                alert("please select case type");
+                document.getElementById('drptype').focus();
+                return false;
+            }
+            if (document.getElementById('txtno').value == "") {
+                alert("please enter case no.");
+                document.getElementById('txtno').focus();
+                return false;
+            }
+            if (document.getElementById('drpcourtname').value != "NC" && document.getElementById('drpcourtname').value != "NL") {
+                if (document.getElementById('txtno').value != "") {
+                    if (/\//.test(document.getElementById('txtno').value)) {
+                        alert("/ not allowed in caseno");
+                        document.getElementById('txtno').focus();
+                        return false;
+                    }
+                }
+            }
+            if (document.getElementById('drpYear').value == "0") {
+                alert("please select case year");
+                document.getElementById('drpYear').focus();
+                return false;
+            }
+        }
+    }
+@*Validate dairy number*@
+    function validatediaryno() {
+        alert(document.getElementById('txtDiaryNo').value);
+    }
+@*Hide SCDE div*@
+    function hiddivSCDE() {
+        document.getElementById('drptype').value = "0";
+        document.getElementById('txtno').value = "";
+        document.getElementById('drpYear').value = "0";
+        $("#divcaseno").toggle();
+        $("#divcasetype").toggle();
+        $("#divdiaryno").hide();
+        if (document.getElementById('divSCDECD').value == "1") {
+            $("#divcaseno").hide();
+            $("#divcasetype").hide();
+            $("#divdiaryno").toggle();
+        }
+    }
+@*Show SCHC district div*@
+    function divSCHCDistrictdisplay() {
+        try {
+            document.getElementById('HighCourt').style.display = 'none';
+            document.getElementById('DistrictCourt').style.display = 'none';
+            document.getElementById('drpcourtcomplexestb').style.display = 'none';
+            document.getElementById('drpdistrictcourtname').style.display = 'none';
+            document.getElementById('drpcompestbcourt').style.display = 'none';
+            document.getElementById('lbldistrictname').innerHTML = "";
+            $("#drpdistrictcourtname").val("");
+            $('#drpcourtname').empty();
+            $('#drpcourtnameDC').empty();
+            $("#drpYear").empty();
+            $("#drptype").empty();
+            $("#drpNCBench").empty();
+            $("#divdiaryno").hide();
+            $("#divSCDE").hide();
+            $("#drpGoa").val = "";
+            document.getElementById('drpbench').style.border = "unset";
+            document.getElementById('drpside').style.border = "unset";
+            document.getElementById('divTNBench').style.border = "unset";
+            document.getElementById('divJKBench').style.border = "unset";
+            document.getElementById('divRHBench').style.border = "unset";
+            document.getElementById('divBHBench').style.border = "unset";
+            document.getElementById('divMPBench').style.border = "unset";
+            document.getElementById('divUPBench').style.border = "unset";
+            document.getElementById('divGHBench').style.border = "unset";
+            document.getElementById('drpNCBench').style.border = "unset";
+            document.getElementById('drpNCBench').style.border = "unset";
+            document.getElementById('drptype').style.border = "unset";
+            document.getElementById('drptype').style.border = "unset";
+            document.getElementById('txtno').style.border = "unset";
+            document.getElementById('txtDiaryNo').style.border = "unset";
+            document.getElementById('txtno').style.border = "unset";
+            document.getElementById('txtno').style.border = "unset";
+            document.getElementById('drpYear').style.border = "unset";
+            document.getElementById('drpcourtnameDC').style.border = "unset";
+            document.getElementById('drpcourtcomplexestb').style.border = "unset";
+            document.getElementById('drpcompestbcourt').style.border = "unset";
+            document.getElementById('drptype').style.border = "unset";
+            document.getElementById('txtno').style.border = "unset";
+            document.getElementById('txtno').style.border = "unset";
+            document.getElementById('drpYear').style.border = "unset";
+            document.getElementById('divSCDECD').value = "0";
+            document.getElementById('txtDiaryNo').value = "";
+            document.getElementById('divcasetype').style.display = "block";
+            document.getElementById('divcaseno').style.display = "block";
+            document.getElementById('divRH').style.display = "none";
+            document.getElementById('divJK').style.display = "none";
+            document.getElementById('divNC').style.display = "none";
+            document.getElementById('savebtn').style.display = "none";
+            document.getElementById("divKA").style.display = "none";
+            document.getElementById('divMHGoa').style.display = "none";
+            document.getElementById('divTN').style.display = "none";
+            document.getElementById('divBH').style.display = "none";
+            document.getElementById('divMP').style.display = "none";
+            document.getElementById('divMHGoa').style.display = "none";
+            document.getElementById("divMH").style.display = "none";
+            document.getElementById('divUP').style.display = "none";
+            document.getElementById('divGH').style.display = "none";
+            document.getElementById('lblcourtname').innerHTML = "";
+            document.getElementById('Court').style.display = "none";
+            if (document.getElementById('divSCHCDistrict').value == "2" || document.getElementById('divSCHCDistrict').value == "3") {
+                document.getElementById('cnrdivdata').style.display = 'block';
+            }
+            else {
+                document.getElementById('cnrdivdata').style.display = 'none';
+            }
+            if (document.getElementById('divSCHCDistrict').value == "1") {
+                AddCourtName(document.getElementById('divSCHCDistrict').value);
+                showaddingcasetype();
+                FillCasetypeDiary();
+            }
+            else if (document.getElementById('divSCHCDistrict').value == "2" || document.getElementById('divSCHCDistrict').value == "4") {
+                document.getElementById('HighCourt').style.display = 'block';
+                AddCourtName(document.getElementById('divSCHCDistrict').value);
+            }
+            else if (document.getElementById('divSCHCDistrict').value == "3") {
+                document.getElementById('DistrictCourt').style.display = 'block';
+                AddCourtName('3');
+            }
+        }
+        catch (ex) {
+            alert(ex.message);
+        }
+    }
+@*Add court name detail by court type*@
+    function AddCourtName(strcourttype) {
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/AddCourtNameByCourtType?courttype=" + strcourttype,
+            dataType: "json",
+            success: function (data) {
+                $("#drpcourtname").append("<option value='0'>-Select Court Name-</option>");
+                $("#drpcourtnameDC").append("<option value='0'>Select Your State / UT</option>");
+                for (var i = 0; i < data.length; i++) {
+                    if (strcourttype != "3") {
+                        $("#drpcourtname").append("<option value='" + data[i].courtid + "'>" + data[i].courtname + "</option>");
+                    }
+                    else {
+                        $("#drpcourtnameDC").append("<option value='" + data[i].courtid + "'>" + data[i].courtname + "</option>");
+                    }
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+    function divdrpcourtnameDC() {
+        $("#drpdistrictcourtname").empty();
+        var selectedText = "";
+        document.getElementById('Court').style.display = 'none';
+        document.getElementById('drpcourtcomplexestb').style.display = 'none';
+        document.getElementById('drpdistrictcourtname').style.display = 'none';
+        document.getElementById('drpcompestbcourt').style.display = 'none';
+        document.getElementById('lbldistrictname').style.display = 'none';
+        document.getElementById("savebtn").style.display = "none";
+        if (document.getElementById('drpcourtnameDC').value != "0") {
+            document.getElementById('drpdistrictcourtname').style.display = 'block';
+            document.getElementById('lbldistrictname').style.display = 'block';
+            var skillsSelect = document.getElementById("drpcourtnameDC");
+            var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+            document.getElementById('lbldistrictname').innerHTML = "<center><h3>Selected: <span>" + selectedText + "</span> </h3></center><hr style='border:1px solid #e6cfcf;margin-top:10px; margin-bottom:0px;'>"
+            $.ajax({
+                type: "POST",
+                url: "/AddCase/AddDistrictByCourt?courttype=" + document.getElementById('drpcourtnameDC').value,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpdistrictcourtname").append("<option value='0'>Please Select District</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        $("#drpdistrictcourtname").append("<option value='" + data[i].courtid + "'>" + data[i].courtname + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+    }
+@*Change district*@
+    function divdistrictchange() {
+        document.getElementById('drpcourtcomplexestb').style.display = 'none';
+        document.getElementById('drpcompestbcourt').style.display = 'none';
+        document.getElementById("savebtn").style.display = "none";
+        if (document.getElementById('drpdistrictcourtname').value != "0") {
+            document.getElementById('drpcourtcomplexestb').style.display = 'block';
+            document.getElementById('drpcourtcomplexestb').value = '';
+            $.ajax({
+                type: "POST",
+                url: "/Firm/FillCourtComplexSTB",
+                dataType: "json",
+                success: function (data) {
+                    $("#drpcourtcomplexestb").empty();
+                    $("#drpcourtcomplexestb").append("<option value=''>Please Select</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        $("#drpcourtcomplexestb").append("<option value='" + data[i].id + "'>" + data[i].name + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+    }
+    function drpcourtcompestbchange() {
+        var courtype = "";
+        var districttype = "";
+        var compesttype = "";
+        $('#drpcompestbcourt').empty();
+        document.getElementById("savebtn").style.display = "none";
+        document.getElementById('drpcompestbcourt').style.display = 'none';
+        if (document.getElementById('drpcourtcomplexestb').value != "") {
+            document.getElementById('drpcompestbcourt').style.display = 'block';
+            document.getElementById('drpcompestbcourt').value = '';
+            courtype = document.getElementById('drpcourtnameDC').value;
+            districttype = document.getElementById('drpdistrictcourtname').value;
+            compesttype = document.getElementById('drpcourtcomplexestb').value;
+            $.ajax({
+                type: "POST",
+                url: "/AddCase/AddCourtComplexEstType?crttype=" + courtype + "&dsttype=" + districttype + "&compesttype=" + compesttype,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpcompestbcourt").append("<option value=''>Please Select District Court</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        $("#drpcompestbcourt").append("<option value='" + data[i].courtid + "'>" + data[i].courtname + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+    }
+    function drpcompestbcourtchange() {
+        var courtype = "";
+        var districttype = "";
+        var compesttype = "";
+        var compestcourt = "";
+        $('#drptype').empty();
+        document.getElementById("savebtn").style.display = "none";
+        if (document.getElementById('drpcompestbcourt').value != "") {
+            document.getElementById("savebtn").style.display = "block";
+            courtype = encodeURIComponent(document.getElementById('drpcourtnameDC').value);
+            districttype = encodeURIComponent(document.getElementById('drpdistrictcourtname').value);
+            compesttype = encodeURIComponent(document.getElementById('drpcourtcomplexestb').value);
+            compestcourt = encodeURIComponent(document.getElementById('drpcompestbcourt').value);
+            $.ajax({
+                type: "POST",
+                url: "/AddCase/AddDistrictCaseType?crttype=" + courtype + "&dsttype=" + districttype + "&compesttype=" + compesttype + "&compestcourt=" + compestcourt,
+                dataType: "json",
+                success: function (data) {
+                    $("#drptype").append("<option value=''>Please Select Case Type</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        $("#drptype").append("<option value='" + data[i].courtid + "'>" + data[i].courtname + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            $.ajax({
+                type: "POST",
+                url: "/firm/Addcaseyear?crtid=",
+                dataType: "json",
+                success: function (data) {
+                    $("#drpYear").append("<option value='0'>Select Case Year</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        var caseyearlength = data[i].caseyear;
+                    }
+                    startYear = new Date().getFullYear()
+                    for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                        $("#drpYear").append("<option value='" + i + "'>" + i + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+    }
+</script>
+<aside class="right-side">
+    @if (ViewBag.Module != 1)
+    {
+        <div id="casewatchmodel" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog ">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header btn-primary">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            Case Details for Live Update
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="col-md-12">
+                                    <fieldset style="background:#ebebeb; margin-top:0;">
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-4">Select Court Type </label>
+                                            <div class="col-md-8">
+                                                <select name="divSCHCDistrict" id="divSCHCDistrict" class="form-control" onchange="divSCHCDistrictdisplay();">
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <legend>Case Info</legend>
+                                        <div id="HighCourt" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Select Court Name </label>
+                                                <div class="col-md-8">
+                                                    <select name="drpcourtname" id="drpcourtname" class="form-control" onchange="divdisplay();"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="DistrictCourt" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">&nbsp; </label>
+                                                <div class="col-md-8">
+                                                    <select name="drpcourtnameDC" id="drpcourtnameDC" class="form-control" onchange="divdrpcourtnameDC();"></select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">&nbsp; </label>
+                                                <div class="col-md-8" id="divDistrict">
+                                                    <select name="drpdistrictcourtname" id="drpdistrictcourtname" style="display:none;" class="form-control" onchange="divdistrictchange();"></select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">&nbsp; </label>
+                                                <div class="col-md-8" id="divcourtcomplexestb">
+                                                    <select name="drpcourtcomplexestb" id="drpcourtcomplexestb" style="display:none;" class="form-control" onchange="drpcourtcompestbchange();">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">&nbsp;</label>
+                                                <div class="col-md-8" id="divcompestbcourt">
+                                                    <select name="drpcompestbcourt" id="drpcompestbcourt" style="display:none;" class="form-control" onchange="drpcompestbcourtchange();"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <div class="col-md-12" id="lbldistrictname" style="display:none; margin: -5px 22px 13px 0; overflow: hidden;">
+                                            </div>
+                                            <div class="col-md-12" id="lblcourtname" style="display:none; margin: -5px 22px 13px 0; overflow: hidden;">
+                                            </div>
+                                            <div id="Court" style="display:none;margin: -5px 22px 13px 0; overflow: hidden;">
+                                            </div>
+                                        </div>
+                                        <div id="divMP" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Select Bench <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="divMPBench" id="divMPBench" class="selectbox form-control" onchange="hiddivMP();">
+                                                        <option value="">--Select Bench / Type--</option>
+                                                        <option value="01">Jabalpur</option>
+                                                        <option value="02">Indore</option>
+                                                        <option value="03">Gwalior</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divMHGoa" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Select Court</label>
+                                                <div class="col-md-8">
+                                                    <select name="drpGoa" id="drpGoa" class="selectbox form-control" onchange="hiddiv();">
+                                                        <option selected="selected" value="">--Select--</option>
+                                                        <option value="Goa">Goa</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divMH" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Bench<span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="drpbench" id="drpbench" class="selectbox form-control" onchange="fillside();"></select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Side <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="drpside" id="drpside" class="selectbox form-control" onchange="fillCasetype();"></select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Stamp/Register <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="drpstampregister" id="drpstampregister" class="selectbox form-control">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divTN" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Select Bench <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="divTNBench" id="divTNBench" class="selectbox form-control" onchange="hiddivTN();">
+                                                        <option value="">--Select Bench--</option>
+                                                        <option value="0">Madras</option>
+                                                        <option value="1">Madurai</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divKA" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Bench <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="drpKAbench" id="drpKAbench" class="selectbox form-control">
+                                                        <option value="B">Bengaluru Bench</option>
+                                                        <option value="D">Dharwad Bench</option>
+                                                        <option value="K">Kalaburagi Bench</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divNC" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Bench <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="drpNCBench" id="drpNCBench" class="selectbox form-control" onchange="hiddivNC();"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divncdrcstate" style=" display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4"> State <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="drpncdrcstate" id="drpncdrcstate" class="selectbox form-control" onchange="hiddivNCDRCDistrict();"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divncdrcDistrict" style=" display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4"> District Forum <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="drpncdrcDistrict" id="drpncdrcDistrict" class="selectbox form-control"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divRH" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Select Bench <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="divRHBench" id="divRHBench" class="selectbox form-control" onchange="hiddivRH();">
+                                                        <option value="">--Select Bench--</option>
+                                                        <option value="0">Jaipur</option>
+                                                        <option value="1">Jodhpur</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divJK" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Select Bench <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="divJKBench" id="divJKBench" class="selectbox form-control" onchange="hiddivJK();">
+                                                        <option value="">--Select Bench--</option>
+                                                        <option value="0">Jammu</option>
+                                                        <option value="1">Srinagar</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divBH" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Select Bench <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="divBHBench" id="divBHBench" class="selectbox form-control" onchange="hiddivBH();">
+                                                        <option value="">--Select Type--</option>
+                                                        <option value="0">Civil</option>
+                                                        <option value="1">Criminal</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divMP" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Select Bench <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <select name="divMPBench" id="divMPBench" class="selectbox form-control" onchange="hiddivMP();">
+                                                        <option value="">--Select Bench / Type--</option>
+                                                        <option value="01">Jabalpur</option>
+                                                        <option value="02">Indore</option>
+                                                        <option value="03">Gwalior</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divSCDE" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">CaseType / Diary</label>
+                                                <div class="col-md-8">
+                                                    <select name="divSCDECD" id="divSCDECD" class="selectbox  form-control" onchange="hiddivSCDE();">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divUP" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Select Bench</label>
+                                                <div class="col-md-8">
+                                                    <select name="divUPBench" id="divUPBench" class="selectbox form-control" onchange="hiddivUP();">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divGH" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Select Bench</label>
+                                                <div class="col-md-8">
+                                                    <select name="divGHBench" id="divGHBench" class="selectbox form-control" onchange="hiddivGH();">
+                                                        <option value="">Select Bench / Type</option>
+                                                        <option value="0">Gauhati</option>
+                                                        <option value="1">Kohima</option>
+                                                        <option value="2">Aizawl</option>
+                                                        <option value="3">Itanagar</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="savebtn" style="display:none;">
+                                            <div class="form-group form-horizontal" id="divcasetype">
+                                                <label class="control-label col-md-4">Case Type <span class="required" aria-required="true">*</span> </label>
+                                                <div id="divcasetype" class="col-md-8">
+                                                    <select name="drptype" id="drptype" class="selectbox form-control"></select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal" id="divcaseno">
+                                                <label class="control-label col-md-4">Case Number <span class="required" aria-required="true">*</span></label>
+                                                <div id="divcaseno" class="col-md-8">
+                                                    <input type="text" class="selectbox2 form-control" autocomplete="off" placeholder="--Enter Case No.--" name="txtno" id="txtno" maxlength="500" />
+                                                </div>
+                                            </div>
+                                            <div id="divdiaryno" class="form-group " style="display:none;">
+                                                <div class="form-horizontal">
+                                                    <label class="control-label col-md-4">Diary Number</label>
+                                                    <div class="col-md-8">
+                                                        <input type="text" class="selectbox2 form-control" placeholder="--Add Diary No--" name="txtDiaryNo" id="txtDiaryNo" maxlength="500" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">Case Year <span class="required" aria-required="true">*</span> </label>
+                                                <div class="col-md-8">
+                                                    <select name="drpYear" id="drpYear" class="selectbox form-control"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="cnrdivdata" style="display:none;">
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-6"><b>Linked District Court Case</b></label>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-4">CNR No.</label>
+                                                <div class="col-md-8" id="divdcourtcnr">
+                                                    <input type="text" name="drpdcourtcnr" placeholder="CNR No." maxlength="16" id="drpdcourtcnr" class="form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-4">Notes</label>
+                                            <div class="col-md-8">
+                                                <textarea id="casedetails" maxlength="2000" value="" style="margin: 0px; width:92%; height: 77px;"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" id="resetcasewatch" onclick="resetcasewatch()">Reset</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" id="closemodal">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <!-- Modal -->
+    <section class="content-header">
+        <input type="button" id="hide" style="display:none">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Case</li>
+        </ol>
+        <h1><span class="glyphicon glyphicon-briefcase"></span> New Case</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header" style="padding:5px;">
+                        <ul class="btn_panel no-margin pull-right" style="padding:0;">
+                            <li>@*<btn class="btn btn-success pull-right publish" id="publish" title="Publish Custom Fields" ><span class="glyphicon glyphicon-plus"></span> Publish</btn>*@</li>
+                            <li><btn class="btn btn-danger pull-right publish" id="removecfield" style="display:none"><span class="glyphicon glyphicon-trash" title=""></span> Remove</btn></li>
+                            <li><btn class="btn btn-danger pull-right publish" id="resetcf" title="Reset All Custom Fields"><span class="glyphicon glyphicon-refresh"></span> Reset</btn></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- /.box-header -->
+    <!-- /.panel-heading -->
+    <!-- Main content -->
+    <section class="content">
+        <form id="savematterform" enctype="multipart/form-data">
+            <!-- Start About boxes -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-section-bordered">
+                        <div class="form-horizontal" style="margin:10px -10px 0 -10px;" id="assigngroup">
+                            <label class="control-label col-md-2">Assigned to <span class="required" aria-required="true">*</span></label>
+                            <div class="col-md-4">
+                                @Html.DropDownList("assignto", new SelectList(ViewBag.Users, "val", "label"), "Please select", new { @id = "assignto", @class = "demodefault ", @multiple = "multiple" })
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal" style="display:none">
+                            <label class="control-label col-md-2">Originating Attorney</label>
+                            <div class="col-md-4">
+                                <select name="" class="form-control" id="orgaty">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal" style="clear:both">
+                            <label class="control-label col-md-2">Tags</label>
+                            <div class="col-md-4">
+                                <input class="form-control" type="text" maxlength="49" id="tags" placeholder="Tags" />
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2">Status <span class="required" aria-required="true">*</span></label>
+                            <div class="col-md-4">
+                                <select name="status" class="form-control" id="cstatus" required>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Dispose">Dispose</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2">Case Number </label>
+                            <div class="col-md-4">
+                                <input class="form-control" type="text" maxlength="49" id="mtrno" placeholder="Case No" />
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2">Upload Document </label>
+                            <div class="col-md-4">
+                                <input type="file" class="default photo-attachment" name="attachment" multiple id="attachment" ">
+                                (Please upload a file up to 20MBs only..)
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b></b> </label>
+                            <div class="col-md-4">
+                                <a href="#" id="alink" style="display:none">Attached Document</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend>Add Case</legend>
+                        <div class="col-md-6">
+                            <div class="form-group form-horizontal" style="display:none">
+                                <label class="control-label col-md-4">Contact <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-8">
+                                    <select name="contact" class="form-control" id="mcontact" required>
+                                        <option value="">Select Contact...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-4">Case Subject <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-7" style="z-index:1000 !important">
+                                    <select name="contact" class="form-control" id="casesubject">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-4">Case Name <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-8">
+                                    <input class="form-control" name="mname" type="text" id="mname1" placeholder="Add Name..." maxlength="200" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-4">CNR No.</label>
+                                <div class="col-md-8">
+                                    <input class="form-control" name="cnrno" type="text" id="cnrnumber1" placeholder="Add CNR Number" maxlength="49" />
+                                </div>
+                            </div>
+                            @*//user/*@
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-4">Notes</label>
+                                <div class="col-md-8">
+                                    <textarea ID="mnotes4" value="sdsdfd"></textarea>
+                                    <div class="grid-container" style="display:none">
+                                        <div id="editor">
+                                        </div>
+                                        <script>
+                                            initSample();
+                                            CKEDITOR.replace('mnotes4', {
+                                                toolbar:
+                                                    [
+                                                        { name: 'basicstyles', items: ['Bold', 'Italic'] },
+                                                        { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                        { name: 'tools', items: ['Maximize',] }
+                                                    ],
+                                                height: 100,
+                                                width: 317
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (ViewBag.Module != 1)
+                            {
+                                <div class="form-group form-horizontal" id="cwbtn" style="display:none">
+                                    <label class="control-label col-md-4"></label>
+                                    <div class="col-md-8">
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#casewatchmodel" style="background-color: #17a2b8;">
+                                            <span class="glyphicon glyphicon-plus"></span>  Add Case for Live Update
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <fieldset class="custmfieldset" id="clientnamediv" style="display:none;margin-top:0px !important">
+                            <legend> @Session["caclientlable"]/Prospect  </legend>
+                            <div class="form-group form-horizontal ">
+                                <label class="control-label col-md-4">Select Prospect<span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-8">
+                                    <input class="form-control" name="ldname" type="text" id="lduser" placeholder="Type Prospect Name" autocomplete="off" />
+                                    <input type="hidden" id="leadid" name="leadid" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal hspass ">
+                                <label class="control-label col-md-4">User ID  <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <div class="col-md-8">
+                                    <input class="form-control" readonly onfocus="$(this).removeAttr('readonly');" name="username" type="text" id="username" placeholder="User ID" autocomplete="off" maxlength="30" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal hspass">
+                                <label class="control-label col-md-4">Password  <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <div class="col-md-8">
+                                    <input class="form-control" readonly onfocus="$(this).removeAttr('readonly');" name="npassword" minlength="8" type="password" id="npassword" autocomplete="off" maxlength="30" placeholder="Password" autocomplete="off" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal hspass">
+                                <label class="control-label col-md-4">Confirm Password  <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <div class="col-md-8">
+                                    <input class="form-control" readonly onfocus="$(this).removeAttr('readonly');" minlength=8 name="cpassword" type="password" id="cpassword" autocomplete="off" maxlength="30" placeholder="Confirm Password" autocomplete="off" required />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal ">
+                                <label class="control-label col-md-4">OR</label>
+                                <div class="col-md-8">
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal ">
+                                <label class="control-label col-md-4">Select  @Session["caclientlable"]<span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-8">
+                                    <select name="clientname" id="clientname" class="selectbox form-control">
+                                        <option value="">Select  @Session["caclientlable"]</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </fieldset>
+                </div>
+            </div>
+            <!-- End About boxes -->
+            <!-- Start CUSTOM FIELDS boxes -->
+            <div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend>Custom Fields</legend>
+                        <div class="row">
+                            <div class="col-lg-6" id="content">
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal" id="hidecf" style="display:none">
+                            <label class="control-label col-md-2">Custom Field</label>
+                            <div class="col-md-4">
+                                <btn class="btn btn-info " style="margin-top:0px;" data-toggle="modal" data-target="#myModal" title="Add New Custom Fields"><span class="glyphicon glyphicon-plus"></span> New Custom Field</btn>
+                                <btn class="btn btn-success pull-right publish" id="publish" title="Publish Custom Fields"><span class="glyphicon glyphicon-ok"></span> Save settings</btn>
+                            </div>
+                            <div class="col-md-12">
+                                <span style="color:green;margin-top:5px;">* Please download the custom field data before resetting the custom fields else you may loose the data.</span>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend>Dates</legend>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2">Statute of Limitations</label>
+                            <div class="col-md-4">
+                                <input class="form-control" type="date" id="sol" placeholder="Dates" />
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2">Open Date</label>
+                            <div class="col-md-4">
+                                <input class="form-control" type="date" id="odate" placeholder="Open Dates" />
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2">Close Date</label>
+                            <div class="col-md-4">
+                                <input class="form-control" type="date" id="cdate" placeholder="Close Dates" />
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <!-- End Dates boxes -->
+            <!-- Start Dates boxes -->
+            <!-- End Dates boxes -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="">
+                        <div class="form-actions hidden-print">
+                            <div class="btn-group">
+                                <input type="submit" id="savematter" class="btn save" value="Save">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <!-- /.content -->
+    </form>
+</aside>
+<div id="myModal1" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels1" id="mymodels1">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog ">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header btn-primary">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            Custom Field
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="alert alert-danger alert-dismissable validpanel">
+                                    <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                                    . <a href="#" class="alert-link">Alert Link</a>.
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <form role="form" id="form2">
+                                                    <div class="form-group">
+                                                        <label>Custom Field Name</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                        <input class="form-control" type="text" value="" id="txtcustomFieldName">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Custom Field Type</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                        <select class="form-control" id="ctype">
+                                                            <option value="0">-Select Any-</option>
+                                                        </select>
+                                                    </div>
+                                                    <div id="common">
+                                                        <div class="form-group">
+                                                            <label id="listid">List options</label>
+                                                            <input class="form-control" data-val="true" id="txtcustomFieldvalue" />
+                                                            <p>(Add the options you would like to have in the drop down list list, separate values with a comma.)</p>
+                                                        </div>
+                                                        <div class="form-group">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group form-horizontal" style="margin-top:10px;">
+                                                        <label class="control-label col-xs-3">Is Required :</label>
+                                                        <div class="col-xs-8">
+                                                            <label class="switch">
+                                                                <input type="checkbox" id="chkRequired" name="assign" value="1">
+                                                                <span class="slider round"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <!-- /.row (nested) -->
+                                        </div>
+                                        <!-- /.panel-body -->
+                                    </div>
+                                    <!-- /.panel -->
+                                </div>
+                                <!-- /.col-lg-12 -->
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success" id="addfield">Add Field</button>
+                        <button type="reset" class="btn btn-default">Reset</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+    </div>
+<!-- /.container-fluid -->
+    </div>
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+<script type="text/javascript">
+    var nusername = "";
+    var npassword = "";
+    $('.hspass').hide();
+    $('#lduser').on('keypress', function () {
+        //code to be executed
+    }).on('keydown', function (e) {
+        $("#clientname").val("");
+        if (e.keyCode == 8)
+            $("#username").removeAttr("disabled").val("");
+        $("#npassword").removeAttr("disabled").val("");
+        $("#cpassword").removeAttr("disabled").val("");
+        $('#leadid').val("");
+        $('.hspass').hide();
+    });
+    $(function () {
+        $("#lduser").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 1,
+            source: function (request, response) {
+                $.ajax({
+                    async: true,
+                    url: '/Firm/Leaduser',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            map[name] = { id: id, name: name };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                if (map[item].id != null) {
+                    $('#leadid').val(map[item].id);
+                    $('.hspass').show();
+                }
+                else {
+                    $('.hspass').hide();
+                    $('#leadid').val("");
+                }
+                request = map[item].id;
+                $.ajax({
+                    async: true,
+                    url: '/Firm/LeadUserListlogin',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data != "null") {
+                            $.each(data, function (i, item) {
+                                nusername = item.username;
+                                npassword = item.password;
+                            });
+                            $("#username").val(nusername).prop("disabled", true);
+                            $("#npassword").val(npassword).prop("disabled", true);
+                            $("#cpassword").val(npassword).prop("disabled", true);
+                        }
+                        else {
+                            $("#username").removeAttr("disabled").val("");
+                            $("#npassword").removeAttr("disabled").val("");
+                            $("#cpassword").removeAttr("disabled").val("");
+                        }
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+                return item;
+            }
+        });
+    });
+</script>
+<script>
+    $('#assignto').selectize({
+        //maxItems: 3
+    });
+    var $select = $("#assignto").selectize();
+    if (id != "") {
+        setTimeout(function () {
+            var formData = new FormData();
+            formData.append("token", id);
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/api/callApi/caseAssignUser", // Controller/View
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        var dataarray = [];
+                        $.each(response.Data, function (i, b) {
+                            try {
+                                var selectize = $select[0].selectize;
+                                var selecteduser = b.auser;
+                                dataarray.push(selecteduser)
+                            }
+                            catch (er) {
+                                alert(er.message);
+                            }
+                            selectize.setValue(dataarray)
+                        });
+                    },
+                    failure: function (response) {
+                        alert(data.responseText);
+                    },
+                    error: function (response) {
+                        alert(data.responseText);
+                    }
+                });
+        }, 1000);
+    }
+    else {
+    }
+</script>
+<script>
+    $('#drpcourtname').append('<option value="" selected="selected">Select</option>');
+</script>

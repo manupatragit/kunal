@@ -1,0 +1,337 @@
+﻿@{
+    ViewBag.Title = "AddContent";
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<i class="pp-icon-user"></i>
+<style>
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+</style>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+      var type = '@ViewBag.type'
+</script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script>
+</script>
+<script>
+    $(document).ready(function (){
+        var filesize = @ViewBag.filesize;
+        function openload() {
+            $('#myOverlay').css("display", "block");
+        }
+        function closeload() {
+            $('#myOverlay').css("display", "none");
+        }
+        $("#attachment").change(function () {
+            var tempsize1 = 0;
+            var tottempsize1 = 0;
+            var totalFiles1 = document.getElementById("attachment").files.length;
+            for (var i = 0; i < totalFiles1; i++) {
+                var file1 = document.getElementById("attachment").files[i];
+                var filename1 = file1.name;
+                if (filename1.length > 35) {
+                    alert("File name should not be more than 35 character. Please check file name: " + filename1);
+                    $("#attachment").val("");
+                    return false;
+                }
+                var Extresponse = checkfileext(filename1);
+                if (String(Extresponse) == "false") {
+                    return false;
+                }
+                try {
+                    if (typeof (file1) != "undefined") {
+                        size1 = parseFloat(file1.size / 1024).toFixed(2);
+                        tottempsize1 = parseFloat(tottempsize1) + parseFloat(size1);
+                        tempsize1 = parseFloat(size1);
+                    }
+                }
+                catch (err) {
+                    //alert(err.message);
+                }
+                tempsize1 = tempsize1.toFixed(2);
+                if (tempsize1 > filesize) {
+                    $("#attachment").val("");
+                    new PNotify({
+                        title: 'Warning!',
+                         text: Filesizelabel,
+                        type: 'error',
+                        delay: 3000
+                    });
+                    return false
+                }
+            }
+        });
+    $("#createfiles").click(function () {
+        var tempsize = 0;
+        var tottempsize = 0;
+        var title = $("#title").val();
+        var desc = $("#desc").val();
+        var formData = new FormData();
+        var totalFiles = document.getElementById("attachment").files.length;
+        if (title=="") {
+            alert("please Please enter a title. ");
+        }
+        else if (totalFiles == 0) {
+            alert("Please select the file to be uploaded.");
+        }
+        else {
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("attachment").files[i];
+                var filename = file.name;
+                if (filename.length > 100) {
+                    alert("The name of the file cannot exceed the limit of 100 characters. Please check file name: " + filename);
+                    return false;
+                }
+                var Extresponse = checkfileext(filename);
+                if (String(Extresponse) == "false") {
+                    return false;
+                }
+                formData.append("FileUpload", file);
+                try {
+                    if (typeof (file) != "undefined") {
+                        size = parseFloat(file.size / 1024).toFixed(2);
+                        tottempsize = parseFloat(tottempsize) + parseFloat(size);
+                        tempsize =  parseFloat(size);
+                    }
+                }
+                catch (err) {
+                    //alert(err.message);
+                }
+                tempsize = tempsize.toFixed(2);
+                if (tempsize > filesize) {
+                    new PNotify({
+                        title: 'Warning!',
+                        text: Filesizelabel,
+                        type: 'error',
+                        delay: 3000
+                    });
+                    return false
+                }
+            }
+            try {
+                formData.append("title", title);
+                formData.append("desc", desc);
+                openload();
+                $.ajax({  async: true,
+                    url: '/api/WorkFlowNewApi/InsertKnowledgeDoc',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
+                    success: function (response) {
+                        $("#fileupload")[0].reset();
+                        if (response.Status == true) {
+                            var datas = JSON.stringify(response);
+                            new PNotify({
+                                title: 'Success!',
+                                text: ' Added Successfully',
+                                type: 'success',
+                                delay: 3000
+                            });
+                            closeload();
+                        }
+                        else {
+                            alert("not found");
+                        }
+                    },
+                    error: function () {
+                        alert('Error!');
+                    }
+                });
+            }
+            catch (msg) {
+                //alert(msg.message);
+            }
+        }
+    });
+    });
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Knowledge Management</li>
+        </ol>
+        <h1><span class="fa fa-cog"></span> Add Content</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="">
+                    <div class="box-header">
+                        @*<btn class="btn btn-success pull-right publish" id="publish"><span class="glyphicon glyphicon-plus"></span> Publish Page</btn>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <form id="fileupload" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend>Content Information</legend>
+                        <form id="fileupload" name="fileupload">
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Title</label>
+                                <div class="col-md-8">
+                                    <input class="form-control" type="text" maxlength="49" id="title" placeholder="Title" required>
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Description</label>
+                                <div class="col-md-8">
+                                    <input class="form-control" type="text" id="desc" maxlength="200" height="300" width="300" placeholder="Description">
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">File</label>
+                                <div class="col-md-8">
+                                    <input type="file" id="attachment" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-success" id="createfiles"> Submit</button>
+                            </div>
+                        </form>
+                    </fieldset>
+                </div>
+            </div>
+        </form>
+    </section>
+</aside>
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Custom Field
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger alert-dismissable validpanel">
+                            <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                            . <a href="#" class="alert-link">Alert Link</a>.
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form role="form" id="form2">
+                                            <div class="form-group">
+                                                <label>Custom Field Name</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                <input class="form-control" type="text" value="" id="txtcustomFieldName">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Custom Field Type</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                <select class="form-control" id="ctype">
+                                                    <option value="0">-Select Any-</option>
+                                                </select>
+                                            </div>
+                                            <div id="common">
+                                                <div class="form-group">
+                                                    <label id="listid">List options</label>
+                                                    <input class="form-control" data-val="true" id="txtcustomFieldvalue" />
+                                                    <p>(Add the options you would like to have in the drop down list list, separate values with a comma.)</p>
+                                                </div>
+                                                <div class="form-group">
+                                                    @*<label id="lengthid">Custom Field Length</label>*@
+                                                    @*<input class="col-md-2 form-control" data-val="true" id="txtcustomFieldNameminlength" type="number" placeholder="Minimum Length" maxlength="3" /><br><br>
+                                                        <input class="col-md-2 form-control" style="margin-top:5px" data-val="true" id="txtcustomFieldNamemaxlength" type="number" placeholder="Maximum Length" maxlength="3" />*@
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal" style="margin-top:10px;">
+                                                <label class="control-label col-xs-3">Is Required :</label>
+                                                <div class="col-xs-8">
+                                                    <label class="switch">
+                                                        <input type="checkbox" id="chkRequired" name="assign" value="1">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="addfield">Add Field</button>
+                <button type="reset" class="btn btn-default">Reset</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    @*//<span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>*@
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

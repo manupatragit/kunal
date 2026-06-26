@@ -1,0 +1,356 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script>
+    var roleids = "@Session["sessionroleid"]";
+    var isDelete = "@Session["IsDelete"]";
+    var IsCreate = "@Session["IsCreate"]";
+    var token = "@ViewBag.Clienttoken";
+    var type = 8;
+</script>
+<script src="~/Scripts/Firm/Pages/ClientCaseList.js?1.9"></script>
+<style>
+    .trcolor {
+        background: #f5c9c9 !important;
+    }
+
+        .trcolor td {
+            background-color: transparent !important;
+        }
+
+    .clSelectCaseUser {
+        background-color: #ebebeb !important;
+        padding-right: 20px !important;
+        border-radius: 20px !important;
+        height: 30px !important;
+        margin-top: -5px !important;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        padding-left: 15px !important;
+        background: #ebebeb url(/newassets/images/selectbox_arrow.png) no-repeat right !important;
+        -webkit-appearance: none;
+        background-position-x: 99%;
+        margin-bottom: 10px !important;
+        margin-left: -15px !important;
+    }
+</style>
+<section id="header">
+    <div class="container-main" style="display:flex; justify-content:space-between;">
+        <div class="text-left">
+            <p class="ctitle" id="clientdiv">Client&nbsp;&nbsp;|&nbsp;&nbsp;<span id="ncdclientname" style="cursor:pointer" title="view profile"></span></p>
+            <p class="ctitle" id="companydiv" style="display:none">Client&nbsp;&nbsp;|&nbsp;&nbsp;<span id="ncdcompanynames"></span></p>
+        </div>
+        @if (role.ToString() == "1")
+        {
+            <a href="/@Session["firmcode"]/firm/CreateCase" class="button4"><img src="/newassets/img/plus-icon.png"> New Matter</a>
+        }
+        else
+        {
+            if (Convert.ToInt32(Session["IsCreate"]) == 1)
+            {
+                <a href="/@Session["firmcode"]/firm/CreateCase" class="button4"><img src="/newassets/img/plus-icon.png"> New Matter</a>
+            }
+        }
+
+    </div>
+</section>
+<section>
+    <div class="container-main">
+        <div class="tabs-and-filters">
+            <div class="button-group">
+                <div>
+                    @if (role.ToString() == "1")
+                    {
+                        <select id="filtercaseuser" class="form-control selctInputFormat">
+                            <option value="" selected>Select User </option>
+                        </select>
+                    }
+                    else
+                    {
+                        <input type="text" class="form-control inputFormat" id="filtercaseuser" style="display:none">
+                    }
+
+                </div>
+            </div>
+            <div style="display:inline-flex">
+                <div class="table-header">
+                    <div class="actions3">
+                        <div class="menuexport" style="position:relative; cursor:pointer;">
+                            <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                            </div>
+                            <ul class="dropdown-menu action-more">
+                                <li><div id="oexcel" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div></li>
+                                <li><div id="opdf" title="Export data to PDF"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</div></li>
+                            </ul>
+                        </div>
+                        <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                            <img class="plus-icon" alt="" src="~/newassets/img/settings-icon.png">
+
+                            <div class="text-padding">
+                                <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myModalCustomizedcolumn" class="modal right fade myModal " role="dialog" data-backdrop="static">
+        <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="modaltitle">
+                        <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                    </div>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-md-12" style="height:700px;">
+                            <ul id="od" style="width:400px; height: 800px !important;">
+                                <li><input type="checkbox" value="StartDate" class="shcheckbox1 chkdhide" name="casestartdate" checked><a href="#">Date</a></li>
+                                <li><input type="checkbox" value="MatterName" class="shcheckbox1 chkdhide" name="casecasename" checked><a href="#">Matter Name</a></li>
+                                <li><input type="checkbox" value="MatterTeamLead" class="shcheckbox1 chkdhide" name="caselead" checked><a href="#" class="dropdown-item">Matter Lead</a></li>
+                                <li><input type="checkbox" value="ClientContact" class="shcheckbox1 chkdhide" name="caseclientcontact"><a href="#" class="dropdown-item">Client Contact</a></li>
+                                <li><input type="checkbox" value="SubjectType" class="shcheckbox1 chkdhide" name="casesubject" checked><a href="#" class="dropdown-item">Subject</a></li>
+                                <li><input type="checkbox" value="Status" class="shcheckbox1 chkdhide" name="casestatus" checked><a href="#" class="dropdown-item">Status</a></li>
+                                <li><input type="checkbox" value="" class="shcheckbox1 chkdhide" name="casecasedetails" checked><a href="#" class="dropdown-item">Court Hearing</a></li>
+                                <li><input type="checkbox" value="CourtName" class="shcheckbox1 chkdhide" name="casecourtname"><a href="#" class="dropdown-item">Court</a></li>
+                                <li><input type="checkbox" value="CreatedBy" class="shcheckbox1 chkdhide" name="casecreatedby"><a href="#" class="dropdown-item">Created By</a></li>
+                                <li><input type="checkbox" value="TeamMembers" class="shcheckbox1 chkdhide" name="caseteammembers"><a href="#" class="dropdown-item">Team Members</a></li>
+                                <li><input type="checkbox" value="CloseDate" class="shcheckbox1 chkdhide" name="caseclosedate"><a href="#" class="dropdown-item">Close Date</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="tablearea" style="margin:0;">
+                <div class="tablecontainer">
+                    <div>
+                        <input type="text" id="searchdata" style="display:none">
+                        <table id="example" class="table-panel">
+                            <thead>
+                                <tr>
+                                    <th class="casestartdate">
+                                        <div class="thbg">
+                                            <input type="date" title="Start Date" id="casefilterdate" placeholder="Start Date" class="form-control inputFormat pull-left" style="width:100px;">
+                                            <span class="pull-right" id="casecleardate" title="Click here to clear date" style="display: none; cursor: pointer;">x</span>
+                                        </div>
+                                    </th>
+                                    <th class="casecasename">
+                                        <div class="thbg" style="width:145px;">
+                                            <input type="text" id="casefiltercasename" placeholder="Matter Name" class="form-control inputFormat pull-left" style="width:70%;">
+
+                                            <span class="glyphicon glyphicon-search pull-left" id="searchdatas"></span>
+                                            <span class="" id="clearnewseach" title="Click here to reset search" style="display:none;float:left;cursor:pointer;">x</span>
+                                        </div>
+                                    </th>
+                                    <th class="caselead">
+                                        <div class="thbg">
+                                            Matter Team Lead
+                                        </div>
+                                    </th>
+                                    <th class="caseclientcontact">
+                                        <div class="thbg">
+                                            Client Contact
+                                        </div>
+                                    </th>
+                                    <th class="casesubject">
+                                        <div class="thbg">
+                                            Subject
+                                        </div>
+                                    </th>
+                                    <th class="casestatus">
+                                        <div class="thbg" style="width:100px;">
+                                            <select class="form-control" id="casefilterstatus">
+                                                <option value="" selected=""> Status</option>
+                                            </select>
+                                        </div>
+                                    </th>
+                                    <th class="casecasedetails">
+                                        <div class="thbg">
+                                            Court Hearing
+                                        </div>
+                                    </th>
+                                    <th class="casecourtname">
+                                        <div class="thbg" style="width:100px;">
+                                            <select class="form-control" id="casefiltercourt">
+                                                <option value="" selected="">Court</option>
+                                                <option value="Supreme Court">Supreme Court</option>
+                                                <option value="High Court">High Court</option>
+                                                <option value="District Court">District Court</option>
+                                                <option value="Tribunals">Tribunals</option>
+                                            </select>
+                                        </div>
+                                    </th>
+                                    <th class="casecreatedby">
+                                        <div class="thbg">
+                                            Created By
+                                        </div>
+                                    </th>
+                                    <th class="caseteammembers">
+                                        <div class="thbg">
+                                            Team Members
+                                        </div>
+                                    </th>
+                                    <th class="caseclosedate">
+                                        <div class="thbg">
+                                            Close Date
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="bindcasedata"></tbody>
+                        </table>
+                    </div>
+                    <center>
+                        <div class="notfound" id="pdatastatus" style="display:none;">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4><span id="dtNotFound"></span></h4>
+                        </div>
+                    </center>
+                </div>
+                <div class="pagination" id="tradePagination">
+                    <div class="pagination-button-group">
+                        <div id="prev" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbers" class="pagination-button-group-base1">
+                        </div>
+                        <div id="next" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGo" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+                        
+                        <div id="myOverlay" class="overlay">
+                            <div class="overlay-content">
+                                <div class="spinner2">
+                                    <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <style>
+                            .overlay {
+                                height: 100%;
+                                width: 100%;
+                                display: none;
+                                position: fixed;
+                                z-index: 1;
+                                top: 0;
+                                left: 0;
+                                background-color: rgb(0,0,0);
+                                background-color: rgba(0,0,0, 0.4);
+                            }
+
+                            .overlay-content {
+                                position: relative;
+                                top: 46%;
+                                width: 80%;
+                                text-align: center;
+                                margin-top: 30px;
+                                margin: auto;
+                                color: white;
+                            }
+
+                            .overlay .closebtn {
+                                position: absolute;
+                                top: 20px;
+                                right: 45px;
+                                font-size: 60px;
+                                cursor: pointer;
+                                color: white;
+                            }
+
+                                .overlay .closebtn:hover {
+                                    color: #ccc;
+                                }
+                        </style>
+                        <div id="myModaldocs1" class="modal fade" role="dialog" style="z-index:2000;">
+                            <div class="modal-dialog ">
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header btn-success">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">
+                                            <span id="spanhead"> Email Data</span>
+                                        </h4>
+                                    </div>
+                                    <div class="minebody modal-body">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="ec_bg">
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                <div class="form-group form-horizontal">
+                                                                    <label class="control-label col-md-3">Please enter the E-mail Id.<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                                    <div class="col-md-8">
+                                                                        <input type="email" class="form-control inputFormat" id="shareemail" placeholder="Please enter the E-mail Id. with Comma Separated (,) in matter of Multiple recipients." />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <div class="form-actions">
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" id="sharedocs" class="sbtbtn" value="Save">Share to mail</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- /.row (nested) -->
+                                                        </div>
+                                                        <!-- /.panel-body -->
+                                                    </div>
+                                                    <!-- /.panel -->
+                                                </div>
+                                                <!-- /.col-lg-12 -->
+                                            </div>
+                                        </div>
+                                        <!-- /.col-lg-12 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>

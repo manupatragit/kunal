@@ -1,0 +1,406 @@
+﻿@{
+    Layout = null;
+}
+<!-- Page Content -->
+<script>
+    var timeid = "@ViewBag.timeid";
+</script>
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/editConfigTimer.js?2.1"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<style>
+    .div-textarea .cke_47 {
+        width:100% !important;
+    }
+    .form-group .upload_form {
+        display: flex;
+        align-items: center;
+        gap: 55px;
+        /* min-height: 60px; */
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+        padding: 5px 10px;
+    }
+
+    .form-group .upload_form button{
+        font-weight:600;
+        display:flex;
+        align-items:center;
+        gap:6px;
+    }
+    .icon_header {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+    .icon_header span img {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .modal-header {
+        border-bottom: 1px solid #E9EAEB !important;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+    .upload-text {
+        font-size: 14px;
+        color: #535862;
+        margin-bottom: 1px;
+        font-weight: 400;
+    }
+    .upload-subtext {
+        font-size: 11px;
+        color: #535862;
+        font-weight: 400;
+        margin-bottom: 3px;
+    }
+</style>
+@*<div class="modal-header btn-primary">
+    <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Edit Time Entry
+    </h4>
+</div>*@
+<div class="modal-header btn-success">
+    <button type="button" class="close" id="crossmodels" data-dismiss="modal">×</button>
+    <div class="modal-title">
+        <div class="icon_header">
+            <span>
+                <img src="~/newassets/img/time-entry.svg" alt="timeenty" />
+            </span>
+            <h4 class="modal-ctitle">
+                Edit Time Entry
+            </h4>
+        </div>
+        
+    </div>
+</div>
+<div class="modal-body " style="max-height:650px;">
+    <!-- Main content -->
+    <form id="savecallform2" class="ec_bg" enctype="multipart/form-data">
+        <!-- Start About boxes -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Client </label>
+                        <select class="form-control selctInputFormat" style="background-color: white !important;" id="contact2"></select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Matter </label>
+                        <select class="form-control selctInputFormat" style="background-color: white !important;" id="matter2"></select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Time Entry Type</label>
+                        <select class="form-control selctInputFormat" style="background-color: white !important;" id="EditTimeentrytype"></select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Time Entry Task</label>
+                        <select class="form-control selctInputFormat" style="background-color: white !important;" id="item2"></select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input class="form-control inputFormat" id="dt2" onkeypress="return false;" type="date" placeholder="yyyy-mm-dd" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Call Duration</label>
+                        <input type="text" id="duration3" placeholder="Format: 1h 10m 1s" name="addTaskType" class="form-control inputFormat" autocomplete="new-text" value="0h:0m:0s" aria-invalid="false">
+                        <div style="display:flex; flex-direction:row-reverse; align-items:center; gap:7px; margin-top:7px;">
+                            <button id="starttimer" type="button" class="btn btn-secondary" style="font-size: 13px; margin: -53px 0 0 0; padding: 9px 12px; color: #0C4A6E;" title="Start Timer"><span class="glyphicon glyphicon-time"></span>&nbsp;&nbsp;&nbsp;Start Timer</button>
+                            <button id="stoptimer" type="button" class="btn btn-secondary" style="display: none; font-size: 13px; margin: -53px 0 0 0; padding: 9px 12px; color: #0C4A6E; " title="Stop Timer"><span class="glyphicon glyphicon-pause"></span>&nbsp;&nbsp;&nbsp;Stop Timer</button>
+                            <div class="timer pull-left " id="countdown2" style="display:none;text-align:center">0h:0m:0s</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group div-textarea">
+                        <label>Event Description</label>
+                        <textarea class="inputFormatTextArea" id="details1" cols="15" class="valid" aria-invalid="false" style="margin: 0px; height: 93px;"></textarea>
+                        <div class="grid-container" style="display:none">
+                            <div id="editor">
+                            </div>
+                            <script>
+                                CKEDITOR.replace('details1', {
+                                    toolbar:
+                                        [
+                                            { name: 'basicstyles', items: ['Bold', 'Italic'] },
+                                            { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                            { name: 'tools', items: ['Maximize',] }
+                                        ],
+                                    height: 80
+                                });
+                            </script>
+                        </div>
+                        @*<textarea cols="25" id="details1" class="form-control" style="min-height:60px; border: 1px solid #ccc !important; border-radius: 4px !important;" maxlength="2000" autocomplete="new-text" placeholder="Max 2000 characters allowed"></textarea>*@
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="upload_form">
+                            <p style="font-size:14px;">Add File (Only .jpg and .xlss file format allowed)</p>
+                            <div class="btn-group dropup">
+                                <button class="selctInputFormat dropdown-toggle s_btn" id="timeattachtitle" title="Upload attachment" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size:14px;">
+                                    <img src="~/newassets/img/upload-cloud.svg" alt="Alternate Text" /> Upload Document
+                                </button>
+                                <ul class="dropdown-menu settingaction" style="width: 400px; margin-left: -294px;">
+                                    <li>
+                                        <div class="dragUpload" id="taskattachtitle">
+                                            <div class="upload-icon"> <img src="/newassets/img/upload-cloud.svg"> </div>
+                                            <p class="upload-text">Choose a file or drag and drop</p>
+                                            <p class="upload-subtext">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                                            <div class="upload-buttons" style="padding-top:7px;">
+                                                <label for="postedfile" class="upload-btn">Local Drive</label>
+                                                <label title="No file chosen" class="upload-btn browsetaskfile browsetaskfile1" id="browsefileEditTimeEntry" module="EditTimeEntry">
+                                                    MyKase Drive
+                                                </label>
+                                                <input type="file" id="postedfile" name="fileupload" multiple class="form-control" style="display:none;" />
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="display:none">
+                    <div class="col-md-12">
+                        <fieldset>
+                            <legend class="sbtbtn">Billing</legend>
+                            <div class="form-group form-horizontal" style="margin-top:10px;">
+                                <label class="control-label col-md-3">Billable</label>
+                                <div class="col-md-9">
+                                    <label class="switch">
+                                        <input type="checkbox" id="billable2" name="billable" value="true">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Billed By:</label>
+                                <div class="col-md-9">
+                                    <select name="" class="form-control selctInputFormat" style="background-color: #ebebeb !important; " id="billby2">
+                                        <option value="">Select user...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Hourly Rate (INR)</label>
+                                <div class="col-md-9">
+                                    <input class="form-control inputbg" name="dt" type="number" placeholder="Rate" id="hrate2" />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Total</label>
+                                <div class="col-md-9">
+                                    <input class="form-control inpiutbg" name="dt" type="number" placeholder="Rate" id="total2" />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Private Notes</label>
+                                <div class="col-md-9">
+                                    <textarea ID="privnotes" cols="15" style="margin: 0px; width: 387px; height: 89px;"></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                @*<div class="col-md-12">
+            <fieldset>
+                <legend class="sbtbtn">Linked to</legend>
+                <div class="form-group form-horizontal">
+                    <label class="control-label col-md-3">CLIENT </label>
+                    <div class="col-md-9">
+                        <select name="contact" class="form-control selctInputFormat" style="background-color: #ebebeb !important; " id="contact2">
+                            <option value="" selected>Select Client...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group form-horizontal">
+                    <label class="control-label col-md-3">MATTER </label>
+                    <div class="col-md-9">
+                        <select name="matter" class="form-control selctInputFormat" id="matter2" style="background-color: #ebebeb !important; ">
+                            <option value="" selected>Select Case...</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+        </div>*@
+            </div>
+            @*<div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend class="sbtbtn">New Time Entry</legend>
+                        <div class="row form-horizontal">
+                            <div class="col-md-3">
+                                <label class="control-label ">Type </label>
+                            </div>
+                            <div class="col-md-9">
+                                <select class="form-control selctInputFormat" id="EditTimeentrytype" style="background-color: #ebebeb !important; "></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="control-label">Task <span class="required" aria-required="true">*</span></label>
+                            </div>
+                            <div class="col-md-9">
+                                <select name="" class="form-control selctInputFormat" id="item2" style="background-color: #ebebeb !important; ">
+                                    <option value="">Select </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 10px !important">
+                            <div class="col-md-3">
+                                <label class="control-label ">Date <span class="required" aria-required="true">*</span></label>
+                            </div>
+                            <div class="col-md-9">
+                                <input class="form-control inputbg" name="dt" type="date" placeholder="Date" id="dt2" required />
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 10px !important">
+                            <div class="col-md-3">
+                                <label class="control-label ">Call Duration <span class="required" aria-required="true">*</span></label>
+                            </div>
+                            <div class="col-md-9">
+                                <input class="form-control inputbg" name="duration" type="text" required id="duration3" placeholder="Format: 1h 10m 1s" value="0h:0m:0s" />
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 10px !important" class="row">
+                            <div class="col-md-3">
+                                <label class="control-label"> </label>
+                            </div>
+                            <div class="col-md-6">
+                                <button id="starttimer" type="button" class="sbtbtn" style="float:left;  margin:0 10px 0 0px;" title="Start Timer"><span class="glyphicon glyphicon-time"></span>&nbsp;&nbsp;Start Timer</button>
+                                <button id="stoptimer" type="button" class="sbtbtn" style="float:left;  margin:0 10px 0 0px;display:none" title="Stop Timer"><span class="glyphicon glyphicon-pause"></span>&nbsp;&nbsp;Stop Timer</button>
+                                <div class="timer pull-left " id="countdown2" style="text-align:center">0h:0m:0s</div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;clear:both">
+                            <div class="col-md-3">
+                                <label class="control-label ">Description</label>
+                            </div>
+                            <div class="col-md-9">
+                                <textarea class="inputFormatTextArea" id="details1" cols="15" class="valid" aria-invalid="false" style="margin: 0px; width: 484px; height: 93px;"></textarea>
+                                <div class="grid-container" style="display:none">
+                                    <div id="editor">
+                                    </div>
+                                    <script>
+                                        CKEDITOR.replace('details1', {
+                                            toolbar:
+                                                [
+                                                    { name: 'basicstyles', items: ['Bold', 'Italic'] },
+                                                    { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                    { name: 'tools', items: ['Maximize',] }
+                                                ],
+                                            height: 80,
+
+                                        });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-md-3">
+                                <label class="control-label"> </label>
+                            </div>
+                            <div class="col-md-6" style="margin-top:5px;">
+                                <div class="btn-group dropdown">
+                                    <span class="selctInputFormat" style="background-color: #ebebeb !important" id="timeattachtitle" title="Upload attachment" class="dropdown-toggle s_btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        attachments
+                                    </span>
+                                    <ul class="dropdown-menu settingaction" style="width:247px">
+                                        <li style="font-size: 11px;float:left;padding-bottom: 4px !IMPORTANT;">Choose From <b>Local Drive</b></li>
+                                        <li style="padding-top: 5px !IMPORTANT;padding-bottom: 40px !IMPORTANT;margin-left:5px !important;"><input type="file" id="postedfile" name="fileupload" style="width: 90%; height: 30px !important;" multiple class="form-control" /></li>
+                                        <li style="font-size: 11px;float:left;padding-bottom: 4px !IMPORTANT;padding-top: 6px !IMPORTANT;">Choose From <b>mykase Drive</b></li>
+                                        <li style="cursor: pointer;border-bottom: 1px solid #d4cfcf;text-align: left;margin-left: 5px;margin-top: 5px;padding-bottom: 3px !important;width: 235px;" title="No file chosen" class="browsetaskfile" id="browsefileEditTimeEntry" module="EditTimeEntry"><button type="button" style="font-size: 8.6pt;color: #080000; font-weight: 500;">Choose Files</button>   <span style="font-size: 12px;" id="browsefilelblEditTimeEntry">No file chosen</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row" style="display:none">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend class="sbtbtn">Billing</legend>
+                        <div class="form-group form-horizontal" style="margin-top:10px;">
+                            <label class="control-label col-md-3">Billable</label>
+                            <div class="col-md-9">
+                                <label class="switch">
+                                    <input type="checkbox" id="billable2" name="billable" value="true">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-3">Billed By:</label>
+                            <div class="col-md-9">
+                                <select name="" class="form-control selctInputFormat" style="background-color: #ebebeb !important; " id="billby2">
+                                    <option value="">Select user...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-3">Hourly Rate (INR)</label>
+                            <div class="col-md-9">
+                                <input class="form-control inputbg" name="dt" type="number" placeholder="Rate" id="hrate2" />
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-3">Total</label>
+                            <div class="col-md-9">
+                                <input class="form-control inpiutbg" name="dt" type="number" placeholder="Rate" id="total2" />
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-3">Private Notes</label>
+                            <div class="col-md-9">
+                                <textarea ID="privnotes" cols="15" style="margin: 0px; width: 387px; height: 89px;"></textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="modal-footer">
+                        <button type="submit" id="savecall" class="sbtbtn save">Save</button>
+                        <button type="button" id="closemodels" class="sbtbtn" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>*@
+            <!-- /.content -->
+        </div>
+        <div class="modal-footer">
+            <div class="row">
+                <div class="col-md-6"><button type="button" id="closemodels" class="btn btn-secondary" data-dismiss="modal" style="width:100%;">Discard</button></div>
+                <div class="col-md-6"><button type="submit" id="savecall" class="btn btn-primary" style="width:100%;">Save Changes</button></div>
+            </div>
+            
+            
+        </div>
+    </form>
+   
+</div>
+<div id="myOverlay21" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>

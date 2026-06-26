@@ -1,0 +1,80 @@
+﻿@{
+    Layout = null;
+}
+@using NJDGDetail.Models;
+@using QueryStringEDAES;
+<!-- Page Content -->
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/ConfigCalla.js"></script>
+<div class="modal-header btn-primary">
+    <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Case Details
+    </h4>
+</div>
+<div class="modal-body " style="height:500px; overflow-y:scroll;">
+    <!-- Main content -->
+    <div id="content">
+        <div class="row">
+            <ul></ul>
+            <table id="questionLIst" class="table table-striped" cellspacing="0" width="100%" style="border:1px solid #666;">
+                <thead style="background-color:#3d3d3d; color:#fff; text-align:center;">
+                    <tr>
+                        <th scope="col">Order Date</th>
+                        @*<th scope="col">Status</th>
+                            <th scope="col">Next Hearing</th>*@
+                        <th scope="col">Order</th>
+                    </tr>
+                </thead>
+                <tbody style="text-align:center;">
+                    @{
+                        //string crtd = Convert.ToString(Session[NJDGDetail.SharedClass.Global.LOGGED_SessionUID]);//Request.QueryString["id"].ToString();
+                        CaseDetailObjectList casemasterddata = new CaseDetailObjectList();
+                        casemasterddata = CaseDetailObjeController.GetCaseOrderById(@ViewBag.id);
+                        if (casemasterddata.Count > 0)
+                        {
+                            for (int j = 0; j <= casemasterddata.Count - 1; j++)
+                            {
+                                <tr scope="row">
+                                    <td>@casemasterddata[j].Orderdt</td>
+                                    <td>
+                                        @if (casemasterddata[j].Showstatus == "none")
+                                        {
+                                        }
+                                        else
+                                        {
+                                            if (casemasterddata[j].Localfile.IndexOf("ttp", 1) > 0 && casemasterddata[j].Localfile.IndexOf("ttp", 1) < 5)
+                                            {
+                                                <a class="o_order" target="_blank" href="/DownloadFile.ashx?module=caseorder&ftoken=@QueryAES.EncryptStringAES(@casemasterddata[j].Localfile)" name="A1" id="A1"> Open Order </a>
+                                            }
+                                            else
+                                            {
+                                                <a class="o_order" target="_blank" href="/DownloadFile.ashx?module=caseorder&ftoken=@QueryAES.EncryptStringAES(casemasterddata[j].Localfile) " name="A1" id="A3"> Open Order  </a>
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="4"><center> No Orders Found.</center></td></tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-actions ">
+                <div class="modal-footer">
+                    <button type="button" id="closemodels" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.content -->
+</div>
+<script src="~/Manupanel/js/bootstrap.min.js"></script>

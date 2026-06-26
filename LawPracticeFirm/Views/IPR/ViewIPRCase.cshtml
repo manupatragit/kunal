@@ -1,0 +1,424 @@
+﻿
+@{
+    ViewBag.Title = "ViewIPRCase";
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+
+    var firmcode121 = Session["FirmCode"];
+}
+<script src="~/Scripts/IPR/ViewIPRCase.js?1.3"></script>
+<link href="~/Manupanel/css/IPRSearchStyle.css" rel="stylesheet" />
+<style>
+    .btnManual {
+        padding: 10px;
+        display: flex;
+        gap: 5px;
+        border: 2px solid gray;
+        border-radius: 7px;
+        margin-right: 5px;
+        text-decoration: none;
+        color: gray;
+    }
+
+    .checkbox-item {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+        .checkbox-item.checked {
+            border: 2px solid #00acc1;
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 6px;
+            transition: border 0.2s ease;
+        }
+
+        /* Style checkboxes and labels */
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+        }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+    li.checkbox-item input {        
+        pointer-events: unset !important;
+    }
+    #CustIPRcreatefield ul li {
+        gap: 0px !important;
+    }
+    .ipr_filter_feild .modal-content .modal-header {
+        border-bottom: none !important;
+       
+    }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            @*<p class="ctitle">Trademark</p> <input type="text" id="searchdata" style="display:none">*@
+            <p class="ctitle"><h2 id="dynamiciprheader" style="margin-top:0px;"></h2></p> <input type="text" id="searchdata" style="display:none">
+        </div>
+        <div class="tabs-and-filters">
+            <div class="button-group">
+                <a href="#" title="Tracker List" id="trackertab" class="button-group-base">Tracker <span id="trademarkcount"></span></a>
+                <a href="#" class="button-group-base1 active" title="My List" id="mylisttab">My List <span id="MyListCount"></span></a>
+                <a href="#" title="Search Result" class="button-group-base2" id="searchtab">Search Result <span id="SearchCount"></span></a>
+                @if (ViewBag.RoleId == "1")
+                {
+                    <a href="#" title="Delete" class="button-group-base2" id="deletemattertab">Delete Request<span id="DeleteTradeCount"></span></a>
+                    <a href="#" title="alert history" class="button-group-base2" style="@Session["IPRJournalAlertSub"]" id="jAlertHistorytab">Journal Alert History <span id="JournalAlertCount"></span></a>
+                }
+                else
+                {
+                    <a href="#" title="Shared Trademark" class="button-group-base2" style="display:none" id="SharedTradetab">Shared <span id="SharedTradeCount"></span></a>
+                }
+                <span id="spPhoneticSearch" style="display:none"><a href="#" title="Phonetic Search" class="button-group-base2" id="searchPhonetictab">Phonetic Search<span id="PhoSearchCount"></span></a></span>
+            </div>
+
+            @*<div class="table-header">
+                    <div class="actions3">
+                        <div class="menuexport" style="position:relative; cursor:pointer;">
+                            <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                            </div>
+                            <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                <li><div id="oexcel" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                <li>
+                                <li><div title="Export to PDF" id="opdf"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</div>
+                                <li>
+                            </ul>
+                        </div>
+                        <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                            <img class="plus-icon" alt="" src="~/newassets/img/settings-icon.png">
+                            <div class="text-padding">
+                                <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+            @*<a href="/@firmcode121/IPR/CreateIPRCase?IP=@ViewBag.queryname" title="Add new trademark" id="IPR_Add" value="0" onclick=clearData(); class="button4"><span><img src="~/newassets/img/plus-icon.png" /></span>Add Manually</a>*@
+
+            <div style="display:inline-flex">
+                <a href="#" title="Add new Manually" id="AddmanuallyTrade" class="btnManual"><span><img class="plus-icon" alt="" src="/newassets/img/Icon.svg"></span>Add Manually</a>
+                <a href="#" title="Add new Matter" id="AddTradeAfterSearch" class="button4"><span><img src="~/newassets/img/plus-icon.png" /></span><span id="btnNameDetail"></span></a>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <input type="hidden" value="@Session["IPRJournalAlertSub"]" id="hdnjournalSubscriptionDetail" />
+        <div class="table">
+            <div class="card-header">
+                <div class="content1">
+                    <div class="text-and-supporting-text1">
+                        @*<div class="filter" id="idcustomcommonFilter" style="cursor:pointer;">
+                            <img class="plus-icon" alt="" src="~/newassets/img/filter-icon.png">
+                            Filters
+                        </div>*@
+                    </div>
+                    <div class="table-header">
+                        <div class="actions3">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport" id="myDropdown">
+                                    <li><div id="oexcel" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                    <li>
+                                    <li><div title="Export to PDF" id="opdf"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</div>
+                                    <li>
+                                </ul>
+                            </div>
+                            @*<div class="customfield" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="customfield" type="button" data-toggle="dropdown" title="Custom Field">
+                                    <img class="plus-icon" alt="" src="~/newassets/img/database-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="customfield">
+                                    <li><div title="Reset Custom Field" id="resetcf"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Reset Custom Field</div>
+                                    <li>
+                                    <li><div title="Custom Field History" id="cfHistory"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Custom Field History</div>
+                                    <li>
+                                </ul>
+                            </div>*@
+                            <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                                <img class="plus-icon" alt="" src="~/newassets/img/settings-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tablearea">
+                <div class="tablecontainer">
+                    <input type="hidden" value="@ViewBag.queryname" id="ipvalue" />
+                    <table class="table-panel fixed_table_head" id="hideforCategory">
+                        <thead id="IPRheader"></thead>
+                        <tbody id="bindIPRData"></tbody>
+                    </table>
+                    <center>
+                        <div class="notfound" id="pdatastatus" style="display:none;">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4><span id="dtNotFound"></span></h4>
+
+                        </div>
+                    </center>
+                </div>
+                <div class="pagination" id="tradePagination">
+                    <div class="pagination-button-group">
+                        <div id="prev" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbers" class="pagination-button-group-base1">
+                        </div>
+                        <div id="next" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGo" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+
+                @*<div class="table-panel" id="newPanel">
+                    <div class="settingpanel">
+                        <div class="col-md-6">
+                            <div style="float: left;padding: 0 10px 0 0;">
+                                </div>
+                                <div id="ptfooter">
+                                    <ul>
+                                        <li>
+                                            <span style="display:none; color:black" id="CustIPRcreatefield">
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <span style="color:black" id="IPRpaginfield">
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="pull-right">
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat" style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Action Selected
+                                            </a>
+                                            <ul class="dropdown-menu" id="myDropdown">
+                                                <li><a href="javascript:void()" id="oexcel" title="Export to Excel">Export to Excel</a></li>
+                                                <li><a href="javascript:void()" id="opdf" title="Export data to PDF">Export to PDF</a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                        </div>
+                    </div>
+                </div>*@
+            </div>
+            @*<center> <div id="pdatastatus"> </div></center>
+            <div class="table-panel">
+                <div class="settingpanel">
+                    <div class="col-md-6">
+                        <div id="casetfooter">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                    </div>
+                </div>
+            </div>*@
+        </div>
+    </div>
+</section>
+
+<div id="myModalexport" class="modal fade myModal" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header" style="display: flex !important; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h5 class="modal-title" id="modalTitleExport">Export Matters</h5>
+                <button type="button" class="close" id="closemodels22" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body partynamebody" style="max-height:505px; overflow-y:auto; background:white;">
+                <input type="hidden" id="exportrecords">
+                <table class="table-panel" style="font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th><div class="thbg">Page No.</div></th>
+                            <th><div class="thbg" style="display:flex; justify-content:center;">FileName</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="printexport"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@*<div id="myModalCustomizedcolumn" class="modal right fade myModal " role="dialog" data-backdrop="static">
+        <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="modaltitle">
+                        <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                    </div>
+                </div>
+                <div class="modal-body">
+                   <div class="row">
+                <div class="col-md-12" style="overflow-y:scroll; height:700px;">
+                    <span style="display:none; color:black" id="CustIPRcreatefield">
+                    </span>
+                </div>
+            </div>
+                    <ul id="myDropdown"><li><input type="checkbox" onchange="Customdisplay(this)" name="ApplicantName" checked="">Applicant Name</li><li><input type="checkbox" onchange="Customdisplay(this)" name="ApplicationNo" checked=""> Applicant No</li><li><input type="checkbox" onchange="Customdisplay(this)" name="PublicationDate" checked=""> Publication Date</li><li><input type="checkbox" onchange="Customdisplay(this)" name="FilingDate" checked="">Date of filing of Application</li><li><input type="checkbox" onchange="Customdisplay(this)" name="TitleOfInvention" checked="">Title of the Invention</li><li><input type="checkbox" onchange="Customdisplay(this)" name="InternationalClassification">International Classification</li><li><input type="checkbox" onchange="Customdisplay(this)" name="PriorityDocumentNo">Priority Document No</li><li><input type="checkbox" onchange="Customdisplay(this)" name="PriorityDate">Priority Date</li><li><input type="checkbox" onchange="Customdisplay(this)" name="PriorityCountry">Name of Priority Country</li><li><input type="checkbox" onchange="Customdisplay(this)" name="InternationalApplicationNo">International Application No</li><li><input type="checkbox" onchange="Customdisplay(this)" name="InternationalFilingDate">International Application Filing Date</li><li><input type="checkbox" onchange="Customdisplay(this)" name="InternationalPublicationNo">International Publication No</li><li><input type="checkbox" onchange="Customdisplay(this)" name="PatentAdditionNo">Patent of Addition to Application Number</li><li><input type="checkbox" onchange="Customdisplay(this)" name="FilingDatePatentAddition">Patent of Addition to Application Filing Date</li><li><input type="checkbox" onchange="Customdisplay(this)" name="DivisionalNo">Divisional to Application Number</li><li><input type="checkbox" onchange="Customdisplay(this)" name="FilingDateInventor">Divisional to Application Filing Date</li><li><input type="checkbox" onchange="Customdisplay(this)" name="InventorName" checked="">Name of Inventor</li><li><input type="checkbox" onchange="Customdisplay(this)" name="Abstract">Abstract</li><li><input type="checkbox" onchange="Customdisplay(this)" name="NoOfPages">No. of pages</li><li><input type="checkbox" onchange="Customdisplay(this)" name="NoOfClaims">No. of claims</li><li><input type="checkbox" onchange="Customdisplay(this)" name="PatentOfficeJournal" checked="">The Patent Office Journal</li></ul>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+
+<div id="myModalCustomizedcolumn" class="modal in right fade myModal ipr_filter_feild" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width: 450px; max-height: 100vh;">
+        <div class="modal-content modal-drawer" style="border: 1px solid #ccc; padding: 20px; max-width: 500px; margin: auto;">
+
+            <!-- Header -->
+            <div class="modal-header btn-success" style="border-bottom: none;">
+                <button type="button" class="close" data-dismiss="modal" style="float: right;">×</button>
+                <div class="modaltitle" style="display: flex; align-items: center; gap: 10px;">
+                    <img src="/newassets/img/customize-icon.png" alt="icon">
+                    <h4 style="margin: 0;">Customise Field</h4>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body" >
+                <form id="customColumnForm" autocomplete="off">
+                    <div class="wrapper_form_feild" id="CustIPRcreatefield" style="padding-right: 15px;">
+                        <ul id="myDropdown">
+                            <li class="checkbox-item">
+                                <input type="checkbox" id="applicanttype" name="applicanttype" onchange="toggleBorder(this)">
+                                <label for="applicanttype">Applicant Type</label>
+                            </li>
+                            <li class="checkbox-item">
+                                <input type="checkbox" id="applicantname" name="applicantname" checked onchange="toggleBorder(this)">
+                                <label for="applicantname">Applicant Name</label>
+                            </li>
+                            <li class="checkbox-item">
+                                <input type="checkbox" id="applicantadd" name="applicantadd" onchange="toggleBorder(this)">
+                                <label for="applicantadd">Applicant Address</label>
+                            </li>
+                            <li class="checkbox-item">
+                                <input type="checkbox" id="applicantcountry" name="applicantcountry" onchange="toggleBorder(this)">
+                                <label for="applicantcountry">Applicant Country</label>
+                            </li>
+                            <li class="checkbox-item">
+                                <input type="checkbox" id="useofmark" name="useofmark" checked onchange="toggleBorder(this)">
+                                <label for="useofmark">Use Of Mark</label>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function toggleBorder(checkbox) {
+        const li = checkbox.closest('li');
+        if (checkbox.checked) {
+            li.classList.add('checked');
+        } else {
+            li.classList.remove('checked');
+        }
+    }
+
+    // Highlight already checked checkboxes on load
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("#myDropdown input[type='checkbox']").forEach(cb => {
+            toggleBorder(cb);
+        });
+    });
+</script>
+<script>
+  function toggleBorder(checkbox) {
+    const li = checkbox.closest('li');
+    if (checkbox.checked) {
+      li.classList.add('checked');
+    } else {
+      li.classList.remove('checked');
+    }
+  }
+
+  function toggleCheck(event) {
+    const checkbox = document.getElementById('filingDate');
+    if (event.target.tagName !== 'INPUT') {
+      checkbox.checked = !checkbox.checked;
+      checkbox.dispatchEvent(new Event('change'));
+    }
+  }
+
+  // Initialize on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    const cb = document.getElementById('filingDate');
+    toggleBorder(cb);
+  });
+</script>
+
+@* Delete popup started *@
+<div id="myModalmarkdeleteTradeconfirmation" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:480px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_deleteTraderequesr"></h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgRUSure"></p>
+            </div>
+            <div class="footer_buttons modal-footer">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="deleteTrademarkDetails">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* Delete popup ended *@

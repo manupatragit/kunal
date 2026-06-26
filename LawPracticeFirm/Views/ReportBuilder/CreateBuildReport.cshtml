@@ -1,0 +1,263 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<link href="~/newassets/css/CreateReportBuilder.css" rel="stylesheet" />
+<script src="~/Scripts/ReportBuilder/CreateReportBuilder.js?1.1"></script>
+<script src="https://bseth99.github.io/assets/js/jquery.ui.touch-punch.js"></script>
+<section class="wrapper">
+    <div class="container-main">
+        <div class="row ">
+            <div class="col-md-3">
+                <div class="title">
+                    Report Builder
+                </div>
+            </div>
+            <div class="col-md-9">
+                <a mat-raised-button matTooltip="View Saved Report" class="sbtbtn" style="margin-top: 25px;float:right;margin-left: 14px;background: #e39d06 !important;"
+                   href="/@Session["FirmCode"]/reportbuilder/ReportBuilderList">Saved Report</a>
+                <button type="button" mat-raised-button matTooltip="Preview Report" class="sbtbtn" style="margin-top: 25px;float:right;margin-left: 14px;background: #4d95dd !important;"
+                        id="PreviewForm">
+                    Preview
+                </button>
+                <button type="button" mat-raised-button matTooltip="Save Report" class="sbtbtn" style="margin-top: 25px;float:right;background: #4d95dd !important;"
+                        id="SaveForm">
+                    Save
+                </button>
+                <input maxlength="30" type="text" style="float:right;width: 150px;margin-top: 25px !important;margin-right: 5px !important;"
+                       id="ReportName" class="form-control inputbg">
+                <span style="float:right;width: 150px;margin-top: 25px;  margin-right:-50px;">Report Name:</span>
+                <select style="float:right;width: 150px;margin-top: 25px !important;margin-right: 5px !important;background-color: #ebebeb !important" id="Modules" class="form-control selctInputFormat"></select>
+                <span style="float:right;width: 150px;margin-top: 25px;  margin-right:-50px;">Module Name:</span>
+            </div>
+        </div>
+        <div class="ec_bg">
+            <div class="row ">
+                <div class="col-md-3" id="leftpanel">
+                    <div class="leftpanelpart">
+                        <div class="box" style="overflow: unset !Important;">
+                            <div class="card card-outline-success">
+                                <div class="card-header card-inverse card-success rightpanelhead">
+                                    <span> Particulars</span>
+                                </div>
+                                <div class="card-block scroll-list">
+                                    <div class="list-group" id="bindFilterDiv">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9" id="rightpanel">
+                    <div class="rightpanelpart">
+                        <div class="rightpanelhead">Drag and Drop Filter</div>
+                        <div style="overflow-y: scroll; overflow-x:clip;" class="box3">
+                            <div class="">
+                                <div class="card-block scroll-list  " id="DroppableAreaFilter" style="padding:5px;min-height: 200px;">
+                                    <ul class=" " id="DropFilterArea"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row " style="margin-top: 20px;">
+                <div class="col-md-3" id="leftpanel">
+                    <div class="leftpanelpart">
+                        <div class="box" style="overflow: unset !Important;">
+                            <div class="card card-outline-success">
+                                <div class="card-header card-inverse card-success rightpanelhead">
+                                    <span> Results</span>
+                                </div>
+                                <div class="card-block scroll-list">
+                                    <div class="list-group" id="bindColumnDiv">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" id="rightpanel">
+                    <div class="rightpanelpart">
+                        <div class="rightpanelhead">Drag and Drop Results</div>
+                        <div style="overflow-y: scroll; overflow-x:clip;" class="box3">
+                            <div>
+                                <div class=" card card-outline-primary mb-3">
+                                    <div class="card-block scroll-list  " id="DroppableAreaColumn" style="overflow: scroll;min-height: 150px;">
+                                        <div class="flex-container " id="DropColumnArea">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3" id="rightpanel">
+                    <div class="rightpanelpart">
+                        <div class="rightpanelhead">Drag and Drop Order By</div>
+                        <div style="overflow-y: scroll; overflow-x:clip;" class="box3">
+                            <div>
+                                <div style="height: 500px" class="card card-outline-primary mb-3">
+                                    <div class="card-block scroll-list" id="DroppableOrderBy" style="min-height: 150px;">
+                                        <div id="DropOrderByArea">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="myModal" data-backdrop="static" style="display:none" [style.display]="showModaleditfiledetails ? 'block' : 'none'">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" style="margin: 0;">
+                        Group By Settings
+                    </h4>
+                    <span class="closeicon" (click)="closeeditfiledetailsmodal()" aria-hidden="true">X</span>
+                </div>
+                <div class="modal-body">
+                    <div class="">
+                        <div class="col-lg-12">
+                            <div style="padding: 15px 0;">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <form role="form" id="markdeletionform">
+                                                <div class="row">
+                                                    <div class="col-md-12"> <label class="formLabel colorDark  "><b>Field</b></label></div>
+                                                    <div class="col-md-4">
+                                                        <label style="clear: both;" class="formLabel colorDark "></label>
+                                                    </div>
+                                                    <div class="col-md-8 DivGroupBind">
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<link rel="stylesheet" href="~/newassets/DragDropFormBuilder/css/jquery.ui.theme.css" />
+<script src="~/newassets/DragDropFormBuilder/js/jquery.ui.min.js"></script>
+<script src="~/newassets/DragDropFormBuilder/js/beautifyhtml.js"></script>
+<div class="modal fade" id="myModalGroupBy" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Group By Settings</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12"> <label class="formLabel colorDark  "><b>Field</b></label></div>
+                    <div class="col-md-4">
+                        <label style="clear: both;" class="formLabel colorDark " id="ModalCoumnGroupByLabel"></label>
+                    </div>
+                    <div class="col-md-8 ">
+                        <ul id="DivGroupBind"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ReportBuilderPreview" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:90%">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Report Builder Preview</h4>
+                <div style="float:right;margin-right:25px;margin-top:-10px"><img src="~/assets/img/exportexcel.png" id="oexcel" title="export to excel" style="cursor:pointer" />&nbsp;&nbsp;<img src="~/assets/img/exportpdf.png" id="opdf" style="cursor:pointer" title="export to pdf"> </div>
+            </div>
+            <div class="modal-body ">
+                <div id="noresultdiv" style="text-align:center;display:none">No result found...</div>
+                <div class="table-panel table-responsive" style="overflow:auto">
+                    <table style="width: 100%;overflow: scroll;border-spacing: 40px;" cellspacing="20px" #CustomReport
+                           id="CustomReport">
+                        <thead>
+                            <tr id="rpcolumn">
+                            </tr>
+                        </thead>
+                        <tbody id="rptbody"></tbody>
+                    </table>
+                </div>
+                <div class="table-panel">
+                    <div class="settingpanel">
+                        <div class="col-md-6">
+                            <div id="Prevfooter"></div>
+                        </div>
+                        <div class="col-md-6"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="PreviewFormPaging" style="display:none">&amp</button>
+    </div>
+</div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

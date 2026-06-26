@@ -1,0 +1,1856 @@
+﻿@{
+    /**/
+
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+    var userid = Session["sessionuserid"];
+
+
+
+}
+<script>
+
+    var userid = "@userid";
+
+    var roleids = "@Session["sessionroleid"]";
+    var isPartner = "@Session["IsPartner"]";
+    var packid = @Session["sessionpackmodule"];
+</script>
+<head>
+    <script src="~/Scripts/IPR/IPRDashboard.js?2.3"></script>
+    <script src="~/Manupanel/Chart/Chart.min.js"></script>
+</head>
+
+<style>
+    .ui-state-default {
+        display: inline-flex !important;
+        width: 40px !important;
+        height: 40px;
+        justify-content: center;
+        align-items: center;
+        text-align: center !important;
+        margin: 0 auto;
+    }
+
+    .ui-icon-circle-triangle-w {
+        background-image: url(../../newassets/images/leftArrow.svg) !important;
+    }
+
+    .ui-datepicker-calendar .ui-state-default {
+        border: 0px !important;
+    }
+
+    .ui-state-default th, .ui-state-default td {
+        padding: 10px !important;
+        text-align: center !important;
+        border: 0;
+    }
+
+    .ui-datepicker-calendar td {
+    }
+
+    .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+        border: none !important;
+        font-weight: normal !important;
+        border-radius: 50px;
+        display: inline-block;
+        width: 30px;
+    }
+
+    td.highlight .ui-state-default {
+        background: #ff692e !important;
+    }
+
+    .ui-widget-header .ui-icon {
+        background-image: url(../../newassets/img/next-btn.png) !important;
+    }
+
+    .selected-date-parent {
+        padding: 10px;
+        min-height: 150px;
+    }
+
+        .selected-date-parent .clsRenewal {
+            display: block;
+            padding: 6px 10px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            color: #f97316;
+            background-color: #fff7ed;
+            border: 1px solid #ffedd5;
+        }
+
+        .selected-date-parent .clsHearing {
+            display: block;
+            padding: 6px 10px;
+            border: 1px solid #c0e1f0;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            color: #36bffa;
+            background: #36bffa33;
+        }
+
+    .showdatainUI {
+        width: 100%;
+        padding: 0 10px;
+        height: 100%;
+        max-height: 350px;
+        overflow: auto;
+    }
+
+    /*.cause-list-inner canvas {
+        width: 225px !important;
+        height: 225px !important;
+    }*/
+    #docPagination {
+        margin-top: 20px;
+    }
+
+    td.highlightTask > a {
+        background: #3aa0d4 !important;
+        color: #fff !important;
+    }
+
+    td.highlight > a {
+        background: #880ED4 !important;
+        color: #fff !important;
+    }
+
+    td.highlightHearing > a {
+        background: #36bffa !important;
+        color: #fff !important;
+    }
+
+    .ui-datepicker-inline {
+        width: 100%;
+    }
+
+    .ui-datepicker {
+        width: 100% !important;
+        padding: .2em .2em 0;
+        display: none;
+    }
+
+    .rectangle {
+        height: 13px;
+        width: 15px;
+        background-color: #3aa0d4;
+        float: left;
+    }
+
+    .rectangle1 {
+        height: 13px;
+        width: 15px;
+        background-color: #880ED4;
+        float: left;
+        clear: both;
+    }
+
+    .rectangleHearing {
+        height: 13px;
+        width: 15px;
+        background-color: #008000 !important;
+        float: left;
+        clear: both;
+    }
+
+    .colorlbl {
+        margin-left: 20px;
+        float: left;
+        width: 138px;
+    }
+
+
+    .paginationsection ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+        .paginationsection ul li {
+            margin: 0 12px 0 0;
+            padding: 0;
+            float: left;
+        }
+
+    .panel-group .panel {
+        margin-bottom: 0;
+        overflow: hidden;
+        border-radius: 8px;
+        background-color: #ebebeb;
+        border: none;
+        box-shadow: none;
+    }
+
+    .panel-group .panel-heading + .panel-collapse .panel-body {
+        border-top: none;
+    }
+
+    .panel-heading {
+        position: relative;
+        padding: 6px 15px !important;
+    }
+
+
+    .panel-default > .panel-heading {
+        background-color: #ebebeb !important;
+    }
+
+    .panel-title {
+        font-size: 11px !important;
+        padding: 3px 0 !important;
+    }
+
+        .panel-title > a:before {
+            float: right !important;
+            font-family: FontAwesome;
+            content: "\f068";
+            padding: 4px 5px 1px 5px;
+            border-radius: 50px;
+            margin: 1px 0 0 0;
+            background: #4d95dd;
+            color: #ffffff;
+        }
+
+        .panel-title > a.collapsed:before {
+            float: right !important;
+            content: "\f067";
+        }
+
+        .panel-title > a:hover,
+        .panel-title > a:active,
+        .panel-title > a:focus {
+            text-decoration: none;
+            color: #000000;
+        }
+
+    .dashboard_top_panel {
+        margin: 10px 0 20px 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+        .dashboard_top_panel .dbox {
+            margin: 0;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #020202;
+            background: #ebebeb;
+            overflow: hidden;
+        }
+
+            .dashboard_top_panel .dbox .iconwrapper {
+                margin: 0;
+                padding: 5px 0 0 0;
+                float: left;
+            }
+
+            .dashboard_top_panel .dbox .txtwrapper {
+                margin: 0;
+                padding: 0;
+                float: right;
+                text-align: right;
+            }
+
+                .dashboard_top_panel .dbox .txtwrapper p {
+                }
+
+                    .dashboard_top_panel .dbox .txtwrapper p a {
+                        color: #020202;
+                        text-decoration: none;
+                        font-weight: 600;
+                        font-size: 16px;
+                    }
+
+                        .dashboard_top_panel .dbox .txtwrapper p a:hover {
+                            color: #4D95DD;
+                            text-decoration: none;
+                        }
+
+            .dashboard_top_panel .dbox p label {
+                color: #4D95DD !important;
+                font-size: 31px !important;
+                font-weight: 600 !important;
+            }
+
+    .canvas-content {
+        border-radius: 8px;
+        padding: 8px !important;
+        border: 1px solid #e9eaeb;
+        box-shadow: 0 1px 10px 0 rgba(82, 63, 105, 0.2);
+        top: 30px;
+        position: absolute;
+        background: #ffffff;
+        z-index: 999;
+        height: 250px;
+        overflow-y: scroll;
+        width: 100%;
+    }
+
+        .canvas-content a img {
+            float: right;
+            width: 11px;
+        }
+
+    /*#barChartTypeOfIP, #barChartStatus, #barChartTotalSearches {
+        position: relative;
+        margin: 5px 0 0 0px;
+        width: 100%;
+        height: 100%;
+    }*/
+
+
+    /*.dashboard {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+        margin: 0 auto;
+    }*/
+
+    .dashboard-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 24px;
+    }
+
+    .charts-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+    }
+
+    .chart-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        /*text-align: center;*/
+    }
+
+    .chart-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #4B5563;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 0;
+    }
+
+    .info-icon {
+        width: 14px;
+        height: 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #9ca3af;
+        cursor: help;
+    }
+
+    .chart-container {
+        /*position: relative;
+        height: 200px;
+        margin-bottom: 20px;*/
+        /*width:200px;*/
+        height: 150px;
+    }
+
+        .chart-container canvas {
+            height: 150px;
+            width: 150px !important;
+        }
+
+    .legend {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+        max-width: 200px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #4b5563;
+    }
+
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    /* Custom colors matching the original design */
+    .color-trademark {
+        background-color: #0ea5e9;
+    }
+
+    .color-copyright {
+        background-color: #38bdf8;
+    }
+
+    .color-design {
+        background-color: #7dd3fc;
+    }
+
+    .color-patent {
+        background-color: #bae6fd;
+    }
+
+    .color-other {
+        background-color: #e0e7ff;
+    }
+
+    .color-registered {
+        background-color: #0ea5e9;
+    }
+
+    .color-pending {
+        background-color: #e5e7eb;
+    }
+
+    .iprDashboard .iprDashboard_wrapper {
+        display: grid;
+        grid-template-columns: 25% auto;
+        gap: 25px;
+        margin-top: 15px;
+    }
+
+    .metric_item_wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .ui-icon-circle-triangle-e {
+        background-position: 0px 0px !important;
+        cursor: pointer;
+    }
+
+    .ui-icon {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .ui-state-hover,
+    .ui-widget-content .ui-state-hover,
+    .ui-widget-header .ui-state-hover,
+    .ui-state-focus,
+    .ui-widget-content .ui-state-focus,
+    .ui-widget-header .ui-state-focus,
+    .ui-button:hover,
+    .ui-button:focus {
+        border: none !important;
+        background: transparent !important;
+        font-weight: normal;
+        color: #2b2b2b !important;
+    }
+
+    .ui-datepicker .ui-datepicker-prev-hover,
+    .ui-datepicker .ui-datepicker-next-hover {
+        top: 2px !important;
+    }
+
+    .ui-datepicker .ui-datepicker-prev-hover {
+        left: 2px !important;
+    }
+
+    .ui-datepicker .ui-datepicker-next-hover {
+        right: 2px !important;
+    }
+
+    .ui-icon-circle-triangle-w {
+        background-position: 0px 0px !important;
+        rotate: 180deg;
+        cursor: pointer;
+    }
+
+    .ui-datepicker-calendar table td {
+        text-align: center;
+    }
+
+    .ui-datepicker td {
+        border: 0;
+        padding: 1px;
+        text-align: center !important;
+    }
+
+    /*.canvas-content {
+        width: 350px;
+        padding: 10px;
+    }*/
+
+    .canvas-content table {
+        margin: 5px 0;
+        border: none;
+    }
+
+        .canvas-content table td {
+            padding: 3px 0px !important;
+            line-height: 1.428571429 !important;
+            vertical-align: top !important;
+            border-top: none !important;
+        }
+
+    .ui-datepicker td {
+        border: 0;
+        padding: 3px !important;
+        text-align: center !important;
+        height: 45px;
+    }
+
+    .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+        border: none !important;
+        font-weight: normal !important;
+        border-radius: 50px;
+        /* display: inline-block !important; */
+        width: 30px !important;
+        height: 30px;
+    }
+
+    .ui-widget-header {
+        border: 0px solid #dddddd !important;
+        background: none !important;
+        color: #333333;
+        font-weight: bold;
+    }
+</style>
+@*For Graph*@
+<style>
+    #barChartTypeOfIP {
+        position: relative;
+        height: 138px !important;
+        margin: 23px 0 0 0px;
+        width: auto !important;
+    }
+
+    #barChartStatus, #barChartTotalSearches {
+        position: relative;
+        height: 167px !important;
+        margin: -6px 0 0 0px;
+        width: auto !important;
+    }
+</style>
+
+
+<section class="iprDashboard" style="">
+    <div id="header">
+        <div class="container-main">
+            <div class="text-left">
+                <p class="ctitle"> Trademark Overview</p> <input type="text" id="searchdata" style="display:none">
+            </div>
+        </div>
+    </div>
+    <div class="iprDashboard_wrapper">
+        <div class="cause-list1 shadow">
+            <div class="cause-list-inner">
+                <div class="head">
+                    IPR Status
+                </div>
+                <div class="metric_item_wrapper">
+                    <div class="metric-item" style="width: 100%; height: 55px; margin: 0 0 5px 0; ">
+                        <div class="heading-and-icon">
+                            <div class="thumbs-up-parent">
+                                <img class="thumbs-up-icon" alt="" src="~/newassets/img/thumbs-up.png">
+                                <a style="display:none" href="#" data-toggle="modal" data-target="#modalfortotIP">Total IP</a>
+                                <div class="heading">Total IPR</div>
+                            </div>
+                        </div>
+                        <div class="number-and-badge">
+                            <b class="number"><label id="lbltotalIPcount">0</label></b>
+                        </div>
+                    </div>
+                    <div class="metric-item" style="width: 100%; height: 55px; margin: 0 0 5px 0; ">
+                        <div class="heading-and-icon">
+                            <div class="thumbs-up-parent">
+                                <img class="thumbs-up-icon" alt="" src="~/newassets/img/hourglass-03.png">
+                                <a style="display:none" href="#" id="registmodal" data-toggle="modal" data-target="#modalforregistIPR">Registered</a>
+                                <div class="heading">Registerd IPR</div>
+                            </div>
+                        </div>
+                        <div class="number-and-badge">
+                            <b class="number"><label id="lblRegisteredcount">0</label></b>
+                        </div>
+                    </div>
+                    <div class="metric-item" style="width: 100%; height: 55px;">
+                        <div class="heading-and-icon">
+                            <div class="thumbs-up-parent">
+                                <img class="thumbs-up-icon" alt="" src="~/newassets/img/thumbs-down.png">
+                                <a style="display:none" href="#" data-toggle="modal" data-target="#modalforpendingIPR">Pending</a>
+                                <div class="heading">Pending IPR</div>
+                            </div>
+                        </div>
+                        <div class="number-and-badge">
+                            <b class="number"><label id="lblPendingcount">0</label></b>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="cause-list1 shadow">
+            <div class="cause-list-inner">
+                <div class="head">
+                    IPR Stats
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4" id="chart_51">
+                        <div class="ipr_chart_heading">
+                            <span>  Type Of IP </span>
+                            <a href="javascript:void()" id="TypeOfIPfront">
+                                <img src="~/newassets/img/dashboardfile-icon.png" />
+                            </a>
+                        </div>
+
+                        <div class="graph-wrapper" id="canvas-holder1">
+                            <canvas id="barChartTypeOfIP" style="height:200px; width:200px;" />
+                        </div>
+                        <div class="canvas-content" style="display:none;" id="div_totalIPCount">
+                            Type Of IP <a href="javascript:void()" id="CancelTIpCount"><img src="~/newassets/img/dashboard-close.png" /></a>
+                            <table cellpadding="0" cellspacing="0" class="table">
+                                <tbody id="tblbodyTypeOfIP"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4" id="canvas-holder2">
+                        <div class="ipr_chart_heading">
+                            <span> Status</span>
+                            <a href="javascript:void()" id="id_TypeOfIPfront"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+                        </div>
+
+                        <div class="graph-wrapper" id="canvas-holder3">
+                            <canvas id="barChartStatus" style="height:200px; width:200px;" />
+                        </div>
+                        <div class="canvas-content" style="display:none;" id="div_StatusIPCount">
+                            Status <a href="javascript:void()" id="id_CancelStatus"><img src="~/newassets/img/dashboard-close.png" /></a>
+                            <table cellpadding="0" cellspacing="0" class="table">
+                                <tbody id="tblbodyStatus"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4" id="canvas-holder4">
+                        <div class="ipr_chart_heading">
+                            <span> Total Searches </span>
+                            <a href="javascript:void()" id="id_TotalSearches"><img src="~/newassets/img/dashboardfile-icon.png" /></a>
+                        </div>
+                        <div class="graph-wrapper" id="canvas-holder5">
+                            <canvas id="barChartTotalSearches" style="height:200px; width:200px;" />
+                        </div>
+                        <div class="canvas-content" style="display:none;" id="div_TotalSearchesCount">
+                            Status <a href="javascript:void()" id="id_CancelSearches"><img src="~/newassets/img/dashboard-close.png" /></a>
+                            <table cellpadding="0" cellspacing="0" class="table">
+                                <tbody id="tblbodyTotalSearches"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                @*<div class="dashboard">
+
+                        <div class="charts-container">
+                            <div class="chart-section" id="chart_51">
+                                <h2 class="chart-title"  ">
+                                    Type Of IPR <a href="javascript:void()" id="TypeOfIPfront">
+                                        <img src="/newassets/img/dashboardfile-icon.png" />
+                                    </a>
+                                </h2>
+
+                                    <div class="graph-wrapper" id="canvas-holder1">
+                                        <div class="chart_wrapper" style="display:flex; gap:12px;">
+                                            <div class="chart-container">
+                                                <canvas id="barChartTypeOfIP"></canvas>
+                                            </div>
+                                            <div class="legend">
+                                                <div class="legend-item">
+                                                    <div class="legend-color color-trademark"></div>
+                                                    <span>Trademark</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color color-copyright"></div>
+                                                    <span>Copyright</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color color-patent"></div>
+                                                    <span>Patent</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color color-other"></div>
+                                                    <span>GI</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color color-design"></div>
+                                                    <span>Design</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="canvas-content" style="display:none;" id="div_totalIPCount">
+                                        Type Of IPR <a href="javascript:void()" id="CancelTIpCount"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                        <table cellpadding="0" cellspacing="0" class="table">
+                                            <tbody id="tblbodyTypeOfIP"></tbody>
+                                        </table>
+                                    </div>
+                            </div>
+
+                            <div class="chart-section" id="canvas-holder1">
+
+                                <h2 class="chart-title">
+                                    Status <a href="javascript:void()" id="id_TypeOfIPfront">
+                                        <img src="~/newassets/img/dashboardfile-icon.png" />
+                                    </a>
+                                </h2>
+
+
+                                <div class="graph-wrapper" id="canvas-holder2">
+                                    <div class="chart_wrapper" style="display:flex; gap:12px;">
+                                        <div class="chart-container">
+                                            <canvas id="barChartStatus"></canvas>
+                                        </div>
+                                        <div class="legend">
+                                            <div class="legend-item">
+                                                <div class="legend-color color-registered"></div>
+                                                <span>Registered</span>
+                                            </div>
+                                            <div class="legend-item">
+                                                <div class="legend-color color-pending"></div>
+                                                <span>Pending</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="canvas-content" style="display:none;" id="div_StatusIPCount">
+                                    Status <a href="javascript:void()" id="id_CancelStatus"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                    <table cellpadding="0" cellspacing="0" class="table">
+                                        <tbody id="tblbodyStatus"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="chart-section" id="canvas-holder1">
+                                <h2 class="chart-title" style=" margin-left: 40px;">
+                                    Total Searches <a href="javascript:void()" id="id_TotalSearches">
+                                        <img src="~/newassets/img/dashboardfile-icon.png" />
+                                    </a>
+                                </h2>
+
+                                <div class="graph-wrapper" id="canvas-holder3">
+                                    <div class="chart_wrapper" style="display:flex; gap:12px;">
+                                        <div class="chart-container">
+                                            <canvas id="barChartTotalSearches"></canvas>
+                                        </div>
+                                        <div class="legend">
+                                            <div class="legend-item">
+                                                <div class="legend-color color-trademark"></div>
+                                                <span>Trademark</span>
+                                            </div>
+                                            <div class="legend-item">
+
+                                                <div class="legend-color color-copyright"></div>
+                                                <span>Copyright</span>
+                                            </div>
+                                            <div class="legend-item">
+                                                <div class="legend-color color-design"></div>
+                                                <span>Design</span>
+                                            </div>
+                                            <div class="legend-item">
+                                                <div class="legend-color color-patent"></div>
+                                                <span>Patent</span>
+                                            </div>
+                                            <div class="legend-item">
+                                                <div class="legend-color color-other"></div>
+                                                <span>GI</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="canvas-content" style="display:none;" id="div_TotalSearchesCount">
+                                    Status <a href="javascript:void()" id="id_CancelSearches"><img src="~/newassets/img/dashboard-close.png" /></a>
+                                    <table cellpadding="0" cellspacing="0" class="table">
+                                        <tbody id="tblbodyTotalSearches"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Include Chart.js library -->
+@*<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>*@
+
+@*<canvas id="typesChart" width="200" height="200"></canvas>
+    <canvas id="statusChart" width="200" height="200"></canvas>
+    <canvas id="searchesChart" width="200" height="200"></canvas>*@
+
+<script>
+    // Common chart configuration
+    //const chartConfig = {
+    //    type: 'doughnut',
+    //    options: {
+    //        responsive: true,
+    //        maintainAspectRatio: false,
+    //        plugins: {
+    //            legend: {
+    //                display: false // Removes the legend
+    //            },
+    //            tooltip: {
+    //                enabled: true,
+    //                callbacks: {
+    //                    label: function (context) {
+    //                        return context.label + ': ' + context.parsed + '%';
+    //                    }
+    //                }
+    //            }
+    //        },
+    //        cutout: '70%',
+    //        elements: {
+    //            arc: {
+    //                borderWidth: 0
+    //            }
+    //        }
+    //    }
+    //};
+
+    // IPR Types Chart
+    //const typesCtx = document.getElementById('typesChart').getContext('2d');
+    //new Chart(typesCtx, {
+    //    ...chartConfig,
+    //    data: {
+    //        labels: ['Trademark', 'Copyright', 'Design', 'Patent', 'Other'],
+    //        datasets: [{
+    //            data: [45, 25, 15, 10, 5],
+    //            backgroundColor: [
+    //                '#0ea5e9', // Trademark
+    //                '#38bdf8', // Copyright
+    //                '#7dd3fc', // Design
+    //                '#bae6fd', // Patent
+    //                '#e0e7ff'  // Other
+    //            ]
+    //        }]
+    //    }
+    //});
+
+    // Status Chart
+    //const statusCtx = document.getElementById('statusChart').getContext('2d');
+    //new Chart(statusCtx, {
+    //    ...chartConfig,
+    //    data: {
+    //        labels: ['Registered', 'Pending'],
+    //        datasets: [{
+    //            data: [75, 25],
+    //            backgroundColor: [
+    //                '#0ea5e9', // Registered
+    //                '#e5e7eb'  // Pending
+    //            ]
+    //        }]
+    //    }
+    //});
+
+    // Total Searches Chart
+    @*const searchesCtx = document.getElementById('searchesChart').getContext('2d');
+    new Chart(searchesCtx, {
+        ...chartConfig,
+        data: {
+            labels: ['Trademark', 'Copyright', 'Design', 'Patent', 'Other'],
+            datasets: [{
+                data: [40, 30, 15, 10, 5],
+                backgroundColor: [
+                    '#0ea5e9', // Trademark
+                    '#38bdf8', // Copyright
+                    '#7dd3fc', // Design
+                    '#bae6fd', // Patent
+                    '#e0e7ff'  // Other
+                ]
+            }]
+        }
+    });*@
+</script>
+
+
+@*<section class="wrapper">
+        <div class="container-main">
+            <div>
+                <h2 class="title" style="text-transform:capitalize">IPR management dashboard</h2>
+                <div class="row">&nbsp;&nbsp;</div>
+                <div>
+                    <div class="row">
+                        <div class="dashboard_top_panel">
+                            <div class="col-md-4">
+                                <div class="dbox">
+                                    <div class="iconwrapper"><img src="/newassets/images/task_icon.png" width="42" height="55"></div>
+                                    <div class="txtwrapper">
+                                        <p><label id="lbltotalIPcount">0</label></p>
+                                        <p>
+                                            <a href="#" data-toggle="modal" data-target="#modalfortotIP">Total IP</a>
+                                        </p>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="dbox">
+                                    <div class="iconwrapper"><img src="/newassets/images/task_icon.png" width="42" height="55"></div>
+                                    <div class="txtwrapper">
+                                        <p><label id="lblRegisteredcount">0</label></p>
+                                        <p><a href="#" id="registmodal" data-toggle="modal" data-target="#modalforregistIPR">Registered</a></p>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="dbox">
+                                    <div class="iconwrapper"><img src="/newassets/images/task_icon.png" width="42" height="55"></div>
+                                    <div class="txtwrapper">
+                                        <p><label id="lblPendingcount">0</label></p>
+                                        <p><a href="#" data-toggle="modal" data-target="#modalforpendingIPR">Pending</a></p>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">&nbsp;&nbsp;</div>
+                <div>
+                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" style="height:30px;"><h4 class="panel-title"></h4></div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="card-container manual-flip">
+                                            <div class="card">
+                                                <div class="front">
+                                                    <div class="header">
+                                                        Type Of IP
+                                                        <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                            <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                                <defs>
+                                                                    <style>
+                                                                        .a {
+                                                                            fill: none;
+                                                                            stroke: #0961b8;
+                                                                            stroke-linecap: round;
+                                                                            stroke-miterlimit: 10;
+                                                                            stroke-width: 2px;
+                                                                        }
+                                                                    </style>
+                                                                </defs>
+                                                                <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)"></path><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)"></path></g></g>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                    <div class="content">
+                                                        <div id="canvas-holder1">
+                                                            <canvas id="barChartTypeOfIP" style="display: block;width:258px !Important;height:200px !important;"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="back">
+                                                    <div class="header">
+                                                        Type Of IP
+                                                        <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                            <img src="/newassets/images/flip_back_btn.png">
+                                                        </button>
+                                                    </div>
+                                                    <div class="content">
+                                                        <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th width="30%">Name</th>
+                                                                    <th width="5%">&nbsp;Total</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblbodyTypeOfIP"></tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card-container manual-flip">
+                                            <div class="card">
+                                                <div class="front">
+                                                    <div class="header">
+                                                        Status
+                                                        <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                            <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                                <defs>
+                                                                    <style>
+                                                                        .a {
+                                                                            fill: none;
+                                                                            stroke: #0961b8;
+                                                                            stroke-linecap: round;
+                                                                            stroke-miterlimit: 10;
+                                                                            stroke-width: 2px;
+                                                                        }
+                                                                    </style>
+                                                                </defs>
+                                                                <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)"></path><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)"></path></g></g>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                    <div class="content">
+                                                        <div id="canvas-holder1">
+                                                            <canvas id="barChartStatus" style="display: block;width:258px !Important;height:200px !important;"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="back">
+                                                    <div class="header">
+
+                                                        Status
+                                                        <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                            <img src="/newassets/images/flip_back_btn.png">
+                                                        </button>
+                                                    </div>
+                                                    <div class="content">
+                                                        <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th width="30%">Name</th>
+                                                                    <th width="5%">&nbsp;Total</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblbodyStatus"></tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="card-container manual-flip">
+                                            <div class="card">
+                                                <div class="front">
+                                                    <div class="header">
+                                                        Total Searches
+                                                        <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                            <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                                <defs>
+                                                                    <style>
+                                                                        .a {
+                                                                            fill: none;
+                                                                            stroke: #0961b8;
+                                                                            stroke-linecap: round;
+                                                                            stroke-miterlimit: 10;
+                                                                            stroke-width: 2px;
+                                                                        }
+                                                                    </style>
+                                                                </defs>
+                                                                <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)"></path><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)"></path></g></g>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                    <div class="content">
+                                                        <div id="canvas-holder1">
+                                                            <canvas id="barChartTotalSearches" style="display: block;width:258px !Important;height:200px !important;"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="back">
+                                                    <div class="header">
+                                                        Total Searches
+                                                        <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                            <img src="/newassets/images/flip_back_btn.png">
+                                                        </button>
+                                                    </div>
+                                                    <div class="content">
+                                                        <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th width="30%">Name</th>
+                                                                    <th width="5%">&nbsp;Total</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblbodyTotalSearches"></tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                            <div class="card-container manual-flip">
+                                                <div class="card">
+                                                    <div class="front">
+                                                        <div class="header">
+                                                            Proprietors
+                                                            <button class="btn btn-simple pull-right" onclick="rotateCard(this)" title="Manual Rotation">
+                                                                <svg xmlns="https://www.w3.org/2000/svg" width="14.572" height="15.391" viewBox="0 0 14.572 15.391">
+                                                                    <defs>
+                                                                        <style>
+                                                                            .a {
+                                                                                fill: none;
+                                                                                stroke: #0961b8;
+                                                                                stroke-linecap: round;
+                                                                                stroke-miterlimit: 10;
+                                                                                stroke-width: 2px;
+                                                                            }
+                                                                        </style>
+                                                                    </defs>
+                                                                    <g transform="translate(1 1.405)"><g transform="translate(12.572 12.986) rotate(180)"><path class="a" d="M737.093,208.416l4.822-3.822a1.494,1.494,0,0,0-.043-2.154l-4.779-3.411" transform="translate(-729.781 -195.43)"></path><path class="a" d="M742.334,203.722h-8.408a4.146,4.146,0,0,1-4.145-4.081h0a4.145,4.145,0,0,1,4.145-4.211h7.44" transform="translate(-729.781 -195.43)"></path></g></g>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                        <div class="content">
+                                                            <div id="canvas-holder1">
+                                                                <iframe class="chartjs-hidden-iframe" tabindex="-1" style="display: block; overflow: hidden; border: 0px; margin: 0px; inset: 0px; height: 100%; width: 100%; position: absolute; pointer-events: none; z-index: -1;"></iframe>
+                                                                <canvas id="barChartProprietor" style="display: block;width:258px !Important;height:200px !important;"></canvas>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="back">
+                                                        <div class="header">
+                                                            Proprietor Status
+                                                            <button class="btn btn-simple pull-right" rel="tooltip" title="" onclick="rotateCard(this)" data-original-title="Flip Card">
+                                                                <img src="/newassets/images/flip_back_btn.png">
+                                                            </button>
+                                                        </div>
+                                                        <div class="content">
+                                                            <table cellpadding="0" cellspacing="0" class="table" style="font-size:small;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th width="30%">Name</th>
+                                                                        <th width="5%">&nbsp;Total</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="tblbodyProprietor"></tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    <div class="col-md-3">
+                                        <div class="card-container manual-flip">
+                                            <div class="card">
+                                                <div class="front">
+                                                    <div class="header">
+                                                        Calendar
+                                                        <button class="btn pull-right" onclick="authenticate().then(loadClient).then(calendarsync).then(execute)" title="Sync to Google Calendar"><span class="glyphicon glyphicon-refresh"></span></button>
+
+                                                    </div>
+                                                    <div class="content">
+                                                        <div id="canvas-holder2">
+                                                            <div id="divdatetimepicker">
+                                                                <div id="divRenewalCount"></div>
+                                                            </div>
+
+                                                            <div class="box-header" style="margin-top:-3px;">
+                                                                <div style="float:left">
+                                                                    <div class="rectangle1"><span class="colorlbl">Renewal</span></div>
+                                                                </div>
+                                                                <div style="float:left;width:20%;margin-left:58px;">
+                                                                    <div class="rectangleHearing"><span class="colorlbl">Hearing</span></div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>*@
+
+<section style="margin:20px 0;">
+    <div class="calendar">
+        <div class="cause-list1">
+            <div class="cause-list-inner">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="head">Calendar</div>
+                        <span id="spCurrentDate"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <div>
+                            <button class="button13 pull-right" onclick="authenticateAndLoad().then(calendarsync).then(execute)" title="Sync to Google Calendar"><span class="glyphicon glyphicon-refresh"></span> Sync to Google Calendar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="selected-date-parent">
+                            <div class="showdatainUI" id="showdatainUI"></div>
+                        </div>
+                        <center>
+                            <div class="notfound" id="pdatastatus" style="height:400px; display:none; margin-bottom: 0px;  padding-bottom: 0; padding-top: 0;margin-top:-70px;">
+                                <img src="~/newassets/img/not-found.png" />
+                                <h4><span id="dtNotFound">No Schedule Found</span></h4>
+
+
+                            </div>
+                        </center>
+                    </div>
+                    <div class="col-md-5">
+
+                        <div id="divdatetimepicker"></div>
+                        <div class="name-colour-parent">
+                            <div class="name-colour">
+                                <div class="colour">
+                                </div>
+                                <div class="title">Renewal</div>
+                            </div>
+                            <div class="name-colour">
+                                <div class="colour1">
+                                </div>
+                                <div class="title">Hearing</div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<div id="modalfortotIP" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" style="text-transform:capitalize !important">
+                Total IPRs Added
+            </h4>
+        </div>
+        <div class="modal-body partynamebody" id="" style="height:505px; overflow-y:scroll;background:white;">
+            <table class="table " style="font-size:12px;">
+                <thead>
+                    <tr style="font-size: 12px;">
+                        <th>
+                            <div class="thbg" id="bindth1">
+                                IP Name
+                            </div>
+                        </th>
+                        <th>
+                            <div class="thbg" id="bindth2">
+                                Count
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            Trade Mark
+                        </td>
+
+                        <td>
+                            <a id="vl1" href="/@Session["firmcode"]/IPR/ViewIPRCase?IP=1"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Copyright
+                        </td>
+
+                        <td>
+                            <a id="vl2" href="/@Session["firmcode"]/IPR/ViewIPRCase?IP=2"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Patent
+                        </td>
+
+                        <td>
+                            <a id="vl3" href="/@Session["firmcode"]/IPR/ViewIPRCase?IP=3"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            GI
+                        </td>
+
+                        <td>
+                            <a id="vl4" href="/@Session["firmcode"]/IPR/ViewIPRCase?IP=4"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Design
+                        </td>
+
+                        <td>
+                            <a id="vl5" href="/@Session["firmcode"]/IPR/ViewIPRCase?IP=5"></a>
+                        </td>
+                    </tr>
+
+                </tbody>
+                <tr></tr>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+<div id="modalforregistIPR" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" style="text-transform:capitalize !important" @*id="dynamititle"*@>
+                Registered IPRs
+            </h4>
+        </div>
+        <div class="modal-body partynamebody" id="" style="height:505px; overflow-y:scroll;background:white;">
+            <table class="table " style="font-size:12px;">
+                <thead>
+                    <tr style="font-size: 12px;">
+                        <th>
+                            <div class="thbg" id="bindth1">
+                                IP Name
+                            </div>
+                        </th>
+                        <th>
+                            <div class="thbg" id="bindth2">
+                                Count
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            Trade Mark
+                        </td>
+
+                        <td>
+                            <a id="R1" href="/@Session["firmcode"]/IPR/ViewAddedTrademarks?IP=1&Status=Registered"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Copyright
+                        </td>
+
+                        <td>
+                            <a id="R2" href="/@Session["firmcode"]/IPR/ViewAddedTrademarks?IP=2&Status=Registered"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Patent
+                        </td>
+
+                        <td>
+                            <a id="R3" href="/@Session["firmcode"]/IPR/ViewAddedTrademarks?IP=3&Status=Registered"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            GI
+                        </td>
+
+                        <td>
+                            <a id="R4" href="/@Session["firmcode"]/IPR/ViewAddedTrademarks?IP=4&Status=Registered"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Design
+                        </td>
+
+                        <td>
+                            <a id="R5" href="/@Session["firmcode"]/IPR/ViewAddedTrademarks?IP=5&Status=Registered"></a>
+                        </td>
+                    </tr>
+
+                </tbody>
+                <tr></tr>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+<div id="modalforpendingIPR" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" style="text-transform:capitalize !important" @*id="dynamititle"*@>
+                Pending IPRs
+            </h4>
+        </div>
+        <div class="modal-body partynamebody" id="" style="height:505px; overflow-y:scroll;background:white;">
+            <table class="table " style="font-size:12px;">
+                <thead>
+                    <tr style="font-size: 12px;">
+                        <th>
+                            <div class="thbg" id="bindth1">
+                                IP Name
+                            </div>
+                        </th>
+                        <th>
+                            <div class="thbg" id="bindth2">
+                                Count
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="font-family: Clarika Pro Geometric">
+                        <td>
+                            Trade Mark
+                        </td>
+
+                        <td>
+                            <a id="P1" href="/@Session["firmcode"]/IPR/ViewAddedTrademarks?IP=1&Status=Pending"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Copyright
+                        </td>
+
+                        <td>
+                            <a id="P2" href="/@Session["firmcode"]/IPR/ViewAddedTrademarks?IP=2&Status=Pending"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Patent
+                        </td>
+
+                        <td>
+                            <a id="P3" href="/@Session["firmcode"]/IPR/ViewAddedTrademarks?IP=3&Status=Pending"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            GI
+                        </td>
+
+                        <td>
+                            <a id="P4" href="/@Session["firmcode"]/IPR/ViewAddedTrademarks?IP=4&Status=Pending"></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Design
+                        </td>
+
+                        <td>
+                            <a id="P5" href="/@Session["firmcode"]/IPR/ViewIPRCase?IP=5"></a>
+                        </td>
+                    </tr>
+
+                </tbody>
+                <tr></tr>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+
+@*Start renewal application no model popup*@
+<div id="ShowRenewalTrade" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-header" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%; max-width: 1283px;">
+        <div class="modal-content">
+            <div class="modal-header main_header_modal">
+                <h5 class="modal-title" id="modal-header">Applications due for Renewal</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Renewal Section -->
+                <div id="divRenewal">
+                    <div class="table-responsive" style="max-height:500px; overflow-y:auto;">
+                        <table class="table table-panel">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>S.No.</th>
+                                    <th>App.No.</th>
+                                    <th>Mark</th>
+                                    <th>Proprietor</th>
+                                    <th>Class</th>
+                                    <th>App Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bindAppForRenewal"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    @*<div class="d-flex justify-content-between align-items-center mt-3" id="docPagination">
+                                <div id="docPrev" class="d-flex align-items-center cursor-pointer">
+                                    <img src="/newassets/img/pre-arrow.png" alt="Previous" width="16" height="16">
+                                    <span class="ml-2">Previous</span>
+                                </div>
+                                <div id="docPageNumbers"></div>
+                                <div id="docNext" class="d-flex align-items-center cursor-pointer">
+                                    <span class="mr-2">Next</span>
+                                    <img src="/newassets/img/next-arrow.png" alt="Next" width="16" height="16">
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <input type="text" id="doctxtgopage" class="form-control form-control-sm mr-2" placeholder="Page No.">
+                                    <div id="docDivGo" class="btn btn-primary btn-sm">Go</div>
+                                </div>
+                            </div>
+                        </div>*@
+
+                    <div class="pagination" id="docPagination">
+                        <div class="pagination-button-group">
+                            <div id="docPrev" class="pagination-button-group-base">
+                                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                            </div>
+                            <div id="docPageNumbers" class="pagination-button-group-base1">
+                            </div>
+                            <div id="docNext" class="pagination-button-group-base8">
+                                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-parent">
+                            <div class="input">
+                                <div class="content">
+                                    <input type="text" id="doctxtgopage" name="query" placeholder="Page No.">
+                                </div>
+                                <div class="help-icon">
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-group">
+                                <div class="text-and-supporting-text">
+                                    <div id="docDivGo" class="text9">Go</div>
+                                </div>
+                                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hearing Section -->
+                    <div id="divHearing" style="margin-top:25px;">
+                        <h5 class="modal-title">Hearing Applications</h5>
+                        <div class="table-responsive mt-10" style="max-height:200px; overflow-y:auto;">
+                            <table class="table table-panel">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>S.No.</th>
+                                        <th>App.No.</th>
+                                        <th>Mark</th>
+                                        <th>Proprietor</th>
+                                        <th>Class</th>
+                                        <th>App Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bindAppForHearing"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        @*<div class="d-flex justify-content-between align-items-center mt-3" style="margin-top:20px;" id="tradePagination">
+                                <div id="prev" class="d-flex align-items-center cursor-pointer">
+                                    <img src="/newassets/img/pre-arrow.png" alt="Previous" width="16" height="16">
+                                    <span class="ml-2">Previous</span>
+                                </div>
+                                <div id="pageNumbers"></div>
+                                <div id="next" class="d-flex align-items-center cursor-pointer">
+                                    <span class="mr-2">Next</span>
+                                    <img src="/newassets/img/next-arrow.png" alt="Next" width="16" height="16">
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <input type="text" id="txtgopage" class="form-control form-control-sm mr-2" placeholder="Page No.">
+                                    <div id="divGo" class="btn btn-primary">Go</div>
+                                </div>
+                            </div>*@
+                        <div class="pagination" id="tradePagination">
+                            <div class="pagination-button-group">
+                                <div id="prev" class="pagination-button-group-base">
+                                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                </div>
+                                <div id="pageNumbers" class="pagination-button-group-base1">
+                                </div>
+                                <div id="next" class="pagination-button-group-base8">
+                                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-parent">
+                                <div class="input">
+                                    <div class="content">
+                                        <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                    </div>
+                                    <div class="help-icon">
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-group">
+                                    <div class="text-and-supporting-text">
+                                        <div id="divGo" class="text9">Go</div>
+                                    </div>
+                                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*End renewal application no model popup*@
+
+
+@*<script src="https://apis.google.com/js/api.js"></script>*@
+<script type="text/javascript">
+
+    //window.API_KEY = "AIzaSyBzcVJxiL0-QU-RfTa50i4kr3CQVErc8Pg";
+    //window.CLIENT_ID = "442088871438-2s7naavb7cslbhqj0rga39tfk9ghte91.apps.googleusercontent.com";
+
+    window.API_KEY = "AIzaSyBJOIp6SEIKV8tfiuDPRP5uUxZEoUU2avA";
+    window.CLIENT_ID = "1061729673401-pplm3kfjmsbj4h5r9fmmahg4h18dpjr2.apps.googleusercontent.com";
+    window.DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+    window.SCOPES = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events";
+
+
+    window.gapiInited = false;
+    window.gisInited = false;
+    window.tokenClient = null;
+
+
+    function gapiLoaded() {
+        gapi.load("client", initGapiClient);
+    }
+
+    function initGapiClient() {
+        gapi.client.init({
+            apiKey: window.API_KEY,
+            discoveryDocs: window.DISCOVERY_DOCS
+        }).then(function () {
+            console.log("gapi client initialised");
+            window.gapiInited = true;
+        }, function (err) {
+            console.error("initGapiClient error:", err);
+        });
+    }
+
+    function gisLoaded() {
+        try {
+            window.tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: window.CLIENT_ID,
+                scope: window.SCOPES,
+                callback: function (resp) { console.log("Default token callback", resp); }
+            });
+            window.gisInited = true;
+            console.log("GIS initialised");
+        } catch (e) {
+            console.error("gisLoaded failed:", e);
+        }
+    }
+</script>
+<script defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+<script defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+<script type="text/javascript">
+
+    function calendarsync() {
+        var pagesize = '';
+        var pageindex = '';
+        var formData = new FormData();
+        formData.append("PageNum", pageindex);
+        formData.append("PageSize", pagesize);
+        var dataval = [];
+        var dataObj = {};
+        $.ajax(
+            {
+                type: "POST",
+                url: "/Firm/BindIPRRenewalData",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.length > 0) {
+                        if (errorMessage.error != 'popup_closed_by_user') {
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i].Datetype == "Renewal") {
+                                    dataObj.summary = "Trademark for renewal";
+                                    dataObj.description = "Application No.: " + data[i].AppNo + " - Trademark: " + data[i].Trademark;
+                                    dataObj.start = { dateTime: formatDate1(data[i].RenewalDate) + 'T05:00:00+02:00' }
+                                    dataObj.end = { dateTime: formatDate1(data[i].RenewalDate) + 'T06:00:00+02:00' }
+                                    execute1(dataObj);
+                                }
+                                else {
+                                    dataObj.summary = "Hearing";
+                                    dataObj.description = "Application No.: " + data[i].AppNo + " - Trademark: " + data[i].Trademark;
+                                    dataObj.start = { dateTime: formatDate1(data[i].RenewalDate) + 'T05:00:00+02:00' }
+                                    dataObj.end = { dateTime: formatDate1(data[i].RenewalDate) + 'T06:00:00+02:00' }
+                                    execute1(dataObj);
+                                }
+
+                            }
+                            new PNotify({
+                                title: 'Success!',
+                                text: 'Google Calendar synchronized successfully',
+                                type: 'success',
+                                delay: 2000
+                            });
+                        }
+                        else {
+                            new PNotify({
+                                title: 'Failed!',
+                                text: 'Failed to synchronize calendar.',
+                                type: 'error',
+                                delay: 2000
+                            });
+                        }
+
+                    }
+                    else {
+                        alert("No data available for calendar.");
+                    }
+                },
+                error: function (error) {
+                    /*console.error('Error during AJAX request:', error);*/
+                    alert('Failed to synchronize calendar.');
+                }
+            });
+
+
+        //$.when(dd).then(function (data, textStatus, jqXHR) {
+        //});
+    }
+    /**
+    * Sample JavaScript code for calendar.events.insert
+    * See instructions for running APIs Explorer code samples locally:
+    * https://developers.google.com/explorer-help/guides/code_samples#javascript
+    */
+
+    var errorMessage = "";
+    //function authenticate() {
+    //    return gapi.auth2.getAuthInstance()
+    //        .signIn({ scope: "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events" })
+    //        .then(function () {
+    //            console.log("Sign-in successful");
+    //            errorMessage = "";
+    //        },
+    //            function (err) {
+    //                console.error("Error signing in", err);
+    //                errorMessage = err;
+    //            });
+    //}
+    //function loadClient() {
+
+    //    gapi.client.setApiKey("AIzaSyDjSC9a17z8xMYUr7av3iuMdlNLrU53E4Y");
+
+    //    return gapi.client.load("https://content.googleapis.com/discovery/v1/apis/calendar/v3/rest")
+    //        .then(function () { console.log("GAPI client loaded for API"); },
+    //            function (err) { console.error("Error loading GAPI client for API", err); });
+
+
+    //}
+
+    // Make sure the client is loaded and sign-in is complete before calling this method.
+    function execute() {
+
+    }
+    function formatDate1(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+    function authenticateAndLoad() {
+
+        return new Promise(function (resolve, reject) {
+
+            tokenClient.callback = function (resp) {
+
+                if (resp.error) {
+                    reject(resp);
+                    return;
+                }
+
+                gapi.client.setToken({
+                    access_token: resp.access_token
+                });
+
+                resolve();
+            };
+
+            tokenClient.requestAccessToken({
+                prompt: 'consent'
+            });
+        });
+    }
+    function execute1(dataObj) {
+        return gapi.client.calendar.events.insert({
+            "calendarId": "primary",
+            "resource": dataObj
+
+        })
+            .then(function (response) {
+                // Handle the results here (response.result has the parsed body).
+                console.log("Response", response);
+            },
+                function (err) {
+                    console.log(JSON.stringify(dataObj));
+                    console.error("Execute error", err);
+                });
+    }
+    //gapi.load("client:auth2", function () {
+    //    gapi.auth2.init({ client_id: "748718720814-bp9ft5p1qagmb4poj1j8225hl2h8rn6o.apps.googleusercontent.com" });
+    //});
+
+
+</script>

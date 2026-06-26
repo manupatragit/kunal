@@ -1,0 +1,588 @@
+﻿@using System.Data
+@using LawPracticeFirm.Models.Keyword
+@using LawPracticeFirm.Controllers
+
+@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    string userId = Convert.ToString(Session["sessionuserid"]);
+    int pageindex = 1, pagesize = 100;
+    DataTable dtkeylist = new DataTable();
+    dtkeylist = KeywordModel.UserSearchKeywords(userId, Convert.ToString(pageindex), Convert.ToString(pagesize));
+
+}
+
+<script src="~/CssJsfiles/js/jquery-1.12.4.js"></script>
+<script src="~/CssJsfiles/js/jquery-ui.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Keyword/ProactiveCases.js?4,1" type="text/javascript" language="javascript"></script>
+<script src="~/dist/multipleSelect/jquery.multiselect.js"></script>
+<link href="~/dist/multipleSelect/jquery.multiselect.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<style>
+    #opentrademarkdetails {
+        cursor: pointer;
+    }
+</style>
+<style>
+    .ms-options-wrap button {
+        padding: 7px 10px !important;
+        font-size: 16px !important;
+        font-weight: 400;
+        color: #717680 !important;
+        width: 100% !important;
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+    }
+
+    .overlay5 {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay5 .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay5 .closebtn:hover {
+            color: #ccc;
+        }
+
+    .ms-options ul li {
+        display: block !important;
+    }
+
+    .ms-options-wrap {
+        border: 0 !important;
+        padding: 0 !important;
+    }
+
+    .nav > li > a {
+        position: relative;
+        display: block;
+        padding: 10px 0px 10px 0px;
+        margin: 0 30px 0 0px;
+        color: #6B7280;
+    }
+
+    .nav-tabs li.active a {
+        color: #0369A1 !important;
+        cursor: default !important;
+        background-color: #fff !important;
+        border: 2px solid #fff !important;
+        border-bottom-color: #0369a1 !important;
+    }
+
+    .nav-tabs > li > a:hover {
+        border-color: transparent;
+        border-bottom: 2px solid #0369a1;
+    }
+
+    .nav > li > a:hover, .nav > li > a:focus {
+        text-decoration: none;
+        background-color: transparent;
+    }
+
+    .progressbarcontainer {
+        list-style-type: none;
+        border: 1px solid #E9EAEB;
+        border-radius: 8px;
+        padding: 4px;
+        overflow: hidden;
+        width: 450px;
+    }
+
+        .progressbarcontainer li {
+            float: left;
+        }
+
+    .pbarvalue {
+        background: #f5f5f5;
+        padding: 4px;
+        border-radius: 3px;
+    }
+
+    .actenabled {
+        background: #ECFDF3;
+        color: #027A48;
+        border-radius: 16px;
+        padding: 2px;
+        font-size: 11px !important;
+    }
+
+    .actdisabled {
+        background: #f5f5f5;
+        color: #414651;
+        border-radius: 16px;
+        padding: 2px;
+        font-size: 11px !important;
+    }
+
+    .addcasebtn {
+        border: 1px solid #e5e7eb;
+        font-size: 12px;
+        color: #414651;
+        border-radius: 50px;
+        padding: 2px 4px;
+    }
+
+    .icon_header {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+
+        .icon_header span img {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle" id="dynamicnotiheader"> Alert History</p>
+        </div>
+    </div>
+</section>
+<section class="wrapper">
+
+    <div class="container-main">
+
+        <div class="row">
+            <div class="col-md-4">
+
+                <ul class="nav nav-tabs" style="display:inline-block;">
+                    <li><a class="tabstyle" id="proactiveKeywordlink" href="#"> Keyword Management</a></li>
+                    <li class="active"><a class="tabstyle" id="proactivecaselink" href="#" style="margin:0;"> Alert History</a></li>
+                </ul>
+            </div>
+            <div class="col-md-8" style="display:none;">
+                <ul class="progressbarcontainer pull-right">
+                    <li><div id="quotaText" style="text-align:end"></div></li>
+                    <li>
+                        <div class="progress-container">
+                            <div id="progressBar1" class="progress-bar"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <form enctype="multipart/form-data" autocomplete="off" id="proactivealertform">
+            <div id="divquotalabel" style="margin:20px 0 0 0;">
+
+                <div style="display: grid; gap: 15px; grid-template-columns: 13% 13% 13% 13% 13% 13% 12% 12%; ">
+                    <div>
+                        <label>Select Court Type <span class="required " aria-required="true"><b> *</b> </span></label>
+                        <select name="divcourt" id="divcourt" class="form-control selctInputFormat" onchange="fn_OnChangeCourt(this.value);"></select>
+                    </div>
+                    <div id="divcourtname-div" style="display:none;">
+                        <label>Select Court</label>
+                        <select name="divcourtname" id="divcourtname" class="form-control selctInputFormat"></select>
+                    </div>
+                    <div id="divcourtnamerera-div" style="display:none;">
+                        <label>Select Court</label>
+                        <select name="divcourtnamerera" id="divcourtnamerera" class="form-control selctInputFormat"></select>
+                    </div>
+
+                    <div>
+                        <label>Keyword Party Name </label>
+                        <select name="ddlKeyword" id="ddlKeyword" class="form-control selctInputFormat">
+                            <option value="" selected="selected">Select Name</option>
+                            @if (dtkeylist.Rows.Count > 0)
+                            {
+                                for (int k = 0; k < dtkeylist.Rows.Count; k++)
+                                {
+                                    <option value="@dtkeylist.Rows[k]["vKeyword"]">@Convert.ToString(dtkeylist.Rows[k]["vKeyword"]).ToUpper()</option>
+                                }
+                            }
+
+                        </select>
+                    </div>
+                    <div>
+                        <label>Date</label>
+                        <select name="divfilteroption" id="divfilteroption" class="form-control selctInputFormat">
+                            <option value="1" selected>Causelist Date</option>
+                            <option value="2">Filing/Registration Date</option>
+                            <option value="3">Alert Received Date</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>From</label>
+                        <input type="date" id="frmdate" name="frmdate" onkeydown="return false" class="form-control selctInputFormat" placeholder="" title="Causelist Date From" />
+                    </div>
+
+                    <div>
+                        <label>To</label>
+                        <input type="date" id="todate" name="todate" onkeydown="return false" class="form-control selctInputFormat" placeholder="" title="Causelist Date To" />
+                    </div>
+                    <div>
+                        <button type="button" id="btnsearch" class="btn btn-primary" value="SAVE" style="margin: 26px 0 0 0;"><img src="~/newassets/img/search-w.png" /> Search</button>
+
+                        @*<a class="sbtbtn" id="proactivealertlink" style=" width: 100%; margin: 10px 0 0 0; display: block; text-align: center;"> Add Keyword</a>*@
+                    </div>
+                </div>
+
+            </div>
+        </form>
+
+
+    </div>
+</section>
+<section id="table" style="margin:0;">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1">
+                    <div class="text-and-supporting-text1">
+
+                        <h5>Keywords Added</h5>
+
+                    </div>
+                    <div class="table-header" style="">
+                        <div class="actions3" style="margin: 10px 0 0 0; float: right;">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li>
+                                        <div id="oexcelforcases" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="button13" id="CustomizedSection" title="Column Selection">
+                                <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+                <div class="tablecontainer" style="overflow-x:auto;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table-panel">
+                                <thead>
+                                    <tr>
+                                        <th class="SrNo"><div class="thbg">S.No</div></th>
+                                        <th class="nheaingdate"><div class="thbg" title="Causelist Date">Hearing Date</div></th>
+                                        <th class="partyname"><div class="thbg">Keyword</div></th>
+                                        <th class="appealno"><div class="thbg">Appeal No</div></th>
+                                        <th class="coutname" style="width: 300px;"><div class="thbg">Court Name</div></th>
+                                        <th class="district"><div class="thbg">District</div></th>
+                                        <th class="courtestablishment"><div class="thbg">Court Establishment</div></th>
+                                        <th class="cnrno"><div class="thbg">CNR No</div></th>
+                                        <th class="searchresult"><div class="thbg">Matter Name</div></th>
+                                        <th class="judgename"><div class="thbg">Judge Name</div></th>
+                                        <th class="filingdate"><div class="thbg">Filing/Registration Date</div></th>
+                                        <th class="alertreceiveddate"><div class="thbg">Alert Received Date</div></th>
+                                        <th class="addcase"><div class="thbg">Add Case</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bindKeywordData"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="pagination" id="pagenatedArea">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@*<section class="wrapper" style="margin:unset !important">
+        <div class="container-main">
+            <h2 class="" >view cases </h2>
+            <div id="page-wrapper">
+                <div class="showcontent" id="showcontent">
+                    <div class="box">
+                        <div class="box-header" style="padding:5px;">
+                            <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="ec_bg" >
+
+                </form>
+
+                <div class="table-panel table-responsive">
+                    <div style="overflow-x:scroll;">
+
+                    </div>
+                    <div class="table-panel">
+
+                    </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="myOverlay5" class="overlay5">
+
+                <div class="overlay-content">
+                    <div class="spinner2">
+                        <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>*@
+
+<div class="modal fade" id="myModalKeywordAddCase" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/add-matter.png" style="margin: -12px 0px 0 -13px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -23px 0 0 0; padding:0;">
+                <h4 id="fstitle1">Add Matter</h4>
+            </div>
+            <div class="modal-body">
+                <form id="fileupload" name="fileupload">
+                    <input type="hidden" value="" id="iids" />
+                    <input type="hidden" value="" id="itype" />
+
+                    <div class="form-group">
+                        <label>Add Matter Name<span class="required " aria-required="true"><b> *</b> </span></label>
+                        <input type="text" class="inputFormat setValue" value="" id="casenameids" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Court Name</label>
+                        <input type="text" class="inputFormat setValue" value="" id="courtname" readonly />
+                    </div>
+                    <div class="form-row" style="display: flex; margin-top: 10px;">
+                        <div style="flex: 1;">
+                            <label>State</label>
+                            <input type="text" class="inputFormat setValue" value="" id="statename" readonly />
+                        </div>
+                        <div style="flex: 1;">
+                            <label>District</label>
+                            <input type="text" class="inputFormat setValue" value="" id="districtname" readonly />
+                        </div>
+                    </div>
+                    <div class="form-row" style="display: flex; margin-top: 10px;">
+                        <div style="flex: 1;">
+                            <label>Appeal No.</label>
+                            <input type="text" class="inputFormat setValue" value="" id="appealno" readonly />
+                        </div>
+                        <div style="flex: 1;">
+                            <label>CNR No</label>
+                            <input type="text" class="inputFormat setValue" value="" id="cnrNo" readonly />
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>Establishment</label>
+                        <input type="text" class="inputFormat setValue" value="" id="establishment" readonly />
+                    </div>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>Add Team Member</label>
+                        <select class="dropdown-toggle inputFormat setValue" name="languageSelect[]" id="teammemberidKey" style="background:white;" multiple></select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top:none !important;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-secondary" id="CancelMatter" data-type="" onclick="cloaseMatterModal()" ) style="width:100%;">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-primary" id="saveKeywordKase" data-type="" style="width:100%;">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <input type="hidden" id="exportrecords">
+            <input type="hidden" id="Exporttype">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="~/newassets/img/pdf-export.png" style="margin:-15px 0px 0 -15px" />
+                </h4>
+
+            </div>
+            <div class="modaltitle" style="margin: -40px 0 0 0; border-bottom: none;">
+                <h4>Export List</h4>
+                <p>Select number of list to be exported </p>
+            </div>
+            <div class="modal-body partynamebody">
+                <form role="form">
+                    <div class="row">
+                        <div class="form-group" style="margin: 15px 0; overflow: hidden;">
+                            <div class="col-md-12">
+                                @* <label>Number of Matters</label>*@
+                            </div>
+                            <div class="col-md-12">
+                                <select class="selctInputFormat" id="id_exportreportdrop"></select>
+                            </div>
+                            @*<div class="col-md-12">
+                                    <table class="table" style="font-size:12px;">
+                                        <thead>
+                                            <tr style="font-size: 12px;">
+                                                <th><div class="thbg">Page No.</div></th>
+                                                <th><div class="thbg">FileName</div></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="printexport"></tbody>
+                                        <tr></tr>
+                                    </table>
+                                </div>*@
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="CommonExportExcel">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myOverlay5" class="overlay5">
+
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalCustomizedSection" class="modal right fade myModal " role="dialog" data-backdrop="static" style="display:none;">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="customisemodal" id="od" style="margin:10px 0 0 0;">
+                            <li><input type="checkbox" value="addcase" class="shcheckbox1 chkdhide" name="addcase" checked>Add Case</li>
+                            <li><input type="checkbox" value="alertreceiveddate" class="shcheckbox1 chkdhide" name="alertreceiveddate">Alert Received Date</li>
+                            <li><input type="checkbox" value="appealno" class="shcheckbox1 chkdhide" name="appealno" checked>Appeal No</li>
+                            <li><input type="checkbox" value="CourtName" class="shcheckbox1 chkdhide" name="coutname" checked>Court Name</li>
+                            <li><input type="checkbox" value="courtestablishment" class="shcheckbox1 chkdhide" name="courtestablishment" checked>Court Establishment</li>
+                            <li><input type="checkbox" value="cnrno" class="shcheckbox1 chkdhide" name="cnrno" checked>CNR No</li>
+                            <li><input type="checkbox" value="district" class="shcheckbox1 chkdhide" name="district">District</li>
+                            <li><input type="checkbox" value="filingdate" class="shcheckbox1 chkdhide" name="filingdate" checked>Filing/Registration Date</li>
+                            <li><input type="checkbox" value="nextheaingdate" class="shcheckbox1 chkdhide" name="nheaingdate" checked>Hearing Date</li>
+                            <li><input type="checkbox" value="judgename" class="shcheckbox1 chkdhide" name="judgename">Judge Name</li>
+                            <li><input type="checkbox" value="partyname" class="shcheckbox1 chkdhide" name="partyname" checked>Keyword-Party Name</li>
+                            <li><input type="checkbox" value="searchresult" class="shcheckbox1 chkdhide" name="searchresult" checked>Matter Name</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                    <button class="btn btn-secondary" id="ClearCustomSelection">Clear</button>
+                    <button class="btn btn-primary" id="SaveCustomSelection">Confirm</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<div id="myModalAlertconfirmation" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog" style="width:480px;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="alertTitle">Message</h4>
+            </div>
+            <div class="modal-body">
+                <p id="alertMessage" style="padding: 0 0 18px 0;"></p>
+            </div>
+        </div>
+    </div>
+</div>

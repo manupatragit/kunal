@@ -1,0 +1,2304 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/Scripts/CW/CustomDashboard.js?1.0" type="text/javascript" language="javascript"></script>
+@*<script src="~/Scripts/CW/AddAgainstTheBank.js" type="text/javascript" language="javascript"></script>
+    <script src="~/Scripts/CW/AddConsumerCases.js" type="text/javascript" language="javascript"></script>
+    <script src="~/Scripts/CW/AddContingentLiability.js" type="text/javascript" language="javascript"></script>*@
+
+
+<style>
+    .scroll-sync-top {
+        overflow-x: auto;
+        overflow-y: hidden;
+        height: 16px;
+        display: none;
+    }
+
+    .scroll-top-inner {
+        height: 1px;
+    }
+
+    .table-scroll-wrapper {
+        overflow-x: auto;
+        overflow-y: auto;
+        white-space: nowrap;
+    }
+
+        .table-scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+    .scroll-sync-top::-webkit-scrollbar {
+        height: 10px;
+    }
+
+    .tablecontainer {
+        max-height: 600px;
+        position: relative;
+    }
+
+    #contingentLiabilityTable th {
+        cursor: pointer;
+    }
+
+    #againstTheBankTable th {
+        cursor: pointer;
+    }
+
+    #consumerCasesTable th {
+        cursor: pointer;
+    }
+
+    .dp input[type="date"]:after {
+        left: 0px;
+    }
+
+    .sort-icon {
+        font-size: 11px;
+        margin-left: 4px;
+    }
+
+    .action-more li a {
+        margin: 0;
+        padding: 0px 0px !important;
+        color: transparent !important;
+        border: none;
+        border-radius: 4px;
+    }
+
+    .manualdate {
+        font-size: 13px;
+        margin: 3px 0 0 0;
+    }
+
+    #selectedClientValue {
+        padding: 5px;
+        list-style: none;
+        border: 1px solid #e2e2e2;
+        background: #FFF;
+        border-radius: 10px;
+    }
+
+        #selectedClientValue li {
+            display: block;
+        }
+
+    label {
+        margin: 0;
+        padding: 4px;
+        color: #020202;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: none;
+    }
+
+    #myModalCustomizedcolumnagainstTheBank ul li {
+        border: 1px solid #E9EAEB;
+        border-radius: 8px;
+        padding: 6px 8px;
+        margin: 0 0 7px 0;
+    }
+    #myModalCustomizedcolumnconsumerCases ul li {
+        border: 1px solid #E9EAEB;
+        border-radius: 8px;
+        padding: 6px 8px;
+        margin: 0 0 7px 0;
+    }
+    #myModalCustomizedcolumncontingentLiability ul li {
+        border: 1px solid #E9EAEB;
+        border-radius: 8px;
+        padding: 6px 8px;
+        margin: 0 0 7px 0;
+    }
+
+    .action_buttond table tr td {
+        border-bottom: none !important;
+    }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="text-left">
+                    <p class="ctitle">BOM Case Report</p>
+                    <p id="bomFilterTitle">Against the Bank</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="text-right">
+                    @*<button id="bomFilterButton">Add <b>Against the Bank</b> Details</button>*@
+                    <a id="bomFilterButton" title="Add New Details" class="button4" style="font-size: 14px !important; padding: 5px 10px !important; width: 300px !important; height: 50px;" onclick="openCustomPage()">
+                        <span><img src="/newassets/img/plus-icon.png"></span>
+                        Add <b>Against the Bank</b> Details
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+<section style="margin:25px 0;">
+    <div class="row">
+        <div class="col-md-2">
+
+
+            <select name="divfiledby" id="divfiledby" class="form-control selctInputFormat" style="background-color: white !important;">
+                @*<option value="" selected>Please Select</option>*@
+                <option value="1">Against the Bank</option>
+                <option value="2">Consumer Cases</option>
+                <option value="3">Contingent Liability</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="divSCHCDistrict" id="divSCHCDistrict" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+        </div>
+        <div class="col-md-2" id="HighCourt" style="display:none;">
+            <select name="drpcourtname" id="drpcourtname" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+        </div>
+        <div class="col-md-2" id="divCFBench" style="display: none;">
+            <select name="drpCfBench" id="drpCfBench" class="form-control selctInputFormat"></select>
+        </div>
+        <div class="col-md-2" id="DistrictCourt" style="display:none;">
+            <select name="drpcourtnameDC" id="drpcourtnameDC" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divdrpcourtnameDC();"></select>
+        </div>
+        <div class="col-md-2" id="divDistrict" style="display:none;">
+            <select name="drpdistrictcourtname" id="drpdistrictcourtname" class="form-control selctInputFormat" style="background-color: white !important;" onchange="drpcourtcompestbchange();"></select>
+        </div>
+        @*<div class="col-md-2" id="divcourtcomplexestb">
+                <select name="drpcourtcomplexestb" id="drpcourtcomplexestb" class="form-control selctInputFormat" style="background-color: white !important; display:none;" onchange="drpcourtcompestbchange();"></select>
+            </div>*@
+        <div class="col-md-2" id="divcompestbcourt" style="display:none;">
+            <select name="drpcompestbcourt" id="drpcompestbcourt" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+        </div>
+    </div>
+</section>
+<section id="table" style="display: none;">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1">
+                    <div class="text-and-supporting-text1">
+
+                    </div>
+                    <div class="table-header">
+                        <div class="actions3">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li><a href="javascript:void()" id="exporttoexcel" title="Export to Excel" style=" color: black !important; ">Export to Excel</a></li>
+                                    <li><a href="javascript:void()" id="exporttopdf" title="Export to PDF" style=" color: black !important; ">Export to PDF</a></li>
+                                </ul>
+                            </div>
+                            <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                                <img class="plus-icon" alt="" src="~/newassets/img/settings-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()" style="color: #4B5563 !important"> Customize</a></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+
+                <div class="tablecontainer">
+                    <div class="table-panel">
+                        <div style="overflow-x:scroll;margin:0 0 15px 0;">
+                            <table id="allcaselisttable" class="table-panel" role="grid" aria-describedby="example_info" ">
+                                <thead>
+                                    <tr role="row">
+                                        <th class="lsrno"><div class="thbg">S. No</div></th>
+                                        <th class="lPetitionerName">
+                                            <div class="thbg" style="min-width: 120px;">
+                                                <div style="float:left;width:80%">
+                                                    <input type="text" id="Petitionerfilter" placeholder="Petitioner" class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;width:20%">
+                                                    <span class="glyphicon glyphicon-search" id="Petitionersearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="Petitionerclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;margin:0 0 0 -4px;">x</span>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="lRespondentName">
+                                            <div class="thbg" style="min-width: 120px;">
+                                                <div style="float:left;width:80%">
+                                                    <input type="text" id="Respondentfilter" placeholder="Respondent" class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;width:20%">
+                                                    <span class="glyphicon glyphicon-search" id="Respondentsearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="Respondentclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;margin:0 0 0 -4px;">x</span>
+                                                </div>
+                                            </div>
+
+                                        </th>
+                                        <th class="caseno">
+                                            <div class="thbg" style="min-width: 130px;">
+                                                <div style="float:left;width:80%">
+                                                    <input type="text" id="lcasefiltercaseno" placeholder="Court Case No." class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;width:20%">
+                                                    <span class="glyphicon glyphicon-search" id="lcasesearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="lcaseclearnewsearchcase" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;">x</span>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="casename">
+                                            <div class="thbg" style="min-width: 120px;">
+                                                <div style="float:left;width:80%">
+                                                    <input type="text" id="lcasenamefilter" title="Name of the case as per court site" placeholder="Case Name" class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;width:20%">
+                                                    <span class="glyphicon glyphicon-search" id="lcasenamesearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="lcasenameclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;">x</span>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="lcasecourtname"><div class="thbg">Court</div></th>
+                                        <th class="courtorditrict">
+                                            <div class="thbg" style="min-width: 120px;">
+                                                Court Name
+                                            </div>
+                                        </th>
+                                        <th class="lcourtcomplexestblish"><div class="thbg">Court Complex</div></th>
+                                        <th class="nexthearing">
+                                            <div class="thbg" style="min-width: 170px;">
+                                                Next Hearing
+                                                <div class="btn-group" style="margin-top: -4px;">
+                                                    <a href="javascript:void();" id="nexthearingasc"><span class="glyphicon glyphicon-sort-by-attributes" style="margin-top: 5px;" title="sort by ascending"></span></a>
+                                                    <a style="display:none;" href="javascript:void();" id="nexthearingdesc"><span class="glyphicon glyphicon-sort-by-attributes-alt" style="margin-top: 5px;" title="sort by descending"></span></a>
+                                                    <a href="javascript:void();" id="nexthearingrefresh" style="display:none;"><span class="glyphicon glyphicon-refresh" style="margin-top: 5px;" title="refresh sorting"></span></a>
+                                                    <button type="button" style="height: 23px;" class="taskoutboxbtnicon dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <span class="glyphicon glyphicon-calendar" title="filter by date range"></span>
+                                                        <span class="sr-only">Toggle Dropdown</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" style="width:325px">
+                                                        <li style="padding:4px 5px 8px 5px; float:left" class="dp">
+                                                            <input type="date" title="Next hearing from date" id="nextheringfilterdate" placeholder="Start Date" class="form-control pull-left" style="width:125px;" onkeydown="return false" />
+                                                        </li>
+                                                        <li style="padding:4px 5px 8px 5px; float:left" class="dp">
+                                                            <input type="date" title="Next hearing to date" id="nexthearingfilterdateTo" placeholder="Start Date" class="form-control " style="width:125px;" onkeydown="return false" />
+                                                        </li>
+                                                        <li style="padding:4px 5px 8px 5px; float:left">
+                                                            <span class="glyphicon glyphicon-search" id="nexthearingdsearch" style="padding:2px 0 0 0 ;background:none"></span>
+                                                        </li>
+                                                        <li style="padding:4px 5px 8px 5px; float:left">
+                                                            <span class="glyphicon glyphicon-remove" id="nexthearingcleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer; font-size:10px; padding:2px 0 0 0;"></span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="Lstatus">
+                                            <div class="thbg" style="min-width: 120px;">
+                                                <div class="form-group">
+                                                    <select class="" id="lstatus" name="lstatus">
+                                                        <option value="">Court Status</option>
+                                                        <option value="Pending">Pending</option>
+                                                        <option value="Disposed">Disposed</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="ladvocate">
+                                            <div class="thbg" style="min-width: 100px;">
+                                                <div style="float:left;width:80%">
+                                                    <input type="text" id="advocatefilter" placeholder="Advocate" class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;width:20%">
+                                                    <span class="glyphicon glyphicon-search" id="advocatesearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="advocateclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;">x</span>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="disposeddate"><div class="thbg">Disposed Date</div></th>
+                                        <th class="zonename"><div class="thbg">Zone Name</div></th>
+                                        <th class="casefilingdate">Matter Filing Date</th>
+                                        <th class="counselname">Counsel Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="AllCustomDashboardbind"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <center>
+                        <div class="notfound" id="pdatastatus" style="display:none;">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4>No Matter List Found</h4>
+                            <p>We found no matter list.</p>
+                        </div>
+                    </center>
+                </div>
+            </div>
+            <div class="pagination" id="mtrPagination">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<div id="myModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog " style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Details by Appeal No
+                </h4>
+            </div>
+            <!-- Modal content-->
+            <div class="modal-content mymodels" id="mymodels" style="margin-top:10px;">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModaltimeline" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:60%">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Case Order TimeLine
+                </h4>
+            </div>
+            <div class="mymodelstime" id="mymodelstime" style="margin-top:10px;">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModallinkcase" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closelinkmatter" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Link case
+                </h4>
+            </div>
+            <div class="myModallinkcase1" id="myModallinkcase1" style="margin-top:10px;">
+                <div class="modal-body">
+                    <div class="ec_bg" style="height: 150px !important;overflow:unset !important">
+                        <div class="col-md-8">
+                            <input id="livecaseidhide" class="form-control inputFormat" type="hidden" />
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" id="mattersforlink2" class="form-control inputFormat" placeholder="Enter Matter Name" />
+                        </div>
+                        <div class="col-md-4">
+                            <button class="sbtbtn" id="savelinkmatter">Save</button>
+                        </div>
+                    </div>
+                    <br><br><br><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <input type="hidden" id="exportrecords">
+        <div class="modal-content">
+            <input type="hidden" id="exportrecords">
+            <input type="hidden" id="Exporttype">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="~/newassets/img/pdf-export.png" style="margin:-15px 0px 0 -15px" />
+                </h4>
+
+            </div>
+            <div class="modaltitle" style="margin: -40px 0 0 0; border-bottom: none;">
+                <h4>Export List</h4>
+                <p>Select number of list to be exported </p>
+            </div>
+            <div class="modal-body  partynamebody " id="">
+                @*<table class="table " style="font-size:12px;">
+                        <thead>
+                            <tr style="font-size: 12px;">
+                                <th><div class="thbg">Page No.</div></th>
+                                <th><div class="thbg">FileName</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="printexport"></tbody>
+                        <tr></tr>
+                    </table>*@
+                <form role="form">
+                    <div class="row">
+                        <div class="form-group" style="margin: 15px 0; overflow: hidden;">
+                            <div class="col-md-12">
+                                @* <label>Number of Matters</label>*@
+                            </div>
+                            <div class="col-md-12">
+                                <select class="selctInputFormat" id="printexport"></select>
+                            </div>
+                            @*<div class="col-md-12">
+                                    <table class="table" style="font-size:12px;">
+                                        <thead>
+                                            <tr style="font-size: 12px;">
+                                                <th><div class="thbg">Page No.</div></th>
+                                                <th><div class="thbg">FileName</div></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="printexport"></tbody>
+                                        <tr></tr>
+                                    </table>
+                                </div>*@
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalCaseNotes" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:50%;height: 500px;">
+        <!-- Modal content-->
+        <div class="modal-content" style="height: 500px;overflow-y: scroll;">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Case Notes
+                </h4>
+            </div>
+            <div class="ec_bg" style="margin-top:10px;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-3">
+                            <label class="control-label ">Other Details</label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea id="OtherDetailstxt" class="inputFormatTextArea" value="" style="margin: 0px; width: 357px; height: 40px;" maxlength="10000"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="margin-top:-30px;"><button class="sbtbtn pull-right" id="UpdateOtherDetails">Save</button></div>
+            </div>
+            <div class="row" style="margin-top:20px">
+                <div class="col-md-12">
+                    <div class="col-md-12">
+                        <div class="table-panel table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <td width="80%"><div class="thbg">Details</div></td>
+                                        <td width="20%"><div class="thbg">Acion</div></td>
+                                    </tr>
+                                </thead>
+                                <tbody id="otherdetailsContent"></tbody>
+                            </table>
+                            <p id="otherdetailsContentNA" style="text-align:center">No result found...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#mattersforlink2").autocomplete({
+            disabled: true
+        });
+    });
+    $('#mattersforlink2').on('keyup', function () {
+        /* your code here */
+        var txtlength = $("#mattersforlink2").val().length;
+        if (txtlength > 0) {
+        }
+        else {
+            $("#livecaseidhide,#mattersforlink2").val("");
+        }
+    });
+    $(function () {
+        $("#mattersforlink2").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/MatterFilterAutoComplete',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            map[name] = { id: id, name: name };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#livecaseidhide").val(map[item].id);
+                return map[item].name;
+            }
+        });
+    });
+</script>
+@* Customize popup started *@
+<div id="myModalCustomizedcolumn" class="modal right fade myModal " role="dialog" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul id="od">
+                            <li><input type="checkbox" value="Advocate" class="shcheckbox1 chkdhide" name="ladvocate"> Advocate</li>
+                            <li><input type="checkbox" value="CaseName" class="shcheckbox1 chkdhide" name="casename" checked> Matter Name</li>
+                            <li><input type="checkbox" value="Court" class="shcheckbox1 chkdhide" name="lcasecourtname" checked> Court</li>
+                            <li><input type="checkbox" value="CourtName" class="shcheckbox1 chkdhide" name="courtorditrict" checked> Court Name</li>
+                            <li><input type="checkbox" value="CourtComplex" class="shcheckbox1 chkdhide" name="lcourtcomplexestblish" checked> Court Complex</li>
+                            <li><input type="checkbox" value="CourtCaseNo" class="shcheckbox1 chkdhide" name="caseno" checked> Court Case No.</li>
+                            <li><input type="checkbox" value="CourtStatus" class="shcheckbox1 chkdhide" name="Lstatus" checked> Court Status</li>
+                            <li><input type="checkbox" value="DisposedDate" class="shcheckbox1 chkdhide" name="disposeddate"> Disposed Date</li>
+                            <li><input type="checkbox" value="NextHearing" class="shcheckbox1 chkdhide" name="nexthearing" checked> Next Hearing</li>
+                            <li><input type="checkbox" value="PetitionerName" class="shcheckbox1 chkdhide" name="lPetitionerName" checked> Petitioner</li>
+                            <li><input type="checkbox" value="RespondentName" class="shcheckbox1 chkdhide" name="lRespondentName" checked> Respondent</li>
+                            <li><input type="checkbox" value="lsrno" class="shcheckbox1 chkdhide" name="lsrno" checked> S. No</li>
+                            <li><input type="checkbox" value="zonename" class="shcheckbox1 chkdhide" name="zonename"> Zone Name</li>
+                            <li><input type="checkbox" value="casefilingdate" class="shcheckbox1 chkdhide" name="casefilingdate"> Matter Filing Date</li>
+                            <li><input type="checkbox" value="counselname" class="shcheckbox1 chkdhide" name="counselname"> Counsel Name</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@* End Customize popup *@
+
+<!--<div class="tablecontainer">
+    <div class="table-panel">
+        <div style="overflow-x:auto;margin:0 0 15px 0;">
+            <table id="againstTheBankTable" class="table table-bordered table-striped" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Case No</th>
+                        <th>Case ID</th>
+                        <th>Zone</th>
+                        <th>Branch</th>
+
+                        <th>Account Holder Name</th>
+                        <th>Claimant Address</th>
+
+                        <th>CIF No</th>
+                        <th>Account No</th>
+
+                        <th>First Summon Date</th>
+                        <th>First Summon Received Date</th>
+
+                        <th>Respondent Details</th>
+                        <th>Proforma Parties</th>
+
+                        <th>Case Proposing</th>
+                        <th>Case Type</th>
+                        <th>Department</th>
+
+                        <th>Court Detail</th>
+                        <th>Place Of Court</th>
+
+                        <th>Area Of Complaint</th>
+
+                        <th>Written Statement Date</th>
+
+                        <th>Facts Of Case</th>
+
+                        <th>Claim Amount</th>
+
+                        <th>Advocate Name</th>
+                        <th>Advocate Contact</th>
+
+                        <th>Present Status</th>
+
+                        <th>Next Hearing Date</th>
+                        <th>Next Hearing Purpose</th>
+
+                        <th>Interim Order Date</th>
+                        <th>Interim Order Received Date</th>
+
+                        <th>Interim Direction</th>
+                        <th>Interim Compliance Status</th>
+                        <th>Interim Remarks</th>
+
+                        <th>Disposal Date</th>
+
+                        <th>Final Order Received Date</th>
+
+                        <th>Award Amount</th>
+
+                        <th>Final Direction</th>
+                        <th>Final Compliance Status</th>
+                        <th>Final Remarks</th>
+
+                        <th>Action</th>
+                    </tr>
+                </thead>-->
+<!-- DATA WILL COME HERE -->
+<!--<tbody id="againstBankTbody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>-->
+<!-- ================= CONSUMER CASES TABLE ================= -->
+@*<div class="tablecontainer" style="display:none;">
+        <div class="table-panel">
+
+            <div style="overflow-x:auto; margin:0 0 15px 0;">
+
+                <table id="consumerCasesTable"
+                       class="table table-bordered table-striped"
+                       style="width: 100%; display: none;">
+
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Case ID</th>
+                            <th>Case No</th>
+                            <th>Zone</th>
+                            <th>Branch</th>
+
+                            <th>Petitioner Name</th>
+
+                            <th>CIF No</th>
+                            <th>Account No</th>
+
+                            <th>First Summon Date</th>
+                            <th>Summon Received Date</th>
+
+                            <th>Respondent Details</th>
+
+                            <th>Filing Date</th>
+
+                            <th>Present Status</th>
+
+                            <th>Court Detail</th>
+                            <th>Place Of Court</th>
+
+                            <th>Claim Amount</th>
+
+                            <th>Case Type</th>
+
+                            <th>Area Of Complaint</th>
+
+                            <th>Facts Of Case</th>
+
+                            <th>Written Statement Date</th>
+
+                            <th>Next Hearing Date</th>
+                            <th>Next Hearing Purpose</th>
+
+                            <th>Interim Order Date</th>
+                            <th>Interim Order Received</th>
+
+                            <th>Interim Direction</th>
+                            <th>Interim Compliance</th>
+                            <th>Interim Remarks</th>
+
+                            <th>Disposal Date</th>
+
+                            <th>Final Order Received</th>
+
+                            <th>Award Amount</th>
+
+                            <th>Final Direction</th>
+                            <th>Final Compliance</th>
+                            <th>Final Remarks</th>
+
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="consumerCasesTableBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+    </div>*@
+<section id="consumerCasesSection" style="display: none;">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1">
+                    <div class="text-and-supporting-text1">
+                        <div class="filter" id="idcustomcommonFilterConsumer" style="cursor:pointer;">
+                            <img class="plus-icon" alt="" src="~/newassets/img/filter-icon.png" data-toggle="tooltip" data-placement="top" title="Filter">
+                            Filters
+                        </div>
+                    </div>
+                    <div class="table-header">
+                        <div class="actions3">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexportconsumerCases" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li><a href="javascript:void()" id="exporttoexcelconsumerCases" title="Export to Excel" style=" color: black !important; ">Export to Excel</a></li>
+                                </ul>
+                            </div>
+                            <div class="button13" id="ColumnSelectionopenconsumerCases" title="Column Selection" style="display: none;">
+                                <img class="plus-icon" alt="" src="~/newassets/img/settings-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void(0)" style="color: #4B5563 !important"> Customize</a></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+
+                <!-- Top Scrollbar -->
+                <div class="scroll-sync-top">
+                    <div class="scroll-top-inner"></div>
+                </div>
+
+                <!-- Table Wrapper -->
+                <div class="tablecontainer table-scroll-wrapper">
+                    <div class="table-scroll-inner">
+                        <table id="consumerCasesTable" class="table-panel" role="grid" aria-describedby="example_info" ">
+                            <thead>
+                                <tr role="row">
+
+
+
+                                    <th class="sno sortable" data-column="sno">
+                                        <div class="thbg">S.No <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="casecasedetails indexing"><div class="thbg">Case Index</div></th>
+
+                                    <th class="caseno sortable"
+                                        data-column="caseno">
+                                        <div class="thbg">
+
+                                            <div style="float:left;width:35%">
+
+                                                <input type="text"
+                                                       id="caseNofilterConsumer"
+                                                       placeholder="Case No"
+                                                       class="form-control pull-left"
+                                                       style="width:120px;">
+                                            </div>
+
+                                            <div style="float:left;width:30%;">
+
+
+                                                <span class="sort-icon"
+                                                      title="Sort"
+                                                      style="cursor:pointer;margin-right:8px;">
+                                                    ↕
+                                                </span>
+
+                                                <span class="glyphicon glyphicon-search"
+                                                      id="searchcasenoConsumer"
+                                                      title="Search"
+                                                      style="cursor:pointer;">
+                                                </span>
+                                                <span id="clearnewsearchcasenoConsumer"
+                                                      title="Clear Search"
+                                                      style="display:none;font-size:15px;color:black;font-weight:350;cursor:pointer;">
+                                                    x
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+                                    </th>
+
+                                    <th class="caseid sortable"
+                                        data-column="caseid">
+                                        <div class="thbg">
+
+                                            <div style="float:left;width:35%">
+
+                                                <input type="text"
+                                                       id="caseIdfilterConsumer"
+                                                       placeholder="Case ID"
+                                                       class="form-control pull-left"
+                                                       style="width:120px;">
+                                            </div>
+
+                                            <div style="float:left;width:30%;">
+
+                                                <span class="sort-icon"
+                                                      title="Sort"
+                                                      style="cursor:pointer;margin-right:8px;">
+                                                    ↕
+                                                </span>
+
+                                                <span class="glyphicon glyphicon-search"
+                                                      id="searchcaseIDConsumer"
+                                                      title="Search"
+                                                      style="cursor:pointer;">
+                                                </span>
+
+                                                <span id="clearnewsearchcaseIDConsumer" title="Clear Search"
+                                                      style="display:none;font-size:15px;color:black;font-weight:350;cursor:pointer;">
+                                                    x
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+                                    </th>
+
+                                    <th class="zone sortable" data-column="zone">
+                                        <div class="thbg">Zone <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="branch sortable" data-column="branch">
+                                        <div class="thbg">Branch <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="petitionername sortable" data-column="petitionername">
+                                        <div class="thbg">Petitioner Name <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="cifno sortable" data-column="cifno">
+                                        <div class="thbg">CIF No <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="accountno sortable" data-column="accountno">
+                                        <div class="thbg">Account No <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="firstsummondate sortable" data-column="firstsummondate">
+                                        <div class="thbg">First Summon Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="summonreceiveddate sortable" data-column="summonreceiveddate">
+                                        <div class="thbg">Summon Received Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="respondentdetails sortable" data-column="respondentdetails">
+                                        <div class="thbg">Respondent Details <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="filingdate sortable" data-column="filingdate">
+                                        <div class="thbg">Filing Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="presentstatus sortable" data-column="presentstatus">
+                                        <div class="thbg">Present Status <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="courtdetail">
+                                        <div class="thbg">Court Detail <span class="sort-icon">↕</span></div>
+                                        @*<select class="form-control" id="casefiltercourtConsumer" style="width:110px;">
+                <option value="" selected="">Court Detail</option>
+                <option value="Supreme Court">Supreme Court</option>
+                <option value="High Court">High Court</option>
+                <option value="District Court">District Court</option>
+                <option value="Tribunals">Tribunals</option>
+                <option value="Add a Court">Add a Court</option>
+                <option value="Revenue Court">Revenue Court</option>
+                <option value="Rera Court">Rera Court</option>
+            </select>*@
+                                    </th>
+
+                                    <th class="placeofcourt sortable" data-column="placeofcourt">
+                                        <div class="thbg">Place Of Court <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="claimamount sortable" data-column="claimamount">
+                                        <div class="thbg">Claim Amount <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="casetype sortable" data-column="casetype">
+                                        <div class="thbg">Case Type <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="areaofcomplaint sortable" data-column="areaofcomplaint">
+                                        <div class="thbg">Area Of Complaint <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="factsofcase sortable" data-column="factsofcase">
+                                        <div class="thbg">Facts Of Case <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="writtenstatementdate sortable" data-column="writtenstatementdate">
+                                        <div class="thbg">Written Statement Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="nexthearingdate sortable" data-column="nexthearingdate">
+                                        <div class="thbg">Next Hearing Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="nexthearingpurpose sortable" data-column="nexthearingpurpose">
+                                        <div class="thbg">Next Hearing Purpose <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="interimorderdate sortable" data-column="interimorderdate">
+                                        <div class="thbg">Interim Order Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="interimorderreceived sortable" data-column="interimorderreceived">
+                                        <div class="thbg">Interim Order Received <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="interimdirection sortable" data-column="interimdirection">
+                                        <div class="thbg">Interim Direction <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="interimcompliance sortable" data-column="interimcompliance">
+                                        <div class="thbg">Interim Compliance <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="interimremarks sortable" data-column="interimremarks">
+                                        <div class="thbg">Interim Remarks <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="disposaldate sortable" data-column="disposaldate">
+                                        <div class="thbg">Disposal Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="finalorderreceived sortable" data-column="finalorderreceived">
+                                        <div class="thbg">Final Order Received <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="awardamount sortable" data-column="awardamount">
+                                        <div class="thbg">Award Amount <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="finaldirection sortable" data-column="finaldirection">
+                                        <div class="thbg">Final Direction <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="finalcompliance sortable" data-column="finalcompliance">
+                                        <div class="thbg">Final Compliance <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="finalremarks sortable" data-column="finalremarks">
+                                        <div class="thbg">Final Remarks <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="action">
+                                        <div class="thbg">Action</div>
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody id="consumerCasesTableBody"></tbody>
+                        </table>
+                        <center>
+                            <div class="notfound" id="pdatastatusConsumer" style="display:none;">
+                                <img src="/newassets/img/not-found.png" />
+                                <h4>No Data Found</h4>
+                            </div>
+                        </center>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="pagination" id="mtrPaginationconsumer">
+            <div class="pagination-button-group">
+                <div id="prevconsumer" class="pagination-button-group-base">
+                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                </div>
+                <div id="pageNumbersconsumer" class="pagination-button-group-base1">
+                </div>
+
+                <div id="nextconsumer" class="pagination-button-group-base8">
+                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                </div>
+            </div>
+            <div class="text-and-supporting-text-parent">
+                <div class="input">
+                    <div class="content">
+                        <input type="text" id="txtgopageconsumer" name="query" placeholder="Page No.">
+                    </div>
+                    <div class="help-icon">
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-group">
+                    <div class="text-and-supporting-text">
+                        <div id="divGoconsumer" class="text9">Go</div>
+                    </div>
+                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ================= CONTINGENT LIABILITY TABLE ================= -->
+@*<div class="tablecontainer" style="display:none;">
+
+        <div class="table-panel">
+
+            <div style="overflow-x:auto; margin:0 0 15px 0;">
+
+                <table id="contingentLiabilityTable"
+                       class="table table-bordered table-striped"
+                       style="width:100%;display:none;">
+
+                    <thead>
+                        <tr>
+
+                            <th>S.No</th>
+
+                            <th>Case ID</th>
+                            <th>Case No</th>
+
+                            <th>Zone</th>
+                            <th>Branch</th>
+
+                            <th>Account Holder</th>
+                            <th>Claimant Name</th>
+
+                            <th>CIF No</th>
+                            <th>Account No</th>
+
+                            <th>Notice Date</th>
+                            <th>Notice Received</th>
+
+                            <th>Respondent Details</th>
+                            <th>Proforma Parties</th>
+
+                            <th>Case Type</th>
+                            <th>Department</th>
+
+                            <th>Court Detail</th>
+                            <th>Place Of Court</th>
+
+                            <th>Nature Of Dispute</th>
+
+                            <th>Facts Of Case</th>
+
+                            <th>Claim Amount</th>
+
+                            <th>Advocate Name</th>
+                            <th>Advocate Contact</th>
+
+                            <th>Present Status</th>
+
+                            <th>Next Hearing Date</th>
+                            <th>Next Hearing Purpose</th>
+
+                            <th>Interim Order Date</th>
+                            <th>Interim Order Received</th>
+
+                            <th>Interim Direction</th>
+                            <th>Interim Compliance</th>
+
+                            <th>Final Order Date</th>
+                            <th>Final Order Received</th>
+
+                            <th>Award Amount</th>
+
+                            <th>Final Direction</th>
+                            <th>Final Compliance</th>
+
+                            <th>Action</th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody id="contingentLiabilityTableBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>*@
+<section id="contingentLiabilitySection" style="display: none;">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1">
+                    <div class="text-and-supporting-text1">
+                        <div class="filter" id="idcustomcommonFilterContingent" style="cursor:pointer;">
+                            <img class="plus-icon" alt="" src="~/newassets/img/filter-icon.png" data-toggle="tooltip" data-placement="top" title="Filter">
+                            Filters
+                        </div>
+                    </div>
+                    <div class="table-header">
+                        <div class="actions3">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexportcontingentLiability" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li><a href="javascript:void()" id="exporttoexcelcontingentLiability" title="Export to Excel" style=" color: black !important; ">Export to Excel</a></li>
+                                </ul>
+                            </div>
+                            <div class="button13" id="ColumnSelectionopencontingentLiability" title="Column Selection" style="display: none;">
+                                <img class="plus-icon" alt="" src="~/newassets/img/settings-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void(0)" style="color: #4B5563 !important"> Customize</a></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+
+                <!-- Top Scrollbar -->
+                <div class="scroll-sync-top">
+                    <div class="scroll-top-inner"></div>
+                </div>
+
+                <!-- Table Wrapper -->
+                <div class="tablecontainer table-scroll-wrapper">
+                    <div class="table-scroll-inner">
+                        <table id="contingentLiabilityTable" class="table-panel" role="grid" aria-describedby="example_info" ">
+                            <thead>
+                                <tr role="row">
+
+                                    <th class="sno"><div class="thbg">S.No</div></th>
+                                    <th class="casecasedetails"><div class="thbg">Case Index</div></th>
+
+                                    <th class="caseno sortable"
+                                        data-column="caseno">
+                                        <div class="thbg">
+
+                                            <div style="float:left;width:35%">
+
+                                                <input type="text"
+                                                       id="caseNofilterConsumer"
+                                                       placeholder="Case No"
+                                                       class="form-control pull-left"
+                                                       style="width:120px;">
+                                            </div>
+
+                                            <div style="float:left;width:30%;">
+
+
+                                                <span class="sort-icon"
+                                                      title="Sort"
+                                                      style="cursor:pointer;margin-right:8px;">
+                                                    ↕
+                                                </span>
+
+                                                <span class="glyphicon glyphicon-search"
+                                                      id="searchcasenoContingent"
+                                                      title="Search"
+                                                      style="cursor:pointer;">
+                                                </span>
+                                                <span id="clearnewsearchcasenoContingent"
+                                                      title="Clear Search"
+                                                      style="display:none;font-size:15px;color:black;font-weight:350;cursor:pointer;">
+                                                    x
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+                                    </th>
+
+                                    <th class="caseid sortable"
+                                        data-column="caseid">
+                                        <div class="thbg">
+
+                                            <div style="float:left;width:35%">
+
+                                                <input type="text"
+                                                       id="caseIdfilterContingent"
+                                                       placeholder="Case ID"
+                                                       class="form-control pull-left"
+                                                       style="width:120px;">
+                                            </div>
+
+                                            <div style="float:left;width:30%;">
+
+                                                <span class="sort-icon"
+                                                      title="Sort"
+                                                      style="cursor:pointer;margin-right:8px;">
+                                                    ↕
+                                                </span>
+
+                                                <span class="glyphicon glyphicon-search"
+                                                      id="searchcaseIDContingent"
+                                                      title="Search"
+                                                      style="cursor:pointer;">
+                                                </span>
+
+                                                <span id="clearnewsearchcaseIDContingent"
+                                                      title="Clear Search"
+                                                      style="display:none;font-size:15px;color:black;font-weight:350;cursor:pointer;">
+                                                    x
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+                                    </th>
+
+                                    <th class="zone sortable" data-column="zone">
+                                        <div class="thbg">Zone <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="branch sortable" data-column="branch">
+                                        <div class="thbg">Branch <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="accountholder sortable" data-column="accountholder">
+                                        <div class="thbg">Account Holder <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="claimantname sortable" data-column="claimantname">
+                                        <div class="thbg">Claimant Name <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="claimantaddress sortable" data-column="claimantaddress">
+                                        <div class="thbg">Claimant Address <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="dateofclaim sortable" data-column="dateofclaim">
+                                        <div class="thbg">Date Of Claim <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="bankguarantee sortable" data-column="bankguarantee">
+                                        <div class="thbg">Bank Guarantee <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="letterofcredit sortable" data-column="letterofcredit">
+                                        <div class="thbg">Letter Of Credit <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="wrongpayment sortable" data-column="wrongpayment">
+                                        <div class="thbg">Wrong Payment <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="fraud sortable" data-column="fraud">
+                                        <div class="thbg">Fraud <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="counterclaim sortable" data-column="counterclaim">
+                                        <div class="thbg">Counter Claim <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="othersclaim sortable" data-column="othersclaim">
+                                        <div class="thbg">Others Claim <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="natureofsecurity sortable" data-column="natureofsecurity">
+                                        <div class="thbg">Nature Of Security <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="realisablevalue sortable" data-column="realisablevalue">
+                                        <div class="thbg">Realisable Value <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="factsofcase sortable" data-column="factsofcase">
+                                        <div class="thbg">Facts Of Case <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="nexthearingpurpose sortable" data-column="nexthearingpurpose">
+                                        <div class="thbg">Next Hearing Purpose <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="nexthearingdate sortable" data-column="nexthearingdate">
+                                        <div class="thbg">Next Hearing Date <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="provisiondetail sortable" data-column="provisiondetail">
+                                        <div class="thbg">Provision Detail <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="yearofprovision sortable" data-column="yearofprovision">
+                                        <div class="thbg">Year Of Provision <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="amountprovision sortable" data-column="amountprovision">
+                                        <div class="thbg">Amount Provision <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="amountdepositedincourt sortable" data-column="amountdepositedincourt">
+                                        <div class="thbg">Amount Deposited In Court <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="action"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="contingentLiabilityTableBody"></tbody>
+                        </table>
+                        <center>
+                            <div class="notfound" id="pdatastatusLiability" style="display:none;">
+                                <img src="/newassets/img/not-found.png" />
+                                <h4>No Data Found</h4>
+                            </div>
+                        </center>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="pagination" id="mtrPaginationcontingent">
+            <div class="pagination-button-group">
+                <div id="prevcontingent" class="pagination-button-group-base">
+                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                </div>
+                <div id="pageNumberscontingent" class="pagination-button-group-base1">
+                </div>
+
+                <div id="nextcontingent" class="pagination-button-group-base8">
+                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                </div>
+            </div>
+            <div class="text-and-supporting-text-parent">
+                <div class="input">
+                    <div class="content">
+                        <input type="text" id="txtgopagecontingent" name="query" placeholder="Page No.">
+                    </div>
+                    <div class="help-icon">
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-group">
+                    <div class="text-and-supporting-text">
+                        <div id="divGocontingent" class="text9">Go</div>
+                    </div>
+                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="againstTheBankSection" style="display: none;">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1">
+                    <div class="text-and-supporting-text1">
+                        <div class="filter" id="idcustomcommonFilterAgainst" style="cursor:pointer;">
+                            <img class="plus-icon" alt="" src="~/newassets/img/filter-icon.png" data-toggle="tooltip" data-placement="top" title="Filter">
+                            Filters
+                        </div>
+                    </div>
+                    <div class="table-header">
+                        <div class="actions3">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexportagainstTheBank" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li><a href="javascript:void(0);" id="exporttoexcelagainstTheBank" title="Export to Excel" style=" color: black !important; ">Export to Excel</a></li>
+                                </ul>
+                            </div>
+                            <div class="button13" id="ColumnSelectionopenagainstTheBank" title="Column Selection" style="display: none;">
+                                <img class="plus-icon" alt="" src="~/newassets/img/settings-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void(0)" style="color: #4B5563 !important"> Customize</a></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+
+                <!-- Top Scrollbar -->
+                <div class="scroll-sync-top">
+                    <div class="scroll-top-inner"></div>
+                </div>
+
+                <!-- Table Wrapper -->
+                <div class="tablecontainer table-scroll-wrapper">
+                    <div class="table-scroll-inner">
+                        <table id="againstTheBankTable" class="table-panel" role="grid" aria-describedby="example_info">
+                            <thead>
+                                <tr role="row">
+
+
+
+
+                                    <th class="sno sortable" data-column="sno">
+                                        <div class="thbg">S.No <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="indexing"><div class="thbg">Case Index</div></th>
+
+                                    <th class="caseno sortable"
+                                        data-column="caseno">
+                                        <div class="thbg">
+
+                                            <div style="float:left;width:35%">
+
+                                                <input type="text"
+                                                       id="caseNofilter"
+                                                       placeholder="Case No"
+                                                       class="form-control pull-left"
+                                                       style="width:120px;">
+                                            </div>
+
+                                            <div style="float:left;width:30%;">
+
+
+                                                <span class="sort-icon"
+                                                      title="Sort"
+                                                      style="cursor:pointer;margin-right:8px;">
+                                                    ↕
+                                                </span>
+
+                                                <span class="glyphicon glyphicon-search"
+                                                      id="searchcaseno"
+                                                      title="Search"
+                                                      style="cursor:pointer;">
+                                                </span>
+                                                <span id="clearnewsearchcaseno"
+                                                      title="Clear Search"
+                                                      style="display:none;font-size:15px;color:black;font-weight:350;cursor:pointer;">
+                                                    x
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+                                    </th>
+
+                                    <th class="caseid sortable"
+                                        data-column="caseid">
+                                        <div class="thbg">
+
+                                            <div style="float:left;width:35%">
+
+                                                <input type="text"
+                                                       id="caseIdfilter"
+                                                       placeholder="Case ID"
+                                                       class="form-control pull-left"
+                                                       style="width:120px;">
+                                            </div>
+
+                                            <div style="float:left;width:30%;">
+
+                                                <span class="sort-icon"
+                                                      title="Sort"
+                                                      style="cursor:pointer;margin-right:8px;">
+                                                    ↕
+                                                </span>
+
+                                                <span class="glyphicon glyphicon-search"
+                                                      id="searchcaseID"
+                                                      title="Search"
+                                                      style="cursor:pointer;">
+                                                </span>
+
+                                                <span id="clearnewsearchcaseID"
+                                                      title="Clear Search"
+                                                      style="display:none;font-size:15px;color:black;font-weight:350;cursor:pointer;">
+                                                    x
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+                                    </th>
+
+                                    <th class="zone sortable" data-column="zone">
+                                        <div class="thbg">Zone <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="branch sortable" data-column="branch">
+                                        <div class="thbg">Branch <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="accountholdername sortable" data-column="accountholdername">
+                                        <div class="thbg">Account Holder Name <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="claimantaddress sortable" data-column="claimantaddress">
+                                        <div class="thbg">Claimant Address <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="cifno sortable" data-column="cifno">
+                                        <div class="thbg">CIF No <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="accountno sortable" data-column="accountno">
+                                        <div class="thbg">Account No <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="firstsummondate sortable" data-column="firstsummondate">
+                                        <div class="thbg">First Summon Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="firstsummonreceiveddate sortable" data-column="firstsummonreceiveddate">
+                                        <div class="thbg">First Summon Received Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="respondentdetails sortable" data-column="respondentdetails">
+                                        <div class="thbg">Respondent Details <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="proformaparties sortable" data-column="proformaparties">
+                                        <div class="thbg">Proforma Parties <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="caseproposing sortable" data-column="caseproposing">
+                                        <div class="thbg">Case Proposing <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="casetype sortable" data-column="casetype">
+                                        <div class="thbg">Case Type <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="department sortable" data-column="department">
+                                        <div class="thbg">Department <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="courtdetail">
+                                        <div class="thbg">Court Detail <span class="sort-icon">↕</span></div>
+                                        @*<select class="form-control" id="casefiltercourt" style="width:110px;">
+                <option value="" selected="">Court Detail</option>
+                <option value="Supreme Court">Supreme Court</option>
+                <option value="High Court">High Court</option>
+                <option value="District Court">District Court</option>
+                <option value="Tribunals">Tribunals</option>
+                <option value="Add a Court">Add a Court</option>
+                <option value="Revenue Court">Revenue Court</option>
+                <option value="Rera Court">Rera Court</option>
+            </select>*@
+                                    </th>
+
+                                    <th class="placeofcourt sortable" data-column="placeofcourt">
+                                        <div class="thbg">Place Of Court <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="areaofcomplaint sortable" data-column="areaofcomplaint">
+                                        <div class="thbg">Area Of Complaint <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="writtenstatementdate sortable" data-column="writtenstatementdate">
+                                        <div class="thbg">Written Statement Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="factsofcase sortable" data-column="factsofcase">
+                                        <div class="thbg">Facts Of Case <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="claimamount sortable" data-column="claimamount">
+                                        <div class="thbg">Claim Amount <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="advocatename sortable" data-column="advocatename">
+                                        <div class="thbg">Advocate Name <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="advocatecontact sortable" data-column="advocatecontact">
+                                        <div class="thbg">Advocate Contact <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="presentstatus sortable" data-column="presentstatus">
+                                        <div class="thbg">Present Status <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="nexthearingdate sortable" data-column="nexthearingdate">
+                                        <div class="thbg">Next Hearing Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="nexthearingpurpose sortable" data-column="nexthearingpurpose">
+                                        <div class="thbg">Next Hearing Purpose <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="interimorderdate sortable" data-column="interimorderdate">
+                                        <div class="thbg">Interim Order Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="interimorderreceiveddate sortable" data-column="interimorderreceiveddate">
+                                        <div class="thbg">Interim Order Received Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="interimdirection sortable" data-column="interimdirection">
+                                        <div class="thbg">Interim Direction <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="interimcompliancestatus sortable" data-column="interimcompliancestatus">
+                                        <div class="thbg">Interim Compliance Status <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="interimremarks sortable" data-column="interimremarks">
+                                        <div class="thbg">Interim Remarks <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="disposaldate sortable" data-column="disposaldate">
+                                        <div class="thbg">Disposal Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="finalorderreceiveddate sortable" data-column="finalorderreceiveddate">
+                                        <div class="thbg">Final Order Received Date <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="awardamount sortable" data-column="awardamount">
+                                        <div class="thbg">Award Amount <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="finaldirection sortable" data-column="finaldirection">
+                                        <div class="thbg">Final Direction <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="finalcompliancestatus sortable" data-column="finalcompliancestatus">
+                                        <div class="thbg">Final Compliance Status <span class="sort-icon">↕</span></div>
+                                    </th>
+
+                                    <th class="finalremarks sortable" data-column="finalremarks">
+                                        <div class="thbg">Final Remarks <span class="sort-icon">↕</span></div>
+                                    </th>
+                                    <th class="action">
+                                        <div class="thbg">Action</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="againstBankTbody"></tbody>
+                        </table>
+                        <center>
+                            <div class="notfound" id="pdatastatusBank" style="display:none;">
+                                <img src="/newassets/img/not-found.png" />
+                                <h4>No Data Found</h4>
+                            </div>
+                        </center>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="pagination" id="mtrPaginationAgainst">
+            <div class="pagination-button-group">
+                <div id="prevAgainst" class="pagination-button-group-base">
+                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                </div>
+                <div id="pageNumbersAgainst" class="pagination-button-group-base1">
+                </div>
+
+                <div id="nextAgainst" class="pagination-button-group-base8">
+                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                </div>
+            </div>
+            <div class="text-and-supporting-text-parent">
+                <div class="input">
+                    <div class="content">
+                        <input type="text" id="txtgopageAgainst" name="query" placeholder="Page No.">
+                    </div>
+                    <div class="help-icon">
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-group">
+                    <div class="text-and-supporting-text">
+                        <div id="divGoAgainst" class="text9">Go</div>
+                    </div>
+                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="myModalCustomizedcolumnconsumerCases" class="modal right fade myModal " role="dialog" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle" style=" margin-bottom: 20px; ">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul id="od">
+                            <li>
+                                <input type="checkbox"
+                                       id="selectAllConsumerColumns">
+                                <b>Select All</b>
+                            </li>
+                            @*<li><input type="checkbox" value="Action" class="Consumercheckbox chkdhide" name="action" checked> Action</li>*@
+
+                            <li><input type="checkbox" value="SNo" class="Consumercheckbox chkdhide" name="sno" checked> S.No</li>
+                            <li><input type="checkbox" value="casecasedetails" class="casecasedetails chkdhide" name="casecasedetails" checked> Case Index</li>
+                            <li><input type="checkbox" value="CaseID" class="Consumercheckbox chkdhide" name="caseid" checked> Case ID</li>
+
+                            <li><input type="checkbox" value="CaseNo" class="Consumercheckbox chkdhide" name="caseno" checked> Case No</li>
+
+                            <li><input type="checkbox" value="Zone" class="Consumercheckbox chkdhide" name="zone" checked> Zone</li>
+
+                            <li><input type="checkbox" value="Branch" class="Consumercheckbox chkdhide" name="branch" checked> Branch</li>
+
+                            <li><input type="checkbox" value="PetitionerName" class="Consumercheckbox chkdhide" name="petitionername" checked> Petitioner Name</li>
+
+                            <li><input type="checkbox" value="CIFNo" class="Consumercheckbox chkdhide" name="cifno" checked> CIF No</li>
+
+                            <li><input type="checkbox" value="AccountNo" class="Consumercheckbox chkdhide" name="accountno" checked> Account No</li>
+
+                            <li><input type="checkbox" value="FirstSummonDate" class="Consumercheckbox chkdhide" name="firstsummondate" checked> First Summon Date</li>
+
+                            <li><input type="checkbox" value="SummonReceivedDate" class="Consumercheckbox chkdhide" name="summonreceiveddate" > Summon Received Date</li>
+
+                            <li><input type="checkbox" value="RespondentDetails" class="Consumercheckbox chkdhide" name="respondentdetails" > Respondent Details</li>
+
+                            <li><input type="checkbox" value="FilingDate" class="Consumercheckbox chkdhide" name="filingdate"> Filing Date</li>
+
+                            <li><input type="checkbox" value="PresentStatus" class="Consumercheckbox chkdhide" name="presentstatus"> Present Status</li>
+
+                            <li><input type="checkbox" value="CourtDetail" class="Consumercheckbox chkdhide" name="courtdetail"> Court Detail</li>
+
+                            <li><input type="checkbox" value="PlaceOfCourt" class="Consumercheckbox chkdhide" name="placeofcourt"> Place Of Court</li>
+
+                            <li><input type="checkbox" value="ClaimAmount" class="Consumercheckbox chkdhide" name="claimamount"> Claim Amount</li>
+
+                            <li><input type="checkbox" value="CaseType" class="Consumercheckbox chkdhide" name="casetype"> Case Type</li>
+
+                            <li><input type="checkbox" value="AreaOfComplaint" class="Consumercheckbox chkdhide" name="areaofcomplaint"> Area Of Complaint</li>
+
+                            <li><input type="checkbox" value="FactsOfCase" class="Consumercheckbox chkdhide" name="factsofcase"> Facts Of Case</li>
+
+                            <li><input type="checkbox" value="WrittenStatementDate" class="Consumercheckbox chkdhide" name="writtenstatementdate"> Written Statement Date</li>
+
+                            <li><input type="checkbox" value="NextHearingDate" class="Consumercheckbox chkdhide" name="nexthearingdate"> Next Hearing Date</li>
+
+                            <li><input type="checkbox" value="NextHearingPurpose" class="Consumercheckbox chkdhide" name="nexthearingpurpose"> Next Hearing Purpose</li>
+
+                            <li><input type="checkbox" value="InterimOrderDate" class="Consumercheckbox chkdhide" name="interimorderdate"> Interim Order Date</li>
+
+                            <li><input type="checkbox" value="InterimOrderReceived" class="Consumercheckbox chkdhide" name="interimorderreceived"> Interim Order Received</li>
+
+                            <li><input type="checkbox" value="InterimDirection" class="Consumercheckbox chkdhide" name="interimdirection"> Interim Direction</li>
+
+                            <li><input type="checkbox" value="InterimCompliance" class="Consumercheckbox chkdhide" name="interimcompliance"> Interim Compliance</li>
+
+                            <li><input type="checkbox" value="InterimRemarks" class="Consumercheckbox chkdhide" name="interimremarks"> Interim Remarks</li>
+
+                            <li><input type="checkbox" value="DisposalDate" class="Consumercheckbox chkdhide" name="disposaldate" > Disposal Date</li>
+
+                            <li><input type="checkbox" value="finalorderreceived" class="Consumercheckbox chkdhide" name="finalorderreceived"> Final Order Received</li>
+
+                            <li><input type="checkbox" value="AwardAmount" class="Consumercheckbox chkdhide" name="awardamount"> Award Amount</li>
+
+                            <li><input type="checkbox" value="FinalDirection" class="Consumercheckbox chkdhide" name="finaldirection"> Final Direction</li>
+
+                            <li><input type="checkbox" value="FinalCompliance" class="Consumercheckbox chkdhide" name="finalcompliance"> Final Compliance</li>
+
+                            <li><input type="checkbox" value="FinalRemarks" class="Consumercheckbox chkdhide" name="finalremarks"> Final Remarks</li>
+                            @*<li><input type="checkbox" value="Action" class="Consumercheckbox chkdhide" name="action" checked> Action</li>*@
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalCustomizedcolumncontingentLiability" class="modal right fade myModal " role="dialog" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle" style=" margin-bottom: 20px; ">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul id="od">
+                            <li>
+                                <input type="checkbox" id="selectAllcontingentColumns" ><b>Select All</b> </li>
+                            @*<li><input type="checkbox" value="Action" class="contingentcheckbox chkdhide" name="action" checked> Action</li>*@
+
+                            <li><input type="checkbox" value="SNo" class="contingentcheckbox chkdhide" name="sno" checked> S.No</li>
+
+                            <li><input type="checkbox" value="CaseID" class="contingentcheckbox chkdhide" name="caseid" checked> Case ID</li>
+
+                            <li><input type="checkbox" value="CaseNo" class="contingentcheckbox chkdhide" name="caseno" checked> Case No</li>
+
+                            <li><input type="checkbox" value="Zone" class="contingentcheckbox chkdhide" name="zone" checked> Zone</li>
+
+                            <li><input type="checkbox" value="Branch" class="contingentcheckbox chkdhide" name="branch" checked> Branch</li>
+
+                            <li><input type="checkbox" value="AccountHolder" class="contingentcheckbox chkdhide" name="accountholder" checked> Account Holder</li>
+
+                            <li><input type="checkbox" value="ClaimantName" class="contingentcheckbox chkdhide" name="claimantname" checked> Claimant Name</li>
+
+                            <li><input type="checkbox" value="ClaimantAddress" class="contingentcheckbox chkdhide" name="claimantaddress" checked> Claimant Address</li>
+
+                            <li><input type="checkbox" value="DateOfClaim" class="contingentcheckbox chkdhide" name="dateofclaim" checked> Date Of Claim</li>
+
+                            <li><input type="checkbox" value="BankGuarantee" class="contingentcheckbox chkdhide" name="bankguarantee" > Bank Guarantee</li>
+
+                            <li><input type="checkbox" value="LetterOfCredit" class="contingentcheckbox chkdhide" name="letterofcredit" > Letter Of Credit</li>
+
+                            <li><input type="checkbox" value="WrongPayment" class="contingentcheckbox chkdhide" name="wrongpayment" > Wrong Payment</li>
+
+                            <li><input type="checkbox" value="Fraud" class="contingentcheckbox chkdhide" name="fraud" > Fraud</li>
+
+                            <li><input type="checkbox" value="CounterClaim" class="contingentcheckbox chkdhide" name="counterclaim" > Counter Claim</li>
+
+                            <li><input type="checkbox" value="OthersClaim" class="contingentcheckbox chkdhide" name="othersclaim" > Others Claim</li>
+
+                            <li><input type="checkbox" value="NatureOfSecurity" class="contingentcheckbox chkdhide" name="natureofsecurity" > Nature Of Security</li>
+
+                            <li><input type="checkbox" value="RealisableValue" class="contingentcheckbox chkdhide" name="realisablevalue" > Realisable Value</li>
+
+                            <li><input type="checkbox" value="FactsOfCase" class="contingentcheckbox chkdhide" name="factsofcase" > Facts Of Case</li>
+
+                            <li><input type="checkbox" value="NextHearingPurpose" class="contingentcheckbox chkdhide" name="nexthearingpurpose" > Next Hearing Purpose</li>
+
+                            <li><input type="checkbox" value="NextHearingDate" class="contingentcheckbox chkdhide" name="nexthearingdate" > Next Hearing Date</li>
+
+                            <li><input type="checkbox" value="ProvisionDetail" class="contingentcheckbox chkdhide" name="provisiondetail" > Provision Detail</li>
+
+                            <li><input type="checkbox" value="YearOfProvision" class="contingentcheckbox chkdhide" name="yearofprovision" > Year Of Provision</li>
+
+                            <li><input type="checkbox" value="AmountProvision" class="contingentcheckbox chkdhide" name="amountprovision" > Amount Provision</li>
+
+                            <li><input type="checkbox" value="AmountDepositedInCourt" class="contingentcheckbox chkdhide" name="amountdepositedincourt" > Amount Deposited In Court</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalCustomizedcolumnagainstTheBank" class="modal right fade myModal " role="dialog" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle" style=" margin-bottom: 20px; ">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul id="od">
+                            <li>
+                                <input type="checkbox"
+                                       id="selectAllAgainstColumns"
+                                       >
+                                <b>Select All</b>
+                            </li>
+                            @*<li><input type="checkbox" value="Action" class="Againstcheckbox chkdhide" name="action" checked> Action</li>*@
+                            <li><input type="checkbox" value="casecasedetails" class="casecasedetails chkdhide" name="casecasedetails" checked> Case Index</li>
+                            <li><input type="checkbox" value="SNo" class="Againstcheckbox chkdhide" name="sno" checked> S. No</li>
+
+                            <li><input type="checkbox" value="CaseNo" class="Againstcheckbox chkdhide" name="caseno" checked> Case No</li>
+
+                            <li><input type="checkbox" value="CaseID" class="Againstcheckbox chkdhide" name="caseid" checked> Case ID</li>
+
+                            <li><input type="checkbox" value="Zone" class="Againstcheckbox chkdhide" name="zone" checked> Zone</li>
+
+                            <li><input type="checkbox" value="Branch" class="Againstcheckbox chkdhide" name="branch" checked> Branch</li>
+
+                            <li><input type="checkbox" value="AccountHolderName" class="Againstcheckbox chkdhide" name="accountholdername" checked> Account Holder Name</li>
+
+                            <li><input type="checkbox" value="ClaimantAddress" class="Againstcheckbox chkdhide" name="claimantaddress" checked> Claimant Address</li>
+
+                            <li><input type="checkbox" value="CIFNo" class="Againstcheckbox chkdhide" name="cifno" checked> CIF No</li>
+
+                            <li><input type="checkbox" value="AccountNo" class="Againstcheckbox chkdhide" name="accountno" checked> Account No</li>
+
+                            <li><input type="checkbox" value="FirstSummonDate" class="Againstcheckbox chkdhide" name="firstsummondate" > First Summon Date</li>
+
+                            <li><input type="checkbox" value="FirstSummonReceivedDate" class="Againstcheckbox chkdhide" name="firstsummonreceiveddate" > First Summon Received Date</li>
+
+                            <li><input type="checkbox" value="RespondentDetails" class="Againstcheckbox chkdhide" name="respondentdetails" > Respondent Details</li>
+
+                            <li><input type="checkbox" value="ProformaParties" class="Againstcheckbox chkdhide" name="proformaparties" > Proforma Parties</li>
+
+                            <li><input type="checkbox" value="CaseProposing" class="Againstcheckbox chkdhide" name="caseproposing" > Case Proposing</li>
+
+                            <li><input type="checkbox" value="CaseType" class="Againstcheckbox chkdhide" name="casetype" > Case Type</li>
+
+                            <li><input type="checkbox" value="Department" class="Againstcheckbox chkdhide" name="department" > Department</li>
+
+                            <li><input type="checkbox" value="CourtDetail" class="Againstcheckbox chkdhide" name="courtdetail" > Court Detail</li>
+
+                            <li><input type="checkbox" value="PlaceOfCourt" class="Againstcheckbox chkdhide" name="placeofcourt" > Place Of Court</li>
+
+                            <li><input type="checkbox" value="AreaOfComplaint" class="Againstcheckbox chkdhide" name="areaofcomplaint" > Area Of Complaint</li>
+
+                            <li><input type="checkbox" value="WrittenStatementDate" class="Againstcheckbox chkdhide" name="writtenstatementdate" checked> Written Statement Date</li>
+
+                            <li><input type="checkbox" value="FactsOfCase" class="Againstcheckbox chkdhide" name="factsofcase" > Facts Of Case</li>
+
+                            <li><input type="checkbox" value="ClaimAmount" class="Againstcheckbox chkdhide" name="claimamount" > Claim Amount</li>
+
+                            <li><input type="checkbox" value="AdvocateName" class="Againstcheckbox chkdhide" name="advocatename" > Advocate Name</li>
+
+                            <li><input type="checkbox" value="AdvocateContact" class="Againstcheckbox chkdhide" name="advocatecontact" > Advocate Contact</li>
+
+                            <li><input type="checkbox" value="PresentStatus" class="Againstcheckbox chkdhide" name="presentstatus" > Present Status</li>
+
+                            <li><input type="checkbox" value="NextHearingDate" class="Againstcheckbox chkdhide" name="nexthearingdate" > Next Hearing Date</li>
+
+                            <li><input type="checkbox" value="NextHearingPurpose" class="Againstcheckbox chkdhide" name="nexthearingpurpose" > Next Hearing Purpose</li>
+
+                            <li><input type="checkbox" value="InterimOrderDate" class="Againstcheckbox chkdhide" name="interimorderdate" > Interim Order Date</li>
+
+                            <li><input type="checkbox" value="InterimOrderReceivedDate" class="Againstcheckbox chkdhide" name="interimorderreceiveddate" > Interim Order Received Date</li>
+
+                            <li><input type="checkbox" value="InterimDirection" class="Againstcheckbox chkdhide" name="interimdirection" > Interim Direction</li>
+
+                            <li><input type="checkbox" value="InterimComplianceStatus" class="Againstcheckbox chkdhide" name="interimcompliancestatus" > Interim Compliance Status</li>
+
+                            <li><input type="checkbox" value="InterimRemarks" class="Againstcheckbox chkdhide" name="interimremarks" > Interim Remarks</li>
+
+                            <li><input type="checkbox" value="DisposalDate" class="Againstcheckbox chkdhide" name="disposaldate" > Disposal Date</li>
+
+                            <li><input type="checkbox" value="FinalOrderReceivedDate" class="Againstcheckbox chkdhide" name="finalorderreceiveddate" > Final Order Received Date</li>
+
+                            <li><input type="checkbox" value="AwardAmount" class="Againstcheckbox chkdhide" name="awardamount" > Award Amount</li>
+
+                            <li><input type="checkbox" value="FinalDirection" class="Againstcheckbox chkdhide" name="finaldirection" > Final Direction</li>
+
+                            <li><input type="checkbox" value="FinalComplianceStatus" class="Againstcheckbox chkdhide" name="finalcompliancestatus" > Final Compliance Status</li>
+
+                            <li><input type="checkbox" value="FinalRemarks" class="Againstcheckbox chkdhide" name="finalremarks" checked> Final Remarks</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--For Common Custom Filter-->
+<div id="myModalCustomCommonFilterConsumer" class="modal right fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="~/newassets/img/mfilter-icon.png" />
+                </h4>
+            </div>
+            <div class="modaltitle">
+                <h4>Apply Filter</h4>
+                <p>Select fields to apply your filter</p>
+            </div>
+            <div class="modal-body">
+                <form id="commonforresetConsumer">
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label>Next Hearing Date</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">From Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="FromDate" id="NexthearingfrmdateConsumer" title="From Date" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">To Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="toDate" id="NexthearingdateToConsumer" title="To Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label>Disposal Date</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">From Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="FromDate" id="disposaldateConsumer" title="From Date" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">To Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="toDate" id="disposalToConsumer" title="To Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label>Court Status</label>
+                                <select class="selctInputFormat" id="courtstatusfilterConsumer">
+                                    <option value="" selected="">Court Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Disposed">Disposed</option>
+                                    <option value="Statusnotfound">Status not found</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 1px dashed #D5D7DA;padding:12px 0 0 0;">
+                <button class="btn btn-secondary" id="CancelCommonDashbConsumer">Cancel</button>
+                <button class="btn btn-primary pull-right" id="SearchCommondetailsConsumer">Confirm</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="myModalCustomCommonFilterAgainst" class="modal right fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="~/newassets/img/mfilter-icon.png" />
+                </h4>
+            </div>
+            <div class="modaltitle">
+                <h4>Apply Filter</h4>
+                <p>Select fields to apply your filter</p>
+            </div>
+            <div class="modal-body">
+                <form id="commonforresetAgainst">
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label>Next Hearing Date</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">From Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="FromDate" id="NexthearingfrmdateAgainst" title="From Date" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">To Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="toDate" id="NexthearingdateToAgainst" title="To Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label>Disposal Date</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">From Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="FromDate" id="disposaldateAgainst" title="From Date" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">To Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="toDate" id="disposaldateToAgainst" title="To Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label>Court Status</label>
+                                <select class="selctInputFormat" id="courtstatusfilterAgainst">
+                                    <option value="" selected="">Court Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Disposed">Disposed</option>
+                                    <option value="Statusnotfound">Status not found</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 1px dashed #D5D7DA;padding:12px 0 0 0;">
+                <button class="btn btn-secondary" id="CancelCommonDashbAgainst">Cancel</button>
+                <button class="btn btn-primary pull-right" id="SearchCommondetailsAgainst">Confirm</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="myModalCustomCommonFilterContingent" class="modal right fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="~/newassets/img/mfilter-icon.png" />
+                </h4>
+            </div>
+            <div class="modaltitle">
+                <h4>Apply Filter</h4>
+                <p>Select fields to apply your filter</p>
+            </div>
+            <div class="modal-body">
+                <form id="commonforresetContingent">
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label>Next Hearing Date</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">From Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="FromDate" id="NexthearingfrmdateContingent" title="From Date" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">To Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="toDate" id="NexthearingdateToContingent" title="To Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label>Date Of Claim</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">From Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="FromDate" id="dateOfClaimContingent" title="From Date" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">To Date</label>
+                                <input type="date" class="selctInputFormat dateinput" placeholder="toDate" id="dateOfClaimToContingent" title="To Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label>Court Status</label>
+                                <select class="selctInputFormat" id="courtstatusfilterContingent">
+                                    <option value="" selected="">Court Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Disposed">Disposed</option>
+                                    <option value="Statusnotfound">Status not found</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 1px dashed #D5D7DA;padding:12px 0 0 0;">
+                <button class="btn btn-secondary" id="CancelCommonDashbContingent">Cancel</button>
+                <button class="btn btn-primary pull-right" id="SearchCommondetailsContingent">Confirm</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const tableWrappers = document.querySelectorAll('.table-scroll-wrapper');
+
+        tableWrappers.forEach(function (tableScroll) {
+
+            const table = tableScroll.querySelector('table');
+
+            if (!table) return;
+
+            // Create Top Scrollbar Dynamically
+            const topScroll = document.createElement('div');
+            topScroll.className = 'scroll-sync-top';
+
+            const topScrollInner = document.createElement('div');
+            topScrollInner.className = 'scroll-top-inner';
+
+            topScroll.appendChild(topScrollInner);
+
+            // Insert before table wrapper
+            tableScroll.parentNode.insertBefore(topScroll, tableScroll);
+
+            function updateScrollBarVisibility() {
+
+                const scrollNeeded = table.scrollWidth > tableScroll.clientWidth;
+
+                if (scrollNeeded) {
+
+                    topScroll.style.display = 'block';
+                    topScrollInner.style.width = table.scrollWidth + 'px';
+
+                } else {
+
+                    topScroll.style.display = 'none';
+
+                }
+            }
+
+            // Top -> Bottom
+            topScroll.addEventListener('scroll', function () {
+                tableScroll.scrollLeft = topScroll.scrollLeft;
+            });
+
+            // Bottom -> Top
+            tableScroll.addEventListener('scroll', function () {
+                topScroll.scrollLeft = tableScroll.scrollLeft;
+            });
+
+            // Observe table resize
+            const resizeObserver = new ResizeObserver(function () {
+                updateScrollBarVisibility();
+            });
+
+            resizeObserver.observe(table);
+
+            // Initial load
+            setTimeout(function () {
+                updateScrollBarVisibility();
+            }, 300);
+
+            // Window resize
+            window.addEventListener('resize', function () {
+                updateScrollBarVisibility();
+            });
+
+        });
+
+    });
+</script>

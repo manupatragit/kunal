@@ -1,0 +1,83 @@
+﻿@{
+    Layout = null;
+    //var id = Request.Url.Segments[3];
+}
+<script src="~/CssJsfiles/js/3.3.1/jquery.min.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<link href="/Manupanel/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<script src="/Scripts/bootstrap.min.js"></script>
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<style>
+    table {
+        background: #5c5c5c !important;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/WorkflowReport.js" type="text/javascript"></script>
+<script>
+    var str = "@ViewBag.id";
+    loaddata();
+    function loaddata() {
+        var strheader1 = '';
+        var stritem1 = '';
+        var strtable1 = '';
+        var strid = str;
+        strtable1 = $('<table style="overflow-x:auto;width:95%;" align="center" /><tr><th>').addClass('dataTable table table-bordered table-striped');
+        $.ajax(
+            {
+                async: true,
+                url: "/Client/NextHearing/" + strid, // Controller/View
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    var datas = JSON.stringify(data);
+                    var obj = JSON.parse(datas);
+                    strheader1 = $('<thead><tr><th class="name">Case Name</th><th class="name">Party Name</th><th class="desc">Advocate Name</th><th class="task">Court</th><th class="desc">Next Hearing Date</th></tr></thead>');
+                    strtable1.append(strheader1);
+                    stritem1 = "<tbody>";
+                    $.each(obj, function (i, val) {
+                        var strcasename = val.Casetype + " " + val.CaseNo + "/" + val.Caseyear;
+                       if (val.Showstatus == "none") {
+                        stritem1 += '<tr><td>' + strcasename +'</td><td>' + val.Casename + "" + '</td><td>' + val.Advname + '</td><td>' + val.Court + '</td><td>' + val.Disposeddt + '</td></tr>';
+                        }
+                        else {
+                            var strfile = "";
+                            if (val.Localfile.indexOf("delhihi", 1) > 0) {
+                                strfile = val.Localfile;
+                            }
+                            else {
+                                strfile = "../" + val.Localfile;
+                            }
+                           stritem1 += '<tr><td>' + strcasename +'</td><td>' + val.Casename + '</td><td>' + val.Advname + '</td><td>' + val.Court + '</td><td>' + val.Disposeddt + '</td></tr>';
+                        }
+                    });
+                    stritem1 += "</tbody>";
+                    strtable1.append(stritem1);
+                    $(".divdata").html(strtable1);
+                },
+                failure: function (data) {
+                   // alert(data.responseText);
+                },
+                error: function (data) {
+                   // alert(data.responseText);
+                }
+            });
+    }
+</script>
+<div class="modal-header btn-primary">
+    <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Case Detail
+    </h4>
+</div>
+<div class="modal-body ">
+    <!-- Main content -->
+    <div id="content">
+        <div class="row">
+            <div id="divdata" class="divdata row col-md-12"></div>
+        </div>
+    </div>
+</div>

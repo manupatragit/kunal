@@ -1,0 +1,419 @@
+﻿<!DOCTYPE html>
+@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+    var strcurdate = DateTime.Now.ToString("dd MMM yyyy");
+    var firmcode121 = Session["FirmCode"];
+}
+@using NJDGDetail.Models;
+@{
+    var firmcode = Request.Url.Segments[1];
+}
+<style>
+    ul li {
+        display: inline;
+    }
+</style>
+<script>
+    var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter ="@Session["dashmatter"]";
+    var roleids = "@role";
+    if (hsmklitigation == "display:unset" && dashmatter == "display:unset") {
+        $(".litigationrera").show();
+    }
+    else if (hsmklitigation == "display:unset" && dashmatter == "display:none") {
+        $('.litigationrera').hide();
+    }
+    else {
+        $(".litigationrera").show();
+    }
+</script>
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script src="~/Scripts/CW/DailyCauseList.js?4.8"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Cause List</p>
+        </div>
+    </div>
+</section>
+<section class="wrapper">
+    <input type="hidden" id="hdnusercaseid" value="0" />
+    <div class="container-main">
+        <div class="formbg">
+
+            <div class="row form-group">
+                <div class="tab-pane active" id="a111">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Select Court Type</label>
+                            <select name="courtType1" id="ocasedata1" class="form-control selctInputFormat" style="background-color: white !important;">
+                                <option value="0">Select Court</option>
+                                <option value="1" selected="selected"> Supreme Court</option>
+                                <option value="2"> High Court</option>
+                                <option value="4">Tribunal</option>
+                                <option value="3"> District Court</option>
+                                <option value="7">Rera</option>
+                                <option value="RERH">Revenue</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Date</label>
+                            <input type="date" class="inputFormat" id="casedate" name="casedate">
+                        </div>
+                        <div class="col-md-2">
+
+                            <button type="submit" class="btn btn-primary" id="getcauselist" name="getcauselist" style="margin:26px 0 0 0;">Search</button>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="actions3" style="margin:26px 0 0 0; position: relative; justify-content: flex-end;">
+                                <div class="dropdown-toggle button13" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+
+                                    <div class="text-padding">
+                                        <div class="text1"><a href="javascript:void()"> Export</a></div>
+                                    </div>
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li>
+                                        <div id="exporttoexcel" title="Export to Excel"><span style="padding: 0 5px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                    </li>
+                                    <li>
+                                        <div title="Export to PDF" id="exporttopdf"><span style="padding: 0 5px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</div>
+                                    </li>
+                                    <li>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        </div>
+
+
+                    </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</section>
+<section>
+    <div class="container-main">
+        <div class="table">
+            
+            <div class="tablearea" style="margin:0;">
+                <div class="tablecontainer">
+                    <div>
+
+                        <table id="causelist1" class="table-panel">
+                            <thead>
+                                <tr>
+                                    <th class="case" width="12%"><div class="thbg">Court</div></th>
+                                    <th class="court"><div class="thbg">Case Type</div></th>
+                                    <th class="cname"><div class="thbg">Case No.</div></th>
+                                    <th class="bname"><div class="thbg">Case year</div></th>
+                                    <th class="sdiaryno"><div class="thbg">Diary No.</div></th>
+                                    <th class="sdiaryyear"><div class="thbg">Diary Year.</div></th>
+                                    <th class="adv" style="width:107px;"><div class="thbg">Court No</div></th>
+                                    <th class="nh"><div class="thbg">Judge Name</div></th>
+                                    <th class="status1"><div class="thbg">CauseList Date</div></th>
+                                    <th class="Files"><div class="thbg">CauseList Detail</div></th>
+                                    <th class="Files"><div class="thbg">Stage</div></th>
+                                    <th class="ItemNo"><div class="thbg">Item No</div></th>
+                                    <th class="Action" id="actioncw12"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody style="text-align:center;" id="binddatacw1">
+                        </table>
+                    </div>
+                    <div>
+                        <table id="causelisthigh" class="table-panel" style="display:none">
+                            <thead>
+                                <tr>
+                                    <th class="case" width="12%"><div class="thbg">Court</div></th>
+                                    <th class="bench" width="12%"><div class="thbg">Bench Name</div></th>
+                                    <th class="court"><div class="thbg">Case Type</div></th>
+                                    <th class="cname"><div class="thbg">Case No.</div></th>
+                                    <th class="bname"><div class="thbg">Case year</div></th>
+                                    <th class="adv" style="width:107px;"><div class="thbg">Court No</div></th>
+                                    <th class="nh"><div class="thbg">Judge Name</div></th>
+                                    <th class="status1"><div class="thbg">CauseList Date</div></th>
+                                    <th class="Files"><div class="thbg">CauseList Detail</div></th>
+                                    <th class="Files"><div class="thbg">Stage</div></th>
+                                    <th class="ItemNo"><div class="thbg">Item No</div></th>
+                                    <th class="Action" id="actioncw12"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody style="text-align:center;" id="binddatacw1higcort">
+                        </table>
+                    </div>
+                    <div>
+                        <table id="causelist4" class="table-panel" style="display:none;">
+                            <thead>
+                                <tr>
+                                    <th class="case" width="12%"><div class="thbg">Court</div></th>
+                                    <th class="benchs" width="12%"><div class="thbg">Bench</div></th>
+                                    <th class="court"><div class="thbg">Case Type</div></th>
+                                    <th class="cname"><div class="thbg">Case No.</div></th>
+                                    <th class="bname"><div class="thbg">Case Year</div></th>
+                                    <th class="bdiaryno"><div class="thbg">Diary No.</div></th>
+                                    <th class="bdiaryyear"><div class="thbg">Diary Year.</div></th>
+                                    <th class="adv" style="width:107px;"><div class="thbg">Court No</div></th>
+                                    <th class="nh"><div class="thbg">Judge Name</div></th>
+                                    <th class="status1"><div class="thbg">CauseList Date</div></th>
+                                    <th class="Files"><div class="thbg">CauseList Detail</div></th>
+                                    <th class="Files"><div class="thbg">Stage</div></th>
+                                    <th class="ItemNo"><div class="thbg">Item No</div></th>
+                                    <th class="Action"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody style="text-align:center;" id="binddatacw4">
+                        </table>
+                    </div>
+                    <div>
+                        <table id="causelist3" class="table-panel" style="display:none">
+                            <thead>
+                                <tr>
+                                    <th class="case" width="12%"><div class="thbg">Case</div></th>
+                                    <th class="state" width="12%"><div class="thbg">State</div></th>
+                                    <th class="cname"><div class="thbg">District</div></th>
+                                    <th class="bname"><div class="thbg">Judge Name</div></th>
+                                    <th class="dd"><div class="thbg">Court Establishment</div></th>
+                                    <th class="status1"><div class="thbg">Causelist Date</div></th>
+                                    <th class="Files" style="min-width:151px;"><div class="thbg">Causelist Detail</div></th>
+                                    <th class="Files"><div class="thbg">Stage</div></th>
+                                    <th class="ItemNo"><div class="thbg">Item No</div></th>
+                                    <th class="cname"><div class="thbg">Court No</div></th>
+                                    <th class="Action"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody style="text-align:center;" id="binddatacw3">
+                        </table>
+                    </div>
+                    <div>
+                        <table id="causelistRERH" class="table-panel" style="display:none">
+                            <thead>
+                                <tr>
+                                    <th class="case" width="12%"><div class="thbg">Case</div></th>
+                                    <th class="state" width="12%"><div class="thbg">Courtname</div></th>
+                                    <th class="cname"><div class="thbg">Court</div></th>
+                                    <th class="bname"><div class="thbg">AppealNo</div></th>
+                                    <th class="status1"><div class="thbg">Causelist Date</div></th>
+                                    <th class="Files"><div class="thbg">Stage</div></th>
+                                    <th class="ItemNo"><div class="thbg">Item No</div></th>
+                                    <th class="Action"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody style="text-align:center;" id="binddatacwRERH">
+                        </table>
+                        <div>
+                            <center><span id="datastatus34"></span></center>
+                        </div>
+                    </div>
+
+                    <center>
+
+                        <div class="notfound" id="pdatastatus" style="display:none;">
+                            <img src="/newassets/img/not-found.png">
+                            <h4>No Matter list found</h4>
+                            <p>We found no matter list.</p>
+                        </div>
+                    </center>
+                </div>
+
+            </div>
+            <div class="pagination" id="pagenatedArea" >
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                        @*<div class="text">a</div>*@
+                        @*<span id="pageNumbers" class="pages"></span>*@
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!--<section class="wrapper">
+    
+    <div class="container-main">
+        <div>
+            <h2 class="title">Cause List</h2>
+            <div id="exTab1">
+                <ul class="nav nav-pills " style="margin-bottom: 7px">
+                    <li class="active">
+                        <a style="padding: 5px 5px !important" id="dtcwlist" href="#a111" data-toggle="tab">DateWise Causelist</a>
+                    </li>
+                    <li>
+                        <a style="padding: 5px 5px !important" id="dtallcwlist" href="#a211" data-toggle="tab">Causelist</a>
+                    </li>
+                </ul>
+                <div class="tab-content clearfix">
+                    
+                    <div class="tab-pane " id="a211">
+                        <div class="box-header" style="margin-top:5px; overflow:hidden;">
+                            <ul class="btn_panel no-margin pull-left" style="padding:0;" id="sectiontemp">
+                                <li>
+                                    <input type="radio" value="1" id="aocasedata1" name="aocasedata1" checked>Supreme Court/High Court &nbsp;
+                                </li>
+                                <li>
+                                    <input type="radio" value="4" id="aocasedata1" name="aocasedata1">Tribunals &nbsp;
+                                </li>
+                                <li>
+                                    <input type="radio" value="3" id="aocasedata1" name="aocasedata1">District Court &nbsp;
+                                </li>
+                                <li>
+                                    <input type="radio" value="7" id="aocasedata1" name="aocasedata1">Rera Court &nbsp;
+                                </li>
+                                <li>&nbsp;&nbsp;&nbsp;</li>
+                                <li>
+                                    <span>From Date:</span>
+                                </li>
+                                <li>
+                                    <input type="date" class="form-control inputbg" id="frmcasedate" name="frmcasedate">
+                                </li>
+                                <li>
+                                    <span>To Date:</span>
+                                </li>
+                                <li>
+                                    <input type="date" class="form-control inputbg" id="tocasedate" name="frmcasedate">
+                                </li>
+                                <li>
+                                    <button type="button" class="sbtbtn" id="agetcauselist" name="agetcauselist">Search</button>
+                                </li>
+                                <li>
+                                    <button type="button" class="sbtbtn" id="aexporttoexcel">Excel</button>
+                                </li>
+                                <li>
+                                    <button type="button" class="sbtbtn" id="aexporttopdf">PDF</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="" style="overflow-x:auto;">
+                                    <div class="table-panel table-responsive">
+                                        <table id="acauselist1" class="dataTable table" cellspacing="0" width="100%" style="">
+                                            <thead>
+                                                <tr>
+                                                    <th class="case" width="12%"><div class="thbg">Court</div></th>
+                                                    <th class="court"><div class="thbg">Case Type</div></th>
+                                                    <th class="cname"><div class="thbg">Case No.</div></th>
+                                                    <th class="bname"><div class="thbg">Case year</div></th>
+                                                    <th class="adv" style="width:107px;"><div class="thbg">Court No</div></th>
+                                                    <th class="nh"><div class="thbg">Judge Name</div></th>-->
+                                                    <!--@*<th class="dd"><div class="thbg">Session Time</div></th>*@
+                                                    <!--<!--<th class="status1"><div class="thbg">CauseList Date</div></th>
+                                                    <th class="Files"><div class="thbg">CauseList Detail</div></th>
+                                                    <th class="Files"><div class="thbg">Stage</div></th>
+                                                    <th class="Action" id="actioncw1"><div class="thbg">action</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody style="text-align:center;" id="abinddatacw1">
+                                        </table>
+                                    </div>
+                                    <div class="table-panel table-responsive">
+                                        <table id="acauselist4" class="dataTable table " cellspacing="0" width="100%" style="display:none;">
+                                            <thead>
+                                                <tr>
+                                                    <th class="case" width="12%"><div class="thbg">Court</div></th>
+                                                    <th class="court"><div class="thbg">Case Type</div></th>
+                                                    <th class="cname"><div class="thbg">Case No.</div></th>
+                                                    <th class="bname"><div class="thbg">Case year</div></th>
+                                                    <th class="adv" style="width:107px;"><div class="thbg">Court No</div></th>
+                                                    <th class="nh"><div class="thbg">Judge Name</div></th>-->
+                                                    <!--@*<th class="dd"><div class="thbg">Session Time</div></th>*@-->
+                                                    <!--<!--<th class="status1"><div class="thbg">CauseList Date</div></th>
+                                                    <th class="Files"><div class="thbg">CauseList Detail</div></th>
+                                                    <th class="Files"><div class="thbg">Stage</div></th>
+                                                    <th class="Action" id="actioncw4"><div class="thbg">action</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody style="text-align:center;" id="abinddatacw4">
+                                        </table>
+                                    </div>
+                                    <div class="table-panel table-responsive">
+                                        <table id="acauselist3" class="dataTable table " cellspacing="0" width="100%" style="display:none">
+                                            <thead>
+                                                <tr>
+                                                    <th class="case" width="12%"><div class="thbg">Case</div></th>
+                                                    <th class="state" width="12%"><div class="thbg">State</div></th>
+                                                    <th class="cname"><div class="thbg">District</div></th>
+                                                    <th class="bname"><div class="thbg">Judge Name</div></th>-->
+                                                    <!--@*<th class="adv" style="width:250px;"><div class="thbg">SessionTime</div></th>*@
+                                                    @*<th class="nh"><div class="thbg">Court Complex/Court Establishment Type</div></th>*@
+                                                    <!--<!--<th class="dd"><div class="thbg">Court Establishment</div></th>
+                                                    <th class="status1"><div class="thbg">Causelist Date</div></th>
+                                                    <th class="Files" style="min-width:151px"><div class="thbg">Causelist Detail</div></th>
+                                                    <th class="Files"><div class="thbg">Stage</div></th>
+                                                    <th class="cname"><div class="thbg">Court No</div></th>
+                                                    <th class="Action" id="actioncw3" style="min-width:120px;"><div class="thbg">action</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody style="text-align:center;" id="abinddatacw3">
+                                        </table>
+                                        <div>
+                                            <center><span id="adatastatus34"></span></center>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   @*<div class="settingpanel">
+                        <div class="col-md-6">
+                            <div id="ptfooter" style="float:left;margin-top:5px;margin-left:5px;"></div>
+                        </div>
+                        <div class="col-md-6">
+                        </div>
+                    </div>*@
+                    
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>-->

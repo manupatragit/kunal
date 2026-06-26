@@ -1,0 +1,259 @@
+﻿
+@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    .btnManual {
+        padding: 10px;
+        display: flex;
+        gap: 5px;
+        border: 2px solid gray;
+        border-radius: 7px;
+        margin-right: 5px;
+        text-decoration: none;
+        color: gray;
+    }
+    .settingpanel{
+        border:0;
+    }
+</style>
+<script src="~/Scripts/IPR/PhoneticTradeSearch.js?1.2" type="text/javascript" language="javascript"></script>
+
+@*<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"><h2 id="dynamiciprheader"></h2></p> <input type="text" id="searchdata" style="display:none">
+        </div>
+        <div class="tabs-and-filters">
+            <div class="button-group">
+                <a href="#" title="Tracker List" id="trackertab" class="button-group-base">Tracker <span id="trademarkcount"></span></a>
+                <a href="#" class="button-group-base1" title="My List" id="mylisttab">My List <span id="MyListCount"></span></a>
+                <a href="#" title="Search Result" class="button-group-base2" id="searchtab">Search History <span id="SearchCount"></span></a>
+                @if (ViewBag.RoleId == "1")
+                {
+                    <a href="#" title="Delete" class="button-group-base2" id="deletemattertab">Delete Request<span id="DeleteTradeCount"></span></a>
+                }
+                <span id="spPhoneticSearch" style="display:none"><a href="#" title="Phonetic Search" class="button-group-base2 active" id="searchPhonetictab">Phonetic Search<span id="PhoSearchCount"></span></a></span>
+            </div>
+            <div style="display:inline-flex">
+                <a href="#" title="Add new Manually" id="AddmanuallyTrade" class="btnManual"><span><img class="plus-icon" alt="" src="/newassets/img/Icon.svg"></span>Add Manually</a>
+                <a href="#" title="Add new Matter" id="AddTradeAfterSearch" class="button4"><span><img src="~/newassets/img/plus-icon.png" /></span><span id="btnNameDetail"></span></a>
+            </div>
+        </div>
+    </div>
+</section>*@
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"><h2 id="dynamicnotiheader">Add Trademark</h2></p>
+        </div>
+        <div class="tabs-and-filters" style="margin:0;">
+            <div class="button-group">
+                <a href="#" title="Trademark Search" id="searchIP" class="button-group-base">Trademark</a>
+                <a href="#" class="button-group-base1" title="Proprietor Search" id="propSearch">Proprietor</a>
+                <a href="#" title="Agent Result" class="button-group-base2" id="searchAgent" style="display:none">Agent<span id="AgentCount"></span></a>
+                <span id="spPhoneticSearch" style="display:none"><a href="#" title="Phonetic Search" class="button-group-base2 active" id="searchPhonetictab">Phonetic Search<span id="PhoSearchCount"></span></a></span>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="wrapper" style="margin:unset !important">
+    <div class="container-main">
+        @*<h2 class="title" id="dynamiciprheader">Phonetic Search</h2>*@
+        <div id="page-wrapper">
+            <!-- Main content -->
+            <form class="ec_bg wrapper_ipr_rate" style="margin-top:12px;" enctype="multipart/form-data" autocomplete="off" id="iprform">
+                <div class="row">
+                    <div class="col-md-4" id="hidename">
+                        <div class="form-group">
+                            <label class="formLabel colorDark"><span class="control-label">Search</span></label>
+                            <input type="text" id="filtertradmark" placeholder="Search" class="form-control inputFormat" autofocus>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="formLabel colorDark"><span class="control-label">&nbsp;</span></label>
+                        <div class="form-group" style="display:flex; gap:12px;" id="btns">
+                            <button type="button" id="btnsearch" class="btn btn-primary pull-right" value="SEARCH">Search</button>
+                            <button type="button" id="btnClear" class="btn btn-secondary" value="CLEAR">Reset</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4" id="hide">
+                        <!-- Empty div to match spacing like previous forms -->
+                    </div>
+
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <div style="overflow-x:auto;">
+                    <table class="table-panel">
+                        <thead>
+                            <tr id="thval">
+                                <th style="width:10%">
+                                    <div class="thbg">
+                                        S.No
+                                    </div>
+                                </th>
+                                <th style="width:70%">
+                                    <div class="thbg">
+                                        Mark
+                                    </div>
+                                </th>
+                                <th style="width:20%; text-align:center">
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="bindPhoneticSearchData"></tbody>
+                    </table>
+                    <center>
+                        <div class="notfound" id="pdatastatus">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4><span id="dtNotFound">Data not Found</span></h4>
+
+                        </div>
+                    </center>
+                </div>
+                @*<div class="table-panel">
+                <div class="settingpanel">
+                    <div class="col-md-6">
+                        <div style="float: left;padding: 0 10px 0 0;">
+                        </div>
+                        <div id="ptfooter">
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+                <div class="pagination" id="tradePagination" style="display:none">
+                    <div class="pagination-button-group">
+                        <div id="prev" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbers" class="pagination-button-group-base1">
+                        </div>
+                        <div id="next" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGo" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@*Start wordMark Detail model popup*@
+<div id="bindTradeDetails" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:70%;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h3 class="modal-title" id="modal-header">
+                    Trademark Detail
+                </h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="table-panel table-responsive" style="margin-top:5px;">
+                            <div style="max-height:410px;overflow-y:auto">
+                                <table class="table-panel">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:10%">
+                                                <div class="thbg">
+                                                    S.No.
+                                                </div>
+                                            </th>
+                                            <th style="width:50%">
+                                                <div class="thbg">Application No. </div>
+                                            </th>
+                            <th style="width:40%">
+                                <div class="thbg">Mark</div>
+                            </th>
+
+
+                            </tr>
+                            </thead>
+                            <tbody id="bindSameWordmark"></tbody>
+                            </table>
+                        </div>
+                            <div class="pagination" id="ExamPagination">
+                                <div class="pagination-button-group">
+                                    <div id="ExamPrev" class="pagination-button-group-base">
+                                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                    </div>
+                                    <div id="ExamPageNumbers" class="pagination-button-group-base1">
+                                    </div>
+                                    <div id="ExamNext" class="pagination-button-group-base8">
+                                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-parent">
+                                    <div class="input">
+                                        <div class="content">
+                                            <input type="text" id="Examtxtgopage" name="query" placeholder="Page No.">
+                                        </div>
+                                        <div class="help-icon">
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-group">
+                                        <div class="text-and-supporting-text">
+                                            <div id="ExamDivGo" class="text9">Go</div>
+                                        </div>
+                                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                    </div>
+                                </div>
+                            </div>
+                            @*<div class="table-panel">
+            <div class="settingpanel">
+                <div class="col-md-6">
+                    <div style="float: left;padding: 0 10px 0 0;">
+                    </div>
+                    <div id="markFooter">
+                    </div>
+                </div>
+            </div>
+        </div>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*End wordMark Detail model popup*@
+

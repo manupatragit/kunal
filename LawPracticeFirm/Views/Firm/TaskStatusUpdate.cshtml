@@ -1,0 +1,85 @@
+﻿@{
+    Layout = null;
+}
+@{
+    var id = Request.Url.Segments[4];
+}
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/TaskList.js" type="text/javascript"></script>
+<script>
+    var strid =@id
+        var strstatus = $("#drpstatus").val();
+        $('form[id="frmstatus"]').validate({
+            submitHandler: function (form) {
+                var formData = new FormData();
+                formData.append("id", strid);
+                formData.append("status", strstatus);
+                $.ajax(
+                    {
+                        type: "POST",
+                        url: "/api/WorkFlowNewApi/UpdateTaskStatus", // Controller/View
+                        dataType: 'json',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            $("#frmstatus")[0].reset();
+                            new PNotify({
+                                title: 'Success!',
+                                text: ' Updated Successfully',
+                                type: 'success',
+                                delay: 3000
+                            });
+                            //  var datas = JSON.stringify(data);
+                            localStorage.setItem("tskstatus", "1");
+                        },
+                        failure: function (data) {
+                            alert(data.responseText);
+                        },
+                        error: function (data) {
+                            alert(data.responseText);
+                        }
+                    });
+            }
+        });
+</script>
+<div class="modal-header btn-primary">
+    <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Update Status
+    </h4>
+</div>
+<div class="modal-body ">
+    <!-- Main content -->
+    <form id="frmstatus" enctype="multipart/form-data">
+        <!-- Start About boxes -->
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Status</legend>
+                    <div class="form-group form-horizontal">
+                        <select name="drpstatus" class="form-control" id="drpstatus" required>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-actions hidden-print">
+                    <div class="btn-group">
+                        <div class="modal-footer">
+                            <input type="submit" id="btnsave" class="btn save" value="Save">
+                            <button type="button" id="closemodel" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.content -->
+    </form>
+</div>

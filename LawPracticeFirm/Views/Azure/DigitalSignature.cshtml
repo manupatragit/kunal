@@ -1,0 +1,299 @@
+﻿@{
+                /**/
+                /**/
+                ViewBag.Title = "AddContent";
+                var role = Session["sessionroleid"];
+                if (role.ToString() == "1")
+                {
+                    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+                }
+                else if (role.ToString() == "2")
+                {
+                    Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+                }
+                else
+                {
+                    Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+                }
+}
+<script type="text/javascript">
+    var newfilesize = 10240;
+</script>
+<script src="~/Scripts/Azure/DigitalSignature.js?2.7"></script>
+<style>
+    .upload-box {
+        margin: 0 0 15px 0 ;
+        background-color: #f9f9fb;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 25px;
+    }
+
+    .upload-area {
+        text-align: center;
+        padding: 30px;
+        /*border: 2px dashed #ccc;*/
+        border-radius: 10px;
+        /*background-color: #fff;*/
+        cursor: pointer;
+    }
+
+    .upload-icon {
+        display:inline-flex;
+        width:45px;
+        height:45px;
+        border:1px solid gray;
+        border-radius:10px;
+        justify-content:center;
+        align-content:center;
+        padding:10px;
+        margin-bottom:10px;
+    }
+
+      
+
+        .upload-text {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+    .upload-subtext {
+        font-size: 12px;
+        color: #888;
+        /*margin-bottom: 20px;*/
+    }
+
+    .upload-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .upload-btn {
+        padding: 8px 16px;
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .upload_Doc{
+        padding:15px;
+        font-size:16px;
+    }
+    .upload-btn:hover {
+        background-color: #eef2f7;
+    }
+    .ocr_doc_panel1 {
+        background-color: #f9f9fb;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 25px;
+    }
+
+</style>
+<section class="wrapper">
+    <div class="container-main">
+        <section id="header">
+            <div class="container-main">
+                <div class="text-left">
+                    <h2 class="ctitle" style="margin-top:0px;">Add Digital Signature</h2>
+                </div>
+            </div>
+        </section>
+        <form id="fileupload" enctype="multipart/form-data">
+           
+            <!-- Upload Area -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="upload-box">
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-icon"> <img src="~/newassets/img/upload-cloud.svg" /> </div>
+                            <p class="upload-text">Choose a file or drag and drop</p>
+                            <p class="upload-subtext">PDF (max. 10mb)</p>
+                            @*<p class="upload_Doc"> Upload File </p>*@
+                            <div class="upload-buttons" style="padding-top:7px;">
+                                <button type="button" onclick="document.getElementById('attachment').click()" class="upload-btn">Local Drive</button>
+                                <button type="button" onclick="document.getElementById('browsefiledsign').click()" class="upload-btn">MyKase Drive</button>
+                            </div>
+                            <div class="upload-buttons">
+                                <button type="button" id="savecasefilenew" class=" btn btn-primary" value="Process" style="float:right; margin:10px 5px 0 0px;">Process</button>
+                            </div>
+                            <p id="file-name" style="margin-top: 10px; font-size: 14px; color: #333;"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden Inputs -->
+                <input type="file" id="attachment" style="display: none;" accept="application/pdf" onchange="return fileValidation(event)">
+                <ul style="display:none">
+                    <li class="form-control inputbg browsetaskfile" style="margin: 5px;margin-top: 5px;padding: 4px 0 0 10px !important;width: 221px;" title="No file chosen" id="browsefiledsign" module="dsign"></li>
+                </ul>
+
+                @*<input type="file" id="browsefiledsign" style="display: none;" accept="application/pdf" onchange="return fileValidation(event)">*@
+
+                <!-- Process Button -->
+
+            </div>
+
+            <!-- Notes -->
+            @*<div class="row">
+                <div class="col-md-12" style="margin-top:10px;">
+                    <label class="formLabel colorDark">
+                        (Max document size 10Mb allowed.)<br />
+                        (@@\/:*?"&lt;&gt;|.&$%#!~+`*^,) is not allowed.
+                    </label>
+                </div>
+            </div>*@
+        </form>
+
+
+
+
+
+        @*<form id="fileupload" enctype="multipart/form-data">
+            <h2 class="title">Digital Signature</h2>
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="formLabel colorDark" style="text-transform:lowercase;font-weight: 600 !important;font-size: 15px !important;">Select Document</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="btn-group dropdown" style="width:100%">
+                        <div style="cursor:pointer;padding:0 5px 0 0; background-color: #ebebeb !important; float:left; width:77%;" id="commuattachtitle" title="upload Attachment" class="dropdown-toggle selctInputFormat" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            attachments
+                        </div>
+                        <button type="button" id="savecasefilenew" class="sbtbtn" value="Process" style="float:right; margin:-3px 5px 0 0px;">Process</button>
+                        <ul class="dropdown-menu settingaction" style="width:247px">
+                            <li style="margin-left:5px;font-size: 12px;">Choose From <b>Local Drive</b></li>
+                            <li style="padding-top: 5px !IMPORTANT;padding-bottom: 25px !IMPORTANT;margin-left:5px !important;">
+                                <input type="file" id="attachment" class="form-control inputbg" value="AA" style="width:90%;font-size: 12px !important;padding: 4px 0 0 8px !important;" accept="application/pdf" onchange="return fileValidation()">
+                            </li>
+                            <li style="margin: 5px;font-size: 12px;">Choose From <b>mykase Drive</b></li>
+                            <li class="form-control inputbg browsetaskfile" style="margin: 5px;margin-top: 5px;padding: 4px 0 0 10px !important;width: 221px;" title="No file chosen" id="browsefiledsign" module="dsign">
+                                <button type="button" style="font-size: 12px;color: #080000; font-weight: 500;">Choose Files</button>
+                                <span style="font-size: 14px;" id="browsefilelbldsign">No file chosen</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" style="margin-top:10px;">
+                    <label class="formLabel colorDark">
+                        (MAx document size 10Mb allowed.)</br>
+                        (@@\/:*?"<>|.&$%#!~+`*^,) is not allowed.
+                    </label>
+                </div>
+            </div>
+        </form>*@
+        <div class="row">
+            <div class="col-md-12">
+                <p style="font-size: 16px; font-weight: 600; color: #374151; margin: -15px 0 12px 0;">Previous Signed Documents</p>
+                <div>
+                    <div id="divContent" class="table-panel table-responsive" style="border-radius:10px;">
+                        <table class="table-panel" style="font-size: 10px; border-radius:10px; overflow:hidden;">
+                            <tbody id="dv_download_pdf"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="modal_e_sign_type" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/feature.png" style="margin: -10px 0px 0 -10px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4>Signature Customisation</h4>
+            </div>
+            <div class="modal-body">
+                        <form role="form" id="editfile">
+                            <input type="hidden" value="" id="editfilenamehidden">
+                            <input type="hidden" value="" id="filefullpath">
+                            <div class="row">
+                                <div class="col-md-12">Sign Type</div>
+                                <div class="col-md-4" style="margin-top:6px;"><input name="ch_radio" type="radio" id="" value="2">
+                                <label>DSC Signature</label></div>
+                                <div class="col-md-4" style="margin-top:6px;"><input name="ch_radio" type="radio" id="" value="3">
+                                <label>Aadhaar Signature</label></div>
+                                <div class="col-md-4" style="margin-top:6px;"><input name="ch_radio" type="radio" id="" value="4">
+                                <label>E Signature</label></div>
+                            </div>
+                            <div class="row" style="clear: both; padding: 15px 0 0 0;">
+                                <div class="col-md-12">Sign Page</div>
+                                <div class="col-md-4" style="margin-top:6px;">
+                                    <input type="radio" id="all" name="page" value="ALL">
+                                    <label for="ALL">All Page</label>
+                                </div>
+                                <div class="col-md-4" style="margin-top:6px;">
+                                    <input type="radio" id="first" name="page" value="FIRST">
+                                    <label for="FIRST">First Page</label>
+                                </div>
+                                <div class="col-md-4" style="margin-top:6px;">
+                                    <input type="radio" id="last" name="page" value="LAST">
+                                    <label for="LAST">Last Page</label>
+                                </div>
+                            </div>
+                        </form>
+                    
+            </div>
+            <div class="modal-footer" style="border-top:none;">
+                <div class="row">
+                    <div class="col-md-6"><button type="button" class="btn btn-secondary" data-dismiss="modal" style="width:100%;">Cancel</button></div>
+                    <div class="col-md-6"><button type="submit" class="btn btn-primary" id="DigiFileSaves" style="width:100%;">Confirm</button></div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

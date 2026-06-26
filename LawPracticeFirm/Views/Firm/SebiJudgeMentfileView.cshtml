@@ -1,0 +1,444 @@
+﻿
+@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    #opencasewatchusermodal {
+        cursor: pointer;
+    }
+
+    .glyphicon-book, .glyphicon-trash, .glyphicon-pencil {
+        color: black !important;
+    }
+
+    .trcolor {
+        background: #f5c9c9 !important;
+    }
+
+        .trcolor td {
+            background-color: transparent !important;
+        }
+</style>
+<script>
+    var pageindex = 1,
+        pagesize = 10, recordcount = 0, totrecord = 0;
+    $(document).ready(function () {
+
+        GetSebiFileData();
+    });
+    function ViewFile(filename) {
+        $("#devSebiDocument").empty();
+             var fileName = filename;
+        var formData = new FormData();
+        formData.append("fileName", fileName )
+        $.ajax({
+            type: "POST",
+            url: "/firm/ViewSebiFileById",
+            dataType: 'html',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                const scriptRegex = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
+                const anchorRegex = /<a\b([^>]*?)href\s*=\s*["'][^"']*["']([^>]*?)>/gi;
+                const imgTagRegex = /<img\b[^>]*>/gi;
+                const iTagRegex = /<i\b[^>]*>(.*?)<\/i>/gi;
+                let cleanedContent = data.replace(scriptRegex, '');
+                cleanedContent = cleanedContent.replace(anchorRegex, '<a$1$2 style="color: black;">');
+                cleanedContent = cleanedContent.replace(iTagRegex, '$1');
+                cleanedContent = cleanedContent.replace(imgTagRegex, '');
+
+
+                $("#devSebiDocument").append(cleanedContent);
+                $("#JudgementViewModal").modal('show');
+         
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error occurred: ' + textStatus, errorThrown);
+                $("#devSebiDocument").append('<p>An error occurred while processing your request.</p>');
+            }
+        });
+    }
+
+    function downloadPdf(filename) {
+        var urls = "/" + fcode + "/Firm/ExportoSebiJudgeMentPdf";
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: {
+                "filename": filename
+             
+            }
+        });
+    }
+
+
+    function GetSebiFileData() {
+        var formData = new FormData();
+        formData.append("PageNo", pageindex);
+        formData.append("SearchText", $("#JudgementTitle").val());
+        formData.append("PageSize", pagesize);
+
+        $.ajax({
+            type: "POST",
+            url: "/api/MatterApi/ViewSebiFileList",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                var htmls = '';
+               // var obj = response.Data;
+                var obj = JSON.parse(response.Data);
+                if (obj.length > 0) {
+                    $.each(obj, function (index, value) {
+
+                        if (index === (length - 3)) {
+                            var pnext = pageindex;
+                            var pprev = pageindex;
+                            var pageno = pageindex;
+
+                            var totdata = value.TotalCount;
+                            var totpage = 0;
+                            if (value.TotalCount > 0) {
+                                pnext = parseInt(pnext) + 1;
+                                if (pnext == 0) pnext = 1;
+
+                                pprev = parseInt(pageno) - 1;
+                                if (pprev == 0) pprev = 1;
+                                totpage = parseInt(totdata) / parseInt(pagesize);
+
+                                if (parseInt(totdata) % parseInt(pagesize) != 0) {
+                                    totpage = parseInt(totpage) + 1;
+                                }
+
+                                $("#pagnumvalue").val(totpage);
+
+                            }
+
+                            var tfot = '';
+                            $("#exportrecords").val(value.TotalCount);
+                            tfot += '<div class="row"><div class="col-md-6"><ul>'
+                            tfot += '<li>results <span>' + value.TotalCount + '</span>  <span id="sotopage" style="display:none">' + totpage + '</span></li>'
+
+                            tfot += '<li><span>|</span></li>'
+                            tfot += '<li>pages ' + pageindex + '/ ' + parseInt(totpage) + '</li>'
+                            tfot += '<li><span>|</span></li>'
+                            tfot += `<li><input type="number" id="pagnumvalue" min="1"  class="footerInput"><a class="gobtn" style="cursor:pointer" type="button" id="getdatabypagenum" style="margin-left:10px;">Go</button></a></li>`
+
+                            if (value.TotalCount <= length) {
+
+                            }
+                            else if (pageno == 1) {
+
+                            }
+                            else if (pageno == totpage) {
+                                tfot += '<li><span><a id="paginate"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png" id="getdatabypagenumPrev"></a></span>   <span>'
+
+                            }
+
+                            else {
+                                tfot += '<li><span><a id="paginate"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png" id="getdatabypagenumPrev" ></a></span><span>'
+                            }
+
+                            if (pageno < totpage) {
+                                tfot += '<a  id="paginate" title="Next Page" href="javascript:void()" index="' + pnext + '"  ><img src="/newassets/images/arrow_right.png" style="padding:3px 0 0 0; cursor:pointer" id="getdatabypagenumNext"></a ></span ></li >'
+
+                            }
+
+
+                            tfot += '</ul></div>'
+                            $("#ptfooter").html("");
+                            $("#ptfooter").html(tfot);
+                        }
+
+
+                        htmls += '<tr>' +
+                            '<td>' + value.RowNum + '</td>' +
+                            '<td>' + value.Title + '</td>' +
+                            '<td>' + value.ManuId + '</td>' +
+                            '<td><span id="VieWFileById" class="glyphicon glyphicon-file" style="color:black; cursor:pointer;"  title="View File" onclick="ViewFile(\'' + value.FileName + '\')"> </span>&nbsp;|&nbsp;<span id="downloadFileById" class="glyphicon glyphicon-download" style="color:black; cursor:pointer;"  title="Download File" onclick="downloadPdf(\'' + value.FileName + '\')"> </span></td></tr>';
+                    });
+                    $('#BindJudgeMentData').html(htmls);
+                }
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    }
+
+
+
+
+
+
+    //Filter  Data Result 
+    function GetSebiFilterResult() {
+        pageindex = 1;
+        pagesize = 10;
+
+        var formData = new FormData();
+        formData.append("PageNo", pageindex);
+        formData.append("SearchText", $("#JudgementTitle").val());
+        formData.append("PageSize", pagesize);
+
+        $.ajax({
+            type: "POST",
+            url: "/api/MatterApi/ViewSebiFileList",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                var htmls = '';
+                var obj = response.Data;
+
+                if (obj.length > 0) {
+                    $.each(obj, function (index, value) {
+
+                        if (index === (length - 3)) {
+                            var pnext = pageindex;
+                            var pprev = pageindex;
+                            var pageno = pageindex;
+
+                            var totdata = value.TotalCount;
+                            var totpage = 0;
+                            if (value.TotalCount > 0) {
+                                pnext = parseInt(pnext) + 1;
+                                if (pnext == 0) pnext = 1;
+
+                                pprev = parseInt(pageno) - 1;
+                                if (pprev == 0) pprev = 1;
+                                totpage = parseInt(totdata) / parseInt(pagesize);
+
+                                if (parseInt(totdata) % parseInt(pagesize) != 0) {
+                                    totpage = parseInt(totpage) + 1;
+                                }
+
+                                $("#pagnumvalue").val(totpage);
+
+                            }
+
+                            var tfot = '';
+                            $("#exportrecords").val(value.TotalCount);
+                            tfot += '<div class="row"><div class="col-md-6"><ul>'
+                            tfot += '<li>results <span>' + value.TotalCount + '</span>  <span id="sotopage" style="display:none">' + totpage + '</span></li>'
+
+                            tfot += '<li><span>|</span></li>'
+                            tfot += '<li>pages ' + pageindex + '/ ' + parseInt(totpage) + '</li>'
+                            tfot += '<li><span>|</span></li>'
+                            tfot += `<li><input type="number" id="pagnumvalue" min="1"  class="footerInput"><a class="gobtn" style="cursor:pointer" type="button" id="getdatabypagenum" style="margin-left:10px;">Go</button></a></li>`
+
+                            if (value.TotalCount <= length) {
+
+                            }
+                            else if (pageno == 1) {
+
+                            }
+                            else if (pageno == totpage) {
+                                tfot += '<li><span><a id="paginate"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png" id="getdatabypagenumPrev"></a></span>   <span>'
+
+                            }
+
+                            else {
+                                tfot += '<li><span><a id="paginate"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png" id="getdatabypagenumPrev" ></a></span><span>'
+                            }
+
+                            if (pageno < totpage) {
+                                tfot += '<a  id="paginate" title="Next Page" href="javascript:void()" index="' + pnext + '"  ><img src="/newassets/images/arrow_right.png" style="padding:3px 0 0 0; cursor:pointer" id="getdatabypagenumNext"></a ></span ></li >'
+
+                            }
+
+
+                            tfot += '</ul></div>'
+                            $("#ptfooter").html("");
+                            $("#ptfooter").html(tfot);
+                        }
+
+
+                        htmls += '<tr>' +
+                            '<td>' + value.RowNum + '</td>' +
+                            '<td>' + value.Title + '</td>' +
+                            '<td>' + value.Court_Name + '</td>' +
+                            '<td><span id="VieWFileById" class="glyphicon glyphicon-file" style="color:black; cursor:pointer;"  title="View File" onclick="ViewFile(\'' + value.FileName + '\')"> </span>&nbsp;|&nbsp;<span id="VieWFileById" class="glyphicon glyphicon-download" style="color:black; cursor:pointer;"  title="View File" onclick="downloadPdf(\'' + value.FileName + '\')"> </span></td></tr>';
+                    });
+                    $('#BindJudgeMentData').html(htmls);
+                }
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    }
+    //pagination start
+
+    //Pagination Section Start for table
+    $(document).on('click', '#getdatabypagenum', function () {
+
+
+        ppageindex = $("#pagnumvalue").val();
+
+        if (ppageindex != "undefined") {
+            pageindex = ppageindex;
+            if (Math.sign(ppageindex) == 1) {
+                var ppageindesx = $("#sotopage").text();
+
+                if (ppageindex <= parseInt(ppageindesx)) {
+                    openload();
+                    GetSebiFileData();
+                    closeload();
+                }
+                else {
+                    alert("Please enter a valid page number.");
+                    closeload();
+                    return false;
+                }
+            }
+        }
+    });
+
+    $(document).on('click', '#getdatabypagenumNext', function () {
+
+
+
+        if (pageindex != "undefined") {
+            pageindex = pageindex + 1;
+            openload();
+            GetSebiFileData();
+            closeload();
+        }
+        else {
+            alert("Please enter a valid page number.");
+            closeload();
+            return false;
+        }
+
+
+    });
+
+    $(document).on('click', '#getdatabypagenumPrev', function () {
+
+
+
+        if (pageindex != "undefined") {
+            pageindex = pageindex - 1;
+            openload();
+            GetSebiFileData();
+            closeload();
+        }
+        else {
+            alert("Please enter a valid page number.");
+            closeload();
+            return false;
+        }
+
+
+    });
+    //Pagination end
+    var fcode = localStorage.getItem("FirmCode");
+</script>
+
+<section class="wrapper">
+    <div class="container-main">
+
+        @*<div id="devSebiDocument"></div>
+            <button id="myActionButton">My Button </button>*@
+        <div>
+            <div class="text-left">
+                <p class="ctitle"> JudgeMent List</p>
+            </div>
+            <form class="ec_bg" enctype="multipart/form-data" autocomplete="off" id="SearchFilter">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group ">
+
+                            <input type="text" id="JudgementTitle" maxlength="200" placeholder="Enter the Title" class="inputFormat" autofocus>
+
+                        </div>
+
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group ">
+                            <button type="button" id="btnsubmit" class="sbtbtn pull-left" style="width: 30%;" onclick="GetSebiFilterResult()">Search</button>
+                            </div>
+                        </div>
+                    </div>
+            </form>
+                <div class="table-panel table-responsive">
+                    <div style="overflow-x:scroll;">
+                        <table id="JudgeMentList" class="table " style="min-height:161px">
+                            <thead>
+                                <tr id="headrow">
+                                    <th>
+                                        <div class="thbg">
+                                            Sr No.
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="thbg">
+                                            Title
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="thbg">
+                                           Manu Id
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="thbg">
+                                            Action
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="BindJudgeMentData">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="table-panel">
+                    <div class="settingpanel">
+                        <div class="col-md-12">
+                            <div style="float: left;padding: 0 10px 0 0;">
+
+                            </div>
+                            <div id="ptfooter">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+
+    <div id="JudgementViewModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" style="width:70%;">
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal" id="closeModalPage">&times;</button>
+                </div>
+                <div class="modal-body" id="devSebiDocument">
+                    @*<div id="devSebiDocument"></div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+

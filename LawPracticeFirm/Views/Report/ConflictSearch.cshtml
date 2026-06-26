@@ -1,0 +1,313 @@
+﻿@{
+    ViewBag.Title = "ConflictSearch";
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<script src="~/Scripts/Firm/Pages/ConflictSearch.js?3.2"></script>
+<script>
+    $(document).ready(function () {
+        $('.trigger').click(function () {
+            var clsd = $(this).attr("coltype");
+            var dtt = $(this).attr("ttllbl");
+            $(clsd).toggle();
+            if ($(this).hasClass('collapsed')) {
+                $(this).html('<span class="sbtbtn">- less</span> ' + dtt);
+                $(this).removeClass('collapsed');
+            } else {
+                $(this).html('<span class="sbtbtn">+ more</span> ' + dtt);
+                $(this).addClass('collapsed');
+            }
+        });
+        $(document).on("click", "#select_all", function () {
+            $(".checkboxsearch").prop('checked', $(this).prop('checked'));
+        });
+    });
+</script>
+<style>
+    .trigger-more {
+        border: none;
+        background: transparent;
+        font-size: 14px;
+        color: #337ab7;
+        margin: -17px 0 0 0;
+    }
+
+    .pmicon, .headtxt {
+        color: #0059c1;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .tooltip{
+        width:350px !important;
+       
+    }
+    .tooltip-inner {
+        max-width:400px !important;
+        padding:10px 20px;
+    }
+    /*.check_form_wrapper{
+      display:flex;
+    }
+        .check_form_wrapper .form-check{
+            flex:2;
+            display:flex;
+            align-items:center;
+            gap:6px;
+        }*/
+
+    .check_form_wrapper {
+        display:grid;
+        grid-template-columns:repeat(1fr, 3);
+    }
+
+    .form-check {
+        row-gap:10px;
+        break-inside: avoid; /* prevent splitting elements */
+        margin-bottom: 1rem;
+    }
+    .ms-options-wrap {
+        padding: 1px 10px !important;
+    }
+        .ms-options-wrap > .ms-options > ul input[type="checkbox"] {
+            top: -1px !important;
+        }
+</style>
+<section class="wrapper">
+    <div class="container-main">
+        <section id="header">
+            <div class="container-main" style="display:flex; align-items:center; justify-content:space-between;">
+                <div class="text-left">
+                    <h2 class="ctitle" style="display:flex; align-items:center; gap:8px; margin-top:0;">Conflict Search  <img src="~/newassets/img/info-circle.svg" data-toggle="tooltip" data-placement="bottom" title="A conflict exists if One client’s interests oppose another’s or if representation is limited by obligations to former client, another client or personal interests." /></h2>
+                </div>
+
+            </div>
+        </section>
+        <section class="conflict_search">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label>Search</label>
+                        <input type="text" class="form-control inputFormat" placeholder="Search" id="searchdata">
+                    </div>
+                </div>
+                @*<div class="col-md-3">
+                    <div class="form-group check_form_wrapper">
+                        <div class="form-check">
+                            <input class="form-check-input checkboxsearch" type="checkbox" id="CaseName" name="CaseName" value="2">
+                            <label class="form-check-label" for="CaseName">Matter Name</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input checkboxsearch" type="checkbox" id="Plaintiff" name="Plaintiff" value="4">
+                            <label class="form-check-label" for="Plaintiff">Petitioner</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input checkboxsearch" type="checkbox" id="Defendant" name="Defendant" value="5">
+                            <label class="form-check-label" for="Defendant">Respondent</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input checkboxsearch" type="checkbox" id="Company" name="Company" value="6">
+                            <label class="form-check-label" for="Company">Company</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input checkboxsearch" type="checkbox" id="ClientName" name="ClientName" value="1">
+                            <label class="form-check-label" for="ClientName">Client Contact</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input checkboxsearch" type="checkbox" id="OtherParty" name="OtherParty" value="9">
+                            <label class="form-check-label" for="OtherParty">Other Party</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="select_all" name="select_all">
+                            <label class="form-check-label" for="select_all">All</label>
+                        </div>
+
+                    </div>
+                </div>*@
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Type <span aria-required="true"><b>*</b> </span></label>
+                        <select class="selctInputFormat" name="languageSelect[]" id="actcontacttype" multiple></select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <div style="display: grid; grid-template-columns: 65% auto; gap: 10px; margin: 22px 0 0 0;">
+                            <button type="button" class="btn btn-primary" id="btnsearch">Search</button>
+                            <button type="button" class="btn btn-secondary" id="clearnewseach">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        @* table search started*@
+    <div class="table table-responsive" style="margin-top:12px;">
+        <div id="statusdiv" style="display:none;text-align:center"></div>
+
+        <div class="card-header_div" id="div1" style="display:none">
+            <h5>Matter Name/Petitioner/Respondent/Company/Client Contact/Other Party <span id="bindcasedatadivcount"></span> </h5>
+            <table id="example" class="table-panel">
+                <thead>
+                    <tr>
+                        @*<th><div class="thbg">Search Found</div></th>*@
+                        <th><div class="thbg">Client type</div></th>
+                        <th><div class="thbg">Client</div></th>
+                        <th><div class="thbg">Matter Name</div></th>
+                        <th><div class="thbg">Matter Number</div></th>
+                        <th><div class="thbg">Matter Type</div></th>
+                        <th><div class="thbg">Matter Team Lead</div></th>
+                        <th><div class="thbg">Created By</div></th>
+                        <th width="150px"><div class="thbg">Open Date</div></th>
+                    </tr>
+                </thead>
+                <tbody id="bindcasedata"></tbody>
+            </table>
+            @*<div id="casetfooter"></div>*@
+
+            <div class="pagination" id="tradePagination">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                    </div>
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div id="div2" style="display:none" class="card-header_div">
+            <h5>Plantiff <span id="bindcasedatadivcount1"></span></h5>
+            <table id="example1" class="table-panel">
+                <thead>
+                    <tr><th><div class="thbg">Search Found</div></th><th><div class="thbg">Matter</div></th><th><div class="thbg">Matter No.</div></th><th><div class="thbg">Status</div></th><th><div class="thbg">Assign To</div></th><th><div class="thbg">Court</div></th><th><div class="thbg">Other Court</div></th><th><div class="thbg">Matter Type</div></th></tr>
+                </thead>
+                <tbody id="bindcasedata1"></tbody>
+            </table>
+            <div id="statusdiv1" style="display:none;text-align:center"></div>
+            <div id="casetfooter1">
+            </div>
+        </div>
+        <div id="div3" style="display:none" class="card-header_div">
+            <h5>Defendant <span id="bindcasedatadivcount2"></span></h5>
+            <table id="example2" class="table-panel">
+                <thead>
+                    <tr><th><div class="thbg">Search Found</div></th><th><div class="thbg">Matter</div></th><th><div class="thbg">Matter No.</div></th><th><div class="thbg">Status</div></th><th><div class="thbg">Assign To</div></th><th><div class="thbg">Court</div></th><th><div class="thbg">Other Court</div></th><th><div class="thbg">Matter Type</div></th></tr>
+                </thead>
+                <tbody id="bindcasedata2"></tbody>
+            </table>
+            <div id="statusdiv2" style="display:none;text-align:center"></div>
+            <div id="casetfooter2">
+            </div>
+        </div>
+        <div id="div4" style="display:none" class="card-header_div">
+            <h5>Other Co-parties <span id="bindcasedatadivcount3"></span></h5>
+            <table id="example3" class="table-panel">
+                <thead>
+                    <tr><th><div class="thbg">Search Found</div></th><th><div class="thbg">Matter</div></th><th><div class="thbg">Matter No.</div></th><th><div class="thbg">Assign To</div></th><th><div class="thbg">Court</div></th><th><div class="thbg">Other Court</div></th></tr>
+                </thead>
+                <tbody id="bindcasedata3"></tbody>
+            </table>
+            <div id="statusdiv3" style="display:none;text-align:center"></div>
+            <div id="casetfooter3">
+            </div>
+        </div>
+        <div id="div5" style="display:none" class="card-header_div">
+            <h5>Client/Partner <span id="bindcasedatadivcount4"></span></h5>
+            <table id="example4" class="table-panel">
+                <thead>
+                    <tr><th><div class="thbg">Search Found</div></th><th><div class="thbg">Client Type</div></th><th><div class="thbg">Company Name</div></th><th><div class="thbg">Name</div></th><th><div class="thbg">Contact type</div></th><th><div class="thbg">Mobile</div></th><th><div class="thbg">Email</div></th><th><div class="thbg"> Designation</div></th></tr>
+                </thead>
+                <tbody id="bindcasedata4"></tbody>
+            </table>
+            <div id="statusdiv4" style="display:none;text-align:center"></div>
+            <div id="casetfooter4">
+            </div>
+        </div>
+        @*<div class="row settingpanel">&nbsp;</div>*@
+        <center>
+            <div class="notfound" id="pdatastatus" style="display:block; padding:0;">
+                <img src="~/newassets/img/not-found.png" />
+                <h4><span id="dtNotFound"></span>No Data Found</h4>
+                <h6>Use the filters above to generate your search.</h6>
+
+            </div>
+        </center>
+    </div>
+        @* table search ended *@
+
+      
+    </div>
+</section>
+
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.7);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>

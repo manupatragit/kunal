@@ -1,0 +1,459 @@
+﻿@{
+    ViewBag.Title = "Team";
+    Layout = null;//"~/Views/Shared/_ManuPanelPartial.cshtml";
+    var strcurdate = DateTime.Now.ToString("dd MMM yyyy");
+    var firmcode121 = Session["FirmCode"];
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link href="/Manupanel/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="~/newassets/css/style.css" rel="stylesheet" type="text/css" />
+<link href="~/newassets/css/custom.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<style>
+    table th, td {
+        font-size: 12px !important;
+    }
+</style>
+<style>
+    .glyphicon-pencil, .glyphicon-trash, .glyphicon-open-eye {
+        color: black !important;
+    }
+</style>
+<div>
+    <div>
+        <div class="content-header">
+            <ul class="btn_panel" style="padding:0;" id="sectiontemp">
+                <li>Channel Name :</li>
+                <li><input type="text" class="form-control inputbg" id="Channelname1" /> <button type="button" class="sbtbtn" style="margin-top:-25px; float: right" id="btnsearch1" onclick="CustomChannelListQT(1);"><i class="glyphicon glyphicon-search"></i></button></li>
+            </ul>
+        </div>
+        <div class="table-panel table-responsive">
+            <table id="customexampleteam1" class="table " style="margin:0 auto;">
+                <thead>
+                    <tr><th><div class="thbg">Date</div></th><th><div class="thbg">Channel Name</div></th><th><div class="thbg">Matter Name</div></th><th><div class="thbg">Group Info</div></th><th style="text-align:center;"><div class="thbg">Chat</div></th><th style="text-align:center;"><div class="thbg">Action</div></th></tr>
+                </thead>
+                <tbody id="custombinddataqt"></tbody>
+            </table>
+            <div class="row settingpanelteam settingpanel">
+                <div class="col-md-6">
+                    <div>
+                        <ul>
+                            <li>
+                                <div class="btn-group dropup" style="display:none">
+                                    <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                        Customize Field <span class="glyphicon glyphicon-chevron-down"></span>
+                                    </a>
+                                    <ul class="dropdown-menu settingshowhide" id="EColli1">
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Team1" checked><a href="#" class="dropdown-item">Team</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Chat1" checked><a href="#" class="dropdown-item">Chat</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li style="margin-left:18px;margin-top:12px;">
+                                <div id="ecfootercustom1"></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="currdate" value="@strcurdate" />
+<script src="~/Scripts/Firm/Pages/Chat.js?2.1"></script>
+<script>
+    $(document).ready(function () {
+        CustomChannelListQT(1);
+        $(document).on('click', '#mclose', function () {
+            $("#modalview1").hide();
+        });
+        $(document).on('click', '#ChannelidGroup1', function () {
+            var strteamname = $(this).attr("data-tname");
+            var strfchannelid = $(this).attr("data-val");
+            var strffirmid = $("#firmid");
+            var strfuserid = $("#userid");
+            var strfusername = $("#username");
+            var url = "UserLogin?tid=" + strfchannelid + "&uid=" + strfuserid + "&unm=" + strfusername + "&fid=" + strffirmid + "&tnm=" + strteamname + "&ty=m";            //window.location.href = url;
+            window.open(url, '', "menubar=0,resizable=1,width=1000,height=600,left=200");
+        });
+        $(document).on('click', '#ViewEdit', function () {
+            var strchannelid = $(this).attr("datachannel");
+            var strteamid = $(this).attr("datateamid");
+            var strchannelname = $(this).attr("datachname");
+            var stractiontype = $(this).attr("dataaction");
+            var strteamname = $(this).attr("datateamname");
+            if (stractiontype == "view") {
+                var url = "ChannelMember?cid=" + strchannelid + '&tid=' + strteamid + '&at=1&chn=' + strchannelname + '&tnm=' + strteamname;            //window.location.href = url;
+            }
+            else {
+                var url = "ChannelMember?cid=" + strchannelid + '&tid=' + strteamid + '&at=2&chn=' + strchannelname + '&tnm=' + strteamname;          //window.location.href = url;
+            }
+            window.open(url, '', "menubar=0,resizable=1,width=1000,height=400,left=200,top=100");
+        });
+        $(document).on('click', '#channeldelete', function () {
+            if (confirm("Are you sure to delete this channel ?")) {
+                var formData = new FormData();
+                var strchannelid = $(this).attr("datadel");
+                formData.append("Channelguid", strchannelid);
+                $.ajax(
+                    {
+                        type: "POST",
+                        url: "/api/ChatApi/ChannelDel", // Controller/View
+                        dataType: 'json',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            alert("Deleted successfully.");
+                        },
+                        failure: function (data) {
+                            alert(data.responseText);
+                        },
+                        error: function (data) {
+                            alert(data.responseText);
+                        }
+                    });
+                CustomChannelListQT(1);
+            }
+        });
+    });
+</script>
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("exampleteam");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 1; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<div id="myOverlay1" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<div id="modalview1" class="modal_a" style="display:none">
+    <div class="modal_a-content">
+        <img src="/NewDesign/images/v_btn.png" class="close_a" id="mclose" width="22px" height="22">
+        <iframe src="" id="frm" width="100%" height="550px" frameborder="0"></iframe>
+    </div>
+</div>
+<style>
+    .modal_a {
+        position: fixed;
+        z-index: 9999999999;
+        padding-top: 20px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.8);
+    }
+
+    .modal_a-content {
+        background-color: #fefefe;
+        margin: 0px auto 0;
+        padding: 10px 10px;
+        border: 1px solid #000;
+        border-radius: 5px;
+        width: 70%;
+        height: 600px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+    }
+
+    .close_a {
+        position: relative;
+        right: -20px;
+        top: -22px;
+        float: right;
+    }
+
+        .close_a:hover, .close_a:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+</style>
+<script>
+    var customecpageindex11 = 1, customecpagesize1 = 10;
+    function CustomChannelListQT(customecpageindex1) {
+        var ecpagesize = 10;
+        $("#custombinddataqt").html("");
+        var formData = new FormData();
+        formData.append("channelname", $("#Channelname1").val());
+        formData.append("pagenum", customecpageindex1);
+        formData.append("pagesize", customecpagesize1);
+        openload();
+        var strrecordexist = 0;
+        var ld12 = $.ajax({
+            async: true,
+            url: '/api/ChatApi/CreatedChatChannelList',
+            data: formData,
+            processData: false,
+            contentType: false,
+            type: 'POST',
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    // var obj = JSON.parse(response.Data);
+                    // alert(datas);
+                }
+                $("#ecfootercustom1").empty();
+                var length = response.Data.length;
+                var tfot = "";
+                var html3 = '';
+                $.each(response.Data, function (i, val) {
+                    strrecordexist = 1;
+                    if (i === 0) {
+                        firstvalue = val.rownum;
+                    }
+                    if (i === (length - 1)) {
+                        var pnext = customecpageindex1;
+                        var pprev = customecpageindex1;
+                        var pageno = customecpageindex1;
+                        var totdata = val.totRow;
+                        var totpage = 0;
+                        if (val.totRow > 0) {
+                            pnext = parseInt(pnext) + 1;
+                            if (pnext == 0) pnext = 1;
+                            pprev = parseInt(pageno) - 1;
+                            if (pprev == 0) pprev = 1;
+                            totpage = parseInt(totdata) / parseInt(ecpagesize);
+                            if (parseInt(totdata) % parseInt(ecpagesize) != 0) {
+                                totpage = parseInt(totpage) + 1;
+                            }
+                            $("#customcpagnumvalue1").attr("max", totpage);
+                        }
+                        tfot += '<li>results <span>' + totdata + '</span>  <span id="customsotopage" style="display:none">' + totpage + '</span></li>'
+                        tfot += '<li><span>|</span></li>'
+                        tfot += '<li>pages ' + customecpageindex1 + '/ ' + parseInt(totpage) + '</li>'
+                        tfot += '<li><span>|</span></li>'
+                        tfot += '<li ><input type="number" id="customcpagnumvalue1" min="1"  class="footerInput"><a class="gobtn" type="button" id="customcgetpagnumvalue1" style="margin-left:10px;cursor:pointer">Go</button> </li>'
+                        tfot += '<li>'
+                        if (val.totRow <= length) { }
+                        else if (pageno == 1) { }
+                        else if (pageno == totpage) {
+                            tfot += '<li><span><a id="custompaginate1"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png" ></a></span>  ' + firstvalue + '-' + val.rownum + '  <span>'
+                        }
+                        else {
+                            tfot += '<li><span><a id="custompaginate1"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png"> </a></span>  ' + firstvalue + '-' + val.rownum + '  <span>'
+                        }
+                        // tfot += ' ' + ecpageindex + ' '
+                        if (pageno < totpage) {
+                            tfot += '<a id="custompaginate1" title="Next Page" href="javascript:void()" index="' + pnext + '"><img src="/newassets/images/arrow_right.png" style="padding:3px 0 0 0;"></a></span>'
+                        }
+                        $("#ecfootercustom1").append(tfot);
+                    }
+                    if (val.InvitedByUser == 1) {
+                        html3 += '<tr><td width="10%">' + val.CreatedOn + ' </td><td width="25%">' + val.ChannelName + ' </td><td width="30%">' + val.CaseName + ' </td><td width="20%">' + val.UserList + ' </td><td align="center"> </a>&nbsp;<a href="#" id="ChannelidGroup1" data-val=' + val.ChannelGuid + ' data-tname=' + val.ChannelName.toString().replace(/ /g, "_") + '><img src="/newassets/images/join.png" title="Rejoin" /></a></td><td align="center"><a id="ViewEdit" href="#" datachannel=' + val.ChannelGuid + ' datateamid=' + val.teamid + ' datateamname="' + val.CaseName + '" datachname="' + val.ChannelName + '" dataaction="viewedit"> <span class="glyphicon glyphicon-pencil" title="Edit"></span></a> | <span class="glyphicon glyphicon-trash" title="Delete" style="color: red; cursor: pointer;text-align:center" datadel=' + val.ChannelGuid + ' id="channeldelete"></span> </td></tr>';
+                    }
+                    else {
+                        html3 += '<tr><td width="10%">' + val.CreatedOn + ' </td><td width="25%">' + val.ChannelName + '</td><td width="30%">' + val.CaseName + ' </td><td width="20%">' + val.UserList + ' </td><td align="center" ><a target="_self" href="#" onclick=GetAndInsertCustomChannelUserListQT("' + val.ChannelGuid + '","' + val.ChannelName.toString().replace(/ /g, "_") + '")><img src="/newassets/images/chat_icon.png" title="Chat" /></a></td><td align="center"><a id="ViewEdit" href="#" datachannel=' + val.ChannelGuid + ' datateamid=' + val.teamid + ' datateamname="' + val.CaseName + '" datachname="' + val.ChannelName + '" dataaction="viewedit"> <span class="glyphicon glyphicon-pencil" title="Edit"></span></a> | <span class="glyphicon glyphicon-trash" title="Delete" style="color: red; cursor: pointer;text-align:center" datadel=' + val.ChannelGuid + ' id="channeldelete"></span></td></tr>';
+                    }
+                });
+                if (strrecordexist > 0) {
+                    $("#custombinddataqt").append(html3);
+                }
+                else {
+                    $("#custombinddataqt").append("<tr><td colspan=6 align=center>No Record Found</td></tr>");
+                }
+                closeload();
+            },
+            error: function (response) {
+                alert(response.responseText);
+                closeload();
+            }
+        });
+        /*$.when(ld12).then(function (data, textStatus, jqXHR) {
+            //closeload();
+        });*/
+        $.when(ld12).then(function (data, textStatus, jqXHR) {
+            $("#EColli1 li input:checkbox:not(:checked)").each(function () {
+                var column = "#customexampleteam1 ." + $(this).attr("name");
+                $(column).hide();
+            });
+            //closeload();
+        });
+    }
+    $(document).ready(function () {
+        $(document).on('click', '#custompaginate1', function () {
+            customppageindex = $(this).attr("index");
+            CustomChannelListQT(customppageindex);
+        });
+        $(document).on('click', '#customcgetpagnumvalue1', function () {
+            ppageindex = $("#customcpagnumvalue1").val();
+            if (ppageindex != "undefined") {
+                if (Math.sign(ppageindex) == 1) {
+                    var ppageindesx = $("#customsotopage").text();
+                    if (ppageindex <= parseInt(ppageindesx)) {
+                        //openload();
+                        loadflag = true;
+                        CustomChannelListQT(ppageindex);
+                        //closeload();
+                    }
+                    else {
+                        alert("Invalid page no.");
+                        // closeload();
+                    }
+                }
+                else {
+                    alert("Invalid page no.");
+                }
+            }
+        });
+    });
+    function openload() {
+        $('#myOverlay1').css("display", "block");
+    }
+    function closeload() {
+        $('#myOverlay1').css("display", "none");
+    }
+    function GetAndInsertCustomChannelUserListQT(strchannelguid, strteamname) {
+        // $("#binddata").html("");
+        var formData = new FormData();
+        formData.append("channelguid", strchannelguid);
+        var guids = "";
+        // openload();
+        var ld123 = $.ajax({
+            async: true,
+            url: '/api/ChatApi/CreatedChatChannelUserList',
+            data: formData,
+            processData: false,
+            contentType: false,
+            type: 'POST',
+            success: function (response) {
+                $.each(response.Data, function (i, val) {
+                    // Do Something in loop here
+                    guids += val.UserID + "^";
+                })
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+        $.when(ld123).then(function (data, textStatus, jqXHR) {
+            //closeload();
+            InsertAllTeamUserForChatQT(strchannelguid, guids, "", strteamname);
+        });
+    }
+    function InsertAllTeamUserForChatQT(ChannelGuid, userid, username, strteamname = null) {
+        var formData = new FormData();
+        formData.append("ChannelGuid", ChannelGuid);
+        formData.append("UserId", userid);
+        formData.append("activedate", $("#currdate").val());
+        formData.append("chattype", "1");
+        var sdr = $.ajax(
+            {
+                type: "POST",
+                url: "/api/ChatApi/InsertInviteChatTeamUser", // Controller/View
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    // alert("Invited successfully.");
+                },
+                failure: function (data) {
+                    alert(data.responseText);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        $.when(sdr).then(function (data, textStatus, jqXHR) {
+            var url = "TeamChat?tid=" + ChannelGuid + "&tnm=" + strteamname;
+            window.open(url, ChannelGuid, "menubar=0,resizable=1,width=800,height=600,left=200");
+            CustomChannelListQT(1);
+        });
+    }
+</script>

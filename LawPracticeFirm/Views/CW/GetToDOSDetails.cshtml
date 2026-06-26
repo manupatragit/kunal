@@ -1,0 +1,443 @@
+﻿
+@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+
+<style>
+    .modal-body {
+        width: 100%;
+        overflow-y: auto;
+        padding: 1px;
+    }
+
+    .modal_a {
+        position: fixed;
+        z-index: 1;
+        padding-top: 70px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal_a-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 10px 8px;
+        border: 1px solid #000;
+        border-radius: 5px;
+        width: 50%;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+    }
+
+    .close_a {
+        color: #fff;
+        font-size: 20px;
+        font-weight: bold;
+        background: #1860a3;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        text-align: center;
+        padding: 3px 0 0 0px;
+        position: relative !important;
+        right: -11px !important;
+        top: -13px !important;
+        float: right !important;
+    }
+
+        .close_a:hover, .close_a:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    .divnotes {
+        margin: 10px auto 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    .todo_txtbox {
+        width: 100%;
+        margin: 6px 0 0 0 !important;
+        height: 300px !important;
+        border: none;
+        border-radius: 15px !important;
+    }
+
+    .sbtn {
+        padding: 2px 14px;
+        border: 2px solid #4d95dd;
+        color: #ffffff;
+        font-size: 13px;
+        background: #4d95dd;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+
+    .spacer_todo {
+        min-height: 443px;
+    }
+
+    a {
+        font-weight: unset !important;
+    }
+</style>
+
+<script src="~/Scripts/CW/GetToDOSDetails.js?1.1"></script>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>GetToDOSDetails</title>
+</head>
+<body>
+    <section class="todo">
+        <div class="container-main">
+
+            <section class="main_wrapper">
+                <input type="hidden" id="hdnqrystrname" name="hdnqrystrname" value="casewatchtest1">
+                <form id="notes" method="post">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3 class="ctitle">Add Task</h3>
+                            <div class="form-group">
+
+                                <input type="date" class="form-control inputFormat" id="txtduedatenotice" placeholder="yyyy-mm-dd">
+                            </div>
+                            <div id="gvCaseDetail" style="margin-top:15px;">
+                                <div class="form-group" id="divnotes" style="display:flex; flex-direction:column;">
+                                    <label class=" formLabel colorDark">
+                                        Schedule Task Here:
+                                    </label>
+                                    <textarea name="txtnote" id="txtnote" class="area-text" style="border: 1px solid #ccc !important; min-height: 200px !important; border-radius: 4px !important;
+    padding: 7px !important; box-shadow:none; outline:none;"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top:15px;">
+
+                                <button style="width:100%" class="btn btn-primary" type="submit" name="Notes" value="Notes" id="btnNotes" onclick="submitData();"> Submit</button>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h3 class="ctitle">To Do List</h3>
+                            <div class="table">
+                                <div class="card-header">
+                                    <div class="content1" style="padding-bottom:20px;">
+                                        <div class="text-and-supporting-text1">
+
+                                        </div>
+                                        <div class="table-header">
+                                            <div class="actions3">
+
+                                                <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                                                    <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                                                    <div class="text-padding">
+                                                        <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tablearea" style="margin-top:0px;">
+                                    <div class="tablecontainer" id="contact_container">
+                                        <table class="table-panel" style="background: #f4f4f4; border:0;">
+                                            <thead>
+                                                <tr>
+                                                    <th class="todoDetails"><div class="thbg">Details</div></th>
+                                                    <th class="todoStatus"><div class="thbg">Status </div></th>
+                                                    <th class="todoCreatedOn"><div class="thbg">Created On</div></th>
+                                                    <th class="todoDueDate"><div class="thbg">Due Date</div></th>
+                                                    <th><div class="thbg">Set Status</div></th>
+                                                    <th><div class="thbg">Delete</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="toDoListData"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            @*<div>
+                    <input type="hidden" id="hdnqrystrname" name="hdnqrystrname" value="casewatchtest1">
+                    <div class="col-md-4">
+                        <h2 class="modal-title">Add Task</h2>
+                        <form id="notes" method="post" style="background: #ededed;padding: 10px;border-radius: 10px;">
+                            <div>
+                                <input type="date" class="inputFormat" id="txtduedatenotice" placeholder="yyyy-mm-dd">
+                            </div>
+
+                            <div id="gvCaseDetail">
+                                <div id="divnotes" class="divnotes">
+                                    <table width="100%" align="center" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <td align="center" style="margin:0; padding:5px 10px; width:100%; color: #000000; background: #cbeefd; font-size:13px; font-weight:bold; text-align:left;border-radius: 15px;"> Schedule Task Here:<p></p></td>
+                                            </tr>
+                                            <tr>
+                                                <td align="center" style="border:none; padding:0; margin:0;"><textarea name="txtnote" id="txtnote" class="todo_txtbox" style="padding:15px !important;"></textarea></td>
+                                            </tr>
+                                            <tr>
+                                                <td align="center"><button class="sbtn" style="width:100%; margin:10px 0 0 0;" type="submit" name="Notes" value="Notes" id="btnNotes" onclick="submitData();"> Submit</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="col-md-8">
+                        <h2 class="modal-title">To Do List</h2>
+                        <div class="spacer_todo">
+                            <div id="contact_container" style="width:100%; overflow-x:scroll;">
+                                <table class="table-panel" style="background: #f4f4f4;">
+                                    <thead>
+                                        <tr>
+                                            <th class="todoDetails"><div class="thbg">Details</div></th>
+                                            <th class="todoStatus"><div class="thbg">Status </div></th>
+                                            <th class="todoCreatedOn"><div class="thbg">Created On</div></th>
+                                            <th class="todoDueDate"><div class="thbg">Due Date</div></th>
+                                            <th><div class="thbg">Set Status</div></th>
+                                            <th><div class="thbg">Delete</div></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="toDoListData"></tbody>
+                                </table>
+                            </div>
+
+                            <table id="exceltable" style="display:none" class="table table-striped" cellspacing="0" border="1" width="100%"></table>
+                            <div class="table-panel table-responsive">
+                                <div class="settingpanel">
+                                    <div class="col-md-6">
+                                        <div style="float: left; padding: 0 10px 0 0;">
+                                            <div class="btn-group dropup">
+                                                <a href="javascript:void()" style="background-color: #ebebeb !important;margin-top: -3px !important;" class=" dropdown-toggle form-control selctInputFormat " data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span class="glyphicon glyphicon-cog" style="font-size:14px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                                    customize field
+                                                </a>
+                                                <ul class="dropdown-menu settingshowhide" id="od" style="width: 150%;">
+                                                    <li><input type="checkbox" value="todoDetails" class="shcheckbox1 chkdhide" name="todoDetails" checked><a href="#" class="dropdown-item">Details</a></li>
+                                                    <li><input type="checkbox" value="todoStatus" class="shcheckbox1 chkdhide" name="todoStatus" checked><a href="#">Status</a></li>
+                                                    <li><input type="checkbox" value="todoCreatedOn" class="shcheckbox1 chkdhide" name="todoCreatedOn" checked><a href="#" class="dropdown-item">Created On</a></li>
+                                                    <li><input type="checkbox" value="todoDueDate" class="shcheckbox1 chkdhide" name="todoDueDate" checked><a href="#" class="dropdown-item">Due Date</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div id="ptfooterToDoList">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="pull-right">
+                                            <li>
+                                                <div class="btn-group dropup">
+                                                <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Action Selected
+                                                </a>
+                                                <ul class="dropdown-menu settingaction">
+                                                    <li><a href="javascript:void()" id="exporttoexcel" title="Export to Excel">Export to Excel</a></li>
+                                                    <li><a href="javascript:void()" id="exporttopdf" title="Export to PDF">Export to PDF &nbsp;&nbsp;&nbsp;</a></li>
+                                                </ul>
+                                            </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+        </div>
+    </section>
+</body>
+</html>
+
+@*<div id="myModalNotespopup" class="modal_a" style="display:none;">
+        <div class="modal_a-content">
+            <span onclick="ModalNotesClose()" class="close_a">×</span>
+            <p style="color: #000; padding: 3px; border-radius: 5px; text-align: center; font-size: 24px; font-weight:bold; margin:0;"></p>
+            <div class="modal-body">
+                <p style="color: #000; padding: 3px; border-radius: 5px; text-align: center; font-size: 24px; font-weight:bold; margin:0;">Update the To Do Task Status</p>
+                <div class="col-md-8" style="background: #ccc;padding: 15px 5px;width: 80%; margin: 0 auto;">
+                    <label>Status</label>
+                    <select name="divToDoStatus" id="divToDoStatus" class="form-control selctInputFormat" style="background-color: white !important;" onchange="handleStatusChange(this.value)">
+                        <option value="00">Select</option>
+                        <option value="01">Pending</option>
+                        <option value="02">Done</option>
+                        <option value="03">Pending from Client</option>
+                        <option value="04">To be filed in Court</option>
+                        <option value="05">Others</option>
+                    </select>
+                    <div id="otherInputBox" style="margin-top: 10px; display:none">
+                        <label for="otherReason">Other Reason</label>
+                        <input type="text" name="otherReason" id="otherReason" class="form-control selctInputFormat" placeholder="Enter other reason">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="sbtn" style="width: 100%; margin: 32px 0px 0px 25px;" type="submit" name="Notes" value="Notes" id="btnNotes" onclick="updateStatus();"> Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+
+<div id="myModalNotespopup" class="modal modal_a fade in" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false" style="display:none;">
+
+    <div class="modal-dialog">
+        <div class="modal-content" ">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle" style="border-bottom:none;">
+                    <h4>
+                        Update the To Do Task Status
+                    </h4>
+
+                </div>
+            </div>
+            <div class="modal-body">
+                @*<p style="color: #000; padding: 3px; border-radius: 5px; text-align: center; font-size: 24px; font-weight:bold; margin:0;">Update the To Do Task Status</p>*@
+                <div class="form_wrapper">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="divToDoStatus" id="divToDoStatus" class="form-control selctInputFormat" style="background-color: white !important;" onchange="handleStatusChange(this.value)">
+                            <option value="00">Select</option>
+                            <option value="01">Pending</option>
+                            <option value="02">Done</option>
+                            <option value="03">Pending from Client</option>
+                            <option value="04">To be filed in Court</option>
+                            <option value="05">Others</option>
+                        </select>
+                        <div id="otherInputBox" style="margin-top: 10px; display:none">
+                            <label for="otherReason">Other Reason</label>
+                            <input type="text" name="otherReason" id="otherReason" class="form-control selctInputFormat" placeholder="Enter other reason">
+                        </div>
+                    </div>
+                   
+                </div>
+               
+            </div>
+            <div class="modal-footer" style="margin-top:20px; height:55px;">
+                <button class="btn btn-primary pull-right" type="submit" name="Notes" value="Notes" id="btnNotes" onclick="updateStatus();"> Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@* customfeild pop *@
+<div id="myModalCustomizedcolumn" class="modal right fade myModal in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body" style="overflow-x:hidden !important; overflow-y:auto !important; margin-top:15px;">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul id="od">
+                            <li><input type="checkbox" value="todoDetails" class="shcheckbox1 chkdhide" name="todoDetails" checked><a href="#" class="dropdown-item">Details</a></li>
+                            <li><input type="checkbox" value="todoStatus" class="shcheckbox1 chkdhide" name="todoStatus" checked><a href="#">Status</a></li>
+                            <li><input type="checkbox" value="todoCreatedOn" class="shcheckbox1 chkdhide" name="todoCreatedOn" checked><a href="#" class="dropdown-item">Created On</a></li>
+                            <li><input type="checkbox" value="todoDueDate" class="shcheckbox1 chkdhide" name="todoDueDate" checked><a href="#" class="dropdown-item">Due Date</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                    <button class="btn btn-secondary" id="ClearCustomSelection">Clear</button>
+                    <button class="btn btn-primary" id="SaveCustomSelection">Confirm</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<div id="removeToDoConfModal" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/delete-notice.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4>
+                    Remove Task
+                </h4>
+            </div>
+            <div class="modal-body" style="overflow-y: unset;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862;">Are you sure you want to Delete?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-toggle="modal" id="removeToDoCnfirmD">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#ColumnSelectionopen").click(function () {
+            $("#myModalCustomizedcolumn").modal('show'); // Opens the modal
+        });
+
+        $(document).click(function (event) {
+            if ($(event.target).is(".myModal")) {
+                $("#myModalCustomizedcolumn").modal('hide'); // Closes the modal
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $('.modal .close').click(function () {
+            $('#myModalNotespopup').hide();
+            $('body').removeClass('modal-open'); // Remove modal-open class from body
+            $('.modal-backdrop').remove(); // Remove the backdrop if any
+        });
+    });
+
+</script>

@@ -1,0 +1,405 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+<script>
+    var type = '@ViewBag.type'
+</script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<style>
+    table {
+        background: white !important;
+    }
+
+    .fc-title {
+        cursor: pointer;
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var cfirst = true;
+        var cfocus = true;
+        $("#foo").on("focusout", function () {
+            if (cfocus == true) {
+                cfocus = false;
+            }
+        });
+        $("#foo").on("click", function () {
+            $("#bd").addClass("show").removeClass("show");
+            if (cfirst == true && cfocus == true) {
+                $("#bd").css("margin-top", "-41px");
+                cfirst = false;
+            }
+            if (cfirst == false && cfocus == true) {
+                $("#bd").css("margin-top", "-41px");
+                cfirst = false;
+            }
+            else {
+                $("#bd").css("margin-top", "3px");
+            }
+        });
+        $('#modelEvent').click(function (e) {
+            openload();
+            var url = "/firm/ConfigEvent";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal').modal();
+                closeload();
+            });
+        });
+        $('#modelTask').click(function (e) {
+            openload();
+            var url = "/firm/ConfigTask";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal').modal();
+                closeload();
+            });
+        });
+    });
+    $(document).on("click", "#modelEditEvent", function () {
+        openload();
+        var id = $(this).attr("value");
+        var url = "/firm/ConfigEventEdit?data=true&token=" + id;
+        localStorage.setItem("tempeventid", id);
+        $('.mymodels').load(url, function (result) {
+            $('#myModal').modal({ show: true });
+            closeload();
+        });
+    });
+    $(document).on("click", "#modelEditTask", function () {
+        openload();
+        var id = $(this).attr("value");
+        var url = "/firm/ConfigTaskEdit?data=true&token=" + id;
+        localStorage.setItem("temptaskid", id);
+        $('.mymodels').load(url, function (result) {
+            $('#myModal').modal({ show: true });
+            closeload();
+        });
+    });
+    var fcode = localStorage.getItem("FirmCode");
+    $(document).on("click", "#mcalendar", function () {
+        window.location = encodeURI("/" + fcode + "/Firm/Calendarhybrid");
+    });
+    $(document).on("click", "#fullcalendar", function () {
+        window.location = encodeURI("/" + fcode + "/Firm/MergeCalendar");
+    });
+</script>
+<!-- Right side column. Contains the navbar and content of the page -->
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Calendar</li>
+        </ol>
+        <h1><span class="glyphicon glyphicon-calendar"></span> Calendar</h1>
+    </section>
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+    </style>
+    <!-- Main content -->
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header" style="padding:5px;">
+                        <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp">
+                            <li><btn class="btn btn-success" data-toggle="modal" data-target="#myModal" id="modelEvent" "><span class="glyphicon glyphicon-plus"></span> New Event</btn></li>
+                            <li><btn class="btn btn-success" data-toggle="modal" data-target="#myModal" id="modelTask"><span class="glyphicon glyphicon-plus"></span> New Task</btn></li>
+                            <li><btn class="btn btn-info" id="micsyn"><span class="glyphicon glyphicon-refresh"></span> Sync to Google Calender</btn></li>
+                            <li><btn class="btn btn-warning" onclick="download();" title="See your calendar on any device using your iCalendar link (ICS):"><span class="glyphicon glyphicon-calendar"></span>Export to ICS File</btn></li>
+                            @*<li><button class="btn btn-primary" id="mcalendar"><span class="glyphicon glyphicon-calendar"></span> Case Calender</button></li>*@
+                            <li><button class="btn btn-default" id="fullcalendar"><span class="glyphicon glyphicon-calendar"></span> Calender</button></li>
+                            <li>
+                                <button type="button" id="foo" style="position:relative;" class="btn btn-default dropdown-toggle checkfirstclick" data-toggle="dropdown"><span class="glyphicon glyphicon-filter"></span> <span class="caret"></span></button>
+                                <ul class="dropdown-menu" id="bd" style="width:116px !important; top:0 !important">
+                                    <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox" id="event" name="event" checked>Show Event</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" id="task" name="task" checked>Show Task</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:10px 0 0 0;">
+                <div class="col-md-3">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div id="demo2"></div>
+                        </div>
+                    </div><!-- /. box -->
+                </div><!-- /.col -->
+                <div class="col-md-9">
+                    <div class="box box-primary" style="padding:5px 0 0 0;">
+                        <div class="box-body no-padding">
+                            <!-- THE CALENDAR -->
+                            <div id="calendar"></div>
+                        </div><!-- /.box-body -->
+                    </div><!-- /. box -->
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div>
+    </section><!-- /.content -->
+</aside><!-- /.right-side -->
+<script>
+    $(document).ready(function () {
+        var ttflag = 0;
+        $("#foo").on("click", function () {
+            if (ttflag == 0) {
+                $("#bd").addClass("caldropmenu");
+                ttflag = 1;
+            }
+            else {
+                $("#bd").removeClass("caldropmenu");
+            }
+        });
+    });
+</script>
+<!-- Modal -->
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+    </div>
+<!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+    </div>
+<!-- /.container-fluid -->
+    </div>
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="overlay-content">
+            <div class="spinner2">
+                <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
+@*<script src="https://code.jquery.com/jquery-1.12.4.js"></script*@>
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link href="/CssJsfiles/css/fullcalendar.min.css" rel="stylesheet" />
+@*<link href="~/CssJsfiles/css/fullcalendar.print.css" rel="stylesheet" />*@
+<link href="~/Manupanel/calender/dist/jquery.datetimepicker.min.css" rel="stylesheet" />
+<script src="~/CssJsfiles/js/moment.min.js"></script>
+<script src="~/Manupanel/calender/fullcalendar.min.js"></script>
+<script src="~/Manupanel/calender/dist/jquery.datetimepicker.min.js"></script>
+<style>
+    td.highlight > a {
+        background: #069 !important;
+        color: #fff !important;
+    }
+</style>
+<script>
+</script>
+<script src="~/Scripts/Firm/Pages/Calender.js">
+</script>
+<script>
+    msgData1 = "20120315T170000Z";
+    msgData2 = "20120316T170000Z";
+    msgData3 = "delhi";
+    var icsMSG = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Our Company//NONSGML v1.0//EN\nBEGIN:VEVENT\nUID:me@google.com\nDTSTAMP:20120315T170000Z\nATTENDEE;CN=My Self ;RSVP=TRUE:MAILTO:me@gmail.com\nORGANIZER;CN=Me:MAILTO::me@gmail.com\nDTSTART:" + msgData1 + "\nDTEND:" + msgData2 + "\nLOCATION:" + msgData3 + "\nSUMMARY:Our Meeting Office\nEND:VEVENT\nEND:VCALENDAR";
+    $('#test1').click(function () {
+        window.open("data:text/calendar;charset=utf8," + escape(icsMSG));
+    });
+</script>
+<script src="~/Manupanel/icsfile/ics.js"></script>
+<script src="~/Manupanel/icsfile/FileSaver.js"></script>
+<form id="form1" runat="server">
+    <div>
+        <script>
+            function download() {
+                var urls31 = "/api/matterApi/LoadEvent";
+                var cal = ics();
+                $.ajax({
+                    async: true,
+                    type: "POST",
+                    url: urls31,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response1) {
+                        if (response1.Status == true) {
+                            var datas = JSON.stringify(response1);
+                            var obj31 = JSON.parse(response1.Data);
+                            if (response1.Data == "[]") {
+                                alert("No data available for calendar.");
+                            }
+                            else {
+                                $.each(obj31, function (i, v) {
+                                    var sdate = v.sdate;
+                                    sdate = sdate.split('T')[0];
+                                    var stime = v.stime;
+                                    if (stime == null) {
+                                        stime = '00:00:00';
+                                    }
+                                    var newsdate = sdate + 'T' + stime;
+                                    var edate = v.edate;
+                                    edate = edate.split('T')[0];
+                                    var etime = v.etime;
+                                    if (etime == null) {
+                                        etime = '00:00:00';
+                                    }
+                                    var newedate = edate + 'T' + etime;
+                                    cal.addEvent(v.tsubject, v.tdetails, v.elocation, newsdate, newedate);
+                                });
+                                cal.download();
+                            }
+                        }
+                        else {
+                            //  alert("not found");
+                        }
+                    },
+                    error: function (error) {
+                        alert('failed');
+                    }
+                });
+            }
+        </script>
+    </div>
+</form>
+<script type="text/javascript">
+    function calendarsync() {
+        var urls3 = "/api/matterApi/LoadEvent";
+        var dataval = "";
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: urls3,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    var obj3 = JSON.parse(response.Data);
+                    if (response.Data == "[]") {
+                        alert("No data available for calendar.");
+                    }
+                    else {
+                        $.each(obj3, function (i, v) {
+                            dataval = {
+                                'summary': v.tsubject,
+                                'location': v.elocation,
+                                'description': v.tdetails,
+                                'start': {
+                                    'dateTime': v.sdate + '-07:00'
+                                    //'dateTime': '2018-12-21T09:00:00-07:00'
+                                    //'timeZone': 'America/Los_Angeles'
+                                },
+                                'end': {
+                                    //'dateTime': v.edat,
+                                    'dateTime': v.edate + '-07:00'
+                                    //'timeZone': 'America/Los_Angeles'
+                                }
+                            };
+                            localStorage.setItem("datacalendar", JSON.stringify(dataval));
+                            handleCreateEvent();
+                        });
+                        new PNotify({
+                            title: 'Success!',
+                            text: ' Google Calendar Synchronize Successfully',
+                            type: 'success',
+                            delay: 2000
+                        });
+                    }
+                }
+                else {
+                    //alert("not found");
+                }
+            },
+            error: function (error) {
+                alert('failed');
+            }
+        });
+    }
+    // Client ID and API key from the Developer Console
+    var CLIENT_ID = '347989676797-930nsffe6d2lqt19lea11mgujf8903un.apps.googleusercontent.com';
+    // Array of API discovery doc URLs for APIs used by the quickstart
+    var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+    // Authorization scopes required by the API; multiple scopes can be
+    // included, separated by spaces.
+    var SCOPES = "https://www.googleapis.com/auth/calendar";
+    var createEventButton = document.getElementById('micsyn');
+    function handleClientLoad() {
+        // alert("hi");
+        gapi.load('client:auth2', initClient);
+    }
+    function initClient() {
+        // alert("hi");
+        gapi.client.init({
+            discoveryDocs: DISCOVERY_DOCS,
+            clientId: CLIENT_ID,
+            scope: SCOPES
+        }).then(function () {
+            // Call the handleCreateEvent function on the click on your desired button.
+            createEventButton.onclick = calendarsync;
+        });
+    }
+    function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+            createEvent();
+        }
+    }
+    function handleCreateEvent() {
+        gapi.auth2.getAuthInstance().signIn();
+        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    }
+    function createEvent() {
+        var tempdata1 = localStorage.getItem("datacalendar");
+        //alert(tempdata1);
+        var event = tempdata1;
+        var request = gapi.client.calendar.events.insert({
+            'calendarId': 'primary',
+            'resource': event
+        });
+        request.execute(function (event) {
+            // window.location.href = event.htmlLink;
+        });
+    }
+</script>
+<script async defer src="https://apis.google.com/js/api.js" onload="handleClientLoad()"></script>

@@ -1,0 +1,290 @@
+﻿@{
+    ViewBag.Title = "AddContent";
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<i class="pp-icon-user"></i>
+<style>
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+</style>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+            var type = '@ViewBag.type'
+</script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script>
+</script>
+<script>
+    $(document).ready(function () {
+        $("#savetime").click(function () {
+            var times = $("#time").val();
+            var formData = new FormData();
+            if (times == "") {
+                new PNotify({
+                    title: 'Warninng!',
+                    text: 'Please Select Time',
+                    type: 'error',
+                    delay: 3000
+                });
+            }
+            else {
+                try {
+                    formData.append("time", times);
+                    $.ajax({
+                        async: true,
+                        url: '/api/callApi/InsertDatasynctime',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        type: 'POST',
+                        success: function (response) {
+                            if (response.Status == true) {
+                                var datas = JSON.stringify(response);
+                                alert("Scheduled Time Added Successfully");
+                                location.reload();
+                            }
+                            else {
+                                alert("not found");
+                            }
+                        },
+                        error: function () {
+                            alert('Error!');
+                        }
+                    });
+                }
+                catch (msg) {
+                    //alert(msg.message);
+                }
+            }
+        });
+    });
+</script>
+<style>
+    <style >
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/SetDatasinktime"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Data Synchronization settings</li>
+        </ol>
+        <h1><span class="fa fa-cog"></span> Data Synchronization settings to Live Server</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="">
+                    <div class="box-header">
+                        @*<btn class="btn btn-success pull-right publish" id="publish"><span class="glyphicon glyphicon-plus"></span> Publish Page</btn>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Template</legend>
+                    <form id="fileupload" name="fileupload" enctype="multipart/form-data">
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-3">Schedule TIme</label>
+                            <div class="col-md-2">
+                                <input class="form-control" type="time" id="time" placeholder="Time" required>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-success" id="savetime"> Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </fieldset>
+            </div>
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Scheduled Time list</legend>
+                    <table class="dataTable table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl NO.
+                                </th>
+                                <th>
+                                    Time
+                                </th>
+                                <th>
+                                    DateTime
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int sr = 0;
+                                foreach (var item in @ViewBag.Timelist)
+                                {
+                                    sr = sr + 1;
+                                    <tr>
+                                        <td>@sr</td>
+                                        <td>@item.Dttime</td>
+                                        <td>@item.date_time</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </section>
+</aside>
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Custom Field
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger alert-dismissable validpanel">
+                            <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                            . <a href="#" class="alert-link">Alert Link</a>.
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form role="form" id="form2">
+                                            <div class="form-group">
+                                                <label>Custom Field Name</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                <input class="form-control" type="text" value="" id="txtcustomFieldName">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Custom Field Type</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                <select class="form-control" id="ctype">
+                                                    <option value="0">-Select Any-</option>
+                                                </select>
+                                            </div>
+                                            <div id="common">
+                                                <div class="form-group">
+                                                    <label id="listid">List options</label>
+                                                    <input class="form-control" data-val="true" id="txtcustomFieldvalue" />
+                                                    <p>(Add the options you would like to have in the drop down list list, separate values with a comma.)</p>
+                                                </div>
+                                                <div class="form-group">
+
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal" style="margin-top:10px;">
+                                                <label class="control-label col-xs-3">Is Required :</label>
+                                                <div class="col-xs-8">
+                                                    <label class="switch">
+                                                        <input type="checkbox" id="chkRequired" name="assign" value="1">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="addfield">Add Field</button>
+                <button type="reset" class="btn btn-default">Reset</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+<!-- /.col-lg-12 -->
+        </div>
+<!-- /.row -->
+        </div>
+<!-- /.container-fluid -->
+        </div>
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

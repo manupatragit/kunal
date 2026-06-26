@@ -1,0 +1,80 @@
+﻿/**
+ *
+ * (c) Copyright Ascensio System SIA 2021
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+using System.Collections.Generic;
+using System.IO;
+namespace LawPracticeFirm.Models
+{
+    public static class FileUtility
+    {
+        /// <summary>
+        /// File type enum
+        /// </summary>
+        public enum FileType
+        {
+            Word,
+            Cell,
+            Slide
+        }
+        /// <summary>
+        /// get file type
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static FileType GetFileType(string fileName)
+        {
+            var ext = Path.GetExtension(fileName).ToLower();
+            if (ExtsDocument.Contains(ext)) return FileType.Word;  // word type for document extensions
+            if (ExtsSpreadsheet.Contains(ext)) return FileType.Cell;  // cell type for spreadsheet extensions
+            if (ExtsPresentation.Contains(ext)) return FileType.Slide;  // slide type for presentation extensions
+            return FileType.Word;  // the default type is word
+        }
+
+        /// <summary>
+        /// Document extensions
+        /// </summary>
+        public static readonly List<string> ExtsDocument = new List<string>
+            {
+                ".doc", ".docx", ".docm",
+                ".dot", ".dotx", ".dotm",
+                ".odt", ".fodt", ".ott", ".rtf", ".txt",
+                ".html", ".htm", ".mht", ".xml",
+                ".pdf", ".djvu", ".fb2", ".epub", ".xps", ".oxps", ".oform"
+            };
+
+        /// <summary>
+        /// Spreadsheet extensions
+        /// </summary>
+        public static readonly List<string> ExtsSpreadsheet = new List<string>
+            {
+                ".xls", ".xlsx", ".xlsm",
+                ".xlt", ".xltx", ".xltm",
+                ".ods", ".fods", ".ots", ".csv"
+            };
+
+        /// <summary>
+        /// Presentation extensions
+        /// </summary>
+        public static readonly List<string> ExtsPresentation = new List<string>
+            {
+                ".pps", ".ppsx", ".ppsm",
+                ".ppt", ".pptx", ".pptm",
+                ".pot", ".potx", ".potm",
+                ".odp", ".fodp", ".otp"
+            };
+    }
+}

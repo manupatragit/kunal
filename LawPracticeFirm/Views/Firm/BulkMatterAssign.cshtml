@@ -1,0 +1,383 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    var userid = Session["sessionuserid"];
+    var hsmatter = Session["dashmatter"];
+}
+<style>
+    .ms-options-wrap button {
+        background: url(/newassets/img/arrow.png) no-repeat right !important;
+        border: none !important;
+        font-size: 14px;
+        width: 170px !important;
+        overflow: hidden;
+    }
+
+    .ms-options-wrap {
+        border: none !important;
+        border-radius: 5px !important;
+        height: 62px !important;
+        display: flex;
+    }
+
+    .ms-options li {
+        clear: both;
+    }
+
+    .table > thead > tr > th {
+        position: sticky;
+        top: 0;
+    }
+
+    .btn_panel li {
+        margin: 0px 0 0 4px;
+    }
+
+    buttonsbutton {
+        overflow: hidden;
+    }
+
+    .buttonsbutton .ms-options-wrap > .ms-options {
+        /*height: 250px !important;*/
+        top: 37px;
+        left: -59px !important;
+        right: 18px;
+        min-width: 240px;
+        padding: 2px;
+        overflow: hidden;
+    }
+
+    .ms-options-wrap > .ms-options > ul input[type="checkbox"] {
+        top: -1px !important;
+    }
+
+    .page-btn.active {
+        background-color: #154b6d;
+        color: white;
+        font-weight: bold;
+    }
+
+    .ms-options-wrap > button:focus, .ms-options-wrap > button {
+        overflow: hidden !important;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/BulkMatterAssign.js"></script>
+<input type="hidden" id="hdnfirmcode" value='@Session["FirmCode"]' />
+<input type="hidden" id="hdnLitigation" value='@Session["hsmklitigation"]' />
+
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Bulk Matter Assign</p> <input type="text" id="searchdata" style="display:none">
+        </div>
+
+        <div style="@hsmatter">
+            <div class="tabs-and-filters">
+                <div class="button-group">
+                    <a href="/@Session["firmcode"]/firm/StandardCaseList" title="Active Matter List" id="activemattertab" class="button-group-base">Active <span id="CcaseCount"></span></a>
+                    <a href="/@Session["firmcode"]/firm/ArchiveMatterList" class="button-group-base1" title="Archive Matter List" id="archivemattertab">Archive <span id="ArchcaseCount"></span></a>
+                    <a href="/@Session["firmcode"]/firm/caselistarchive" title="Matters list marked for deletion" class="button-group-base2" id="deletemattertab">Delete Request <span id="DeltcaseCount"></span></a>
+                </div>
+                <a id="hidestshree" href="/@Session["firmcode"]/firm/CreateCase" onclick="return validatePageLink(event, 'CreateCase','CreateCase')" title="Add new Matter" class="button4"><span><img src="~/newassets/img/plus-icon.png" /></span>Add New Matter</a>
+
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1">
+                    <div class="content2">
+                        <div class="text-and-supporting-text-parent">
+                            <div class="text-and-supporting-text1">
+                                <div class="text9">Assign Bulk Flow</div>
+                                <div class="supporting-text1">Manage your team members and their account permissions here.</div>
+                            </div>
+                            <div class="dropdown-parent">
+                                <div class="dropdown" id="dvCourtDetailName">
+                                    <div class="buttonsbutton">
+                                        <span class="assign-from">Court:</span>
+                                        <select id="ddlCourtName" name="ddlCourtName" class="dropdown-toggle" style="border: none;font-size: 14px; width: 170px;">
+                                            <option value="Normal">Normal Court</option>
+                                            <option value="Rera Court">Rera Court</option>
+                                            <option value="Revenue Court">Revenue Court</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="dropdown">
+                                    <div class="buttonsbutton">
+                                        <span class="assign-from">Assign from:</span>
+                                        <select id="ddlFromUsers" name="ddlFromUsers" class="dropdown-toggle" style="border: none;font-size: 14px; width: 170px;">
+                                            <option value="">Select Users</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="dropdown">
+                                    <div class="buttonsbutton">
+                                        <span class="assign-from">Assign to:</span>
+                                        <select id="ddlToUsers" name="ToUsersSelect[]" multiple style="display:none;">
+                                            <option value="">Select Users</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="actions1">
+                            <div class="buttonsbutton2" id="savework" style="cursor:pointer;">
+                                <img class="plus-icon" alt="" src="/newassets/img/bulk-assign.png">
+                                <div class="text-padding">
+                                    <div class="text1">Bulk Assign</div>
+                                </div>
+                            </div>
+                            <div class="button2" style="cursor:pointer;">
+                                <div class="text-padding">
+                                    <div class="text1" id="resetMatter">Cancel</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tablearea">
+                <div class="tablecontainer">
+                    <table id="tblbulkcases" class="table-panel" cellspacing="0" width="100%" style="">
+                        <thead>
+                            <tr>
+                                <th style="width:50px"><div class="thbg"><input type="checkbox" id="chkAll" style="height:13px !important;" /> <span>All</span></div></th>
+                                <th style="width:50px"><div class="thbg">Sl No.</div></th>
+                                <th style="min-width: 170px;">
+                                    <div class="thbg">
+                                        <div style="float:left;max-width:70px;min-width: 86%; width:92%">
+                                            <input type="text" id="casefiltercasename" placeholder="Matter Name" class="form-control pull-left">
+                                        </div>
+                                        <div style="float:left;min-width:28px; width:8%">
+                                            <span class="glyphicon glyphicon-search" id="searchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                            <span class="" id="clearnewsearchcase" title="Click here to reset search" style="display:none;font-size:15px;color:black;font-weight:350;cursor:pointer;">x</span>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th><div class="thbg">Case No</div></th>
+                                <th>
+                                    <div class="thbg" id="dvNormalCourt">
+                                        <select id="ddlCourtType" style="border-radius:5px;">
+                                            <option value="">Court</option>
+                                            <option value="1">Supreme Court</option>
+                                            <option value="2">High Court</option>
+                                            <option value="3">District Court</option>
+                                            <option value="4">Tribunals</option>
+                                            <option value="5">Add a Court</option>
+                                            @*<option value="6">Revenue Court</option>
+                                                <option value="7">Rera Court</option>*@
+                                        </select>
+                                    </div>
+                                    @*<div class="thbg" style="display:none" id="dvReraCourt">
+                                            <select id="ddlCourtType" style="border-radius:5px;">
+                                                <option value="">Court</option>
+                                                <option value="7">Rera Court</option>
+                                            </select>
+                                        </div>
+                                        <div class="thbg" style="display:none" id="dvRevenueCourt">
+                                            <select id="ddlCourtType" style="border-radius:5px;">
+                                                <option value="">Court</option>
+                                                <option value="6">Revenue Court</option>
+                                            </select>
+                                        </div>*@
+                                </th>
+                                <th><div class="thbg">Court Name</div></th>
+
+                            </tr>
+                        </thead>
+                        <tbody style="text-align:center;" id="bindbulkcases">
+                    </table>
+                    <center>
+                        <div class="notfound" id="pdatastatus" style="display:none;">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4><span id="dtNotFound">Data not found.</span></h4>
+                        </div>
+                    </center>
+                </div>
+            </div>
+            @*<div class="pagination">
+                    <input type="hidden" id="hdnpagesize" value="100" />
+                    <input type="hidden" id="hdncurrentPage" value="1" />
+                    <div class="button-wrap" id="id_preveiuspage">
+
+                    </div>
+                    <div class="pagination-numbers" id="casetfooternewfooter">
+
+                    </div>
+                    <div class="button-wrap1" id="idnext_page">
+
+                    </div>
+                    <div id="BulkMatterfooter">
+                    </div>
+                </div>*@
+
+
+            <div class="pagination" id="removeBtn">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+
+                    </div>
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+@*<section class="wrapper">
+        <div class="container-main showcontent" id="showcontent">
+            <h2>Bulk Matter Assign</h2>
+            <div class="content-header " style="margin-bottom: 27px;">
+                <ul class="btn_panel" style="padding:0;" id="sectiontemp">
+                    <li>
+                        <label class="formLabel colorDark">From User<span class="required" aria-required="true">*</span> </label>
+                        <select id="ddlFromUsers" name="ddlFromUsers" class=" dropdown-toggle form-control selctInputFormat" style="background-color: #ebebeb">
+                            <option value="">Select Users</option>
+                        </select>
+                    </li>
+                    <li>
+                        <label class="formLabel colorDark">Assign To<span class="required" aria-required="true">*</span> </label>
+                        <select id="ddlToUsers" name="ToUsersSelect[]" multiple style="border-radius:5px;">
+                            <option value="">Select Users</option>
+                        </select>
+                    </li>
+                    <li>
+                        <label style="height: 47px;"></label>
+                        <button type="button" class="sbtbtn" id="savework">Save</button>
+                    </li>
+
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="" style="overflow-x:auto; ">
+                        <div class="table-panel table-responsive" style="max-height:300px;">
+                            <table id="tblbulkcases" class="dataTable table " cellspacing="0" width="100%" style="">
+                                <thead>
+                                    <tr>
+                                        <th style="width:50px"><div class="thbg"><input type="checkbox" id="chkAll" /> All</div></th>
+                                        <th style="width:50px"><div class="thbg">sl no.</div></th>
+                                        <th style="min-width: 170px;">
+                                            <div class="thbg">
+                                                <div style="float:left;max-width:70px;min-width: 86%; width:92%">
+                                                    <input type="text" id="casefiltercasename" placeholder="Matter Name" class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;min-width:28px; width:8%">
+                                                    <span class="glyphicon glyphicon-search" id="searchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="clearnewsearchcase" title="Click here to reset search" style="display:none;font-size:15px;color:black:font-weight:350;cursor:pointer;">x</span>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th><div class="thbg">Case No</div></th>
+                                        <th>
+                                            <div class="thbg">
+                                                <select id="ddlCourtType" style="border-radius:5px;">
+                                                    <option value="">court</option>
+                                                    <option value="1">Supreme Court</option>
+                                                    <option value="2">High Court</option>
+                                                    <option value="3">District Court</option>
+                                                    <option value="4">Tribunals</option>
+                                                    <option value="5">Add a Court</option>
+                                                    <option value="6">Revenue Court</option>
+                                                </select>
+                                            </div>
+                                        </th>
+                                        <th><div class="thbg">Court Name</div></th>
+
+                                    </tr>
+                                </thead>
+                                <tbody style="text-align:center;" id="bindbulkcases">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="table-panel">
+                        <div class="settingpanel" style="display:none">
+                            <input type="hidden" id="hdnpagesize" value="100" />
+                            <input type="hidden" id="hdncurrentPage" value="1" />
+                            <ul><li>results <span id="totalResult"></span>  <span id="TotalPage" style="display:none"></span></li><li><span>|</span></li><li id="spnPage"></li><li><span>|</span></li><li><input type="number" id="ppagnumvalue" min="1" class="footerInput"><a class="gobtn" type="button" id="pgetdatabypagenum" style="margin-left:10px;cursor:pointer" pageindex="1">Go</a> </li><li><span><a id="pgPrev" title="Previous Page" href="javascript:void()" index="1"><img src="/newassets/images/arrow_left.png"> </a></span> <span id="pagefromto"> 0-0  </span><span><a id="pgnext" title="Next Page" href="javascript:void()" index="3"><img src="/newassets/images/arrow_right.png" style="padding:3px 0 0 0;"></a></span></li></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>*@
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<div id="MatterAssigned" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px;">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-10px 0px 0 -11px">
+                </h4>
+
+            </div>
+            <div class="modaltitle" style="border-bottom:none;margin:-30px 0 0 0;">
+                <h4 id="">Matter Assigned</h4>
+            </div>
+            <div class="modal-body ">
+                <div class="row">
+                    <div class="col-md-12">
+                        Matter has been assigned.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: none !important;">
+                <div class="row">
+                    <div class="col-md-6"></div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" style="width:100%;">OK</button>
+                    </div>
+                    @*<div class="col-md-6">
+                            <button type="button" id="" class="btn btn-primary" value="Save" style="width:100%;">Confirm</button>
+                        </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

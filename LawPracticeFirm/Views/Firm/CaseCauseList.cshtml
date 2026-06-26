@@ -1,0 +1,319 @@
+﻿@{
+    Layout = null;
+}
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+<script>
+    var tokencauelist = "@(ViewBag.token ?? "")" || "";
+    var IsRera = "@(ViewBag.IsRera ?? "")" || "";
+    var courtTypeId = "@(ViewBag.CourtTypeId ?? "")" || "";
+    var courtName = "@(ViewBag.courtName ?? "")" || "";
+    var janpadName = "@(ViewBag.janpadName ?? "")" || "";
+    var tahsilName = "@(ViewBag.tahsilName ?? "")" || "";
+    var caseNo = "@(ViewBag.caseNo ?? "")" || "";
+    var vJudCourt = "@(ViewBag.vJudCourt ?? "")" || "";
+</script>
+<script>
+    $(document).ready(function () {
+
+        function openload() {
+            $("#myOverlay").css("display", "block");
+        }
+
+        function closeload() {
+            $("#myOverlay").css("display", "none");
+        }
+
+        loadcauselist();
+
+        function loadcauselist() {
+            let $table = $('<table width="100%" class="table table-panel table-responsive" style="overflow-x:auto;"></table>');
+            let $header = $('<thead></thead>');
+            let formData = new FormData();
+
+            formData.append("id", tokencauelist);
+            formData.append("IsReracauselist", IsRera);
+            formData.append("courtTypeId", courtTypeId);
+
+            // Build table header based on court type
+            if (courtTypeId === 'RERH') {
+                formData.append("courtName", encodeURIComponent(courtName));
+                formData.append("janpadName", encodeURIComponent(janpadName));
+                formData.append("tahsilName", encodeURIComponent(tahsilName));
+                formData.append("AppealNo", encodeURIComponent(caseNo));
+                formData.append("vJudCourt", encodeURIComponent(vJudCourt));
+
+                $header.append(`
+                    <tr>
+                        <th width="12%" class="Activity"><div class="thbg">SL No.</div></th>
+                        <th class="Status"><div class="thbg">CauseList Details</div></th>
+                        <th class="Date" style="width:200px;"><div class="thbg">Matter</div></th>
+                        <th class="Date"><div class="thbg">Court</div></th>
+                        <th class="Date"><div class="thbg">CauseList Date</div></th>
+                    </tr>
+                `);
+            } else {  // used for all other courts except RERH
+                $header.append(`
+                    <tr>
+                        <th width="12%" class="Activity"><div class="thbg">SL No.</div></th>
+                        <th class="Status"><div class="thbg">CauseList Details</div></th>
+                        <th class="Date" style="width:200px;"><div class="thbg">Matter</div></th>
+                        <th class="Date"><div class="thbg">Court</div></th>
+                        <th class="Date"><div class="thbg">Bench Name</div></th>
+                        <th class="Date"><div class="thbg">CauseList Date</div></th>
+                    </tr>
+                `);
+            }
+
+            $table.append($header);
+            $('#contentdata').empty().append($table);
+
+            openload();
+
+            $.ajax({
+                type: "POST",
+                url: "/Firm/LoadCauseList",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (!data || data.length === 0) {
+                        $('#causeliststatus').text("There are no Cause List Details available for this date.");
+                        closeload();
+                        return;
+                    }
+
+                    data.forEach((a, index) => {
+                        let $row = $('<tr />');
+                        $row.append(`<td class="s"><span>${index + 1}</span></td>`);
+
+                        if (courtTypeId === 'RERH') {
+                            $row.append(`<td class="s"><span>${a.Appres}</span></td>`);
+                            $row.append(`<td class="s"><span>${a.vCaseno}</span></td>`);
+                            $row.append(`<td class="s"><span>${a.vCourt == 'RERH' ? 'Revenue(Rajasthan)' : ''}</span></td>`);
+                            $row.append(`<td class="s"><span>${a.Causelistdate}</span></td>`);
+                        } else {
+                            $row.append(`<td class="s"><span>${a.Filetext}</span></td>`);
+                            $row.append(`<td class="s"><span>${a.Casename}</span></td>`);
+                            $row.append(`<td class="s"><span>${a.CourtId}</span></td>`);
+                            $row.append(`<td class="s"><span>${a.Bench}</span></td>`);
+                            $row.append(`<td class="s"><span>${a.Causelistdate}</span></td>`);
+                        }
+
+                        $table.append($row);
+                    });
+
+                    closeload();
+                },
+                error: function (xhr) {
+                    alert(xhr.responseText);
+                    closeload();
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    .modal-lg {
+        width: 80%;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #0369A1;
+        background-color: transparent;
+    }
+
+    .nav > li > a:hover, .nav > li > a:focus {
+        text-decoration: none;
+        background-color: #fff;
+    }
+
+    #causeliststatus {
+        text-align: center;
+        padding: 30px 0 6px;
+    }
+</style>
+<div class="modal-header btn-primary">
+    <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+    <ul class="snav nav nav-pills">
+        <li class="active"><a data-toggle="pill" href="#causelist">Cause List</a></li>
+        @*<li><a data-toggle="pill" href="#courtorders">Court Orders</a></li>
+            <li><a data-toggle="pill" href="#officereports">Office Reports</a></li>
+            <li><a data-toggle="pill" href="#documents">Documents</a></li>*@
+    </ul>
+</div>
+<div class="modal-body">
+    <div class="tab-content">
+        <div id="causelist" class="tab-pane fade in active">
+            <section id="table1">
+                <div class="container-main">
+                    <div class="table">
+                        <div class="card-header">
+                            <div class="content1">
+                                <div class="text-and-supporting-text1">
+                                    <div class="head2">Cause List</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tablearea" style="margin:20px 0 0 0;">
+                            <div class="tablecontainer">
+                                <div id="contentdata"></div>
+                                <div id="causeliststatus"></div>
+
+                            </div>
+                        </div>
+                        <div class="pagination">
+                            <div class="button-wrap" id="id_preveiuspage">
+
+                            </div>
+                            <div class="pagination-numbers" id="casetfooternewfooter">
+
+                            </div>
+                            <div class="button-wrap1" id="idnext_page">
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div id="courtorders" class="tab-pane fade">
+            <section id="table2">
+                <div class="container-main">
+                    <div class="table">
+                        <div class="card-header">
+                            <div class="content1">
+                                <div class="text-and-supporting-text1">
+                                    <div class="head2">Court Orders</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tablearea" style="margin:20px 0 0 0;">
+                            <div class="tablecontainer">
+                                Table
+
+                            </div>
+                        </div>
+                        <div class="pagination">
+                            pagination
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div id="officereports" class="tab-pane fade">
+            <section id="table3">
+                <div class="container-main">
+                    <div class="table">
+                        <div class="card-header">
+                            <div class="content1">
+                                <div class="text-and-supporting-text1">
+                                    <div class="head2">Office Reports</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tablearea" style="margin:20px 0 0 0;">
+                            <div class="tablecontainer">
+                                Table
+
+                            </div>
+                        </div>
+                        <div class="pagination">
+                            pagination
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div id="documents" class="tab-pane fade">
+            <section id="table4">
+                <div class="container-main">
+                    <div class="table">
+                        <div class="card-header">
+                            <div class="content1">
+                                <div class="text-and-supporting-text1">
+                                    <div class="head2">Documents</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tablearea" style="margin:20px 0 0 0;">
+                            <div class="tablecontainer">
+                                Table
+
+                            </div>
+                        </div>
+                        <div class="pagination">
+                            pagination
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <aside class="">
+        <section class="content" style="overflow:auto !important">
+            <div id="page-wrapper">
+                <div class="container-fluid showcontent" id="showcontent">
+                    <div class="">
+                        <div class="box-header">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /.box-header -->
+        <!-- /.panel-heading -->
+        <!-- Main content -->
+        <!-- Main content -->
+        <!-- /.content -->
+        <!-- /.content -->
+    </aside>
+
+    <!-- /.container-fluid -->
+</div>
+<div id="myOverlay" class="overlay" style="z-index:9999 !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

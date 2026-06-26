@@ -1,0 +1,446 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    var userid = Session["sessionuserid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+@*<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+    <script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+    <link href="~/Manupanel/css/jquery.datetimepicker.css" rel="stylesheet" />
+    <script src="~/Manupanel/js/daterangepicker.min.js"></script>*@
+
+<script src="~/Scripts/Notice/UploadBulkNoticeDetail.js?1.6"></script>
+<style>
+    .inputFormat {
+        color: #717680;
+        font-size: 16px;
+        font-family: Inter;
+        font-weight: 400;
+        border-radius: 7px;
+        height: auto !important;
+        margin: 0px;
+        padding: 7px 10px;
+        border: 1px solid #d5d7da;
+        width: 100%;
+        outline: none !important;
+    }
+
+    .upload_btn {
+        background: #fff;
+        padding: 8px 12px;
+        outline: 0 !important;
+        border: 1px solid rgba(209, 213, 219, 1);
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(65, 70, 81, 1);
+        display: inline-block;
+        float: right;
+        margin: -40px 0 0 0;
+        cursor: pointer;
+    }
+
+    .upload_btn1 {
+        background: #fff;
+        padding: 8px 12px;
+        outline: 0 !important;
+        border: 1px solid rgba(209, 213, 219, 1);
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(65, 70, 81, 1);
+        display: inline-block;
+        /*float: right;*/
+        margin: -40px 0 0 0;
+        cursor: pointer;
+    }
+</style>
+<script type="text/javascript">
+    function checkfile(sender) {
+        var validExts = new Array(".xlsx", ".xls");
+        var fileExt = sender;
+        fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+        if (validExts.indexOf(fileExt) < 0) {
+            alert("Invalid file selected, valid files are of " +
+                validExts.toString() + " types.");
+            return false;
+        }
+        else return true;
+    }
+
+</script>
+
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"><span>Import Bulk Notices</span></p>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="row">
+        <div class="col-md-6">
+             <span id="fileName" style="font-size:12px; color:#444;"></span>
+             <span id="deleteFile" style="display: none; margin-left: 10px; border: none; color: red; padding: 4px 8px; border-radius: 4px; cursor: pointer;">
+                 ✖
+             </span>
+            <label for="postedFile" type="button" class="upload_btn1" style="margin-top: 27px !important;height: 39px;"> <img src="/newassets/img/upload-cloud.svg"> Upload Document</label>
+            <button type="button" class="btn btn-primary" id="btnuploadDetail" style="width:150px ">Save</button>
+            <input class="form-control inputFormat" type="file" name="postedFile" id="postedFile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none;" />
+            <a class="btn btn-primary" href="~/NewDesign/MyKase_VarthnaSample.xlsx" download="Format for importing bulk notices on Mykase" style="display:inline-block;text-decoration: none;text-decoration:none;border-radius:8px;">
+                <img src="/newassets/img/download.svg" style="color: white;font-weight: 600;height:21px">Format
+            </a>
+        </div>
+        <div class="form-group col-md-6" style="padding-top: 24px; text-align:right;">
+            <div class="actions3" style="justify-content: flex-end;">
+                <div>
+                    <a class="btn btn-primary" id="btnUploadHelp" style="display:inline-block;text-decoration: none;text-decoration:none;border-radius:8px;">
+                        Help
+                    </a>
+                </div>
+                <div class="menuexport" style="position:relative; cursor:pointer;">
+                    <div class="dropdown-toggle button9" id="divExportToExcel" type="button" data-toggle="dropdown" title="Export">
+                        <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+                    </div>
+                </div>
+                <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                    <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                    <div class="text-padding">
+                        <div class="text1"><a href="javascript:void()" style="color: #4B5563 !important"> Customize</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="table">
+    <div class="container-main">
+        <input type="hidden" id="exportrecords">
+        <div class="table">
+            <div class="tablearea" style="margin:0;">
+                <div class="scroll-sync-top" aria-hidden="true">
+                    <div class="scroll-top-inner"></div>
+                </div>
+                <div class="tablecontainer table-scroll-wrapper">
+                    <div class="table-scroll-inner">
+                        <table id="example" class="table-panel">
+                            <thead>
+                                <tr id="newnoticeheadrow">
+                                    <th><div class="thbg">S.No</div></th>
+                                    <th class="loantype"><div class="thbg">LoanType</div></th>
+                                    <th class="loanId"><div class="thbg">Loan ID</div></th>
+                                    <th class="clientId"><div class="thbg">Client ID</div></th>
+                                    <th class="schoolStudentName"><div class="thbg">School/Student Name</div></th>
+                                    <th class="branch"><div class="thbg">Branch</div></th>
+                                    <th class="state"><div class="thbg">State</div></th>
+                                    <th class="branchaddress"><div class="thbg">Branch Address</div></th>
+                                    <th class="productname"><div class="thbg">Product Name</div></th>
+                                    <th class="loanamount"><div class="thbg">Loan Amount</div></th>
+                                    <th class="disbursementdate"><div class="thbg">Disbursement Date</div></th>
+                                    <th class="emiAmount"><div class="thbg">EMI Amount</div></th>
+                                    <th class="emiduedate"><div class="thbg">EMI Due Date</div></th>
+                                    <th class="currentDPD"><div class="thbg">Current DPD</div></th>
+                                    <th class="borrowerschoolname"><div class="thbg">Borrower Details-School Name-1</div></th>
+                                    <th class="borrowerschooladdress"><div class="thbg">Borrower Details-School address 1-1</div></th>
+                                    <th class="borrowerschoolphone"><div class="thbg">Borrower Details-School phone number-1</div></th>
+                                    <th class="borrowerschoolemail"><div class="thbg">Borrower Details-School email id-1</div></th>
+                                    <th class="trustname"><div class="thbg">Trust Details-Trust name-1</div></th>
+                                    <th class="trustnameaddress"><div class="thbg">Trust Details-Trust address-1</div></th>
+                                    <th class="trustnamephoneno"><div class="thbg">Trust Details-Trust phone number-1</div></th>
+                                    <th class="trustemail"><div class="thbg">Trust Details-Trust email id-1</div></th>
+                                    <th class="coapplicantname"><div class="thbg">Co-Applicant Name1</div></th>
+                                    <th class="coapplicantaddress"><div class="thbg">Co-Applicant1 Address</div></th>
+                                    <th class="coapplicantphone"><div class="thbg">Co-Applicant1 Phone Number</div></th>
+                                    <th class="coapplicantemail"><div class="thbg">Co-Applicant1 Email ID</div></th>
+                                    <th class="coapplicantname2"><div class="thbg">Co-Applicant Name2</div></th>
+                                    <th class="coapplicantaddress2"><div class="thbg">Co-Applicant2 Address</div></th>
+                                    <th class="coapplicantphone2"><div class="thbg">Co-Applicant2 Phone Number</div></th>
+                                    <th class="coapplicantemailid2"><div class="thbg">Co-Applicant2 Email ID</div></th>
+                                    <th class="coapplicantdunningref"><div class="thbg">Dunning Reference number</div></th>
+                                    <th class="coapplicantdunningnoticedate"><div class="thbg">Dunning letter Notice Date</div></th>
+                                    <th class="branchcollectionmanagername"><div class="thbg">Branch/Collection Manager Name</div></th>
+                                    <th class="branchcollectionmanagerno"><div class="thbg">Branch/Collection Manager No</div></th>
+                                    <th class="noticetype"><div class="thbg">Type of Notice</div></th>
+                                    <th class="uploadedby"><div class="thbg">Uploaded By</div></th>
+                                    <th class="dateodupload"><div class="thbg">Date of Upload</div></th>
+
+                                    <th class="action"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablevalue"></tbody>
+                        </table>
+                        <center>
+                            <div class="notfound" id="pdatastatus" style="display:none;">
+                                <img src="~/newassets/img/not-found.png" />
+                                <h4><span id="dtNotFound"></span></h4>
+                            </div>
+                        </center>
+                    </div>
+                </div>
+
+                <div class="pagination" id="tradePagination">
+                    <div class="pagination-button-group">
+                        <div id="prev" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbers" class="pagination-button-group-base1">
+                        </div>
+                        <div id="next" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGo" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+<div id="myOverlay" class="overlay" style="z-index:9999!important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<div id="myModalCustomizedcolumn" class="modal right fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="margin:10px 0 0 0;">
+                        <ul class="" id="od">
+                            <li data-subject="loantype"><input type="checkbox" class="shcheckbox1 chkdhide" name="amountclaimed"><a>Loan type</a></li>
+                            <li data-subject="loanId"><input type="checkbox" class="shcheckbox1 chkdhide" name="loanId"><a>Loan ID</a></li>
+                            <li data-subject="clientId"><input type="checkbox" class="shcheckbox1 chkdhide" name="clientId"><a>Client ID</a></li>
+                            <li data-subject="school/Student Name"><input type="checkbox" class="shcheckbox1 chkdhide" name="schoolStudentName"><a>School/Student Name</a></li>
+                            <li data-subject="branch"><input type="checkbox" class="shcheckbox1 chkdhide" name="branch"><a>Branch</a></li>
+                            <li data-subject="State"><input type="checkbox" class="shcheckbox1 chkdhide" name="state" checked=""><a>State</a></li>
+                            <li data-subject="Branch address"><input type="checkbox" class="shcheckbox1 chkdhide" name="branchaddress" checked=""><a>Branch Address</a></li>
+                            <li data-subject="Product Name"><input type="checkbox" class="shcheckbox1 chkdhide" name="productname" checked=""><a>Product Name</a></li>
+                            <li data-subject="Loan Amount"><input type="checkbox" class="shcheckbox1 chkdhide" name="loanamount"><a>Loan Amount</a></li>
+                            <li data-subject="Disbursement Date"><input type="checkbox" class="shcheckbox1 chkdhide" name="disbursementdate"><a>Disbursement Date</a></li>
+                            <li data-subject="EMI Amount"><input type="checkbox" class="shcheckbox1 chkdhide" name="emiAmount" checked=""><a>EMI Amount</a></li>
+                            <li data-subject="EMI Due Date"><input type="checkbox" class="shcheckbox1 chkdhide" name="emiduedate"><a>EMI Due Date</a></li>
+                            <li data-subject="Current DPD"><input type="checkbox" class="shcheckbox1 chkdhide" name="currentDPD"><a>Current DPD</a></li>
+                            <li data-subject="Borrower Details-School-Name-1"><input type="checkbox" class="shcheckbox1 chkdhide" name="borrowerschoolname"><a>Borrower Details-School-Name-1</a></li>
+                            <li data-subject="Borrower Details-School-address 1-1"><input type="checkbox" class="shcheckbox1 chkdhide" name="borrowerschooladdress"><a>Borrower Details-School-address 1-1</a></li>
+                            <li data-subject="Borrower Details-School phone number-1"><input type="checkbox" class="shcheckbox1 chkdhide" name="borrowerschoolphone"><a>Borrower Details-School phone number-1</a></li>
+                            <li data-subject="Borrower Details-School email id-1"><input type="checkbox" class="shcheckbox1 chkdhide" name="borrowerschoolemail"><a>Borrower Details-School email id-1</a></li>
+                            <li data-subject="Trust Details-Trust name-1"><input type="checkbox" class="shcheckbox1 chkdhide" name="trustname" checked=""><a>Trust Details-Trust name-1</a></li>
+                            <li data-subject="Trust Details-Trust address-1"><input type="checkbox" class="shcheckbox1 chkdhide" name="trustnameaddress"><a>Trust Details-Trust address-1</a></li>
+                            <li data-subject="Trust Details-Trust phone number-1"><input type="checkbox" class="shcheckbox1 chkdhide" name="trustnamephoneno"><a>Trust Details-Trust phone number-1</a></li>
+                            <li data-subject="Trust Details-Trust email id-1"><input type="checkbox" class="shcheckbox1 chkdhide" name="trustemail" checked=""><a>Trust Details-Trust email id-1</a></li>
+                            <li data-subject="Co-Applicant Name1"><input type="checkbox" class="shcheckbox1 chkdhide" name="coapplicantname"><a>Co-Applicant Name1</a></li>
+                            <li data-subject="Co-Applicant1 Address"><input type="checkbox" class="shcheckbox1 chkdhide" name="coapplicantaddress" checked=""><a>Co-Applicant1 Address</a></li>
+                            <li data-subject="Co-Applicant1 Phone Number"><input type="checkbox" class="shcheckbox1 chkdhide" name="coapplicantphone"><a>Co-Applicant1 Phone Number</a></li>
+                            <li data-subject="Co-Applicant1 Email ID"><input type="checkbox" class="shcheckbox1 chkdhide" name="coapplicantemail"><a>Co-Applicant1 Email ID</a></li>
+                            <li data-subject="Co-Applicant Name2"><input type="checkbox" class="shcheckbox1 chkdhide" name="coapplicantname2"><a>Co-Applicant Name2</a></li>
+                            <li data-subject="Co-Applicant2 Address"><input type="checkbox" class="shcheckbox1 chkdhide" name="coapplicantaddress2"><a>Co-Applicant2 Address</a></li>
+                            <li data-subject="Co-Applicant2 Phone Number"><input type="checkbox" class="shcheckbox1 chkdhide" name="coapplicantphone2"><a>Co-Applicant2 Phone Number</a></li>
+                            <li data-subject="Co-Applicant2 Email ID"><input type="checkbox" class="shcheckbox1 chkdhide" name="coapplicantemailid2"><a>Co-Applicant2 Email ID</a></li>
+                            <li data-subject="Dunning Reference number"><input type="checkbox" class="shcheckbox1 chkdhide" name="coapplicantdunningref"><a>Dunning Reference number</a></li>
+                            <li data-subject="Dunning letter Notice Date"><input type="checkbox" class="shcheckbox1 chkdhide" name="coapplicantdunningnoticedate"><a>Dunning letter Notice Date</a></li>
+                            <li data-subject="Branch/Collection Manager Name"><input type="checkbox" class="shcheckbox1 chkdhide" name="branchcollectionmanagername"><a>Branch/Collection Manager Name</a></li>
+                            <li data-subject="Branch/Collection Manager No"><input type="checkbox" class="shcheckbox1 chkdhide" name="branchcollectionmanagerno"><a>Branch/Collection Manager No</a></li>
+                            <li data-subject="Type of Notice"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticetype"><a>Type of Notice</a></li>
+
+                            <li data-subject="Uploaded By"><input type="checkbox" class="shcheckbox1 chkdhide" name="uploadedby"><a>Uploaded By</a></li>
+                            <li data-subject="Date of Upload"><input type="checkbox" class="shcheckbox1 chkdhide" name="dateodupload"><a>Date of Upload</a></li>
+                            <li><input id="select_allcfield" type="checkbox"><a href="#">Select All</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="myModalDeleteBulkConfirmation" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/delete-notice.png" style="margin:-10px 0px 0 -13px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_deleteTraderequesr">Delete notice Request</h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgRUSure">Are you sure you want to delete this notice?</p>
+            </div>
+            <div class="footer_buttons modal-footer">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="deleteNoticeDetailsAfterCnf">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalexportExcel" class="modal fade myModal  in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <input type="hidden" id="Exporttype" value="Excel">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closemodels22" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <span id="spDisplayImage"></span>
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -40px 0 0 0; border-bottom: none;">
+                <h4 style="font-size: 18px;">Export List</h4>
+                <p style="font-size: 16px;line-height: 20px;margin-top: 6px;font-weight: 400;">Select how many lists you would like to export.</p>
+                <ul style="padding-left: 34px;">
+                    <li style="font-size:14px">
+                        Each list contains 200 entries.
+                    </li>
+                    <li style="font-size:14px">
+                        Each list will be exported as a separate Excel (.xls) file.
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-body partynamebody">
+                <form role="form">
+                    <div class="row">
+                        <div class="form-group" style="margin: 15px 0; overflow: hidden;">
+                            <div class="col-md-12">
+
+                            </div>
+                            <div class="col-md-12" id="bndExcelDrp">
+                                <select class="selctInputFormat" id="id_exportreportdrop"><option value="" selected="">Please Select</option><option value="1"> 1 </option><option value="2"> 2 </option></select>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="padding-bottom:8px !important;text-align: right!important;" id="btnFooterId">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="CommonExportExcel">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="myModalBulkNoticeHelp" class="modal fade myModal  in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width: 870px!important">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closemodels22" data-dismiss="modal">×</button>
+            </div>
+            <div class="modaltitle" style="margin: -38px 0 0 0; border-bottom: none;">
+                <h4 style="font-size: 18px;">Steps for Bulk Upload</h4>
+            </div>
+            <div class="modal-body partynamebody">
+                    <div class="row">
+                        <div class="form-group" style="margin: 11px 0; overflow: hidden;">
+                            <div class="col-md-12" id="bndExcelDrp">
+                                <table>
+                                    <tr style="line-height:2">
+                                        <td style="width:20%">
+                                            <b>Step1:</b>
+                                        </td>
+                                        <td style="width:80%;">
+                                            Download the sample file.
+                                        </td>
+                                    </tr>
+                                    <tr style="line-height:2">
+                                        <td>
+                                            <b>Step2:</b>
+                                        </td>
+                                        <td>
+                                            Use the exact column names in the sample and add your data in the same sheet.
+                                        </td>
+                                    </tr>
+                                    <tr style="line-height:2">
+                                        <td>
+                                            <b>Step3:</b>
+                                        </td>
+                                        <td>
+                                            Save the file and upload it using the Upload button.
+                                        </td>
+                                    </tr>
+                                    <tr style="line-height:2">
+                                        <td>
+                                            <b>Step4:</b>
+                                        </td>
+                                        <td>
+                                            Once uploaded, click on the Save button.
+                                        </td>
+                                    </tr>
+                                    <tr style="line-height:2">
+                                        <td></td>
+                                        <td>
+                                            The data will be reflected on the dashboard.
+                                        </td>
+                                    </tr>
+                                    <tr style="line-height:2">
+                                        <td colspan="2">
+                                            <h4>Other Features</h4>
+                                        </td>
+                                    </tr>
+                                    <tr style="line-height:2">
+                                        <td><b><img class="plus-icon" alt="" src="/newassets/img/settings-icon.png" style="">Customize Fields:</b></td>
+                                        <td>
+                                            Users can customize column names and also select all fields if needed.
+                                        </td>
+                                    </tr>
+                                    <tr style="line-height:2">
+                                        <td><b><img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">Export List: </b></td>
+                                        <td>
+                                            Users can export the data in Excel format (each page contains 200 records).
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer" style="padding-bottom:8px !important;text-align: right!important;">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,67 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<section class="content">
+    <div class="container">
+        <div class="pull-right">
+            <a href="@Url.Action("ExtraPartyInformation","Firm")">Extra Party</a>
+            <a href="@Url.Action("caseinformationReport","Firm")">New Report</a>
+            <a href="@Url.Action("ExtraPartyInformation","Firm")">Extra Party</a>
+            <a href="@Url.Action("caseinformationReport","Firm")">New Report</a>
+        </div>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th class="lCasename">Name</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tbodydata"></tbody>
+        </table>
+    </div>
+</section>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var formData = new FormData();
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/ExtraParty/GetCaseInformationFormatlist",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Status == true) {
+                    var myData = response.Data;
+                    console.log(myData);
+                    var html = "";
+                    $.each(myData, function (i, item) {
+                        html += "<tr>";
+                        html += "<td>" + item.NameOfComplainent + "</td>";
+                        html += "<td>Action</td>";
+                        html += "</tr>";
+                    });
+                    $("#tbodydata").append(html);
+                }
+                else {
+                    alert("Oops! Something went wrong..");
+                }
+            },
+            failure: function (data) {
+                alert(data.responseText);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,755 @@
+﻿
+@{
+    /**/
+
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    var firmcode121 = Session["FirmCode"];
+}
+
+
+<head>
+    <script src="~/Scripts/STF/ProcessEntryDashboard.js?1.1" type="text/javascript" language="javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
+
+
+
+</head>
+<style>
+    .accordion {
+        margin: 0 0 10px 0;
+        padding:0;
+    }
+            .accordion .head {
+                padding: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                background: #F9FAFB;
+                border: 1px solid #e9eaeb;
+                /* border-radius: 12px; */
+                margin: 0;
+            }
+
+
+    .accordion-content {
+        border: 1px solid #e9eaeb;
+        padding: 10px;
+    }
+
+</style>
+<section id="header">
+    <div id="redirectProcess" class="container-main" style="display:flex; justify-content:space-between;">
+        <div class="text-left">
+            <p class="ctitle">Process Entry Dashboard</p>
+        </div>
+        <a class="btn btn-primary" style="cursor:pointer" onclick="redirectToDashboard()" id="processReport" value="user">Statistical Report <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    </div>
+</section> 
+<section class="wrapper" style="margin:10px 0;">
+        <div class="accordion" id="headerText">
+            <h2 id="toggleForm" class="head">Add Process Entry Detail<span style="cursor: pointer;" title="Add New Detail"><img src="/newassets/img/arrow.png"></span></h2>
+            <div class="">
+                <form class="accordion-content" enctype="multipart/form-data" autocomplete="off" id="stfform" style="display: none;">
+                    <div class="row">
+
+                        <div class="col-md-3">
+                            <div class="form-group ">
+
+                                <label>Case Detail<span class="required" aria-required="true"><b>*</b></span></label>
+                                <input type="text" id="caseDetail" maxlength="200" placeholder="Enter the  Case Detail" class="inputFormat" autofocus readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+
+                                <label>Issue Date<span class="required" aria-required="true"><b>*</b> </span></label>
+                                <input type="date" id="IssueDate" placeholder="Select the issue date" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Pw Detail's <span class="required" aria-required="true"><b>*</b></span></label>
+                                <select type="text" id="PwDetails" class="form-control selctInputFormat">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Type Of Process</label>
+                                <select type="text" id="TypeOfProcess" class="form-control selctInputFormat">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+
+                                <label>Evidence Date</label>
+                                <input type="date" id="EvidenceDate" placeholder="Enter the  Evidence Date" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Witness Service status</label>
+                                <select type="text" id="Servicestatus" class="form-control selctInputFormat" onchange="validateServicestatus()">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+
+                                <label>Not Serve Reason</label>
+                                <input type="text" maxlength="100" id="reason" placeholder="Enter the  reason" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Pw Presence Status</label>
+                                <select type="text" id="PresenceStatus" class="form-control selctInputFormat" onchange="PresenceStatusList()">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3" id="absentHide">
+                            <div class="form-group">
+
+                                <label>Pw Absent Reason</label>
+                                <input type="text" maxlength="100" id="PwAbsentReason" placeholder="Enter the  Pw Absent Reason" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+
+                        @*<div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark"><span class="control-label">Action By Court Case Of Absence</span></label>
+                            <select type="text" id="ActionByCourt" class="form-control selectInputFormat" onclick="OtherReasonCheck()">
+                                <option value="">Select </option>
+                            </select>
+                        </div>
+
+                    </div>*@
+                        <div class="col-md-3" id="AbsentActionHide">
+                            <div class="form-group ">
+                                <label>Action By Court Case Of Absence</label>
+                                <select type="text" id="ActionByCourt" class="form-control selctInputFormat" onchange="OtherReasonCheck()">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-3" id="PresntId">
+                            <div class="form-group">
+                                <label>PW Present Then Proceeding</label>
+                                <select type="text" id="PresentProceeding" class="form-control selctInputFormat" onchange="OtherReasonCheck()">
+                                    <option value="">Select </option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="col-md-3" id="otherNotes" style="display:none">
+                            <div class="form-group">
+
+                                <label>Any Other Reason</label>
+                                <textarea id="otherReasonAbsent" maxlength="300" placeholder="Enter the  other reason" class="inputFormat" autofocus rows="10" cols="10"></textarea>
+                            </div>
+                        </div>
+                        @*//Added BY Prem*@
+                        <div class="col-md-3" id="PresentAnyOther" style="display:none">
+                            <div class="form-group">
+
+                                <label>Any Other Reason</label>
+                                <textarea id="otherReasonPresent" maxlength="300" placeholder="Enter the  other reason" class="inputFormat" autofocus rows="10" cols="10"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+
+                                <label>Note</label>
+                                <textarea id="Note" maxlength="300" placeholder="Enter the  Address" class="inputFormat" autofocus rows="10" cols="10"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pull-right">
+                            <div class="form-group" style="margin-top: 15px;">
+                                <table style="width: 100%">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 50%">
+                                                <button type="button" id="btnsubmit" class="btn btn-primary" style="width: 100%; float: left;display:none" onclick="SaveProcessEntryFormData()">Submit</button>
+                                            </td>
+                                            <td style="width: 50%">
+                                                <button type="button" id="btnclear" class="btn btn-secondary" style="width: 100%; float: right;display:none" onclick="clearForm()">Clear</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="accordion">
+            <h2 class="head" id="toggleFormFilter">Search Detail's<span  style="cursor: pointer;" title="Search Filter"><img src="/newassets/img/arrow.png"></span></h2>
+            <div>
+                <form class="accordion-content" enctype="multipart/form-data" autocomplete="off" id="FilterRecord" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Select Secondary User</label>
+                                <select type="text" id="UserListFilter" class="form-control selctInputFormat">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Select Tertiary User</label>
+                                <select type="text" id="UserListTertiaryFilter" class="form-control selctInputFormat">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+
+                                <label>Case Detail</label>
+                                <input type="text" id="caseDetailFilter" maxlength="50" placeholder="Enter Case Detail" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+                        @*<div class="col-md-3">
+                    <div class="form-group">
+
+                        <label class="formLabel colorDark"><span class="control-label"> Master caseid</span></label>
+                        <input type="text" id="mastercaseid" maxlength="10" placeholder="Enter the Master Case Id" class="inputFormat" onkeypress="return isNumberKey(event)" autofocus>
+                    </div>
+                </div>*@
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Issue Date From</label>
+                                <input type="date" id="IssueDateFrm" maxlength="50" placeholder="Select Issue Date" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Issue Date To</label>
+                                <input type="date" id="IssueDateTo" maxlength="50" placeholder="Select the issue date To" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Filter by HRMS ID</label>
+                                <input type="text" id="filterHrmsIdInput" class="form-control selctInputFormat" placeholder="Enter the HRMS ID" onkeypress="return isNumberKey(event)">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Pw Detail's</label>
+                                <select type="text" id="PwDetailsFilter" class="form-control selctInputFormat" disabled>
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Type Of Process</label>
+                                <select type="text" id="TypeOfProcessFilter" class="form-control selctInputFormat">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Evidance Date From</label>
+                                <input type="date" id="evidanceDateFrm" maxlength="50" placeholder="Select the evidance date" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+
+                                <label>Evidance Date To</label>
+                                <input type="date" id="evidanceDateto" maxlength="50" placeholder="Select the evidance date" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Witness Service status</label>
+                                <select type="text" id="ServicestatusFilter" class="form-control selctInputFormat">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label onclick="PresenceStatusListFilter()">Pw Presence Status</label>
+                                <select type="text" id="PresenceStatusFilter" class="form-control selctInputFormat" onchange="PresenceStatusListFilter()">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>Action By Court Case Of Absence</label>
+                                <select type="text" id="ActionByCourtFilter" class="form-control selctInputFormat">
+                                    <option value="">Select </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label>PW Present Then Proceeding</label>
+                                <select type="text" id="PresentProceedingFilter" class="form-control selctInputFormat">
+                                    <option value="">Select </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                        </div>
+                        <div class="col-md-3 pull-right">
+                            <div class="form-group" style="margin-top: 25px;">
+                                <table style="width: 100%">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 50%">
+                                                <button type="button" id="btnsubmitFilter" class="btn btn-primary pull-left" style="width: 100%; float: left; " onclick="GetProcessFilterEntryTabularData()">Search</button>
+                                            </td>
+                                            <td style="width: 50%">
+                                                <button type="button" id="btnclearFilter" class="btn btn-secondary pull-left" style="width: 100%; float: right;" onclick="ClearFilter()">Clear</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @*<div class="container-main">
+
+            <form class="ec_bg" enctype="multipart/form-data" autocomplete="off" id="ReportProcessEntry" onsubmit="event.preventDefault(); ProcessEntryDashBoardReport();">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark"><span class="control-label">Issue Date From<span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                            <input type="date" id="IssueDateFrom" class="inputFormat" autofocus>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="formLabel colorDark"><span class="control-label">Issue Date To<span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                            <input type="date" id="IssueDateToReport" class="inputFormat">
+                        </div>
+                    </div>
+                </div>
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="2">
+                                <button type="submit" class="sbtbtn pull-left" style="width: 100%; float: left;">Find Report</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+
+
+            <div class="table-panel table-responsive">
+                <div style="overflow-x:scroll;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="thbg" id="th1">
+                                        Total No. of process issued
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th1">
+                                        Total No. of process served
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th1">
+                                        Total No. of process not served
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th1">
+                                        Total No. of PWs Appeared for evidence
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th1">
+                                        Total No. of PWs not appeared for evidence
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th1">
+                                        Proceeding status
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="ReportData">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>*@
+    </section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1" style="justify-content: flex-end;">
+
+                    <div class="table-header">
+                        <div class="actions3">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li>
+                                        <div id="oexlcel" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                    </li>
+                                </ul>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+                <div class="tablecontainer">
+                    <table class="table-panel">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="thbg" id="th1">
+                                        S.No
+                                    </div>
+                                </th>
+
+                                <th>
+                                    <div class="thbg" id="th2">
+                                        User Detail
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th3">
+                                        Case Detail
+                                    </div>
+                                </th>
+
+                                <th>
+                                    <div class="thbg" id="th4">
+                                        Process Issue Date
+                                    </div>
+                                </th>
+
+
+                                <th>
+                                    <div class="thbg" id="th5">
+                                        PW Detail
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th6">
+                                        Type of Process
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th7">
+                                        Evidance Date
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th8">
+                                        Service Status
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th9">
+                                        Non Service Reason
+                                    </div>
+                                </th>
+
+                                <th>
+                                    <div class="thbg" id="th10">
+                                        PW Attendance Status
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th11">
+                                        Reason for Absence
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th12">
+                                        Action Taken by Court for Absence
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th13">
+                                        Absent Other Reason
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th13">
+                                        Present Other Reason
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th14">
+                                        Note
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th15">
+                                        Action
+                                    </div>
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="bindSTFpwdData"></tbody>
+
+                    </table>
+                </div>
+            </div>
+            <div class="pagination" id="pagenatedArea">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="UpdatePWProcessdata" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:70%;">
+
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="closeModal" onclick="clearFormModal()">&times;</button>
+                <h3 class="modal-title" id="modal-header">
+                    Update Process Entry Detail
+                </h3>
+            </div>
+            <div class="modal-body">
+                <form class="ec_bg" enctype="multipart/form-data" autocomplete="off" id="stfformModal">
+
+                    <div class="row">
+
+                        <div class="col-md-3">
+                            <div class="form-group ">
+
+                                <label class="formLabel colorDark"><span class="control-label"> Case Detail<span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                <input type="text" id="caseDetailModal" maxlength="50" placeholder="Enter the  Case Detail" class="inputFormat" autofocus readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+
+                                <label class="formLabel colorDark"><span class="control-label"> Issue Date<span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                <input type="date" id="IssueDateModal" maxlength="50" placeholder="Select the issue date" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label class="formLabel colorDark"><span class="control-label"> Pw Detail's <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                <select type="text" id="PwDetailsModal" class="form-control selctInputFormat">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label class="formLabel colorDark"><span class="control-label"> Type Of Process </span></label>
+                                <select type="text" id="TypeOfProcessModal" class="form-control selctInputFormat">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+
+                                <label class="formLabel colorDark"><span class="control-label">Evidence Date</span></label>
+                                <input type="date" id="EvidenceDateModal" placeholder="Enter the  Evidence Date" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label class="formLabel colorDark"><span class="control-label"> Witness Service status </span></label>
+                                <select type="text" id="ServicestatusModal" class="form-control selctInputFormat">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+
+                                <label class="formLabel colorDark"><span class="control-label">Not Serve Reason</span></label>
+                                <input type="text" id="reasonModal" placeholder="Enter the  reason" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group ">
+                                <label class="formLabel colorDark"><span class="control-label"> Pw Presence Status</span></label>
+                                <select type="text" id="PresenceStatusModal" class="form-control selctInputFormat" onchange="PresenceStatusListModal()">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3" id="HideModalAbsenceReason">
+                            <div class="form-group">
+
+                                <label class="formLabel colorDark"><span class="control-label">Pw Absent Reason</span></label>
+                                <input type="text" id="PwAbsentReasonModal" placeholder="Enter the  Pw Absent Reason" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3" id="HideModalAbsence">
+                            <div class="form-group ">
+                                <label class="formLabel colorDark"><span class="control-label">Action By Court Case Of Absence</span></label>
+                                <select type="text" id="ActionByCourtModal" class="form-control selctInputFormat" onchange="ModalOtherReasonCheck()">
+                                    <option value="">Select </option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-3" id="PresntIdModal">
+                            <div class="form-group ">
+                                <label class="formLabel colorDark"><span class="control-label">PW Present Then Proceeding</span></label>
+                                <select type="text" id="PresentProceedingModal" class="form-control selctInputFormat" onchange="ModalOtherReasonCheck()">
+                                    <option value="">Select </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="otherNotesModal" style="display:none">
+                            <div class="form-group">
+
+                                <label class="formLabel colorDark"><span class="control-label">Any Other Reason</span></label>
+                                <textarea id="otherReasonAbsentModal" maxlength="300" placeholder="Enter the  other reason" class="inputFormat" autofocus rows="10" cols="10"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="PresentAnyOtherModal" style="display:none">
+                            <div class="form-group">
+
+                                <label class="formLabel colorDark"><span class="control-label">Any Other Reason</span></label>
+                                <textarea id="otherReasonPresentModal" maxlength="300" placeholder="Enter the  other reason" class="inputFormat" autofocus rows="10" cols="10"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+
+                                <label class="formLabel colorDark"><span class="control-label">Note</span></label>
+                                <textarea id="NoteModal" maxlength="200" placeholder="Enter the  note" class="inputFormat" autofocus rows="10" cols="10"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        
+                        <div class="col-md-3 pull-right">
+                            <div class="form-group" style="margin-top: 15px;">
+                                <table style="width: 100%">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 50%">
+                                                <button type="button" id="btnsubmitModal" class="btn btn-primary" style="width: 100%; float: left; display: none" onclick="UpdateProcessEntryDetails()">Update</button>
+                                            </td>
+                                            <td style="width: 50%">
+                                                <button type="button" id="btnclearModal" class="btn btn-secondary" style="width: 100%; float: right; display: none" onclick="clearFormModal()">Clear</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>

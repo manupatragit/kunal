@@ -1,0 +1,1400 @@
+﻿
+@{
+    /**/
+
+    /**/
+
+    var role = Session["sessionroleid"];
+    var userid = Session["sessionuserid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+
+}
+<script>
+    var userid = "@userid";
+    var roleid = "@role";
+    var NoticeId="@ViewBag.NoticeId";
+</script>
+
+
+
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/css/jquery.datetimepicker.css" rel="stylesheet" />
+<script src="~/Manupanel/js/daterangepicker.min.js"></script>
+
+<link href="~/dist/select2/css/select2.min.css" rel="stylesheet" />
+
+<script src="~/dist/multipleSelect/jquery.multiselect.js"></script>
+<link href="~/dist/multipleSelect/jquery.multiselect.css" rel="stylesheet" />
+
+<style>
+    .status_badge {
+        max-width: fit-content;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        /* border: 1px solid #ccc; */
+        padding: 3px 8px;
+        border-radius: 7px;
+        background: #f5f5f5d4;
+        box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    }
+
+        .status_badge span {
+            display: block;
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+        }
+
+    .active1 {
+        background: green;
+    }
+
+    .Settled {
+        background: grey;
+    }
+
+    .Convertedmatter {
+        background: red;
+    }
+
+    .InActive {
+        background: orange;
+    }
+
+    .low {
+        background: green;
+    }
+
+    .medium {
+        background: grey;
+    }
+
+    .high {
+        background: red;
+    }
+
+    .select2-container {
+        box-sizing: border-box;
+        display: inline-block;
+        margin: 0;
+        position: relative;
+        vertical-align: middle;
+        width: 300px !important;
+    }
+
+    #myInput {
+        border-box: box-sizing !important;
+        background-repeat: no-repeat !important;
+        font-size: 11px !important;
+        padding: 14px 15px 15px 11px !important;
+        /* border: none !important; */
+        border-bottom: 1px solid #ddd !important;
+        width: 100%;
+    }
+
+    .settingshowhide li {
+        margin-left: 10px !important;
+    }
+
+    .tblreplyclass thead tr th {
+        background-color: #ffffff !important;
+    }
+
+    #tblincmingnotice {
+        margin: 6px 0;
+        padding: 10px;
+        background: #ffffff;
+        border: 1px solid #b1b1b1;
+        border-radius: 10px;
+    }
+
+        #tblincmingnotice table {
+            width: 100%;
+        }
+
+        #tblincmingnotice h2 {
+            margin: 0 0 10px 0;
+            padding: 2px 7px;
+            font-size: 15px;
+            border-bottom: 1px solid #e3e3e3;
+            color: #145cbf;
+        }
+
+    .tblreplyclass tr {
+        border-bottom: none;
+    }
+
+
+    #tblpoitem {
+        background: #f1f3f4;
+        overflow-x: scroll;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+    }
+
+        #tblpoitem h2 {
+            margin: 0 0 10px 0;
+            padding: 2px 0px;
+            font-size: 15px;
+            border-bottom: 1px solid #a3a3a3;
+        }
+
+        #tblpoitem table {
+            background-color: transparent;
+        }
+
+
+
+    .glyphicon-chevron-down:before {
+        font-size: 11px !important;
+        padding: 0px 0 0 6px !important;
+        color: #ff6600;
+    }
+
+    .pipesapcls {
+        margin: 0;
+        padding: 0 5px;
+        color: #0059c1;
+        font-weight: 500;
+    }
+
+
+    #childtbltr1 {
+        background-color: #d0f0c0;
+    }
+
+    #trcolhighlighbydate {
+        background: #d0f0c0 !important;
+    }
+
+        #trcolhighlighbydate td {
+            background-color: transparent !important;
+        }
+
+    .filter-btn {
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+        .filter-btn:hover {
+            background-color: #f1f1f1;
+        }
+
+    .scroll-sync-top {
+        overflow-x: auto;
+        overflow-y: hidden;
+        height: 16px;
+        background-color: transparent;
+        display: none;
+    }
+
+    .scroll-top-inner {
+        height: 1px;
+    }
+
+    .table-scroll-wrapper {
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+    }
+
+        .table-scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+    .scroll-sync-top::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-panel th {
+        position: sticky;
+        top: 0;
+        z-index: 91;
+
+        background-color: #fafafa;
+        border-bottom: 1px solid #e5e7eb;
+        border-top: 1px solid #e5e7eb;
+        box-sizing: border-box;
+        height: 44px;
+        align-items: center;
+        padding: 0px;
+        font-size: 12px;
+        color: #717680;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+        .table-panel th .thbg {
+            position: sticky;
+            top: 0;
+            background-color: #fafafa;
+            z-index: auto;
+        }
+
+    .tablecontainer {
+        max-height: 600px;
+        overflow-y: auto;
+        position: relative;
+    }
+</style>
+
+<link href="~/dist/select2/css/select2.min.css" rel="stylesheet" />
+<section id="header">
+    <div class="container-main">
+
+        <div class="text-left">
+            <p class="ctitle"><span id="dynamicnotiheader"></span></p>
+        </div>
+        <div style="margin: 10px 0 5px 0; overflow:hidden;">
+            <ul class="snav">
+                <li id="" class="active"><a href="javascript:void()">Send Notices</a></li>
+                <li id="" style=""><a href="/@Session["firmcode"]/NoticeReceived/ReceivedNoticeList">Received Notices</a></li>
+                <li id=""><a href="javascript:void()">Reminders</a></li>
+            </ul>
+        </div>
+        <div class="text-center" id="fincesdiv" style="margin-bottom: 20px !important;">
+
+            <div style="display: flex; align-items: center;">
+
+                <div class="tabs-and-filters" style="width:100%;">
+                    <div class="button-group">
+                        @*<button class="button-group-base1" onclick="fnclearinput()" style="border-left: none; border-top: none; border-bottom: none; font-weight:600;">All <span id=""></span></button>*@
+                        <a class="button-group-base1" href="/@Session["firmcode"]/NoticeNew/NewNoticeList">All<span id="AllNoticeCount"></span></a>
+                        <a class="button-group-base2  active" href="/@Session["firmcode"]/NoticeNew/ArchiveNoticeList">Archived <span id="ArchNoticeCount"></span></a>
+                        <a class="button-group-base1" href="/@Session["firmcode"]/NoticeNew/NoticeDeleteList">Delete <span id="DelNoticeCount"></span></a>
+                        @if (Session["sessionroleid"].ToString() != "1")
+                        {
+                            <a class="button-group-base1" href="/@Session["firmcode"]/NoticeNew/DraftNotice">Share with me <span id="ShareNoticeCount"></span></a>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="expense_total_card_wrapper">
+        <div class="card" id="">
+            <h5>Total Notice</h5>
+            <span id="tonotice">0</span>
+        </div>
+
+        <div class="card" id="">
+            <h5>Notice Settled</h5>
+            <span id="setNotice">0</span>
+        </div>
+
+        <div class="card" id="">
+            <h5>Converted Into Matter</h5>
+            <span id="contomatNotice">0</span>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="card-header">
+        <div class="content1" style="justify-content: space-between; padding:0;">
+            <div id="prangediv" class="left_input" style="display: grid; gap: 10px; grid-template-columns: 150px 150px 120px 40px;">
+                <input class="form-control inputFormat" id="rangefromdate" onkeypress="return false;" type="date" placeholder="yyyy-mm-dd" title="From" />
+                <input class="form-control inputFormat" type="date" id="rangetodate" onkeypress="return false;" placeholder="yyyy-mm-dd" title="To" />
+                <button class="btn btn-secondary" type="button" onclick="fnsearchbydate();" value="Go" style="padding: 8px 0;"><img src="/newassets/img/search-lg.png" style="width:18px;"> Search</button>
+                <button class="btn btn-primary" type="button" id="btclear" style="display: none; padding: 8px 0px;" title="Click here to reset search" onclick="fnclearinput();" value="Reset"><img src="/newassets/img/btn-close.png"></button>
+
+            </div>
+            <div class="table-header">
+                <div class="actions3">
+                    <div id="ColumnSelectionopen" class="button13 dropup">
+                        <a href="javascript:void()">
+                            <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png"> Customize
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="tablearea" style="margin:0;">
+                <div class="scroll-sync-top" aria-hidden="true">
+                    <div class="scroll-top-inner"></div>
+                </div>
+                <div class="tablecontainer table-scroll-wrapper">
+                    <div class="table-scroll-inner">
+                        <input type="hidden" value="@ViewBag.noticefrom" id="fromreminder" />
+                        <input type="hidden" value="@ViewBag.iid" id="reminderid" />
+                        <table id="example" class="table-panel">
+                            <thead>
+                                <tr>
+                                    <th><div class="thbg">S.No</div></th>
+                                    <th class="noticeby" data-column="SendersName">
+                                        <div class="thbg">
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="NoticeeendersNametxt" placeholder="Senders Name" class="form-control pull-left" style="width:100px;">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="searchdatas"></span>
+                                                <span class="glyphicon glyphicon-remove" id="clearnewsearchforsender" title="Click here to reset search" style="display:none;"></span>
+                                            </div>
+                                        </div>
+
+                                    </th>
+                                    <th class="noticeto" data-column="AddressedTo"><div class="thbg">Receiver's Name</div></th>
+                                    <th class="noticetitle" data-column="NoticeTitle">
+                                        <div class="thbg">
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="Noticetitsrch" placeholder="Title" class="form-control pull-left" style="width:100px;">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="searchdatatitl"></span>
+                                                <span class="glyphicon glyphicon-remove" id="clearnewsearchforsendertitl" title="Click here to reset search" style="display:none;"></span>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="noticedate" data-column="DateofNotice"><div class="thbg">Date of Notice</div></th>
+                                    <th class="remark" data-column="CreateNotice"><div class="thbg">Notice Text</div></th>
+                                    <th class="noticeduedate"><div class="thbg">Due Date</div></th>
+                                    <th class="pending">
+                                        <div style="width:130px;" class="thbg">
+                                            <div class="form-group">
+                                                <select class="form-control form-control-sm" id="txtStatusOfNotice" name="txtStatusOfNotice" required=""></select>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="attachment"><div class="thbg">Docs</div></th>
+
+                                    <th class="noticesubject" data-column="NoticeSubject">
+                                        <div class="thbg">
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="NoticeSubjectsrh" placeholder="Subject" class="form-control pull-left" style="width:100px;">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="searchdatassub"></span>
+                                                <span class="glyphicon glyphicon-remove" id="clearnewsearchforsendersub" title="Click here to reset search" style="display:none;"></span>
+                                            </div>
+                                        </div>
+
+                                    </th>
+
+                                    <th class="statutory" data-column="NoticeType"><div class="thbg">Type</div></th>
+                                    <th class="dispatched" data-column="DateofDelivery"><div class="thbg">Date Of Delivery</div></th>
+                                    <th class="modeofserviceordelivery" data-column="ModeofServiceorDelivery"><div class="thbg">Mode of Delivery</div></th>
+                                    <th class="addressaddress" data-column="AddresseeAddress"><div class="thbg">Receiver's Address</div></th>
+                                    <th class="otherdetailsofaddress" data-column="OtherDetailsofAddressee"><div class="thbg">Other Details of receiver</div></th>
+                                    <th class="senderaddress" data-column="SendersAddress"><div class="thbg">Sender's Address</div></th>
+                                    <th class="otherdetailsofaddressofsender" data-column="OtherDetailsofSender"><div class="thbg">Other Details of Sender</div></th>
+                                    <th class="noticethrough" data-column="NoticeThrough"><div class="thbg">Notice Through/To</div></th>
+                                    <th class="CreatedByName" data-column="CreatedByName"><div class="thbg">Created By</div></th>
+                                    <th class="noticecreatedon" data-column="NoticeCreatedOn"><div class="thbg">Notice Created On</div></th>
+                                    <th class="criticality"><div class="thbg">Priority</div></th>
+                                    <th class="reasonforhighcriticality"><div class="thbg">Reason For High Priority</div></th>
+                                    <th class="amountclaimed"><div class="thbg">Amount Claimed</div></th>
+                                    <th class="noticeTrackingId"><div class="thbg">Consignment No</div></th>
+                                    <th class="actualclosedate"><div class="thbg">Status Changed Date</div></th>
+
+                                    <th class="Receiverdetails"><div class="thbg">Receiver Details</div></th>
+                                    <th class="ReferenceNumber"><div class="thbg">Reference Number</div></th>
+                                    <th class="InternalNumber"><div class="thbg">Internal  Number</div></th>
+                                    <th class="deliveryDispatch"><div class="thbg">Date Of Dispatch</div></th>
+                                    <th width="120px"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablevalue"></tbody>
+                        </table>
+                        <center> <div id="nonotice"> </div></center>
+                    </div>
+                </div>
+                <div class="pagination" id="pagenatedArea">
+                    <div class="pagination-button-group">
+                        <div id="prev" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbers" class="pagination-button-group-base1">
+                        </div>
+
+                        <div id="next" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGo" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@*<section class="wrapper">
+        <div class="container-main">
+
+
+
+
+                <div class="table-panel" data-example-id="hoverable-table">
+                    <div style="overflow-x:scroll;">
+
+
+
+                    </div>
+                    <div class="table-panel">
+                        <div class="settingpanel">
+                            <div class="pagination" id="pagenatedArea">
+                                <div class="pagination-button-group">
+                                    <div id="prev" class="pagination-button-group-base">
+                                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                    </div>
+                                    <div id="pageNumbers" class="pagination-button-group-base1">
+                                    </div>
+
+                                    <div id="next" class="pagination-button-group-base8">
+                                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-parent">
+                                    <div class="input">
+                                        <div class="content">
+                                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                        </div>
+                                        <div class="help-icon">
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-group">
+                                        <div class="text-and-supporting-text">
+                                            <div id="divGo" class="text9">Go</div>
+                                        </div>
+                                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+            </div>
+    </section>*@
+<div id="myModalCustomizedcolumn" class="modal right fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="margin:10px 0 0 0;">
+                        <ul id="od">
+                            <li data-subject="Sender's Name"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticeby" checked> Sender's Name</li>
+                            <li data-subject="Receiver's Name"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticeto" checked> Receiver's Name</li>
+                            <li data-subject="Subject"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticesubject"> Subject</li>
+                            <li data-subject="Title"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticetitle" checked> Title</li>
+                            <li data-subject="Type"><input type="checkbox" class="shcheckbox1 chkdhide" name="statutory"> Type</li>
+                            <li data-subject="Date Of Notice"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticedate" checked> Date Of Notice</li>
+                            <li data-subject="Date Of Delivery"><input type="checkbox" class="shcheckbox1 chkdhide" name="dispatched"> Date Of Delivery</li>
+                            <li data-subject="Notice Text"><input type="checkbox" class="shcheckbox1 chkdhide" name="remark" checked> Notice Text</li>
+                            <li data-subject="Mode of Delivery"><input type="checkbox" class="shcheckbox1 chkdhide" name="modeofserviceordelivery"> Mode of Delivery</li>
+                            <li data-subject="Receiver's Address"><input type="checkbox" class="shcheckbox1 chkdhide" name="addressaddress"> Receiver's Address</li>
+                            <li data-subject="Other Details of Receiver"><input type="checkbox" class="shcheckbox1 chkdhide" name="otherdetailsofaddress"> Other Details of Receiver</li>
+                            <li data-subject="Sender's Address"><input type="checkbox" class="shcheckbox1 chkdhide" name="senderaddress"> Sender's Address</li>
+                            <li data-subject="Other Details of Sender"><input type="checkbox" class="shcheckbox1 chkdhide" name="otherdetailsofaddressofsender"> Other Details of Sender</li>
+                            <li data-subject="Notice Through/To"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticethrough"> Notice Through/To</li>
+
+                            <li data-subject="Created By"><input type="checkbox" class="shcheckbox1 chkdhide" name="CreatedByName"> Created By</li>
+                            <li data-subject="Notice Created On"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticecreatedon"> Notice Created On</li>
+                            <li data-subject="Docs"><input type="checkbox" class="shcheckbox1 chkdhide" name="attachment" checked> Docs</li>
+                            <li data-subject="Due Date"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticeduedate" checked> Due Date</li>
+                            <li data-subject="Status"><input type="checkbox" class="shcheckbox1 chkdhide" name="pending" checked> Status</li>
+                            <li data-subject="Priority"><input type="checkbox" class="shcheckbox1 chkdhide" name="criticality"> Priority</li>
+                            <li data-subject="Reason For High Priority"><input type="checkbox" class="shcheckbox1 chkdhide" name="reasonforhighcriticality"> Reason For High Priority</li>
+                            <li data-subject="Amount Claimed"><input type="checkbox" class="shcheckbox1 chkdhide" name="amountclaimed"> Amount Claimed</li>
+                            <li data-subject="Consignment"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticeTrackingId"> Consignment No</li>
+                            <li data-subject="Status changed date"><input type="checkbox" class="shcheckbox1 chkdhide" name="actualclosedate"> Status Changed date</li>
+
+                            <li data-subject="Receiver Details"><input type="checkbox" class="shcheckbox1 chkdhide" name="Receiverdetails"> Receiver Details</li>
+                            <li data-subject="Reference Number"><input type="checkbox" class="shcheckbox1 chkdhide" name="ReferenceNumber"> Reference Number</li>
+                            <li data-subject="Internal Number"><input type="checkbox" class="shcheckbox1 chkdhide" name="InternalNumber"> Internal Number</li>
+                            <li data-subject="Date Of Dispatch"><input type="checkbox" class="shcheckbox1 chkdhide" name="deliveryDispatch"> Date Of Dispatch</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="myModallinkcase" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closelinkmatter" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Link to matter
+                </h4>
+            </div>
+            <div class="myModallinkcase1" id="myModallinkcase1" style="margin-top:10px;">
+                <div class="modal-body">
+                    <div class="ec_bg" style="height:130px;overflow:unset !important">
+                        <div>
+                            <div class="col-md-5">
+                                <input id="selectlinktypenew" value="newmatter" name="selectlinktype" style="float:left;cursor:pointer !important" type="radio" />
+                                <label class="col-md-12" for="selectlinktypenew" style="margin-top: -15px;margin-left: 7px;">Link to New matter</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input id="selectlinktype" value="linkmatter" name="selectlinktype" style="float:left;cursor:pointer !important" type="radio" />
+                                <label class="col-md-12" for="selectlinktype" style="margin-top: -15px;margin-left: 7px;">Link to Existing matter</label>
+
+                            </div>
+                            <div class="col-md-2"></div>
+                        </div>
+                        <div id="dvlinktocase" style="display:none;margin-top:50px;">
+                            <div class="col-md-8">
+                                <input id="livecaseidhide" class="form-control inputFormat" type="hidden" />
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" id="mattersforlink2" class="form-control inputFormat" placeholder="Enter Matter Name" />
+                            </div>
+                            <div class="col-md-4">
+                                <button class="sbtbtn" id="savelinkmatter">Save</button>
+                            </div>
+                        </div>
+
+                        <div id="dvcreatecase" style="display:none;margin-top:50px;">
+
+
+                            <div class="col-md-12">
+                                <button class="sbtbtn" id="CreateNoticetoMatter">Link to  New matter</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br><br><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Delete Notice</h3>
+            </div>
+            <div class="ec_bg">
+                <h4>Are you sure you want to Remove this Notice?</h4>
+            </div>
+            <div class="modal-footer" style="border-top: none !important;">
+                <a href="#" class="sbtbtn" data-dismiss="modal">Cancel</a>
+                <a href="#" class="sbtbtn" onclick="DeleteNotice()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ViewMoreModal" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content viewmore">
+            <div class="modal-header" style="background-color:#fff !important">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                @*<h3 class="modal-title" id="viewmoreheader">Notice</h3>*@
+            </div>
+
+            <div class="modal-body" style="height:350px;overflow-y: scroll;">
+                <span id="viewmorecontent"></span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="ViewLogModal" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog" style="width:65%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/notice-icon.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                <h4>Notice Logs</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table-panel">
+                    <thead>
+                        <tr>
+                            <th><div class="thbg">Sender Name</div></th>
+                            <th><div class="thbg">Receiver Name</div></th>
+                            <th><div class="thbg">Notice Sent On</div></th>
+                            <th><div class="thbg">User Type</div></th>
+                            <th><div class="thbg">Feedback</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="modlbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="AssignModal" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Send For Approval</h3>
+            </div>
+            <div class="modal-body" style="height:200px;">
+                <div class="ec_bg">
+                    <div>
+                        <label>to manager</label>
+                        <input type="radio" name="assignee" value="manager" class="assignto" />
+                        <label>to client</label>
+                        <input type="radio" name="assignee" value="client" class="assignto" />
+                    </div>
+                    <div>
+                        <select id="bindusr" class="form-control selctInputFormat" style="background-color: white !important; margin-top: 10px !important;"></select>
+                    </div>
+                    <br />
+                    <button type="button" id="assignnoticebtn" class="sbtbtn  pull-right" value="Send">Send</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myDocumentModal" class="modal fade myModal" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+
+
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="FinalStatusModal" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Final Status</h3>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <form>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <span style="color:red">*</span><label>Date of Delivery</label>
+                                <input type="date" class="form-control" id="dateofddel" />
+                            </div>
+                            <div class="col-sm-3">
+                                <span style="color:red">*</span><label>Date of Receipt (Proof)</label>
+                                <input type="date" class="form-control" id="txtdateofreceipt" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <span style="color:red">*</span><label>Current Status</label>
+                                <textarea type="text" id="currentstatus" class="form-control"></textarea>
+                            </div>
+                            <div class="col-sm-3">
+                                <label>Upload Files</label>
+                                <input type="file" class="form-control" id="postedFile" multiple />
+                            </div>
+                        </div>
+                        <br />
+                        <button type="button" id="savefinalstatus" class="sbtbtn">Save</button>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="ReceivedReplyModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Add Received Reply</h3>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <form id="receivedreplyform" class="ec_bg" style="overflow:initial;">
+                        <input type="hidden" value="" id="hiddenreplynoticeid" />
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label>Date Of Reply</label>
+                                <input type="date" class="inputFormat" id="txtreplydateofnotice" />
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Reply Received On<span style="color:red">*</span></label>
+                                <input type="date" class="inputFormat" id="txtreplyreciveddate" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label>Reply Received Through</label>
+                                <select class="inputFormat" name="languageSelect[]" id="txtreplyrecivedthrough" multiple style="border-radius:10px;">
+                                    <option value="Addressee">Addressee</option>
+                                    <option value="CounselforAddressee">Counsel for Addressee</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Mode Of Delivery</label>
+                                <select class="inputFormat" name="languageSelect[]" id="txtreplyModeOfDelievery" multiple style="border-radius:10px;">
+                                    <option value="Post"> Speed Post/Registered Post</option>
+                                    <option value="Courier">Courier</option>
+                                    <option value="Email">Email</option>
+                                    <option value="ByHand">By Hand</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label>Attachment</label>
+                                <input type="file" class="inputFormat" id="replypostedFile" multiple />
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Set date for reply(Rejoinder)<span style="color:red">*</span></label>
+                                <input type="date" class="inputFormat" id="txtsetreplydate" />
+                            </div>
+                        </div>
+                        <br />
+                        <button type="button" id="savereplytonotice" class="sbtbtn">Save</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ActualclosurModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Mark Status Of Notice</h3>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <form class="ec_bg" id="markstatusreset">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label>Close Date <span style="color:red">*</span></label>
+                                <input type="date" class="inputFormat" id="dateofclosure" />
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Notice Status <span style="color:red">*</span></label>
+                                <select id="ddlnoticestatus" class="inputFormat"></select>
+                            </div>
+                        </div>
+                        <br />
+                        <button type="button" id="saveclosuedate" class="sbtbtn">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalNotificationsetting" class="modal fade in" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <span id="fstitle"> Notification Settings</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+
+                <form id="fileupload" name="fileupload" class="ec_bg">
+                    <table cellpadding="0" cellspacing="0" width="100%">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-6" style="display:none">
+                                    <label>Set Notification For<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <select class="selctInputFormat" onchange="fnnotificationalerttype()" id="ddlnotificationalerttype">
+                                        <option value="individual">Individual</option>
+                                    </select>
+                                </td>
+                                <td class="col-md-6" id="divnoticelist" style="display:none">
+                                    <label>Notice<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <select class="selctInputFormat" id="ddlnoticelist" onchange="Getdateforalertbynoticeid()"></select>
+                                </td>
+                                <td class="col-md-6" id="alertbeforeincaseall">
+
+                                    <label>Alert Condition</label><span style="color:red">*</span>
+                                    <select class="selctInputFormat" id="txtalertcondition">
+                                        <option value="beforeduedate">Before Due Date</option>
+                                        <option value="afterreceivedate">After Received Date</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-6">
+                                    <label>Date Of Receive Notice</label><br />
+                                    <span id="txtreceiveddate" class="inputFormat" style="background:#fff;"></span>
+                                </td>
+                                <td class="col-md-6">
+                                    <label>Set Days</label><span style="color:red">*</span>
+                                    <select class="inputFormat" id="alertbeforeincaseallddl" multiple onchange="fndisplayreminder()">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                    </select>
+                                </td>
+                                <td class="col-md-6" id="alertbeforeincaseindividual12" style="display:none;">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label>Due Date : </label>
+                                            <input type="date" class="inputFormat" id="txtduedate1" readonly />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Received Date : </label>
+                                            <input type="date" class="inputFormat" id="txtreceiveddate1" readonly />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-6">
+                                    <label>Due Date</label><br />
+                                    <span id="txtduedate" class="inputFormat" style="background:#fff;"></span>
+                                </td>
+                                <td class="col-md-6" id="remindercollection">
+                                    <label>Reminder's</label><br />
+                                    <div id="multiplereminderdiv" class="inputFormat" style="background:#fff;"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-6" style="display:none">
+                                    <label>Alert Before<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <input type="text" id="txtalertbefore" class="inputFormat" />
+                                </td>
+                                <td class="col-md-6" style="display:none">
+                                    <label>Due Date<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <input type="date" id="txtduedate" class="inputFormat" />
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="sbtbtn" id="savenotificationsettings" data-type="">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dateOfDeliveryModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Save date of delivered of Notice</h3>
+            </div>
+            <div class="modal-body">
+
+                <div class="inputbg" style="min-height:120px;">
+
+
+                    <div class="col-md-6" style="margin-top:20px;">
+                        <span style="color:red">*</span><label>Date of Delivered</label>
+                        <input type="date" class="form-control inputFormat" id="dateofdelivered" />
+                    </div>
+                    <div class="col-md-6" style="margin-top:40px;">
+                        <button type="button" id="btnsavedod" class="sbtbtn">Save</button>
+                    </div>
+                </div>
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="NoticeDraftModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice</h3>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><div class="thbg">Sr no.</div></th>
+                            <th><div class="thbg">File</div></th>
+                            <th><div class="thbg">Created By</div></th>
+                            <th><div class="thbg">Created Date</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="draftnoticemodlbody"></tbody>
+                </table>
+                <div class="row" style="border:1px solid #afa5a5;padding-left:15px;margin:0px">
+                    <h4 style="text-align:center">Send notice on email</h4>
+                    <div class="col-md-12">
+                        <div class="col-sm-6" style="padding-bottom:10px;">
+                            <span style="color:red">*</span><label>Receiver Email</label>
+                            <input type="email" id="receiverEmailidd" class="form-control" />
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" id="sendmailbtn" class="sbtbtn  pull-right" style="background-color:#007bff" value="Save">Send</button>
+                        </div>
+                    </div>
+
+                    <br />
+                    <span style="color:red;display:none" id="spanEmailId">Please enter valid email address.</span>
+
+                </div>
+                <center> <div id="nodraftnotice"> </div></center>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="noticePostModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal" onclick="hidePostModal()">&times;</a>
+                <h3 class="modal-title">Date Of Notice Sent </h3>
+            </div>
+            <div class="modal-body">
+                <div class="">
+                    <form id="postdetailslayout">
+                        <input type="hidden" id="trackingId" value="" />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label> Delevery Modes</label>
+                                <select class="selctInputFormat" id="Modesofdeleverypost" multiple name="languageSelect[]" style="background-color: #ebebeb !important;">
+                                    <option value="Post"> Speed Post/Registered Post</option>
+                                    <option value="Courier">Courier</option>
+                                    <option value="Email">Email</option>
+                                    <option value="ByHand">By Hand</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Date of dispatch <span style="color:red">*</span></label>
+                                <input type="date" class="inputFormat" title="Please ensure that the date entered should be the date on which the notice is couriered" id="noticeSendDate" style="background-color: #ebebeb !important;" />
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6" id="consignmentdivlayout" style="display:none">
+                                <label>Consignment No.</label>
+                                <input type="text" class="inputFormat" id="consignmentnum" style="background-color: #ebebeb !important;" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Date of delivery<span style="color:red">*</span></label>
+                                <input type="date" class="inputFormat" id="dateofdelivered" style="background-color: #ebebeb !important;" />
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="button" id="btnsavepostDetail" class="sbtbtn">Save</button>
+                                <i class="fa fa-search" id="searchId" style="cursor:pointer;display:none" onclick="fnPostDetail()" title="View Notice post detail's"></i>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Important Note:</label>
+                                <p class="notecls">
+                                    1.It normally takes 4 days or more for the item to be delivered/updated on Speed Post website. We suggest you check tracking result after 7 days.<br />
+                                    2.Speed Post Tracking Services provided herein is as per the information available and updated by Department of Posts,
+                                    Ministry of Communications, Government of India. We are nowhere responsible, or are giving representation or warranty as to completeness and correctness of the information. Subscribers are requested to verify the information before acting upon the same. <br />
+                                    3.The information is being updated on case to case basis by the concerned authorities. The company is not responsible
+                                    for non-updation or non-availability of information related to any consignment or shipment sent through speed post.
+                                </p>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalcfHistory" class="modal fade">
+    <div class="modal-dialog" style="width:80%;">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Custom Field History
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+
+                        <div class="panel-default">
+                            <div class="panel-body">
+                                <div class="">
+                                    <div class="col-lg-12">
+                                        <form role="form" id="editfile" class="ec_bg">
+                                            <div class="form-group ">
+
+                                                <label class="control-label col-md-3">Select Custom Field Version</label>
+                                                <div class="col-md-4">
+                                                    <select class="dropdown-toggle selctInputFormat" id="cfversion"></select>
+
+                                                </div>
+                                                <div class="col-md-5" style="margin-top:-1px;">
+                                                    <button type="button" class="sbtbtn" id="cfhistorydata" onclick="fncfhistorydata()">find</button>
+                                                    <button type="button" class="sbtbtn" id="exporttoexcelcfhistory" title="export to excel" onclick="fnExporttoExcelCFHistory()">export to excel</button>
+
+                                                </div>
+                                                <div class="table-panel" style="padding-top:50px;">
+                                                    <table id="examplee" class="table " style="overflow-x:scroll;">
+                                                        <thead id="cfheadrow">
+
+                                                        </thead>
+                                                        <tbody id="cfbindcasedata"></tbody>
+                                                    </table>
+                                                </div>
+
+                                                <div class="table-panel" id="footerhead" style="display:none;margin-left:10px;">
+                                                    <div class="row settingpanel">
+                                                        <div class="col-md-6">
+
+                                                            <div style="float: left;padding: 0 10px 0 0;">
+                                                                <ul>
+                                                                    <li>
+                                                                        <div class="btn-group dropup">
+                                                                            <a href="#" class="dropdown-toggle selctInputFormat" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                                <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                                                customize field
+                                                                            </a>
+                                                                            <ul class="dropdown-menu settingshowhide" id="cfod" style="width:255px;"></ul>
+                                                                        </div>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div id="cfcasetfooter">
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </form>
+                                    </div>
+
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="~/dist/select2/js/select2.min.js"></script>
+<script src="~/Scripts/Notice/Archive.js?4.4"></script>
+<script src="~/Scripts/Notice/ExportToExcelNotice.js"></script>
+<script src="~/Scripts/Notice/Tracking.js?1.0"></script>
+
+<script>
+    jQuery('#txtreplyrecivedthrough').multiselect({
+        columns: 1,
+        //placeholder: 'Select Mattertyt',
+        search: true,
+        selectAll: true
+    });
+    jQuery('#txtreplyModeOfDelievery').multiselect({
+        columns: 1,
+        //placeholder: 'Select Mattertyt',
+        search: true,
+        selectAll: true
+    });
+    jQuery('#Modesofdeleverypost').multiselect({
+        columns: 1,
+        //placeholder: 'Select Mattertyt',
+        search: true,
+        selectAll: true
+    });
+
+
+</script>
+
+<script>
+    $(document).ready(function () {
+        $("#mattersforlink2").autocomplete({
+            disabled: true
+        });
+    });
+    $('#mattersforlink2').on('keyup', function () {
+
+        /* your code here */
+        var txtlength = $("#mattersforlink2").val().length;
+
+        if (txtlength > 0) {
+
+        }
+
+        else {
+
+            $("#livecaseidhide,#mattersforlink2").val("");
+
+        }
+
+    });
+
+    $(function () {
+
+        $("#mattersforlink2").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/MatterFilterAutoCompleteForNotice',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+
+
+                            map[name] = { id: id, name: name };
+                            items.push(name);
+
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+
+
+                $("#livecaseidhide").val(map[item].id);
+
+
+
+
+
+                return map[item].name;
+
+
+
+
+            }
+        });
+    });
+</script>
+<div class="modal fade" id="ReceiverListModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Receiver Details </h3>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Receiver's Email</th>
+                            <th>Receiver's Phone</th>
+                            <th>Second Address</th>
+                            <th>Created On</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receiverListmodlbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myOverlay" class="overlay" style="z-index:9999!important">
+
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const topScroll = document.querySelector('.scroll-sync-top');
+        const topScrollInner = document.querySelector('.scroll-top-inner');
+        const tableScroll = document.querySelector('.table-scroll-wrapper');
+
+        function updateScrollBarVisibility() {
+            const isScrollNeeded = tableScroll.scrollWidth > tableScroll.clientWidth;
+            if (isScrollNeeded) {
+                topScroll.style.display = 'block';
+                topScrollInner.style.width = tableScroll.scrollWidth + 'px';
+            } else {
+                topScroll.style.display = 'none';
+                topScrollInner.style.width = '0px';
+            }
+        }
+
+        // Sync scroll positions
+        topScroll.addEventListener('scroll', () => {
+            tableScroll.scrollLeft = topScroll.scrollLeft;
+        });
+
+        tableScroll.addEventListener('scroll', () => {
+            topScroll.scrollLeft = tableScroll.scrollLeft;
+        });
+
+        // Automatically observe table width changes
+        const resizeObserver = new ResizeObserver(() => {
+            updateScrollBarVisibility();
+        });
+
+        // Watch inner table container
+        resizeObserver.observe(tableScroll);
+
+        // Initial check
+        updateScrollBarVisibility();
+    });
+</script>
+
+

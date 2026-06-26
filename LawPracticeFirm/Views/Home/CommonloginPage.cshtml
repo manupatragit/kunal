@@ -1,0 +1,170 @@
+﻿@{
+    ViewBag.Title = "CommonloginPage";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+<script src="~/Manupanel/NewTemplate/js/jquery.min.js"></script> <!-- jQuery for Bootstrap's JavaScript plugins -->
+<link href="~/NewDesign/css/bootstrap.css?1" rel="stylesheet">
+<link href="~/NewDesign/css/fontawesome-all.css?1" rel="stylesheet">
+<link href="~/NewDesign/css/home.css?3" rel="stylesheet">
+<link href="~/NewDesign/css/cookie-consent.css?2" rel="stylesheet" />
+@Scripts.Render("~/bundles/Utility")
+<script src="~/Scripts/Firm/Pages/FirmMain.js"></script>
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/ResetPassword.js?1.0"></script>
+<script>
+    var UserName = "@ViewBag.UserName";
+    var Password = "@ViewBag.Password";
+    var Timestamp = "@ViewBag.TimeStamp";
+    localStorage.removeItem("Nexthearingary");
+    localStorage.removeItem("NexthearingaryRevenue");
+    //Added for New Appeal Number Format
+    localStorage.removeItem('ShowPopUpSession', "ShowPopup");
+    localStorage.setItem('ShowPopUpSession', "ShowPopup");
+</script>
+<script>
+    $(document).ready(function () {
+        logindetails();
+    });
+    function logindetails() {
+        var privateVariables = {
+            format: "^[a-zA-Z1-9]{6,}$",
+            key: '1',
+            password: ''
+        };
+        privateVariables.password = Password;
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/AccountApi/CommonFromMykaseLogin",
+            headers: {
+                'UserName': UserName,
+                'Password': privateVariables.password,
+                'Timestamp': Timestamp
+            },
+            dataType: 'json',
+            contentType: "application/json",
+            processData: false,
+            success: function (response) {
+                try {
+                    localStorage.setItem("savetimeentry", "1");
+                    localStorage.setItem("tasktimervalue", $("#duration2").val());
+                    localStorage.setItem('active_id', 'home_sidebar');
+                    //starttime();
+                    sessionStorage.setItem("h2", sessionStorage.getItem("h1"));
+                    sessionStorage.setItem("m2", sessionStorage.getItem("m1"));
+                    sessionStorage.setItem("s2", sessionStorage.getItem("s1"));
+                    sessionStorage.setItem("h1", 0);
+                    sessionStorage.setItem("m1", 0);
+                    sessionStorage.setItem("s1", 0);
+                    window.clearInterval(window.t11);
+                }
+                catch { }
+                if (response.Status) {
+                    if (String(response.Data) == "alreadyloggedin") {
+                        alert("1. A session with the Sign In is currently active.\n2. You did not use the SignOut tab to exit, instead used the Close button(X). Close the mykase page. You should be able to log in after 6 mins or call at 0120-4014521/523/524 : Toll Free 1-800-103-3550 [Mon-Fri 8.30 am - 6.00 pm] Email: contact@mykase.in");
+                        window.location.href = "https://www.mykase.in/";
+                        return false;
+                    }
+                    else if (String(response.Data) == "Authenticate") {
+                        window.location.href = (Utility.URL + "/home/TwoFactorAuthentication");
+                    }
+                    else {
+                        $.ajax({
+                            async: true,
+                            url: '/api/AccountApi/IsNoticePack',
+                            //data: formData,
+                            processData: false,
+                            contentType: false,
+                            type: 'POST',
+                            success: function (responsess) {
+                             
+                                if (responsess.Data == "Notice") {
+                                    var fnlurl = (Utility.URL + response.Data);
+                                    fnlurl = fnlurl.replace("dashboard", "NoticeDashboard");
+                                    fnlurl = fnlurl.replace("Employee", "firm");
+                                    window.location.href = fnlurl;
+                                }
+                                else if (responsess.Data == "MkLitigation") {
+                                    localStorage.setItem('active_id', 'matter_sidebar');
+                                    var fnlurl = (Utility.URL + response.Data);
+                                    fnlurl = fnlurl.replace("/firm/dashboard", "/CW/LitigationDashboard");
+                                    window.location.href = fnlurl;
+                                }
+                                else if (responsess.Data == "IPR") {
+                                    var fnlurl = (Utility.URL + response.Data);
+                                    fnlurl = fnlurl.replace("/firm/dashboard", "/IPR/IPRDashboard");
+                                    window.location.href = fnlurl;
+                                }
+                                else {
+                                    var fnlurl = (Utility.URL + response.Data);
+                                    fnlurl = fnlurl.replace("dashboard", "Personaldashboard");
+                                    fnlurl = fnlurl.replace("Employee", "firm");
+                                    fnlurl = fnlurl.replace("/Client/Personaldashboard", "/Client/matterlist");
+                                    window.location.href = fnlurl;
+                                }
+                            },
+                            error: function () {
+                                alert('Error!');
+                            }
+                        });
+                    }
+                }
+                else {
+                    if (response.Message == "Non-static method requires a target.") {
+                        alert("User id is not Activated.");
+                        window.location.href = "https://www.mykase.in/";
+                    }
+                    else {
+                        alert(response.Message);
+                        window.location.href = "https://www.mykase.in/";
+                    }
+                }
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    }
+</script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

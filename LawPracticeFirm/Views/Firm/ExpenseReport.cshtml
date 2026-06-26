@@ -1,0 +1,559 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    <script>
+        var LoggeduserId = "@ViewBag.LoggeduserId";
+    </script>
+}
+<script>
+     var isDelete = "@ViewBag.IsDelete";
+    var IsCreate = "@ViewBag.IsCreate";
+    var roleids = "@Session["sessionroleid"]";
+    console.log(IsCreate);
+</script>
+<script src="~/Scripts/Firm/Pages/ExpenseReport.js?2.4" type="text/javascript" language="javascript"></script>
+<section class="wrapper">
+    <div class="container">
+        @if (role.ToString() == "1")
+        {
+            <div class="text-center">
+                <div class="col-md-1">&nbsp;</div>
+                <div class="col-md-5 text-right">
+                    <p class="ctitle" style="padding:12px 0 0 0;">Expense Management &nbsp;&nbsp;<span>|</span></p>
+                </div>
+                <div class="col-md-5 text-left">
+                    <table width="" align="left">
+                        <tr>
+                            <td align="left" style="font-size:12px !important; padding:10px 0 0 0;">Client Name :</td>
+                            <td width="250px" align="left">
+                                <input type="text" id="ddlExpenceClient" name="ddlExpenceClient" class="form-control" autocomplete="off" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left" style="font-size:12px !important; padding:10px 0 0 0;">Matters Name :</td>
+                            <td width="250px" align="left">
+                                <select id="ddlExpenceCase" class="form-control col_b">
+                                    <option value="" selected=""></option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-1">&nbsp;</div>
+            </div>
+            <br> <br />
+            <div class="expence additempanel">
+                <table>
+                    <tr>
+                        <td width="12%"><p class="ctitle" id="padditem">add item</p></td>
+                        <td width="17%">
+                            <label>Date <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                            <input type="date" id="txtdate" onkeydown="return false" class="form-control">
+                        </td>
+                        <td width="17%">
+                            <label>Expense Type <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                            <select class="form-control" id="ddlExpenseType">
+                                <option value="">Select</option>
+                            </select>
+                        </td>
+                        <td width="17%">
+                            <label>Category <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                            <select class="form-control" id="ddlCategory">
+                                <option value="">Select</option>
+                            </select>
+                        </td>
+                        <td width="8%" style="display:none">
+                            <label>Amount <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                            <input type="text" id="txtprice" maxlength="10" class="form-control" @*onkeyup="fnCalculate();"*@>
+                        </td>
+                        <td width="8%" style="display:none">
+                            <label>Units<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                            <input type="text" id="txtUnits" maxlength="5" class="form-control" value="0" @*onkeyup="fnCalculateunit();"*@>
+                        </td>
+                        <td width="8%">
+                            <label>Total <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                            <input type="text" id="txtTotal" class="form-control" title="">
+                        </td>
+                        <td width="16%">
+                            <div class="btn-group dropup" style="margin-top:-25px;">
+                                <span style="cursor:pointer;padding:0 5px 0 0" title="upload Attachment" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <label>Upload Receipt/Invoice</label>
+                                    <span class="glyphicon glyphicon-chevron-down" style="font-size: 8px;padding:0 0 0 5px;"></span>
+                                </span>
+                                <ul class="dropdown-menu settingaction" style="width:200px;">
+                                    <input class="form-control" name="postedFile" id="postedFile" type="file" multiple placeholder="Add receipts..." />
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%">
+                            <label>Created For <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                            <select class="form-control" id="ddlExpenceTeamMember">
+                                <option value="">Select</option>
+                            </select>
+                        </td>
+                        <td colspan="6" width="75%">
+                            <label>Description</label>
+                            <textarea name="" id="txtDescription" maxlength="2000" cols="" rows="" class="form-control form-control-sm"></textarea>
+                        </td>
+                        <td width="15%">
+                            <button type="button" id="AddExpense" class="sbtbtn" style="cursor:pointer" title="save">add item</button>
+                            <input type="hidden" value="" id="hdnExpenseid" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        }
+        else
+        {
+            if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+            {
+                <div class="text-center">
+                    <div class="col-md-2">&nbsp;</div>
+                    <div class="col-md-3 text-right">
+                        <p class="ctitle" style="padding:12px 0 0 0;">Expense Report &nbsp;&nbsp;<span>|</span></p>
+                    </div>
+                    <div class="col-md-6 text-left">
+                        <table width="" align="left">
+                            <tr>
+                                <td width="80px" align="left" style="font-size:12px !important;">Client Name :</td>
+                                <td width="250px" align="left">
+                                    <input type="text" id="ddlExpenceClient" name="ddlExpenceClient" class="form-control" autocomplete="off" />
+                                </td>
+                            </tr>
+                        </table>
+                        <table width="" align="left">
+                            <tr>
+                                <td width="80px" align="left" style="font-size:12px !important;">Matters Name :</td>
+                                <td width="250px" align="left">
+                                    <select id="ddlExpenceCase" class="form-control col_b">
+                                        <option value="" selected=""></option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-1">&nbsp;</div>
+                </div>
+                <br> <br />
+                <div class="expence additempanel">
+                    <table>
+                        <tr>
+                            <td width="12%"><p class="ctitle" id="padditem">add item</p></td>
+                            <td width="17%">
+                                <label>Date</label>
+                                <input type="date" id="txtdate" onkeypress="return false;" class="form-control">
+                            </td>
+                            <td width="17%">
+                                <label>Expense Type</label>
+                                <select class="form-control" id="ddlExpenseType">
+                                    <option value="">Select</option>
+                                </select>
+                            </td>
+                            <td width="17%">
+                                <label>Category</label>
+                                <select class="form-control" id="ddlCategory">
+                                    <option value="">Select</option>
+                                </select>
+                            </td>
+                            <td width="8%" style="display:none">
+                                <label>Amount <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <input type="text" id="txtprice" maxlength="10" class="form-control" @*onkeyup="fnCalculate();"*@>
+                            </td>
+                            <td width="8%" style="display:none">
+                                <label>Units<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <input type="text" id="txtUnits" maxlength="5" class="form-control" value="0" @*onkeyup="fnCalculateunit();"*@>
+                            </td>
+                            <td width="8%">
+                                <label>Total <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <input type="text" id="txtTotal" class="form-control" title="">
+                            </td>
+                            <td width="13%">
+                                <div class="btn-group dropup" style="margin-top:-25px;">
+                                    <span style="cursor:pointer;padding:0 5px 0 0" title="upload Attachment" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <label>Upload Receipt/Invoice</label>
+                                        <span class="glyphicon glyphicon-chevron-down" style="font-size: 8px;padding:0 0 0 5px;"></span>
+                                    </span>
+                                    <ul class="dropdown-menu settingaction" style="width:200px;">
+                                        <input class="form-control" name="postedFile" id="postedFile" type="file" multiple placeholder="Add receipts..." />
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="12%">
+                                <label>Created For</label>
+                                <select class="form-control" id="ddlExpenceTeamMember">
+                                    <option value="">Select</option>
+                                </select>
+                            </td>
+                            <td colspan="6" width="75%">
+                                <label>Description</label>
+                                <textarea name="" id="txtDescription" maxlength="2000" cols="" rows="" class="form-control form-control-sm"></textarea>
+                            </td>
+                            <td width="15%">
+                                <btn id="AddExpense" class="sbtbtn" title="save">add item</btn>
+                                <input type="hidden" value="" id="hdnExpenseid" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center">
+                    <div class="col-md-2">&nbsp;</div>
+                    <div class="col-md-3 text-right">
+                        <p class="ctitle" style="padding:12px 0 0 0;">Expense Report &nbsp;&nbsp;</p>
+                    </div>
+                    <div class="col-md-1">&nbsp;</div>
+                </div>
+                <br> <br /> <br> <br />
+            }
+        }
+        <div class="progress" style="display:none">
+            <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                0%
+            </div>
+        </div>
+        <div id="progressBarstatus" style="text-align:center; margin-top: -15px;display:none">
+            Please wait document is uploading....
+        </div>
+        <div class="table-panel table-responsive">
+            <div style="overflow-x:scroll;">
+                <table class="table table-striped table-bordered" id="cexample">
+                    <thead>
+                        <tr>
+                            <th class="eDate" width="10%" onclick="sortTable(0)">Date<span class="fa fa-fw fa-sort pull-right"></span></th>
+                            <th class="eCaseName" width="11%" onclick="sortTable(1)">Matters Name<span class="fa fa-fw fa-sort pull-right"></span></th>
+                            <th class="eClientName" width="12%" onclick="sortTable(2)">Client Name<span class="fa fa-fw fa-sort pull-right"></span></th>
+                            <th class="eExpenseType" width="12%" onclick="sortTable(3)">Expense Type<span class="fa fa-fw fa-sort pull-right"></span></th>
+                            <th class="eCategory" width="10%" onclick="sortTable(4)">Category<span class="fa fa-fw fa-sort pull-right"></span></th>
+                            <th class="eDescription" width="15%">Description</th>
+                            <th class="ePriceRate" width="10%">Price/Rate</th>
+                            <th class="eUnit" width="7%">Unit</th>
+                            <th class="eTotal" width="5%">Total</th>
+                            <th class="createdby" width="10%">Created by</th>
+                            <th class="eReceipt" width="10%">Receipt</th>
+                            <th class="createdfor" width="10%">Created for</th>
+                            <th width="5%">Action</th>
+                            <th width="3%"><input name="chkSelectAll" type="checkbox" value="" id="chkSelectAll" title="Select All"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="bindexpense"></tbody>
+                </table>
+            </div>
+            <div class="row settingpanel">
+                <div class="col-md-4">
+                    <div class="row">
+                        <ul>
+                            <li>
+                                <div class="btn-group dropup">
+                                    <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                        Customize Field <span class="glyphicon glyphicon-chevron-down"></span>
+                                    </a>
+                                    <ul class="dropdown-menu settingshowhide">
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDate" checked><a href="#" class="dropdown-item">Date</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCaseName" checked><a href="#" class="dropdown-item">Matters Name</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eClientName" checked> <a href="#" class="dropdown-item">Client Name</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eExpenseType" checked><a href="#" class="dropdown-item">Expense Type</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCategory" checked><a href="#" class="dropdown-item">Category</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDescription"><a href="#" class="dropdown-item">Description</a></li>
+                                        <li style="display:none"><input type="checkbox" class="shcheckbox1 chkdhide" name="ePriceRate"><a href="#" class="dropdown-item">Price/Rate</a></li>
+                                        <li style="display:none"><input type="checkbox" class="shcheckbox1 chkdhide" name="eUnit"><a href="#" class="dropdown-item">Unit</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eTotal" checked><a href="#" class="dropdown-item">Total</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eReceipt"><a href="#" class="dropdown-item">Receipt</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="createdby"><a href="#" class="dropdown-item">Created by</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="createdfor" checked><a href="#" class="dropdown-item">Created for</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="ulfooter"></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <ul class="pull-right" id="ulfooter1">
+                        @if (role.ToString() == "1")
+                        {
+                            <li><select style=" width: 100px; border-bottom: 1px solid #ccc !important; height: 24px !important;" id="ddlExpUser" name="ddlExpUser"></select> </li>
+                            <li><span>|</span></li>
+                        }
+                        else
+                        {
+                            <li><span style=" width: 150px; border-bottom: 1px solid #ccc !important; height: 24px !important;display:none" id="ddlExpUser" name="ddlExpUser"></span> </li>
+                        }
+                        <li style="padding: 2px 0 0 0;">
+                            START:&nbsp;
+                        </li>
+                        <li>
+                            <input class="form-control" id="datefrom" onkeypress="return false;" type="date" style="height:24px !important;width: 130px;border-bottom: 1px solid #ccc !important;">
+                        </li>
+                        <li style="padding: 2px 0 0 0;">
+                            END:
+                        </li>
+                        <li>
+                            &nbsp; &nbsp;
+                        </li>
+                        <li>
+                            <input class="form-control" id="dateto" onkeypress="return false;" type="date" style="height:24px !important;width: 130px;border-bottom: 1px solid #ccc !important;">
+                        </li>
+                        <li>
+                            <button type="button" class="sbtbtn" id="searchdatas" style="padding: 3px 10px !important;">Search</button>
+                        </li>
+                        <li><span>|</span></li>
+                        <li>
+                            <div class="btn-group dropup">
+                                <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Action Selected <span class="glyphicon glyphicon-chevron-down"></span>
+                                </a>
+                                <ul class="dropdown-menu settingaction">
+                                    @if (role.ToString() == "1")
+                                    {
+                                        <li><a href="javascript:void();" id="expenseexcel" title="Export to Excel"> Export to Excel</a></li>
+                                        <li><a href="javascript:void();" id="expensepdf" title="Export data to PDF">Export to PDF</a></li>
+                                    }
+                                    else
+                                    {
+                                        if (Convert.ToInt32(ViewBag.export) == 1)
+                                        {
+                                            <li><a href="javascript:void();" id="expenseexcel" title="Export to Excel"> Export to Excel</a></li>
+                                            <li><a href="javascript:void();" id="expensepdf" title="Export data to PDF">Export to PDF</a></li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<input type="hidden" id="exclienthide">
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("cexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 1; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function psortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("pexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function osortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("oexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    $("#ddlExpUser").append("<option value=''>Select</option>");
+</script>

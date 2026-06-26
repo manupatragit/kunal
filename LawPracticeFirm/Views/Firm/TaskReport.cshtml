@@ -1,0 +1,556 @@
+﻿
+@{
+    Layout = null;
+    var role = Session["sessionroleid"];
+}
+<script src="~/Scripts/Firm/Pages/TaskReport.js?1.8"></script>
+<script>
+    var roleids = "@Session["sessionroleid"]";
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<style>
+
+
+    a.morelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span {
+        display: none;
+    }
+
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+</style>
+<section class="wrapper">
+    <div class="ec_bg">
+    <div class="row">
+        <div class="col-md-4">
+            <label class="formLabel colorDark">User</label>
+            <select id="taskfilteruserschedule" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="formLabel colorDark">Client Name</label>
+            @*<select id="filterclient" class="form-control"></select>*@
+            <input type="hidden" id="tasktimecontactvalue">
+            <input type="text" id="tasktimecontact" name="tasktimecontact" class="form-control inputFormat" autocomplete="new-text" />
+        </div>
+        <div class="col-md-4">
+            <label class="formLabel colorDark">Matter Name</label>
+            <select class="form-control selctInputFormat" style="background-color: white !important;" id="taskmatter" name="taskmatter">
+                <option value="" selected="">Select</option>
+            </select>
+        </div>
+        <div class="col-md-3" style="display:none;">
+            <label class="formLabel colorDark">Status</label>
+            <select id="taskfilterStatus" class="form-control selctInputFormat" style="background-color: white !important;">
+                <option value="" selected="">Select</option>
+                <option value="0">In Process</option>
+                <option value="1">Accepted</option>
+                <option value="2">Rejected</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <label class="formLabel colorDark">Due Start</label>
+            <input class="form-control inputFormat" id="searchfrom" onkeypress="return false;" type="date">
+        </div>
+        <div class="col-md-4">
+            <label class="formLabel colorDark">Due End</label>
+            <input class="form-control inputFormat" id="searchto" onkeypress="return false;" type="date">
+        </div>
+        <div class="col-md-4">
+            <button type="button" id="searchdatas" class="sbtbtn" style="margin:27px 0 0 0;">Search</button>
+        </div>
+
+
+    </div>
+
+</div>
+</section>
+
+
+<div class="table-panel table-responsive" style="padding:10px 0 0 0; clear:both;" data-example-id="hoverable-table" id="home">
+
+    <table class="table " id="schedulertable">
+
+        <thead>
+            <tr>
+                <th width="8%" class="scttime"><div class="thbg">
+                   Date
+                </div>
+                </th>
+                <th width="12%" class="scttype"><div class="thbg">
+                    Task Type  
+                    </div>
+                </th>
+                <th width="14%" class="sctclient"><div class="thbg">
+                    Client     
+                    </div>
+                </th>
+                <th width="12%" class="sctcase"><div class="thbg">
+                    Matter            
+                    </div>
+                </th>
+                <th width="16%" class="sctbrief"><div class="thbg">Note</div></th>
+                <th width="6%" class="sctassigntoby"><div class="thbg">
+                    Assign By
+                    <select id="filteruserscheduleby" class="form-control" style="width:100px !important; display:none;">
+                        <option value="" selected>Assign By </option>
+                    </select>
+                    </div>
+
+                </th>
+                <th width="6%"><div class="thbg">
+                    Assign To
+                    <select id="filteruserscheduleto" class="form-control" style="width:100px !important; display:none;">
+                        <option value="" selected>Assign To </option>
+                    </select>
+                    </div>
+                </th>
+                @*<th width="11%">Accept/Reject by</th>*@
+                <th width="8%" class="AcceptRejectBy"><div class="thbg">
+                    Accept/Reject by
+                    </div>
+                </th>
+                <th width="8%" class="sctduedate"><div class="thbg">
+                    Due Date   
+                    </div>
+                </th>
+                <th width="12%"><div class="thbg">
+                    Status       
+                    </div>           
+                </th>
+
+            </tr>
+        </thead>
+        <tbody id="bindcasetask"></tbody>
+    </table>
+    <center><div id="dataescstatus"></div></center>
+
+
+    <div class="table-panel">
+        <div class="settingpanel">
+            <div class="col-md-6">
+                <div style="float: left;padding: 0 10px 0 0;">
+                    <ul>
+                        <li>
+                            <div class="btn-group dropup">
+                                <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                    customize field 
+                                </a>
+
+                                <ul class="dropdown-menu settingshowhide" id="schduleolli">
+                                    @*<li><input type="checkbox" class="shcheckbox1 chkdhide" name="scttime" checked><a href="#">Accept/Reject by</a></li>*@
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="scttime" checked><a href="#">Date</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="scttype" checked><a href="#">Task Type</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctclient" checked><a href="#" class="dropdown-item">Client</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctcase" checked><a href="#" class="dropdown-item">Matter</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctbrief"><a href="#" class="dropdown-item">Note</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctassigntoby"><a href="#" class="dropdown-item">Assign By</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctduedate" checked><a href="#" class="dropdown-item">Due Date</a></li>
+
+
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div id="tfooter">
+
+                </div>
+            </div>
+            <div class="col-md-6">
+
+
+                <ul class="pull-right" id="ulfooter1">
+                    <li>
+                        <div class="btn-group dropup">
+                            <a href="javascript:void()"class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action Selected 
+                            </a>
+                            <ul class="dropdown-menu settingaction">
+
+                                    <li><a href="javascript:void();" id="oexcel" title="export to excel"> export to excel</a></li>
+                                    <li><a href="javascript:void();" id="opdf" title="export to pdf"> export to pdf</a></li>
+                               
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function sortTable(n) {
+
+        try {
+
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("invlist");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+
+
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+        catch (er) {
+            //alert(er.message);
+        }
+    }
+</script>
+<script>
+    $("#tasktimecontact").change(function () {
+
+        var client = $("#tasktimecontact").val();
+        if (client == "") {
+            $("#tasktimecontactvalue").val("");
+            $('#taskmatter').empty();
+        }
+
+    });
+    $(document).ready(function () {
+        $("#tasktimecontact").autocomplete({
+            disabled: true
+        });
+    });
+    $("#filterclient").change(function () {
+      
+        var flval = $("#filterclient").val();
+        if (flval != "") {
+
+            loadmatter1(flval, "filtercasescheduler");
+        }
+
+    });
+    
+    function loadmatter1(clientid, mtypes) {
+
+        if (mtypes != "") {
+            $('#' + mtypes).append('<option value="">Select Matter</option>').find('option:first').attr("selected", "selected");
+            getcasebyajax1(clientid, mtypes);
+        }
+
+
+
+    }
+    function getcasebyajax1(clientid, matteridslbl) {
+        try {
+            openload();
+        }
+        catch
+        {
+
+        }
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/LoadMatterforclient",
+            headers: {
+                "clientid": clientid,
+                "companyids":""
+
+            },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+
+                }
+                else {
+                    //alert("not found");
+                }
+                var obj = JSON.parse(response.Data);
+
+                if (matteridslbl == "filtercasescheduler") {
+                    $("#filtercasescheduler").empty();
+                    var optiontempy = '<option value="" >Matters</option>';
+                    $("#" + matteridslbl).append(optiontempy);
+                }
+
+                $.each(obj, function (i, a) {
+                    var mattername = a.mname;
+                    var mid = a.Id;
+                    if (mattername == null) {
+                        mattername = "";
+                        mid = "";
+                    }
+                    else {
+                        var option = '<option value="' + mid + '" > ' + mattername + '</option>';
+                        $("#" + matteridslbl).append(option);
+                    }
+
+
+
+                });
+                try {
+                    closeload();
+                }
+                catch
+                {
+
+                }
+                //console.log(response);
+            },
+
+            failure: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+
+                }
+            },
+            error: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+
+                }
+            }
+
+        });
+    }
+
+    $(function () {
+        $("#taskcontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+
+                $("#member").css("height", "100px !important;")
+                var clientds = map[item].id;
+
+                if (clientds != "") {
+                    $('#taskmatter').empty();
+                    loadmatter1(clientds, "taskmatter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+
+
+
+
+            }
+        });
+    });
+    $(function () {
+        $("#tasktimecontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+
+
+                var clientds = map[item].id;
+                $("#tasktimecontactvalue").val(clientds);
+                if (clientds != "") {
+                    $('#taskmatter').empty();
+                    loadmatter1(clientds, "taskmatter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+
+
+
+
+            }
+        });
+    });
+
+</script>
+<div id="myOverlay" class="overlay">
+    @*//<span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>*@
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

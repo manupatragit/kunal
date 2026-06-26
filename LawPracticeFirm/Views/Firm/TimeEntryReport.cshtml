@@ -1,0 +1,832 @@
+﻿
+@{
+    Layout = null;
+    var role = Session["sessionroleid"];
+}
+<script src="~/Scripts/Firm/Pages/TimeEntryReport.js?1.7"></script>
+<script>
+    var roleids = "@Session["sessionroleid"]";
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<style>
+
+
+    a.morelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span {
+        display: none;
+    }
+
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+</style>
+<section class="wrapper">
+    <div class="row" style="margin-bottom:15px;">
+        <div class="col-md-4"></div>
+
+        <div class="col-md-2">
+            <input checked type="radio" id="rdlog" name="rdlog" onclick="fn_Isloged(0);"> &nbsp;&nbsp;Log
+
+        </div>
+        <div class="col-md-2">
+            <input type="radio" id="rdmodified" name="rdlog" onclick="fn_Isloged(1);"> &nbsp;&nbsp;Modified
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+    <div class="ec_bg">
+    <div class="row">
+
+
+        <input type="hidden" id="hdnisaddedval" value="0" />
+        <div class="col-md-4">
+            <label class="formLabel colorDark">User</label>
+            @if (role.ToString() == "1")
+            {
+                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpUser" name="ddlExpUser"></select>
+            }
+            else
+            {
+                <span style="display:none" id="ddlExpUser" name="ddlExpUser"></span>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <label class="formLabel colorDark">Client</label>
+            <input type="hidden" id="tetimecontactvalue">
+            <input type="text" id="tetimecontact" name="tetimecontact" class="form-control inputFormat" autocomplete="new-text" />
+        </div>
+
+        <div class="col-md-4">
+            <label class="formLabel colorDark">Matter</label>
+            <select class="form-control selctInputFormat" style="background-color: white !important;" id="tematter" name="tematter">
+                <option value="" selected="">Select</option>
+            </select>
+        </div>
+
+    </div>
+    <div class="row" style="padding:10px 0 0 0;">
+        <div class="col-md-3">
+            <label class="formLabel colorDark">Task Type</label>
+            <select class="form-control selctInputFormat" style="background-color: white !important;"id="teitem"></select>
+        </div>
+        <div class="col-md-3">
+            <label class="formLabel colorDark">Start</label>
+            <input class="form-control inputFormat" id="datefrom" onkeypress="return false;" type="date">
+        </div>
+        <div class="col-md-3">
+            <label class="formLabel colorDark">End</label>
+            <input class="form-control inputFormat" id="dateto" onkeypress="return false;" type="date">
+        </div>
+        <div class="col-md-3">
+            <button type="button" id="searchdatas" class="sbtbtn" style="margin:27px 0 0 0;">Search</button>
+        </div>
+
+
+    </div>
+    </div>
+</section>
+
+
+
+<div id="updatePanel" class="table-panel table-responsive" style="margin-top:5px; overflow:auto">
+
+</div>
+
+<div><center><span id="datastatus"></span></center></div>
+
+
+
+<div class="table-panel">
+    <div class="settingpanel">
+        <div class="col-md-6">
+
+            <div style="float: left;padding: 0 10px 0 0;">
+                <ul>
+                    <li>
+                        <div class="btn-group dropup">
+                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                customize field 
+                            </a>
+                            <ul class="dropdown-menu settingshowhide" id="od">
+                                <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="matter" checked>Matter Name</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="client" checked>Client</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="date" checked>Date</a></li>
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="duration" checked>Duration</a></li>
+
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="createdby">User</a></li>
+
+
+
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="item" checked>Task Type</a></li>
+
+                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="tdetails">Notes</a></li>
+
+
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div id="tfooter">
+
+            </div>
+        </div>
+        <div class="col-md-6" @*style="display:none;"*@>
+            <ul class="pull-right">
+
+
+
+
+
+                <li><span>|</span></li>
+                <li>
+                    <div class="btn-group dropup">
+                        <a href="javascript:void()"  class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Action Selected 
+                        </a>
+                        <ul class="dropdown-menu settingaction">
+
+                            @*<li><a href="javascript:void()" id="syncrqst" title="Save data sync request">Save data sync request</a></li>*@
+                            @if (role.ToString() == "1")
+                            {
+
+
+                                <li>
+                                    <a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void()" id="opdf" title="export to pdf">
+                                        export to pdf
+                                    </a>
+
+                                </li>
+
+
+
+
+                            }
+                            else
+                            {
+
+                                if (Convert.ToInt32(ViewBag.export) == 1)
+
+                                {
+
+
+
+                                    <li>
+                                        <a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void()" id="opdf" title="export to pdf">
+                                            export to pdf
+                                        </a>
+
+                                    </li>
+
+
+
+                                }
+                            }
+                        </ul>
+                    </div>
+
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+
+
+        </div>
+
+    </div>
+</div>
+<script>
+    function sortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("example");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<script>
+    $("#tetimecontact").change(function () {
+       
+       
+        var client = $("#tetimecontact").val();
+        if (client == "") {
+            $("#tetimecontactvalue").val("");
+            $('#tematter').empty();
+        }
+
+    });
+    $(document).ready(function () {
+        $("#tetimecontact").autocomplete({
+            disabled: true
+        });
+    });
+    $("#filterclient").change(function () {
+        var flval = $("#filterclient").val();
+        if (flval != "") {
+
+            loadmatter1(flval, "filtercasescheduler");
+        }
+
+    });
+
+    $("#ifilterclient").change(function () {
+        var flval = $("#ifilterclient").val();
+        if (flval != "") {
+
+            loadmatter1(flval, "ifiltercasescheduler");
+        }
+
+    });
+    $("#dfilterclient").change(function () {
+        var flval = $("#dfilterclient").val();
+        if (flval != "") {
+
+            loadmatter1(flval, "dfiltercasescheduler");
+        }
+
+    });
+    $("#ofilterclient").change(function () {
+        var flval = $("#ofilterclient").val();
+        if (flval != "") {
+
+            loadmatter1(flval, "ofiltercasescheduler");
+        }
+
+    });
+    $("#afilterclient").change(function () {
+        var flval = $("#afilterclient").val();
+        if (flval != "") {
+
+            loadmatter1(flval, "afiltercasescheduler");
+        }
+
+    });
+
+    function loadmatter1(clientid, mtypes) {
+
+        if (mtypes != "") {
+            $('#' + mtypes).append('<option value="">Select Matter</option>').find('option:first').attr("selected", "selected");
+            getcasebyajax1(clientid, mtypes);
+        }
+
+
+
+    }
+    function getcasebyajax1(clientid, matteridslbl) {
+        try {
+            openload();
+        }
+        catch
+        {
+
+        }
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/LoadMatterforclient",
+            headers: {
+                "clientid": clientid,
+                "companyids":""
+
+            },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+
+                }
+                else {
+                    //alert("not found");
+                }
+                var obj = JSON.parse(response.Data);
+
+                if (matteridslbl == "filtercasescheduler") {
+                    $("#filtercasescheduler").empty();
+                    var optiontempy = '<option value="" >Matters</option>';
+                    $("#" + matteridslbl).append(optiontempy);
+                }
+
+                $.each(obj, function (i, a) {
+                    var mattername = a.mname;
+                    var mid = a.Id;
+                    if (mattername == null) {
+                        mattername = "";
+                        mid = "";
+                    }
+                    else {
+                        var option = '<option value="' + mid + '" > ' + mattername + '</option>';
+                        $("#" + matteridslbl).append(option);
+                    }
+
+
+
+                });
+                try {
+                    closeload();
+                }
+                catch
+                {
+
+                }
+                //console.log(response);
+            },
+
+            failure: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+
+                }
+            },
+            error: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+
+                }
+            }
+
+        });
+    }
+    $(function () {
+        $("#sidebindcommuclient").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+
+
+                var clientds = map[item].id;
+                var clientdnames = map[item].name;
+
+                $("#commuclienthide").val(clientds);
+                $("#commucliennamethide").val(clientdnames);
+
+                if (clientds != "") {
+                    $('#sidebindcommucase').empty();
+
+                    loadmatter1(clientds, "sidebindcommucase");
+
+                }
+                else {
+                    $('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+
+                return item;
+
+
+
+
+            }
+        });
+    });
+    $(function () {
+        $("#taskcontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+
+                $("#member").css("height", "100px !important;")
+                var clientds = map[item].id;
+
+                if (clientds != "") {
+                    $('#tematter').empty();
+                    loadmatter1(clientds, "tematter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+
+
+
+
+            }
+        });
+    });
+    $(function () {
+        $("#tetimecontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+
+
+                var clientds = map[item].id;
+                $("#tetimecontactvalue").val(clientds);
+                if (clientds != "") {
+                    $('#tematter').empty();
+                    loadmatter1(clientds, "tematter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+
+
+
+
+            }
+        });
+    });
+
+    $(function () {
+        $("#ddlExpenceClient").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+
+                $("#exclienthide").val(map[item].id);
+                var clientds = map[item].id;
+
+                if (clientds != "") {
+                    $('#ddlExpenceCase').empty();
+                    loadmatter1(clientds, "ddlExpenceCase");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+
+
+
+
+            }
+        });
+    });
+    $(function () {
+        $("#client").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+
+
+                var clientds = map[item].id;
+
+                if (clientds != "") {
+                    $('#cmatter').empty();
+                    loadmatter1(clientds, "cmatter");
+                }
+                else {
+                    //$('#alertmember').empty().append('<option value="ALL">Select All User</option>').find('option:first').attr("selected", "selected");
+                }
+                return item;
+
+
+
+
+            }
+        });
+    });
+</script>
+
+<div id="myOverlay" class="overlay">
+    @*//<span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>*@
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

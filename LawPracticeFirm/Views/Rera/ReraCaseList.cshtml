@@ -1,0 +1,360 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    var hsmklitigation1 = Session["hsmklitigation"];
+    var dashmatter1 = Session["dashmatter"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/Scripts/CW/ReraCaseList.js?1.5" type="text/javascript" language="javascript"></script>
+<script>
+    var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter ="@Session["dashmatter"]";
+</script>
+<style>
+    ul li {
+        display: inline;
+    }
+
+    .recent {
+        list-style: none;
+    }
+
+    .tabs {
+        display: flex;
+        border-bottom: 2px solid #ddd;
+        margin-bottom: 20px;
+    }
+
+    .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+        border-bottom: 2px solid transparent;
+    }
+
+        .tab.active {
+            border-bottom: 2px solid #007bff;
+            color: #007bff;
+        }
+
+    .snav {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        border-bottom: 1px solid #ccc;
+        overflow: hidden;
+        display: inline-block;
+    }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle">List of Rera Case</p>
+        </div>
+        <div style="margin: 10px 0 5px 0; overflow:hidden;">
+            <ul class="snav">
+                <li id="" class=""><a href="/@Session["firmcode"]/CW/LitigationCaseList">All Court</a></li>
+                <li id="" class=""><a href="/@Session["firmcode"]/Revenue/RevenueCaseList">Revenue</a></li>
+                <li id="" class="active"><a href="/@Session["firmcode"]/Rera/ReraCaseList">Rera</a><span id="totRecordData"></span></li>
+            </ul>
+        </div>
+
+    </div>
+</section>
+<section id="header" style="margin:20px 0;">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-3">
+                <select name="ReraCourt" id="ReraCourt" class="form-control selctInputFormat">
+                    <option value=''>Select Court</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="All Words" id="tagwords" class="form-control selctInputFormat">
+                    <option selected="selected" value="1">All Words</option>
+                    <option value="2">Any Word</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="rerasearchname" id="rerasearchname" class="form-control inputFormat" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" id="commonsrch" name="submit" class="btn btn-primary" text="Search" value="Submit" title="Search"> Search</button>
+            </div>
+
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1" style="justify-content: flex-end; padding:0 14px;">
+                    <div class="table-header">
+                        <div class="actions3" style="margin: 10px 0 0 0; float: right;">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li>
+                                        <div title="Export to Excel" id="exporttoexcel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+                <div class="tablecontainer">
+                    <div id="allcasediv">
+                        <table id="allcaselisttable" class="table-panel" role="grid" aria-describedby="example_info">
+                            <thead>
+                                <tr>
+                                    <th class="Case10 sorting " width="12%" tabindex="0" aria-controls="example"><div class="thbg"> Case No</div></th>
+                                    <th class="Court10 sorting " width="12%" tabindex="0" aria-controls="example"><div class="thbg"> Court</div></th>
+                                    <th class="Casename10 sorting " width="12%" tabindex="0" aria-controls="example"><div class="thbg"> Case Name</div></th>
+                                    <th class="Advocate10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg"> Advocate</div></th>
+                                    <th class="NextHearing10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg"> Next Hearing</div></th>
+                                    <th class="MNextHearing10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg">Manual Next Hearing</div></th>
+                                    <th class="Disposed10 sorting" width="10%" tabindex="0" aria-controls="example"> <div class="thbg">Disposed Date</div></th>
+                                    <th class="Status10 sorting" width="8%" tabindex="0" aria-controls="example"><div class="thbg"> Status</div></th>
+
+                                    @if (hsmklitigation1.ToString() == "display:unset" && dashmatter1.ToString() == "display:none")
+                                    {
+                                        <th class="Notes10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg">MatterName</div>    </th>
+                                    }
+                                    else
+                                    {
+                                        <th class="Notes10 sorting" width="10%" tabindex="0" aria-controls="example"><div class="thbg">Action</div>    </th>
+                                    }
+
+                                </tr>
+                            </thead>
+                            <tbody id="allreradatabind"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="pagination" id="pagenatedArea">
+                    <div class="pagination-button-group">
+                        <div id="prev" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbers" class="pagination-button-group-base1">
+                        </div>
+
+                        <div id="next" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGo" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<div id="myModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog " style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Details by Appeal No
+                </h4>
+            </div>
+            <!-- Modal content-->
+            <div class="modal-content mymodels" id="mymodels" style="margin-top:10px;">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModaltimeline" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:60%">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Case Order TimeLine
+                </h4>
+            </div>
+            <div class="mymodelstime" id="mymodelstime" style="margin-top:10px;">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModallinkcase" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closelinkmatter" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Link case
+                </h4>
+            </div>
+            <div class="myModallinkcase1" id="myModallinkcase1" style="margin-top:10px;">
+                <div class="modal-body">
+                    <div class="ec_bg" style="height: 150px !important">
+                        <div class="col-md-8">
+                            <input id="livecaseidhide" class="form-control inputFormat" type="hidden" />
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" id="mattersforlink2" class="form-control inputFormat" placeholder="Enter Matter Name" />
+                        </div>
+                        <div class="col-md-4">
+                            <button class="sbtbtn" id="savelinkmatter">Save</button>
+                        </div>
+                    </div>
+                    <br><br><br><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <input type="hidden" id="exportrecords">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">
+                Export Cases
+            </h4>
+        </div>
+        <div class="modal-body  partynamebody " id="" style="height:505px; overflow-y:scroll;background:white;">
+            <table class="table " style="font-size:12px;">
+                <thead>
+                    <tr style="font-size: 12px;">
+                        <th><div class="thbg">Page No.</div></th>
+                        <th><div class="thbg">FileName</div></th>
+                    </tr>
+                </thead>
+                <tbody id="printexport"></tbody>
+                <tr></tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="casewatchmodelalert" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    User Details for Live Update
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group col-md-12 ">
+                        <label>Select Users</label>
+                        <select multiple class="selctInputFormat" name="languageSelect[]" id="UsersCasewatchAlert"></select>
+                    </div>
+                    <div class="form-group col-md-12 text-right" style="margin: 13px 0 13px 0;"> <button type="button" class="btn btn-primary" id="savecasewatchuser">Save</button></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div style="overflow-x:scroll;">
+                            <table class="table-panel">
+                                <thead>
+                                    <tr> <th><div class="thbg">Sl NO.</div></th><th><div class="thbg">UserName</div></th><th><div class="thbg">Email</div></th><th><div class="thbg">Mobile</div></th><th><div class="thbg">Action</div></th></tr>
+                                </thead>
+                                <tbody id="bindcasewatchalertuser"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: none !important">
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#mattersforlink2").autocomplete({
+            disabled: true
+        });
+    });
+    $('#mattersforlink2').on('keyup', function () {
+        /* your code here */
+        var txtlength = $("#mattersforlink2").val().length;
+        if (txtlength > 0) {
+        }
+        else {
+            $("#livecaseidhide,#mattersforlink2").val("");
+        }
+    });
+    $(function () {
+        $("#mattersforlink2").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/MatterFilterAutoComplete',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            map[name] = { id: id, name: name };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#livecaseidhide").val(map[item].id);
+                return map[item].name;
+            }
+        });
+    });
+</script>

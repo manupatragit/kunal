@@ -1,0 +1,170 @@
+﻿$(document).ready(function () {
+    $("#contact").change(function () {
+        $('#matter').empty();
+        var clientds = $(this).val();
+        if (clientds != "") {
+            loadmatter(clientds);
+        }
+        else {
+            $('#matter').empty().append('<option value="">Select Case</option>').find('option:first').attr("selected", "selected");
+        }
+    });
+
+    /*Load matter by client id*/
+    function loadmatter(clientid) {
+        $('#matter').empty().append('<option value="">Select Case</option>').find('option:first').attr("selected", "selected");
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/LoadMatterforclient",
+            headers: {
+                "clientid": clientid
+            },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                }
+                else {
+                    //alert("not found");
+                }
+                $.each(JSON.parse(response.Data), function (i, a) {
+                    var mattername = a.mname;
+                    var mid = a.Id;
+                    if (mattername == null) {
+                        mattername = "";
+                        mid = "";
+                    }
+                    else {
+                        var option = '<option value="' + mid + '" > ' + mattername + '</option>';
+                        $("#matter").append(option);
+                    }
+                });
+            },
+            failure: function (response) {
+                alert(data.responseText);
+            },
+            error: function (response) {
+                alert(data.responseText);
+            }
+        });
+    }
+    loadcontact1();
+
+    // load contact
+    function loadcontact1() {
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: '/api/CallApi/SpClientData',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    var obj = JSON.parse(response.Data);
+                }
+                else {
+                    //  alert("not found");
+                }
+                $.each(obj, function (i, a) {
+                    var option = '<option value="' + a.LoginId + '" >' + a.Username + ' (' + a.cfname + ') </option> ';
+                    $("#contact").append(option);
+                });
+            },
+            failure: function (response) {
+                alert(data.responseText);
+            },
+            error: function (response) {
+                alert(data.responseText);
+            }
+        });
+    }
+});
+
+//Add Note
+$('form[id="savenoteform"]').validate({
+    submitHandler: function (form) {
+        var contact = $('#contact').val();
+        var matter = $('#matter').val();
+        var subject = $('#subject').val();
+        var dt = $('#dt').val();
+        var status = $('#status').val();
+        var details = CKEDITOR.instances.details.getData();
+        var tags = $('#tags').val();
+        var formData = new FormData();
+        var tempsize = 0;
+        var tottempsize = 0;
+        var totalFiles = document.getElementById("postedFile").files.length;
+        for (var i = 0; i < totalFiles; i++) {
+            var file = document.getElementById("postedFile").files[i];
+            var filename = file.name;
+            if (filename.length > 100) {
+                alert("The name of the file cannot exceed the limit of 100 characters. Please check file name: " + filename);
+                return false;
+            }
+            var Extresponse = checkfileext(filename);
+            if (String(Extresponse) == "false") {
+                return false;
+            }
+            formData.append("FileUpload", file);
+            try {
+                if (typeof (file) != "undefined") {
+                    size = parseFloat(file.size / 1024).toFixed(2);
+                    tottempsize = parseFloat(tottempsize) + parseFloat(size);
+                    tempsize = parseFloat(size);
+                }
+            }
+            catch (err) {
+                //alert(err.message);
+            }
+            tempsize = tempsize.toFixed(2);
+            if (tempsize > filesize) {
+                new PNotify({
+                    title: 'Warning!',
+                    text: Filesizelabel,
+                    type: 'error',
+                    delay: 3000
+                });
+                return false
+            }
+        }
+        formData.append("contact", contact);
+        formData.append("matter", matter);
+        formData.append("subject", subject);
+        formData.append("dt", dt);
+        formData.append("details", details);
+        formData.append("tags", tags);
+        formData.append("status", status);
+        openloader();
+        $.ajax(
+            {
+                type: "POST",
+                url: "/api/callApi/PostSaveNote", // Controller/View
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    closeloader();
+                    $("#savenoteform")[0].reset();
+                    document.getElementById("closemodel").click();
+                    new PNotify({
+                        title: 'Success!',
+                        text: ' Note Added Successfully',
+                        type: 'success',
+                        delay: 3000
+                    });
+                    localStorage.setItem("setname", "calender");
+                }, //End of AJAX Success function
+                failure: function (data) {
+                    alert(data.responseText);
+                    closeloader();
+                }, //End of AJAX failure function
+                error: function (data) {
+                    alert(data.responseText);
+                    closeloader();
+                } //End of AJAX error function
+            });
+    }
+});

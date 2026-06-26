@@ -1,0 +1,515 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+@{
+    var id = ViewBag.token;
+}
+<script>
+     var id ="@id";
+     var filesize =@ViewBag.filesize;
+     var type = 7;
+</script>
+<script type='text/javascript'>
+    if (String(id) != "") {
+        localStorage.setItem("contacttoken", id);
+    }
+    if (String(id) == "") {
+        var urls = window.location.href;
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": localStorage.getItem("contacttoken") }
+        });
+    }
+    function goodbye(e) {
+        localStorage.setItem("contacttoken", id);
+        if (!e) e = window.event;
+        //e.cancelBubble is supported by IE - this will kill the bubbling process.
+        e.cancelBubble = true;
+        //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+        //e.stopPropagation works in Firefox.
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+    window.onbeforeunload = goodbye;
+</script>
+<style>
+    .img-wrap {
+        position: relative;
+    }
+
+        .img-wrap .close1 {
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            z-index: 100;
+            color: #ce9090;
+            font-size: 25px;
+        }
+</style>
+<script src="~/Scripts/Firm/Pages/ContactSingleEdit.js"></script>
+<script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+<link href="~/Manupanel/jquerydatetimepicker/jquery.datetimepicker.css" rel="stylesheet" />
+<script src="~/Manupanel/jquerydatetimepicker/jquery.js"></script>
+<script src="~/Manupanel/jquerydatetimepicker/jquery.datetimepicker.js"></script>
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script src="~/Content/multipleselect/selectize.js"></script>
+<link href="~/Content/multipleselect/dist/css/selectize.bootstrap2.css" rel="stylesheet" />
+<link href="~/Content/multipleselect/dist/css/jquery.magicsearch.min.css" rel="stylesheet" />
+<script>
+    $(document).on('click', 'div.selectize-input div.item', function (e) {
+        var select = $('#assign').selectize();
+        var selectSizeControl = select[0].selectize;
+        // 1. Get the value
+        var selectedValue = $(this).attr("data-value");
+        // 2. Remove the option
+        select[0].selectize.removeItem(selectedValue);
+        select[0].selectize.refreshItems();
+        select[0].selectize.refreshOptions();
+        $(".div.selectize-input div.item").css("padding", "7px 10px");
+    });
+</script>
+<style>
+    .radio input[type="radio"], .radio-inline input[type="radio"], .checkbox input[type="checkbox"], .checkbox-inline input[type="checkbox"] {
+        float: none;
+        margin-left: 0;
+    }
+
+    .radio-inline + .radio-inline, .checkbox-inline + .checkbox-inline {
+        margin: 0;
+    }
+
+    .zyx span {
+        text-transform: capitalize;
+        padding: 0 5px 0 0;
+    }
+
+    .radio-inline, .checkbox-inline {
+        display: block !important;
+        padding-left: 0 !important;
+    }
+
+    .selectize-dropdown {
+        position: static !important;
+    }
+</style>
+<script>
+    $(document).on('keypress', '#tags', function (event) {
+        var regex = new RegExp("^[a-zA-Z ]+$");
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (!regex.test(key)) {
+            event.preventDefault();
+            return false;
+        }
+    });
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        @{
+            var firmcode = Request.Url.Segments[1];
+        }
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active"><a href="/@firmcode/Firm/vcontact/contact"> Contact List</a></li>
+            <li class="active"> Edit Contact </li>
+        </ol>
+        <h1><span class="fa fa-user"></span> Edit Contact</h1>
+    </section>
+    <section class="content">
+        <form id="savecontact" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-section-bordered">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-2 contact-photo" style="padding-top:8px">
+                                <div class="form-group">
+                                    <div class="col-md-12">
+                                        <div>
+                                            <div class="fileupload-new thumbnail  img-wrap"> <span class="close1" style="cursor:pointer" id="removepic" title="Remove profile picture">&times;</span> <img src="~/PanelDesign/images/Default_User_pic_new.png" alt="" id="output_image"> </div>
+                                            <div>
+                                                <span class="btn btn-default btn-file file-upload-buttons">
+                                                    <span class="fileupload-new"><span class="glyphicon glyphicon-paperclip"></span> Upload Picture</span> <span class="fileupload-exists"><span class="glyphicon glyphicon-repeat"></span> Change</span>
+                                                    <input type="file" onchange="preview_image(event)" class="default photo-attachment" name="attachment" id="attachment" accept="image/*">
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="col-lg-10 contact-details">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2"> Full Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                            <div class="col-md-4">
+                                                <input autofocus="" class="form-control spacer100" placeholder="FirstName" type="text" value="" name="fname" id="fname" maxlength="49" required="">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control spacer100" placeholder="Middle Name" type="text" value="" name="mname" id="mname" maxlength="49">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input class="form-control spacer100" placeholder="Last Name" type="text" name="lname" value="" id="lname" maxlength="49" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4" for="Home"> Home (<span class="glyphicon glyphicon-phone-alt"></span>)</label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" onkeypress="return restrictAlphabetsfax(event)" placeholder="Add home number..." type="text" name="home" value="" id="home">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4" for="Mobile"> Mobile (<span class="glyphicon glyphicon-earphone"></span>) <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" vplaceholder="Add mobile number..." onkeypress="return restrictAlphabets(event)" name="mob" required type="text" value="" id="mob" maxlength="10" minlength="10">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4" for="Office"> Office (<span class="glyphicon glyphicon-phone-alt"></span>)</label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" onkeypress="return restrictAlphabetsfax(event)" maxlength="16" placeholder="Add office number..." type="text" value="" id="office">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4" for="Fax"> Fax (<span class="glyphicon glyphicon-phone-alt"></span>)</label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" onkeypress="return restrictAlphabetsfax(event)" placeholder="Add fax number..." name="fax" type="text" value="" id="fax" maxlength="12">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4" for="Email"> Email (<span class="glyphicon glyphicon-envelope"></span>)</label>
+                                            <div class="col-md-8">
+                                                <input class="form-control" placeholder="Add email address..." type="email" name="email" value="" id="email" maxlength="49">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6" style="display:none">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4"> Client Portal</label>
+                                            <div class="col-md-8 col-sm-8">
+                                                <label class="switch">
+                                                    <input type="checkbox" id="cport" name="cport" value="1">
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2"> Contact Type <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                            <div class="col-md-4">
+                                                <select style="margin-left:-2px;" class="form-control" id="contacttype" required>
+                                                    <option value="">Select</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4" for="Email"> Notes </label>
+                                            <div class="col-md-8">
+                                                <textarea ID="cnotes" value="sdsdfd"></textarea>
+                                                <div class="grid-container" style="display:none">
+                                                    <div id="editor">
+                                                    </div>
+                                                    <script>
+                                                        initSample();
+                                                        CKEDITOR.replace('cnotes', {
+                                                            toolbar:
+                                                                [
+                                                                    { name: 'basicstyles', items: ['Bold', 'Italic'] },
+                                                                    { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                                    { name: 'tools', items: ['Maximize',] }
+                                                                ],
+                                                            height: 100,
+                                                            width: 265
+                                                        });
+                                                    </script>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6" id="content">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="additionalContactFields form-section-secondary">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="AssignedToGuids">Address </label>
+                                    <div class="col-md-8">
+                                        <input class="form-control" placeholder="Address" maxlength="200" type="text" name="address" value="" id="address">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="AssignedToGuids"> Assigned To<span class="required" aria-required="true">*</span> </label>
+                                    <div class="col-md-8">
+                                        @Html.DropDownList("assign", new SelectList(ViewBag.Users, "val", "label"), "Please select", new { @id = "assign", @class = "demodefault ", @multiple = "multiple" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="TagNames"> Tags </label>
+                                    <div class="col-md-8">
+                                        <input class="form-control" placeholder="Tags" maxlength="25" type="text" name="tags" value="" id="tags" onpaste="return false">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="Number"> Number </label>
+                                    <div class="col-md-8">
+                                        <input class="form-control" placeholder="Enter Number" maxlength="49" name="number" type="text" value="" id="number">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="Website"> Website </label>
+                                    <div class="col-md-8">
+                                        <input class="form-control" placeholder="Add Website" maxlength="49" name="website" type="text" value="" id="website">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="">
+                                <div class="form-actions hidden-print">
+                                    <div class="btn-group">
+                                        <input type="submit" id="addcontact" class="btn btn-primary save" value="save">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+    </section>
+</aside>
+                        </form>
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Custom Field
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger alert-dismissable validpanel">
+                            <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                            . <a href="#" class="alert-link">Alert Link</a>.
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form role="form" id="form2">
+                                            <div class="form-group">
+                                                <label>Custom Field Name</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                <input class="form-control" type="text" value="" id="txtcustomFieldName">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Custom Field Type</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                <select class="form-control" id="ctype">
+                                                    <option value="0">-Select Any-</option>
+                                                </select>
+                                            </div>
+                                            <div id="common">
+                                                <div class="form-group">
+                                                    <label id="listid">List options</label>
+                                                    <input class="form-control" data-val="true" id="txtcustomFieldvalue" />
+                                                    <p>(Add the options you would like to have in the drop down list list, separate values with a comma.)</p>
+                                                </div>
+                                                <div class="form-group">
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal" style="margin-top:10px;">
+                                                <label class="control-label col-xs-3">Is Required :</label>
+                                                <div class="col-xs-8">
+                                                    <label class="switch">
+                                                        <input type="checkbox" id="chkRequired" name="assign" value="1">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="addfield">Add Field</button>
+                <button type="reset" class="btn btn-default">Reset</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+                        </div>
+<!-- /.col-lg-12 -->
+                        </div>
+<!-- /.row -->
+                        </div>
+<!-- /.container-fluid -->
+                        </div>
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script>
+    $('#assign').selectize({
+        //maxItems: 3
+    });
+    var $select = $("#assign").selectize();
+    if (id != "") {
+        setTimeout(function () {
+            var formData = new FormData();
+            formData.append("token", id);
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/api/callApi/contactAssignUser", // Controller/View
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    //},
+                    success: function (response) {
+                        var dataarray = [];
+                        $.each(response.Data, function (i, b) {
+                            try {
+                                var selectize = $select[0].selectize;
+                                var selecteduser = b.auser;
+                                dataarray.push(selecteduser)
+                            }
+                            catch (er) {
+                                alert(er.message);
+                            }
+                            selectize.setValue(dataarray)
+                        });
+                    },
+                    failure: function (response) {
+                        alert(data.responseText);
+                    },
+                    error: function (response) {
+                        alert(data.responseText);
+                    }
+                });
+        }, 1000);
+    }
+    else {
+        // alert(tokenid);
+    }
+</script>

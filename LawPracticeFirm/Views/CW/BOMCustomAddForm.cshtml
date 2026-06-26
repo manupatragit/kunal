@@ -1,0 +1,527 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/Scripts/CW/CustomDashboard.js?1.0" type="text/javascript" language="javascript"></script>
+<style>
+    
+
+    .dp input[type="date"]:after {
+        left: 0px;
+    }
+
+    .action-more li a {
+        margin: 0;
+        padding: 0px 0px !important;
+        color: transparent !important;
+        border: none;
+        border-radius: 4px;
+    }
+
+    .manualdate {
+        font-size: 13px;
+        margin: 3px 0 0 0;
+    }
+
+    #selectedClientValue {
+        padding: 5px;
+        list-style: none;
+        border: 1px solid #e2e2e2;
+        background: #FFF;
+        border-radius: 10px;
+    }
+
+        #selectedClientValue li {
+            display: block;
+        }
+
+    label {
+        margin: 0;
+        padding: 0;
+        color: #020202;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: none;
+    }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-left">
+                    <p class="ctitle">BOM Case Report</p>
+                    <p id="bomFilterTitle">Against the Bank</p>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="text-right">
+                    <button id="bomFilterButton">Add <b>Against the Bank</b> Details</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+<section style="margin:25px 0;">
+    <div class="row">
+        <div class="col-md-2">
+
+
+            <select name="divfiledby" id="divfiledby" class="form-control selctInputFormat" style="background-color: white !important;">
+                <option value="" selected>Please Select</option>
+                <option value="1">Against the Bank</option>
+                <option value="2">Consumer Cases</option>
+                <option value="3">Contingent Liability</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="divSCHCDistrict" id="divSCHCDistrict" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+        </div>
+        <div class="col-md-2" id="HighCourt" style="display:none;">
+            <select name="drpcourtname" id="drpcourtname" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+        </div>
+        <div class="col-md-2" id="divCFBench" style="display: none;">
+            <select name="drpCfBench" id="drpCfBench" class="form-control selctInputFormat"></select>
+        </div>
+        <div class="col-md-2" id="DistrictCourt" style="display:none;">
+            <select name="drpcourtnameDC" id="drpcourtnameDC" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divdrpcourtnameDC();"></select>
+        </div>
+        <div class="col-md-2" id="divDistrict" style="display:none;">
+            <select name="drpdistrictcourtname" id="drpdistrictcourtname" class="form-control selctInputFormat" style="background-color: white !important;" onchange="drpcourtcompestbchange();"></select>
+        </div>
+        @*<div class="col-md-2" id="divcourtcomplexestb">
+                <select name="drpcourtcomplexestb" id="drpcourtcomplexestb" class="form-control selctInputFormat" style="background-color: white !important; display:none;" onchange="drpcourtcompestbchange();"></select>
+            </div>*@
+        <div class="col-md-2" id="divcompestbcourt" style="display:none;">
+            <select name="drpcompestbcourt" id="drpcompestbcourt" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1">
+                    <div class="text-and-supporting-text1">
+
+                    </div>
+                    <div class="table-header">
+                        <div class="actions3">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li><a href="javascript:void()" id="exporttoexcel" title="Export to Excel">Export to Excel</a></li>
+                                    <li><a href="javascript:void()" id="exporttopdf" title="Export to PDF">Export to PDF</a></li>
+                                </ul>
+                            </div>
+                            <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                                <img class="plus-icon" alt="" src="~/newassets/img/settings-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()" style="color: #4B5563 !important"> Customize</a></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+
+                <div class="tablecontainer">
+                    <div class="table-panel">
+                        <div style="overflow-x:scroll;margin:0 0 15px 0;">
+                            <table id="allcaselisttable" class="table-panel" role="grid" aria-describedby="example_info" ">
+                                <thead>
+                                    <tr role="row">
+                                        <th class="lsrno"><div class="thbg">S. No</div></th>
+                                        <th class="lPetitionerName">
+                                            <div class="thbg" style="min-width: 120px;">
+                                                <div style="float:left;width:80%">
+                                                    <input type="text" id="Petitionerfilter" placeholder="Petitioner" class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;width:20%">
+                                                    <span class="glyphicon glyphicon-search" id="Petitionersearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="Petitionerclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;margin:0 0 0 -4px;">x</span>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="lRespondentName">
+                                            <div class="thbg" style="min-width: 120px;">
+                                                <div style="float:left;width:80%">
+                                                    <input type="text" id="Respondentfilter" placeholder="Respondent" class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;width:20%">
+                                                    <span class="glyphicon glyphicon-search" id="Respondentsearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="Respondentclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;margin:0 0 0 -4px;">x</span>
+                                                </div>
+                                            </div>
+
+                                        </th>
+                                        <th class="caseno">
+                                            <div class="thbg" style="min-width: 130px;">
+                                                <div style="float:left;width:80%">
+                                                    <input type="text" id="lcasefiltercaseno" placeholder="Court Case No." class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;width:20%">
+                                                    <span class="glyphicon glyphicon-search" id="lcasesearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="lcaseclearnewsearchcase" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;">x</span>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="casename">
+                                            <div class="thbg" style="min-width: 120px;">
+                                                <div style="float:left;width:80%">
+                                                    <input type="text" id="lcasenamefilter" title="Name of the case as per court site" placeholder="Case Name" class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;width:20%">
+                                                    <span class="glyphicon glyphicon-search" id="lcasenamesearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="lcasenameclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;">x</span>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="lcasecourtname"><div class="thbg">Court</div></th>
+                                        <th class="courtorditrict">
+                                            <div class="thbg" style="min-width: 120px;">
+                                                Court Name
+                                            </div>
+                                        </th>
+                                        <th class="lcourtcomplexestblish"><div class="thbg">Court Complex</div></th>
+                                        <th class="nexthearing">
+                                            <div class="thbg" style="min-width: 170px;">
+                                                Next Hearing
+                                                <div class="btn-group" style="margin-top: -4px;">
+                                                    <a href="javascript:void();" id="nexthearingasc"><span class="glyphicon glyphicon-sort-by-attributes" style="margin-top: 5px;" title="sort by ascending"></span></a>
+                                                    <a style="display:none;" href="javascript:void();" id="nexthearingdesc"><span class="glyphicon glyphicon-sort-by-attributes-alt" style="margin-top: 5px;" title="sort by descending"></span></a>
+                                                    <a href="javascript:void();" id="nexthearingrefresh" style="display:none;"><span class="glyphicon glyphicon-refresh" style="margin-top: 5px;" title="refresh sorting"></span></a>
+                                                    <button type="button" style="height: 23px;" class="taskoutboxbtnicon dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <span class="glyphicon glyphicon-calendar" title="filter by date range"></span>
+                                                        <span class="sr-only">Toggle Dropdown</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" style="width:325px">
+                                                        <li style="padding:4px 5px 8px 5px; float:left" class="dp">
+                                                            <input type="date" title="Next hearing from date" id="nextheringfilterdate" placeholder="Start Date" class="form-control pull-left" style="width:125px;" onkeydown="return false" />
+                                                        </li>
+                                                        <li style="padding:4px 5px 8px 5px; float:left" class="dp">
+                                                            <input type="date" title="Next hearing to date" id="nexthearingfilterdateTo" placeholder="Start Date" class="form-control " style="width:125px;" onkeydown="return false" />
+                                                        </li>
+                                                        <li style="padding:4px 5px 8px 5px; float:left">
+                                                            <span class="glyphicon glyphicon-search" id="nexthearingdsearch" style="padding:2px 0 0 0 ;background:none"></span>
+                                                        </li>
+                                                        <li style="padding:4px 5px 8px 5px; float:left">
+                                                            <span class="glyphicon glyphicon-remove" id="nexthearingcleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer; font-size:10px; padding:2px 0 0 0;"></span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="Lstatus">
+                                            <div class="thbg" style="min-width: 120px;">
+                                                <div class="form-group">
+                                                    <select class="" id="lstatus" name="lstatus">
+                                                        <option value="">Court Status</option>
+                                                        <option value="Pending">Pending</option>
+                                                        <option value="Disposed">Disposed</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="ladvocate">
+                                            <div class="thbg" style="min-width: 100px;">
+                                                <div style="float:left;width:80%">
+                                                    <input type="text" id="advocatefilter" placeholder="Advocate" class="form-control pull-left">
+                                                </div>
+                                                <div style="float:left;width:20%">
+                                                    <span class="glyphicon glyphicon-search" id="advocatesearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                    <span class="" id="advocateclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;">x</span>
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th class="disposeddate"><div class="thbg">Disposed Date</div></th>
+                                        <th class="zonename"><div class="thbg">Zone Name</div></th>
+                                        <th class="casefilingdate">Matter Filing Date</th>
+                                        <th class="counselname">Counsel Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="AllCustomDashboardbind"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <center>
+                        <div class="notfound" id="pdatastatus" style="display:none;">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4>No Matter List Found</h4>
+                            <p>We found no matter list.</p>
+                        </div>
+                    </center>
+                </div>
+            </div>
+            <div class="pagination" id="mtrPagination">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+        <div id="myModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog " style="width:60%">
+                <div class="modal-content">
+                    <div class="modal-header btn-success">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            Details by Appeal No
+                        </h4>
+                    </div>
+                    <!-- Modal content-->
+                    <div class="modal-content mymodels" id="mymodels" style="margin-top:10px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="myModaltimeline" class="modal fade myModal" role="dialog" data-backdrop="static">
+            <div class="modal-dialog" style="width:60%">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header btn-success">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            Case Order TimeLine
+                        </h4>
+                    </div>
+                    <div class="mymodelstime" id="mymodelstime" style="margin-top:10px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="myModallinkcase" class="modal fade myModal" role="dialog" data-backdrop="static">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header btn-success">
+                        <button type="button" class="close" id="closelinkmatter" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            Link case
+                        </h4>
+                    </div>
+                    <div class="myModallinkcase1" id="myModallinkcase1" style="margin-top:10px;">
+                        <div class="modal-body">
+                            <div class="ec_bg" style="height: 150px !important;overflow:unset !important">
+                                <div class="col-md-8">
+                                    <input id="livecaseidhide" class="form-control inputFormat" type="hidden" />
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" id="mattersforlink2" class="form-control inputFormat" placeholder="Enter Matter Name" />
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="sbtbtn" id="savelinkmatter">Save</button>
+                                </div>
+                            </div>
+                            <br><br><br><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+            <div class="modal-dialog">
+                <input type="hidden" id="exportrecords">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        Export Cases
+                    </h4>
+                </div>
+                <div class="modal-body  partynamebody " id="" style="height:505px; overflow-y:scroll;background:white;">
+                    <table class="table " style="font-size:12px;">
+                        <thead>
+                            <tr style="font-size: 12px;">
+                                <th><div class="thbg">Page No.</div></th>
+                                <th><div class="thbg">FileName</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="printexport"></tbody>
+                        <tr></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="myModalCaseNotes" class="modal fade myModal" role="dialog" data-backdrop="static">
+            <div class="modal-dialog" style="width:50%;height: 500px;">
+                <!-- Modal content-->
+                <div class="modal-content" style="height: 500px;overflow-y: scroll;">
+                    <div class="modal-header btn-success">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            Case Notes
+                        </h4>
+                    </div>
+                    <div class="ec_bg" style="margin-top:10px;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="col-md-3">
+                                    <label class="control-label ">Other Details</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <textarea id="OtherDetailstxt" class="inputFormatTextArea" value="" style="margin: 0px; width: 357px; height: 40px;" maxlength="10000"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style="margin-top:-30px;"><button class="sbtbtn pull-right" id="UpdateOtherDetails">Save</button></div>
+                    </div>
+                    <div class="row" style="margin-top:20px">
+                        <div class="col-md-12">
+                            <div class="col-md-12">
+                                <div class="table-panel table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <td width="80%"><div class="thbg">Details</div></td>
+                                                <td width="20%"><div class="thbg">Acion</div></td>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="otherdetailsContent"></tbody>
+                                    </table>
+                                    <p id="otherdetailsContentNA" style="text-align:center">No result found...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+   
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#mattersforlink2").autocomplete({
+            disabled: true
+        });
+    });
+    $('#mattersforlink2').on('keyup', function () {
+        /* your code here */
+        var txtlength = $("#mattersforlink2").val().length;
+        if (txtlength > 0) {
+        }
+        else {
+            $("#livecaseidhide,#mattersforlink2").val("");
+        }
+    });
+    $(function () {
+        $("#mattersforlink2").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/MatterFilterAutoComplete',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            map[name] = { id: id, name: name };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#livecaseidhide").val(map[item].id);
+                return map[item].name;
+            }
+        });
+    });
+</script>
+@* Customize popup started *@
+<div id="myModalCustomizedcolumn" class="modal right fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul id="od">
+                            <li><input type="checkbox" value="Advocate" class="shcheckbox1 chkdhide" name="ladvocate"> Advocate</li>
+                            <li><input type="checkbox" value="CaseName" class="shcheckbox1 chkdhide" name="casename" checked> Matter Name</li>
+                            <li><input type="checkbox" value="Court" class="shcheckbox1 chkdhide" name="lcasecourtname" checked> Court</li>
+                            <li><input type="checkbox" value="CourtName" class="shcheckbox1 chkdhide" name="courtorditrict" checked> Court Name</li>
+                            <li><input type="checkbox" value="CourtComplex" class="shcheckbox1 chkdhide" name="lcourtcomplexestblish" checked> Court Complex</li>
+                            <li><input type="checkbox" value="CourtCaseNo" class="shcheckbox1 chkdhide" name="caseno" checked> Court Case No.</li>
+                            <li><input type="checkbox" value="CourtStatus" class="shcheckbox1 chkdhide" name="Lstatus" checked> Court Status</li>
+                            <li><input type="checkbox" value="DisposedDate" class="shcheckbox1 chkdhide" name="disposeddate"> Disposed Date</li>
+                            <li><input type="checkbox" value="NextHearing" class="shcheckbox1 chkdhide" name="nexthearing" checked> Next Hearing</li>
+                            <li><input type="checkbox" value="PetitionerName" class="shcheckbox1 chkdhide" name="lPetitionerName" checked> Petitioner</li>
+                            <li><input type="checkbox" value="RespondentName" class="shcheckbox1 chkdhide" name="lRespondentName" checked> Respondent</li>
+                            <li><input type="checkbox" value="lsrno" class="shcheckbox1 chkdhide" name="lsrno" checked> S. No</li>
+                            <li><input type="checkbox" value="zonename" class="shcheckbox1 chkdhide" name="zonename"> Zone Name</li>
+                            <li><input type="checkbox" value="casefilingdate" class="shcheckbox1 chkdhide" name="casefilingdate"> Matter Filing Date</li>
+                            <li><input type="checkbox" value="counselname" class="shcheckbox1 chkdhide" name="counselname"> Counsel Name</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@* End Customize popup *@

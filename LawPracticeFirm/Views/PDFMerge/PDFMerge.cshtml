@@ -1,0 +1,476 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+    var userid = Session["sessionuserid"];
+}
+<style type="text/css">
+    #dropSection {
+        width: 100%;
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px 0;
+        margin: 14px 0 0 0;
+    }
+
+    #detailssection {
+        width: 100%;
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px 0;
+        margin: 14px 0 0 0;
+        overflow: hidden;
+    }
+
+        #detailssection ul {
+            margin: 0 0 0 20px;
+        }
+
+    #btnUpload {
+        display: none;
+    }
+
+    .active1 {
+        background-color: yellow !important;
+    }
+
+    #selected {
+        float: left;
+        width: 90%;
+        border: 1px solid #ccc;
+    }
+
+    .pdfmergehead {
+        background: #e2e2e2;
+        padding: 8px 5px;
+        font-size: 13px;
+    }
+
+    #selected-items-select option {
+        padding: 5px !important;
+        border-bottom: 1px solid #e2e2e2;
+    }
+
+    #cke_txt {
+        margin-top: 10px !important;
+    }
+</style>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<section class="wrapper">
+    <div class="container-main showcontent" id="showcontent">
+        <div>
+            <h2 class="title">bundle PDF documents </h2>
+            <div id="parentdiv">
+                <div class="ec_bg">
+                    <div class="col-md-6"><p id="childetails">Combine multiple PDF documents into a single unified PDF document</p></div>
+                    <div class="col-md-6 text-right">
+                        <div id="DriveSection">
+                            <label style="font-size: 14px;color: #020202;text-transform: none;font-weight: bold;">Choose From Mykase Drive</label>
+                            <span title="No file chosen" class="browsetaskfile" id="browsefilebundlepdf" module="bundlepdf"><button class="sbtbtn" n type="button" style="margin:0;">Choose Files</button>   <span class="browsetaskfile" id="browsefilelblbundlepdf">No file chosen</span></span>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div id="dropSection">
+                            <center>
+                                <h3>
+                                    <span class="glyphicon glyphicon-cloud" style="color:#ccc"> </span><span style="color:#ccc">
+                                        Drag and Drop
+                                        Files here
+                                    </span>
+                                </h3>
+                            </center>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div id="uploadedFiles" style="display:none">
+                        </div>
+                        <div id="detailssection">
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Maximum 25 PDF documents can be bundled in one instance</li>
+                                    <li>Size of each file should not exceed 20MB</li>
+                                    <li>Files can be dragged and dropped from multiple locations</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li>Document not required can be removed from the list</li>
+                                    <li>You can arrange the order of the documents uploaded for bundling</li>
+                                    <li>You can edit the Index of consolidated PDF before downloading</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="txt" style="display:none" />
+                    <button type="button" class="sbtbtn" id="btnUpload" value="Upload">Upload</button>
+                    <div style="text-align:center;margin-top:12px;">
+                        <button type="button" id="btnSaveChanges" class="sbtbtn" value="Save Changes" onclick="MergePDFSaveChanges()" style="display:none"><span style="font-family: sans-serif !important;">Save Changes</span></button>
+                        <a href="javascript:void()" class="sbtbtn" id="Finalpdf" download="" linkdata="" onclick="downloadfile(this.getAttribute('linkdata'),this.getAttribute('download'))" style="display:none;margin-left:20px;"><span style="font-family: sans-serif !important;">Download File</span></a>
+                    </div>
+                    <div id="detailssection2" style="display:none">
+                        <table style="font-size:12px;margin-top:10px;font-family:unset;font-style:italic;">
+                            <tr>
+                                <td>&bull; Click on <b>“Save Changes”</b> if any editing done in the index </td>
+                            </tr>
+                            <tr>
+                                <td>&bull; Click on <b>“Download File”</b> to download the bundled PDF </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-8" style="margin:0; padding:0;">
+                    <div id="selected" style="display:none">
+                        <div class="pdfmergehead"><strong>Uploaded file for merge (Can change sequence )</strong></div>
+                        <div id="selected-items">
+                            <select multiple="multiple" id="selected-items-select" style="width:100%; height:200px !important"></select>
+                        </div>
+                    </div>
+                    <div id="priority" style="display:none; float:right;">
+                        <div><button type="button" class="sbtbtn" id="move-up"><i class="glyphicon glyphicon-chevron-up"></i></button></div>
+                        <div><button type="button" class="sbtbtn" id="move-down"><i class="glyphicon glyphicon-chevron-down"></i></button></div>
+                        <button type="button" class="sbtbtn" id="remove" value="X" onclick="RemoveItem()"><i class="glyphicon glyphicon-remove"></i></button>
+                    </div>
+                </div>
+                <div class="grid-container" style="display:none">
+                    <div class="grid-width-100">
+                        <div id="editor" style="margin-top:10px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div style="width:525px; margin:10px auto;">
+                        <input type="hidden" id="hidfilename" />
+                        <label id="pdfname" style="color:#020202; font-weight:bold;">Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                        <input type="text" class="inputbg" id="txtfilename" maxlength="50" />
+                        <label style="color:#020202; font-weight:bold;" id="papersize">Paper Size</label>
+                        <select style="background-color: #ebebeb !important;; width:150px;" class="selctInputFormat" id="filesizemerge" style="width:150px;">
+                            <option value="">Select</option>
+                            <option value="0">A4</option>
+                            <option value="1">Legal</option>
+                        </select>
+                        <button type="button" id="btnMerge" class="sbtbtn" value="Merge" onclick="MergePDF()">Merge</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    initSample();
+</script>
+<script type="text/javascript" src='https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js'></script>
+<script src="~/Scripts/MergePdf/filedrop.js?1.3"></script>
+<script type="text/javascript">
+        var strfilename = "";
+                    $(function () {
+                        try {
+                            $("#dropSection").filedrop({
+                                fallback_id: 'btnUpload',
+                                fallback_dropzoneClick: true,
+                                url: '@Url.Action("Upload")',
+                                //allowedfiletypes: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/doc'],
+                                allowedfileextensions: ['.pdf'],
+                                paramname: 'fileData',
+                                maxfiles: 25, //Maximum Number of Files allowed at a time.
+                                maxfilesize: 20, //Maximum File Size in MB.
+                                dragOver: function () {
+                                    //alert(files[0].filename);
+                                    //return false;
+                                    $('#dropSection').addClass('active1');
+                                },
+                                dragLeave: function () {
+                                    $('#dropSection').removeClass('active1');
+                                },
+                                drop: function () {
+                                    $('#dropSection').removeClass('active1');
+                                    openload();
+                                },
+                                uploadFinished: function (i, file, response, time) {
+                                    var filename = response;////file.name.replace(/ /g, '_');//.replace(/[_\W]+/g, '_').replace(/ /g, '_').replace(/%20/g, '_');
+                                   //// filename = filename.replace("\\", "_").replace("|", "_").replace(/!/g, "_").replace(/#/g, "_").replace(/%/g, "_").replace(/&/g, "_").replace("/", "_").replace(/=/g, "_").replace("?", "_").replace(/»/g, "_").replace(/«/g, "_").replace(/@@/g, "_").replace(/£/g, "_").replace(/§/g, "_").replace(/€/g, "_").replace(/{/g, "_").replace(/}/g, "_").replace(/;/g, "_").replace(/'/g, "_").replace(/</g, "_").replace(/>/g, "_").replace(/,/g, "_").replace(/`/g, "_");
+                                    $('#uploadedFiles').append(filename + '<br />')
+                                    strfilename = strfilename + filename + ',';
+                                    $('#hidfilename').val(strfilename);
+                                    //$('#txt').val(response);
+                                    $('#btnMerge').show();
+                                    $('#btnSaveChanges').hide();
+                                    $('#txt').hide();
+                                    //$("#dropSection").hide();////commented on dated 30Nov20
+                                    $("#selected").show();
+                                    $("#priority").show();
+                                    // $('#selected-items-select').append(`${optionText}`)
+                                    $('#selected-items-select').append(new Option(filename, filename));
+                                    //closeload();
+                                },
+                                afterAll: function (e) {
+                                    //To do some task after all uploads done.
+                                    closeload();
+                                }
+                            })
+                        }
+                        catch
+                        {
+                        }
+    })
+    function removeLastComma(strng) {
+        var n = strng.lastIndexOf(",");
+        var a = strng.substring(0, n)
+        return a;
+    }
+    function downloadfile(data,fname) {
+        var a = document.createElement('a');
+        a.target = "_blank";
+        a.href = data;
+        a.download = fname;
+        a.click();
+        window.location.href = "PDFMergeList";
+    }
+            function MergePDF() {
+            var finalesequencefile = "";
+            if ($('#hidfilename').val() != "") {
+                $("#selected-items-select option").each(function () {
+                    finalesequencefile = finalesequencefile + $(this).val() + ',';
+                });
+                finalesequencefile = removeLastComma(finalesequencefile);
+                if (finalesequencefile == "") {
+                    alert("Please upload file for merge");
+                    return false;
+                }
+                var myarraylength = String(finalesequencefile).split(',');
+                if (parseInt(myarraylength.length) > 25) {
+                    alert("Sorry! You have added more than 25 file. Pls remove some file(s)");
+                    return false;
+                }
+                ///check file size
+                @*var tempsize = 0;
+            var tottempsize = 0;
+            var totalFiles = document.getElementById(attachmenttask).files.length;
+            if (totalFiles == "0") {
+                alert("Please select the attachment.");
+                $("#attachmenttask" + srno).focus();
+                return false;
+            }
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById(attachmenttask).files[i];
+                var filename = file.name;
+                //validate filechracter
+                //alert(filename);
+                var fileNameIndex = filename.lastIndexOf("/") + 1;
+                var dotIndex = filename.lastIndexOf('.');
+                var newfioename = filename.substr(fileNameIndex, dotIndex < fileNameIndex ? filename.length : dotIndex);
+                var reg = /[@\\/:*?"<>|.&$%#!~+`*^,]/;
+                if (reg.test(newfioename) == true) {
+                    alert('(@\/:*?"<>|.&$%#!~+`*^,) are not allowed.');
+                    return false;
+                }
+                var Extresponse = checkfileext(filename);
+                if (String(Extresponse) == "false") {
+                    return false;
+                }
+                formData.append("FileUpload", file);
+                try {
+                    if (typeof (file) != "undefined") {
+                        size = parseFloat(file.size / 1024).toFixed(2);
+                        tottempsize = parseFloat(tottempsize) + parseFloat(size);
+                        tempsize = parseFloat(size);
+                    }
+                }
+                catch (err) {
+                    //alert(err.message);
+                }
+                tempsize = tempsize.toFixed(2);
+            }
+                return false;*@
+                ////
+                $('#hidfilename').val(finalesequencefile);
+                var strfiles = $('#hidfilename').val();
+                var filesizemerge = $('#filesizemerge').val();
+                var strfilename = $('#txtfilename').val();
+                if (strfilename == "") {
+                    alert("Please enter file name");
+                    $("#txtfilename").focus();
+                    return false;
+                }
+                var formData = new FormData();
+                formData.append("id", EncodeText(strfiles));
+                formData.append("filesize", EncodeText(filesizemerge));
+                formData.append("filename", EncodeText(strfilename));
+                openload();
+                $.ajax({
+                    async: true,
+                    type: "POST",
+                    url: "/pdfmerge/GeneratePDF",
+                    dataType: 'json',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data.Result == "SUCCESS") {
+                            CKEDITOR.replace('txt');
+                            //$('#txt').val(data.Message);
+                            CKEDITOR.instances['txt'].setData(data.Message);
+                            // alert(data.FileName);
+                            $('#Finalpdf,#detailssection2').show();
+                            $('#Finalpdf').attr("linkdata", window.location.origin+"/"+data.FileName.toString().replace(/\\\\/g,"/"));
+                            $('#btnSaveChanges').show();
+                            $('#btnMerge,#papersize,#filesizemerge,#txtfilename,#pdfname,#childetails,#detailssection,#DriveSection').hide();
+                            $('#txt').show();
+                            $("#selected").hide();
+                            $("#priority").hide();
+                            $("#parentdiv").css("margin-top", "-50px !IMPORTANT");
+                            $("#Finalpdf").attr("download", $("#txtfilename").val() + ".pdf");
+                            alert("PDF merged successfully");
+                            $("#dropSection").hide();
+                            closeload();
+                        }
+                        else if (data.Result == "TOLARGE")
+                        {
+                            alert(data.FileName + " file is too large");
+                            return false;
+                        }
+                        else {
+                            //alert("err !!");
+                            closeload();
+                        }
+                    },
+                    error: function (data) {
+                        closeload();
+                    }
+                });
+            }
+            else {
+                alert("Please upload file!!")
+                return false;
+            }
+    }
+        function MergePDFSaveChanges() {
+            var strfiles = $('#hidfilename').val();
+            var strtxt = CKEDITOR.instances.txt.getData();  //$('#txt').val();
+            var formData = new FormData();
+            formData.append("id", EncodeText(strfiles));
+            formData.append("txt", EncodeText(strtxt));
+            var strfilename = $('#txtfilename').val();
+            var filesizemerge = $('#filesizemerge').val();
+            formData.append("filesize", EncodeText(filesizemerge));
+            formData.append("filename", EncodeText(strfilename));
+            openload();
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/pdfmerge/GeneratePDFAfterEditIndex",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.Result == "SUCCESS") {
+                        $('#txt').val(data.Message);
+                        //alert(data.FileName);
+                        $('#Finalpdf,#detailssection2').show();
+                        $('#Finalpdf').attr("linkdata", window.location.origin + "/" + data.FileName.toString().replace(/\\\\/g,"/"));
+                        $("#selected").hide();
+                        $("#priority").hide();
+                        alert("Index updated successfully");
+                        closeload();
+                    }
+                    else {
+                        //alert("err !!");
+                        closeload();
+                    }
+                },
+                error: function (data) {
+                    closeload();
+                }
+            });
+        }
+        document.getElementById('txt').style.display = "none";
+</script>
+<script>
+    $(document).ready(function () {
+        $('#selected-items-select').empty();
+        $('#move-up').click(moveUp);
+        $('#move-down').click(moveDown);
+    });
+    function moveUp() {
+        $('#selected-items select :selected').each(function (i, selected) {
+            if (!$(this).prev().length) return false;
+            $(this).insertBefore($(this).prev());
+        });
+        $('#selected-items select').focus().blur();
+    }
+    function moveDown() {
+        $($('#selected-items select :selected').get().reverse()).each(function (i, selected) {
+            if (!$(this).next().length) return false;
+            $(this).insertAfter($(this).next());
+        });
+        $('#selected-items select').focus().blur();
+    }
+    function RemoveItem() {
+        $("#selected-items-select option:selected").each(function () {
+            //alert($(this).val());
+            $(this).remove();
+        });
+    }
+    function openload() {
+        $('#myOverlay').css("display", "block");
+    }
+    function closeload() {
+        $('#myOverlay').css("display", "none");
+    }
+</script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

@@ -1,0 +1,187 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+}
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/calender/dist/jquery.datetimepicker.min.js"></script>
+<script src="~/Scripts/Firm/Pages/ClientDashBoard.js"></script>
+<script>
+            var type = '@ViewBag.type'
+</script>
+<header class="header">
+    <aside class="right-side">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <ol class="breadcrumb">
+                <li><i class="fa fa-dashboard"></i> Home</li>
+                <li class="active">Dashboard</li>
+            </ol>
+            <h1><span class="fa fa-dashboard"></span> Dashboard</h1>
+        </section>
+        <!-- Main content -->
+        <section class="dashboard">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-4 col-sm-2">
+                        <div class="small-box bg-aqua">
+                            <div class="inner"><h3> Cases</h3><p><div id="totcases">&nbsp;</div></p></div>
+                            <div class="icon"><i class="glyphicon glyphicon-briefcase" style="font-size:60px;"></i></div>
+                            <a href="#" style="z-index:0 !important;" class="small-box-footer" onclick="matterlist('')">More info <i class="fa fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-2">
+                        <div class="small-box bg-green">
+                            <div class="inner">
+                                <h3>
+                                    Pending Cases
+                                </h3>
+                                <p>
+                                    <div id="totopen">&nbsp;</div>
+                                </p>
+                            </div>
+                            <div class="icon">
+                                <i class="glyphicon glyphicon-briefcase" style="font-size:60px;"></i>
+                            </div>
+                            <a href="#" style="z-index:0 !important;" class="small-box-footer" onclick="matterlist('Pending')">
+                                More info <i class="fa fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-2">
+                        <div class="small-box bg-red">
+                            <div class="inner">
+                                <h3>
+                                    Dispose Cases
+                                </h3>
+                                <p>
+                                    <div id="totclose">&nbsp;</div>
+                                </p>
+                            </div>
+                            <div class="icon">
+                                <i class="glyphicon glyphicon-briefcase" style="font-size:60px;"></i>
+                            </div>
+                            <a href="#" style="z-index:0 !important;" class="small-box-footer" onclick="matterlist('Dispose')">
+                                More info <i class="fa fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div>
+                    <fieldset style="background:#f1f1f1;">
+                        <legend>Quick View</legend>
+                        <div class="col-md-2 col-sm-2">
+                            <button class="qcreate_icon" id="profile">
+                                <i class="ion ion-person-add"></i>
+                                <p>Profile</p>
+                            </button>
+                        </div>
+                        <div class="col-md-2 col-sm-2">
+                            <button class="qcreate_icon" id="modelMessage">
+                                <i class="fa fa-envelope"></i>
+                                <p>New Message</p>
+                                <p>(@ViewBag.countmessage)</p>
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="timer">
+                    Calender
+                </div>
+                <div class="cal" id="demo2"></div>
+            </div>
+        </section>
+    </aside>
+    <div id="myOverlay" class="overlay" style="display:block !important">
+        <div class="overlay-content">
+            <div class="spinner2">
+                <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            var fcode = localStorage.getItem("FirmCode");
+            $('#demo2').datetimepicker({
+                date: new Date(),
+                viewMode: 'YMD',
+                onDateChange: function () {
+                    validnavigation = true;
+                    window.onbeforeunload = null;
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            var fcode = localStorage.getItem("FirmCode");
+            $("#menucontact").click(function () {
+                validnavigation = true;
+                window.onbeforeunload = null;
+                window.location = encodeURI("/" + fcode + "/Firm/ConfigContact/contact");
+            });
+            $("#modelMessage").click(function () {
+                validnavigation = true;
+                window.onbeforeunload = null;
+                window.location = encodeURI("/" + fcode + "/Client/ReceiveMessageList");
+            });
+        });
+        var fcode = localStorage.getItem("FirmCode");
+        jQuery('#profile').click(function (e) {
+            validnavigation = true;
+            window.onbeforeunload = null;
+            window.location = encodeURI("/" + fcode + "/client/profile");
+        });
+        jQuery('#task').click(function (e) {
+            var url = "/client/TaskList";
+            window.location = encodeURI("/" + fcode + url);
+        });
+        jQuery('#WorkflowTask').click(function (e) {
+            var url = "/client/WorkFlowNUserActivity";
+            window.location = encodeURI("/" + fcode + url);
+        });
+        jQuery('#caselist').click(function (e) {
+            var url = "/Client/MatterList";
+            window.location = encodeURI("/" + fcode + url);
+        });
+        jQuery('#msg').click(function (e) {
+            var url = "/Client/ConfigMessage";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal').modal({ show: true });
+            });
+        });
+        jQuery('#password').click(function (e) {
+            var url = "/Client/ChangePassword";
+            $('.mymodels').load(url, function (result) {
+                $('#myModal').modal({ show: true });
+            });
+        });
+        function matterlist(strstatus) {
+            validnavigation = true;
+            window.onbeforeunload = null;
+            localStorage.setItem("matterstatus", strstatus);
+            var url = "/Client/MatterList";
+            window.location = encodeURI("/" + fcode + url);
+        }
+    </script>
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- Modal -->
+            <div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+                <div class="modal-dialog modal-lg">
+                    <!-- Modal content-->
+                    <div class="modal-content mymodels" id="mymodels">
+                    </div>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>

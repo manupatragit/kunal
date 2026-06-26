@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "TeamChat";
+    Layout = "~/Views/Shared/ChatPartial.cshtml";
+    var strteamid = Request.QueryString["tid"];
+    var strothuid = Request.QueryString["othuid"];
+    //var strteamname = "";// Convert.ToBase64String(QueryStringEDAES.QueryAES.EncryptAes(Request.QueryString["tnm"].ToString().Replace("_", " ")));
+    var strteamname = Request.QueryString["tnm"].ToString();
+    var struserid = Convert.ToBase64String(QueryStringEDAES.QueryAES.EncryptAes(Session["sessionuserid"].ToString()));
+    var strusername = Convert.ToBase64String(QueryStringEDAES.QueryAES.EncryptAes(ViewBag.UseName.Trim()));
+    var strfirmid = Convert.ToBase64String(QueryStringEDAES.QueryAES.EncryptAes(Session["sessionfirmid"].ToString()));
+    var strshortteamname = strteamname.Length > 50 ? strteamname.Substring(0, 50) + " ..." : strteamname;
+    strteamname = Convert.ToBase64String(QueryStringEDAES.QueryAES.EncryptAes(strteamname.Replace("_", " ")));
+    var strchattype = Request.QueryString["ty"] == "p" ? "Private Chat" : "Matter Chat";
+}
+<script src="~/Scripts/Firm/Pages/Chat.js?2.7"></script>
+<section class="wrapper">
+    <div class="container">
+        <div class="row">
+            <h2 style="text-align:center;font-size:16px;color:#069;">@strchattype - @strshortteamname.Replace("_", " ")</h2>
+            <table style="width:100%">
+                <tr>
+                    <td>
+                        @*<button type="button" class="btn btn-primary" onclick="SaveChat()">Save Chat</button>*@
+                    </td>
+                </tr>
+                <tr>
+                    @*
+                        <td width="40%" valign="top">
+                            <table id="example" class="table table-striped table-bordered" style="width:100%;">
+                                <thead>
+                                    <tr><td>Team User</td><td style="display:none"></td></tr>
+                                </thead>
+                                <tbody id="binddata"></tbody>
+                            </table>
+                        </td>*@
+                    <td>
+                        <iframe id="frmchat" src="" height="430px" width="100%" frameborder="0"></iframe>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</section>
+<script>
+    //var url = "https://c1.mykase.in/chat/UserLogin?tid=@strteamid&uid=@struserid&unm=@HttpUtility.UrlEncode(strusername)&tnm=@strteamname&fid=@strfirmid";
+    var url = "https://c1.mykase.in/chat/UserLogin?tid=@HttpUtility.UrlEncode(strteamid)&uid=@HttpUtility.UrlEncode(struserid)&unm=@HttpUtility.UrlEncode(strusername)&tnm=@HttpUtility.UrlEncode(strteamname)&fid=@HttpUtility.UrlEncode(strfirmid)";
+    $("#frmchat").attr("src", url);
+</script>

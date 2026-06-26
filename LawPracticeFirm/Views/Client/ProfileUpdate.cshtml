@@ -1,0 +1,377 @@
+﻿@{
+    ViewBag.Title = "Profile Update";
+    Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+}
+<i class="pp-icon-user"></i>
+<style>
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+</style>
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/Profile.js?1.2"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<style>
+    .img-wrap {
+        position: relative;
+    }
+
+        .img-wrap .close1 {
+            position: absolute;
+            top: -20px;
+            right: -8px;
+            z-index: 100;
+            color: #ce9090;
+            font-size: 25px;
+        }
+</style>
+<script>
+    $(document).ready(function () {
+        try {
+            Loadstructure();
+            function Loadstructure() {
+                $("#designation").html('');
+                var option7 = '<option value="" > Select</option>';
+                $("#designation").append(option7);
+                var formData = new FormData();
+                $.ajax({
+                    async: true,
+                    url: '/api/CallApi/LoadFirmStructureAll',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.Status == true) {
+                            var datas = JSON.stringify(response);
+                            var obj = JSON.parse(response.Data);
+                        }
+                        else {
+                            //alert("not found");
+                        }
+                        $.each(obj, function (i, a) {
+                            //alert(a.SType);
+                            if (a.SType == "Designation") {
+                                var option = '<option value="' + a.Id + '" > ' + a.Name + '</option>';
+                                $("#designation").append(option);
+                            }
+                        });
+                        //console.log(response);
+                    },
+                    failure: function (response) {
+                        alert(data.responseText);
+                    },
+                    error: function (response) {
+                        alert(data.responseText);
+                    }
+                });
+            }
+            var ddlCountry = $('#country');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    $.each(d.Data, function (i, country) {
+                        ddlCountry.append($("<option selected></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //auto state
+        try {
+            var CountryId = "India";
+            var ddlState = $('#state');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#city');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select City'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select the state.'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //State details by country id
+        $("#country").change(function () {
+            var CountryId = $(this).val();
+            if (CountryId != "India") {
+                $("#ostate").css("display", "unset");
+                $("#ocity").css("display", "unset");
+                $("#lstate").css("display", "none");
+                $("#lcity").css("display", "none");
+                return false;
+            }
+            else {
+                $("#ostate").css("display", "none");
+                $("#ocity").css("display", "none");
+                $("#lstate").css("display", "unset");
+                $("#lcity").css("display", "unset");
+            }
+            var ddlState = $('#state');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#cocity');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select City'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select the state.'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#state").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#city');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select City Name'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+    });
+</script>
+<section class="wrapper" style="margin:unset !important">
+    <div class="container-main showcontent" id="showcontent">
+        <div>
+            <h2 class="title">Edit Profile</h2>
+            <section class="content">
+                <div id="page-wrapper">
+                    <div class="container-fluid showcontent" id="showcontent">
+                        <div class="">
+                            <div class="box-header">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <form class="ec_bg" id="saveclient" enctype="multipart/form-data">
+                <div class="row" style="clear:both">
+                    <div class="col-md-10">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label class="formLabel colorDark">FIRST NAME </label>
+                                        <input class="form-control form-control-sm inputFormat" id="fname" name="fname" required type="text">
+                                        <input type="hidden" id="hidid" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label class="formLabel colorDark">MIDDLE NAME</label>
+                                        <input class="form-control form-control-sm inputFormat" id="mname" name="mname" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label class="formLabel colorDark">LAST NAME </label>
+                                        <input class="form-control form-control-sm inputFormat" id="lname" name="lname" required type="text">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark">DESIGNATION</label>
+                                <select id="designation" class="form-control selectInputFormat" style="background-color: white !important;" autocomplete="new-text">
+                                    <option value=""> Select</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4" style="display:none;">
+                                <label class="formLabel colorDark"> Client Name </label>
+                                <input autofocus="" class="form-control inputFormat" placeholder="" type="text" value="" name="name" id="name" required="">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark"> Email </label>
+                                <input autofocus="" class="form-control inputFormat" placeholder="" type="text" value="" name="email" id="email" readonly />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark"> Mobile</label>
+                                <input class="form-control inputFormat" onkeypress="return restrictAlphabets(event)" placeholder="" type="text" name="mobile" value="" id="mobile">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark">Land Line </label>
+                                <input class="form-control inputFormat" vplaceholder="" name="landline" type="text" value="" id="landline">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark"> Address </label>
+                                <input class="form-control inputFormat" placeholder="" type="text" value="" id="address">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark">Pin </label>
+                                <input class="form-control form-control-sm inputFormat" required onkeypress="return isNumberKey(event)" id="pin" name="pin" type="text" maxlength="6">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark"> Country</label>
+                                <select class="form-control selctInputFormat" style="background-color: white !important" name="country" id="country"></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark">State </label>
+                                <select nname="state" id="state" class="form-control selctInputFormat" style="background-color: white !important"></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark"> City </label>
+                                <select class="form-control selctInputFormat" style="background-color: white !important" name="city" id="city" readonly></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark">AADHAR CARD NO</label>
+                                <input class="form-control inputFormat" placeholder="" type="text" value="" id="aadharno" maxlength="12">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark">GSTIN NO </label>
+                                <input class="form-control inputFormat" placeholder="" type="text" value="" id="gstno" maxlength="15">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="formLabel colorDark">PAN NO </label>
+                                <input class="form-control inputFormat" placeholder="" type="text" value="" id="panno" maxlength="10">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="row">
+                            <div class="fileupload-new thumbnail img-wrap"><span class="close1" style="cursor:pointer" id="removepic" title="Remove profile picture">&times;</span><img src="~/PanelDesign/images/Default_User_pic_new.png" alt="" id="output_image"> </div>
+                            <div style="border: 1px solid #ddd;padding: 5px;">
+                                <span class="btn btn-default btn-file file-upload-buttons">
+                                    <input type="file" onchange="preview_image(event)" class="default inputbg" name="attachment" id="attachment" style="width: 160px;" accept="image/*">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-12">
+                                <button style="margin-top: 20px !important;" type="submit" id="addcontact" class="sbtbtn save" value="Save">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<script>
+    var fcode = localStorage.getItem("FirmCode");
+    jQuery('#view').click(function (e) {
+        validnavigation = true;
+        window.onbeforeunload = null;
+        var url = "/client/Profile";
+        window.location = encodeURI("/" + fcode + url);
+    });
+</script>
+<div id="myOverlay" class="overlay" style="display:block !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

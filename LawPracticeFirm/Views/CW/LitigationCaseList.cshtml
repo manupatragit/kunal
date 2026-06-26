@@ -1,0 +1,2129 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+
+    .manualdate {
+        font-size: 13px;
+        margin: 3px 0 0 0;
+    }
+
+    #selectedClientValue {
+        padding:0;
+       /* list-style: none;
+        border: 1px solid #e2e2e2;
+        background: #FFF;
+        border-radius: 10px;*/
+    }
+
+        #selectedClientValue li {
+            display: block;
+        }
+</style>
+@*by prem*@
+<style>
+    .tabs {
+        display: flex;
+        border-bottom: 2px solid #ddd;
+        margin-bottom: 20px;
+    }
+
+    .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+        border-bottom: 2px solid transparent;
+    }
+
+        .tab.active {
+            border-bottom: 2px solid #007bff;
+            color: #007bff;
+        }
+
+    .filters {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .filter-btn {
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+        .filter-btn:hover {
+            background-color: #f1f1f1;
+        }
+
+    .nav-pills > li > a {
+        border-radius: 0;
+        color: #000;
+    }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #0369a1;
+        background-color: transparent;
+        border-bottom: 2px solid #0369a1;
+    }
+
+    .snav {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        border-bottom: 1px solid #ccc;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+    .lcasecourtname .iconbox1 {
+        display: flex;
+        gap: 4px;
+        width: max-content;
+        border: 1px solid #ccc;
+        padding: 3px 5px;
+        font-size: 12px;
+        border-radius: 6px;
+        justify-content: center;
+        background: #cccccc4d;
+    }
+
+    .button-group-base2 {
+        background-color: #fff;
+        /* border-right: 1px solid #d5d7da; */
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 16px;
+        min-height: 40px;
+        color: #414651;
+    }
+    .button-group-base3 {
+        background-color: #fff;
+        /* border-right: 1px solid #d5d7da; */
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 16px;
+        min-height: 40px;
+        color: #414651;
+    }
+    @*.snav {
+        border-bottom: none !important;
+    }
+    .snav li.active {
+        border-bottom: none !important;
+    }
+
+  .col-md-8 {
+        width: 75% !important;
+    } *@
+
+    .alignNav {
+        margin-left: -17px;
+        width: 195px;
+    }
+</style>
+<script>
+    var IsRevenueCourt = "@ViewBag.IsRevenueCourt";
+    var ISReraCourt = "@ViewBag.IsReraCourt";
+    var roleids = "@role";
+    var type = 8;
+    var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter ="@Session["dashmatter"]";
+    var stfUser =@ViewBag.stfUser;
+    var stfUserRole = @ViewBag.stfUserRole;
+    var IOBCustomization = "@ViewBag.isIOB";
+    var caserediectId = "@ViewBag.CaseRedirect";
+</script>
+
+<script src="~/Scripts/CW/LitigationCaseList.js?6.4" type="text/javascript" language="javascript"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle">My Cases</p>
+        </div>
+        <div style="margin: 10px 0 5px 0; overflow:hidden;">
+            <ul class="snav">
+                <li id="" class="active"><a href="/@Session["firmcode"]/CW/LitigationCaseList">All Court</a><span id="totRecordData"></span></li>
+                <li id="" style=""><a href="/@Session["firmcode"]/Revenue/RevenueCaseList">Revenue</a></li>
+                <li id=""><a href="/@Session["firmcode"]/Rera/ReraCaseList">Rera</a></li>
+            </ul>
+        </div>
+        <div class="text-center" id="fincesdiv" style="margin-bottom: 20px !important;">
+
+            <div style="display: flex; align-items: center;">
+
+                <div class="tabs-and-filters" style="width:100%; margin:0;">
+                    <div class="tabs-and-filters">
+                        <div class="button-group">
+                            <a href="/@Session["firmcode"]/CW/LitigationArchiveCaseList" title="Archived Matter" class="button-group-base">Archived</a>
+                            @if (role.ToString() == "1")
+                            {
+                                <a href="/@Session["firmcode"]/firm/BulkMatterAssign" title="Bulk Matter Assign" class="button-group-base3" ;">Bulk Matter Assign</a>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1" style="justify-content: flex-end;">
+
+                    <div class="table-header">
+                        <div class="actions3">
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                    <li><a id="oexcel" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</a>
+                                    <li>
+                                    <li><a title="Export to PDF" id="opdf"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</a>
+                                    <li>
+                                </ul>
+                            </div>
+                            <div class="button13" id="CustSelectionopen" title="Column Selection">
+                                <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+                <div class="tablecontainer">
+                    <div id="allcasediv">
+                        <table id="allcaselisttable" class="table-panel" cellspacing="0" role="grid" aria-describedby="example_info">
+                            <thead>
+                                <tr role="row">
+                                    <th class="lsrno"><div class="thbg">S. No</div></th>
+                                    <th class="ldate" title="Open Date"><div class="thbg" style="min-width: 155px;">Date</div></th>
+                                    <th class="lPetitionerName">
+                                        <div class="thbg" style="min-width: 120px;">
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="Petitionerfilter" placeholder="Petitioner" class="form-control pull-left">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="Petitionersearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                <span class="" id="Petitionerclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;margin:0 0 0 -4px;">x</span>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="lRespondentName">
+                                        <div class="thbg" style="min-width: 190px;">
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="Respondentfilter" placeholder="Respondent" class="form-control pull-left">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="Respondentsearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                <span class="" id="Respondentclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;margin:0 0 0 -4px;">x</span>
+                                            </div>
+                                        </div>
+
+                                    </th>
+                                    <th class="caseno">
+                                        <div class="thbg" style="min-width: 190px;">
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="lcasefiltercaseno" placeholder="Court Case No." class="form-control pull-left">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="lcasesearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                <span class="" id="lcaseclearnewsearchcase" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;">x</span>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="casename">
+                                        <div class="thbg" style="width: 280px;">
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="lcasenamefilter" title="Name of the case as per court site" placeholder="Case Name" class="form-control pull-left">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="lcasenamesearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                <span class="" id="lcasenameclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;">x</span>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="lcasecourtname">
+                                        <div class="thbg">
+                                            <select class="form-control" id="lcasefiltercourt" style="width:120px;">
+                                                <option value="" selected="">Court</option>
+                                                <option value="1">Supreme Court</option>
+                                                <option value="2">High Court</option>
+                                                <option value="3">District Court</option>
+                                                <option value="4">Tribunals</option>
+                                                <option value="5">Add a Court</option>
+                                            </select>
+                                        </div>
+                                    </th>
+                                    <th class="courtorditrict">
+                                        <div class="thbg" style="min-width: 180px;">
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="courtcasenamefilter" placeholder="Court Name" class="form-control pull-left">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="courtnsearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                <span class="" id="courtnclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;margin:0 0 0 -4px;">x</span>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="lcourtcomplexestblish"><div class="thbg">Court Complex</div></th>
+                                    <th class="nexthearing">
+                                        <div class="thbg" style="display: inline-block; min-width: 135px; ">
+                                            Next Hearing
+                                            <div class="btn-group" style="margin-top: -4px;">
+                                                <a href="javascript:void();" id="nexthearingasc"><span class="fa fa-sort fa-fw pull-right" style="margin-top: 7px;" title="sort by ascending"></span></a>
+                                                <a style="display:none;" href="javascript:void();" id="nexthearingdesc"><span class="" style="margin-top: 5px;" title="sort by descending"></span></a>
+                                                <a href="javascript:void();" id="nexthearingrefresh" style="display:none;"><span class="fa fa-sort fa-fw pull-right" style="margin-top: 5px;" title="refresh sorting"></span></a>
+                                                <button type="button" style="height: 23px;" class="taskoutboxbtnicon dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span class="sr-only">Toggle Dropdown</span>
+                                                    <span class="glyphicon glyphicon-calendar" title="filter by date range"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" style="width:325px">
+                                                    <li style="padding:4px 5px 8px 5px; float:left" class="dp">
+                                                        <input type="date" title="Next hearing from date" id="nextheringfilterdate" placeholder="Start Date" class="form-control pull-left" style="width:125px;" onkeydown="return false" />
+                                                    </li>
+                                                    <li style="padding:4px 5px 8px 5px; float:left" class="dp">
+                                                        <input type="date" title="Next hearing to date" id="nexthearingfilterdateTo" placeholder="Start Date" class="form-control " style="width:125px;" onkeydown="return false" />
+                                                    </li>
+                                                    <li style="padding:4px 5px 8px 5px; float:left">
+                                                        <span class="glyphicon glyphicon-search" id="nexthearingdsearch" style="padding:2px 0 0 0 ;background:none"></span>
+                                                    </li>
+                                                    <li style="padding:4px 5px 8px 5px; float:left">
+                                                        <span class="glyphicon glyphicon-remove" id="nexthearingcleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer; font-size:10px; padding:2px 0 0 0;"></span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </th>
+                                    <th class="Lstatus">
+                                        <div class="thbg" style="min-width: 120px;">
+                                            <div class="form-group">
+                                                <select class="" id="lstatus" name="lstatus">
+                                                    <option value="">Court Status</option>
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Disposed">Disposed</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="ladvocate">
+                                        <div class="thbg" style="min-width: 170px;">
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="advocatefilter" placeholder="Advocate" class="form-control pull-left">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="advocatesearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                <span class="" id="advocateclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;">x</span>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    @*<th class="lcauselist"><div class="thbg">Cause List</div></th>*@
+                                    <th class="disposeddate"><div class="thbg">Disposed Date</div></th>
+
+                                    <th class="mnexthearing">
+                                        <div class="thbg" style="min-width: 110px; display: flex; align-items: center; ">
+                                            Manual NHD
+                                            <div class="btn-group" style="margin-top: -4px;">
+                                                <button type="button" style="height: 23px;" class="taskoutboxbtnicon dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span title="Next Hearing Date-Add Manually" class="glyphicon glyphicon-calendar"></span>
+                                                    <span class="sr-only">Toggle Dropdown</span>
+                                                </button>
+                                                <ul class="dropdown-menu" style="width:325px">
+                                                    <li style="padding:4px 5px 8px 5px; float:left" class="dp">
+                                                        <input type="date" title="Next hearing from date" id="mnextheringfilterdate" placeholder="Start Date" class="form-control pull-left" style="width:125px;" onkeydown="return false" />
+                                                    </li>
+                                                    <li style="padding:4px 5px 8px 5px; float:left" class="dp">
+                                                        <input type="date" title="Next hearing to date" id="mnexthearingfilterdateTo" placeholder="Start Date" class="form-control " style="width:125px;" onkeydown="return false" />
+                                                    </li>
+                                                    <li style="padding:4px 5px 8px 5px; float:left">
+                                                        <span class="glyphicon glyphicon-search" id="mnexthearingdsearch" style="padding:2px 0 0 0 ;background:none"></span>
+                                                    </li>
+                                                    <li style="padding:4px 5px 8px 5px; float:left">
+                                                        <span class="glyphicon glyphicon-remove" id="mnexthearingcleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer; font-size:10px; padding:2px 0 0 0;"></span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="tags">
+                                        <div class="thbg" style="min-width: 62px;">
+                                            <div class="form-group">
+                                                <select class="" id="ltagilter" name="ltagilter" title="" onchange="this.title=this.options[this.selectedIndex].text" onload="this.title=this.options[this.selectedIndex].text" style="max-width:81px; white-space:nowrap; overflow:hidden !important; text-overflow:ellipsis;">
+                                                    <option value="">Tag</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="lmattername" title="Case name assigned internally."><div class="thbg">Matter Name</div></th>
+                                    <th class="lteammember">
+                                        <div class="thbg">
+                                            <div class="thbg">
+                                                <select class="form-control" id="lcaseteammemberlist" style="width:120px;">
+                                                    <option value="" selected="">Team Member</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="lCNRNo"><div class="thbg">CNR Number</div></th>
+                                    <th class="lorder"><div class="thbg">Orders</div></th>
+                                    <th class="lRemarks">
+                                        <div class="thbg" style="min-width: 135px;">
+                                            <div style="float:left;width:80%">
+                                                <input type="text" id="courtremarksfilter" placeholder="Remarks" class="form-control pull-left">
+                                            </div>
+                                            <div style="float:left;width:20%">
+                                                <span class="glyphicon glyphicon-search" id="remarkssearchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                                <span class="" id="remarksclearnewsearch" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;margin:0 0 0 -4px;">x</span>
+                                            </div>
+                                        </div>
+
+                                    </th>
+
+                                    @*<th class="lbenchname"><div class="thbg">Bench Name</div></th>*@
+                                    @if (ViewBag.isIOB == 1)
+                                    {
+                                        <th class="lregionname"><div class="thbg">Region Name</div></th>
+                                        <th class="lbranchname"><div class="thbg">Branch Name</div></th>
+                                        <th class="lbranchcode"><div class="thbg">Branch Code</div></th>
+                                    }
+
+                                    <th class="actioncase"><div class="thbg" style="width:200px;">Actions</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="alldatabindLitigation"></tbody>
+                        </table>
+                        <center>
+                            <div class="notfound" id="pdatastatus" style="display:none;">
+                                <img src="~/newassets/img/not-found.png" />
+                                <h4><span id="dtNotFound">No Case List Found</span></h4>
+                                <p>We found no Case list.</p>
+
+                            </div>
+                        </center>
+                    </div>
+                </div>
+            </div>
+            <div class="pagination" id="pagenatedArea">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="myModalAlertconfirmation" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="z-index: 9999;">
+    <div class="modal-dialog" style="width:480px;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="alertTitle">Message</h4>
+            </div>
+            <div class="modal-body">
+                <p id="alertMessage" style="padding: 0 0 18px 0;"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <input type="hidden" id="exportrecords">
+            <input type="hidden" id="Exporttype">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="~/newassets/img/pdf-export.png" style="margin:-15px 0px 0 -15px" />
+                </h4>
+
+            </div>
+            <div class="modaltitle" style="margin: -40px 0 0 0; border-bottom: none;">
+                <h4>Export List</h4>
+                <p>Select number of list to be exported </p>
+            </div>
+            <div class="modal-body partynamebody">
+                <form role="form">
+                    <div class="row">
+                        <div class="form-group" style="margin: 15px 0; overflow: hidden;">
+                            <div class="col-md-12">
+                                @* <label>Number of Matters</label>*@
+                            </div>
+                            <div class="col-md-12">
+                                <select class="selctInputFormat" id="id_exportreportdrop"></select>
+                            </div>
+                            @*<div class="col-md-12">
+                                    <table class="table" style="font-size:12px;">
+                                        <thead>
+                                            <tr style="font-size: 12px;">
+                                                <th><div class="thbg">Page No.</div></th>
+                                                <th><div class="thbg">FileName</div></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="printexport"></tbody>
+                                        <tr></tr>
+                                    </table>
+                                </div>*@
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="CommonExportExcel">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalCustomizedcolumn" class="modal right fade myModal" role="dialog" data-backdrop="static" aria-hidden="false" style="display: none;">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <span><a href="javascript:void()" id="ColumnSelectionopen" title="Column Selection">Set Default Columns</a></span>
+                        <div>You cannot set more than 8 columns as default</div>
+                    </div>
+                </div><br />
+                <div class="row">
+                    <div class="col-md-12" style="overflow-y:scroll; margin-top:15px; max-height:100vh;">
+                        <ul id="od">
+                            <li><input type="checkbox" value="Advocate" class="shcheckbox1 chkdhide" name="ladvocate"><a href="#" class="dropdown-item">Advocate</a></li>
+                            <li><input type="checkbox" value="CaseName" class="shcheckbox1 chkdhide" name="casename"><a href="#" class="dropdown-item">Case Name</a></li>
+                            @*<li><input type="checkbox" value="lcauselist" class="shcheckbox1 chkdhide" name="lcauselist"><a href="#" class="dropdown-item">Cause List</a></li>*@
+                            <li><input type="checkbox" value="CNRNumber" class="shcheckbox1 chkdhide" name="lCNRNo"><a href="#" class="dropdown-item">CNR Number</a></li>
+                            <li><input type="checkbox" value="Court" class="shcheckbox1 chkdhide" name="lcasecourtname" checked><a href="#">Court</a></li>
+                            <li><input type="checkbox" value="CourtName" class="shcheckbox1 chkdhide" name="courtorditrict" checked><a href="#">Court Name</a></li>
+                            <li><input type="checkbox" value="CourtComplex" class="shcheckbox1 chkdhide" name="lcourtcomplexestblish"><a href="#" class="dropdown-item">Court Complex</a></li>
+                            <li><input type="checkbox" value="CourtCaseNo" class="shcheckbox1 chkdhide" name="caseno" checked><a href="#">Court Case No.</a></li>
+                            <li><input type="checkbox" value="CourtStatus" class="shcheckbox1 chkdhide" name="Lstatus" checked><a href="#" class="dropdown-item">Court Status</a></li>
+                            <li><input type="checkbox" value="DisposedDate" class="shcheckbox1 chkdhide" name="disposeddate"><a href="#" class="dropdown-item">Disposed Date</a></li>
+                            <li><input type="checkbox" value="MatterName" class="shcheckbox1 chkdhide" name="lmattername"><a href="#" class="dropdown-item">Matter Name</a></li>
+                            <li><input type="checkbox" value="ManualNextHearing" class="shcheckbox1 chkdhide" name="mnexthearing"><a href="#" class="dropdown-item">Manual NHD</a></li>
+                            <li><input type="checkbox" value="NextHearing" class="shcheckbox1 chkdhide" name="nexthearing" checked><a href="#" class="dropdown-item">Next Hearing</a></li>
+                            <li><input type="checkbox" value="OpenDate" class="shcheckbox1 chkdhide" name="ldate" checked><a href="#">Open Date</a></li>
+                            <li><input type="checkbox" value="lorder" class="shcheckbox1 chkdhide" name="lorder" checked><a href="#" class="dropdown-item">Orders</a></li>
+                            <li><input type="checkbox" value="PetitionerName" class="shcheckbox1 chkdhide" name="lPetitionerName"><a href="#" class="dropdown-item">Petitioner</a></li>
+                            <li><input type="checkbox" value="RespondentName" class="shcheckbox1 chkdhide" name="lRespondentName"><a href="#" class="dropdown-item">Respondent</a></li>
+                            <li><input type="checkbox" value="Remarks" class="shcheckbox1 chkdhide" name="lRemarks"><a href="#" class="dropdown-item">Remarks</a></li>
+                            <li><input type="checkbox" value="lsrno" class="shcheckbox1 chkdhide" name="lsrno" checked><a href="#">S. No</a></li>
+                            <li><input type="checkbox" value="tags" class="shcheckbox1 chkdhide" name="tags"><a href="#" class="dropdown-item">Tags</a></li>
+                            <li><input type="checkbox" value="lteammember" class="shcheckbox1 chkdhide" name="lteammember"><a href="#" class="dropdown-item">Team Member</a></li>
+                            @*<li><input type="checkbox" value="notess" class="shcheckbox1 chkdhide" name="notess"><a href="#" class="dropdown-item">Notes</a></li>*@
+                            <li><input id="select_allcfield" type="checkbox" class="shcheckbox1 chkdhide"><a href="#" class="dropdown-item">Select All</a></li>
+                            @if (ViewBag.isIOB == 1)
+                            {
+                                <li><input type="checkbox" value="RegionName" class="shcheckbox1 chkdhide" name="lregionname"><a href="#" class="dropdown-item">Region Name</a></li>
+                                <li><input type="checkbox" value="BranchName" class="shcheckbox1 chkdhide" name="lbranchname"><a href="#" class="dropdown-item">Branch Name</a></li>
+                                <li><input type="checkbox" value="BranchCode" class="shcheckbox1 chkdhide" name="lbranchcode"><a href="#" class="dropdown-item">Branch Code</a></li>
+                            }
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="myModalCaseNotes" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:50%;height: 500px;">
+        <!-- Modal content-->
+        <div class="modal-content" style="height: 500px;overflow-y: scroll;">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Remarks
+                </h4>
+            </div>
+            <div style="margin-top:10px;">
+                <input type="hidden" value="" id="updatednotesid" />
+                <input type="hidden" value="" id="updatedusercasesid" />
+                <div class="row">
+                    <div class="col-md-l12" style="padding: 15px;">
+                        <label>Description</label>
+                        <textarea id="OtherDetailstxt" class="inputFormatTextArea" value="" style="margin: 0px; width: 100%; height: 40px;" maxlength="10000"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-right" style="margin:10px 0;">
+                        <button class="btn btn-primary" id="UpdateOtherDetails">Save</button>
+                        <button class="btn btn-secondary" id="updateDetails" style="display:None">Update</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table-panel">
+                            <thead>
+                                <tr>
+                                    <th width="20%"><div class="thbg">Dates</div></th>
+                                    <th width="60%"><div class="thbg">Notes</div></th>
+                                    <th><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="otherdetailsContent"></tbody>
+                        </table>
+                        <p id="otherdetailsContentNA" style="text-align:center">No result found...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Alert Modal*@
+
+<div id="myModalcasealerts" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width: 960px;">
+        <!-- Modal content-->
+        <input type="hidden" id="hearingradio" value="" />
+        <input type="hidden" id="mhearingradio" value="" />
+        <div class="modal-content" id="alersettigspopup">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/set-aleart.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                <h4 id="fstitle1">Set Alert <span><a href="#" id="showtabledeatils" style="float: right; font-size: 15px;color: #6B7280;text-decoration: underline !important; margin: 0px 0 0 0; position:relative;">Previous Alerts</a></span></h4>
+            </div>
+            <div class="modal-body">
+                <div id="aleartform">
+                    <form id="savecasealert">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <span id="textleadid" style="display:none"></span>
+
+                                <div><b>Matter Name:</b> <span id="casenotext"></span></div>
+                                <div><b>Court:</b><span id="courttext"> </span></div>
+                                <div><b>Matter No.:</b> <span id="casenametext"></span></div>
+                            </div>
+                        </div>
+                        <div class="row" id="datebased" style="padding:20px 0 0 0;">
+                            <div class="col-md-4">
+                                <label>
+                                    Alert Type<span class="required " aria-required="true"><b> *</b> </span>
+                                </label>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="actions5">
+                                    @*<div class="button11">
+                                        <div>
+                                            <input type="radio" id="Alerttypes" checked name="Alerttypes" value="hearigbasis"> Hearing Day Based
+                                        </div>
+                                    </div>
+                                    <div class="button11">
+                                        <div>
+                                            <input type="radio" id="Alerttypes" name="Alerttypes" value="datebasis"> Date Based
+                                        </div>
+                                    </div>*@
+                                    <div class="button11" id="hearingradiodiv">
+                                        <div style="font-size:14px; font-weight:500;">
+                                            <input type="radio" id="hdate" name="hearingdates" value="nexthearingdate"> Next Hearing (<span id="hearingdttext"></span>)
+                                        </div>
+                                    </div>
+                                    <div class="button11" id="mhearingradiodiv">
+                                        <div style="font-size:14px; font-weight:500;">
+                                            <input type="radio" id="hdate" name="hearingdates" value="manualhdate"> Manual Next Hearing (<span id="mhearingdttext"></span>)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="hearingdaybased">
+                            @*<div id="hearingdates">
+                                <div class="col-md-4 form-group"><label>Next Hearing Date<span class="required " aria-required="true"><b> *</b> </span></label></div>
+                                <div class="col-md-8">
+                                    <div class="actions5 form-group">
+                                        <div class="button11" id="hearingradiodiv">
+                                            <div>
+                                                <input type="radio" id="hdate" name="hearingdates" value="nexthearingdate"> Next Hearing (<span id="hearingdttext"></span>)
+                                            </div>
+                                        </div>
+                                        <div class="button11" id="mhearingradiodiv">
+                                            <div>
+                                                <input type="radio" id="hdate" name="hearingdates" value="manualhdate"> Manual Next Hearing (<span id="mhearingdttext"></span>)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="" id="divalertdeatils">
+                                <div class="col-md-4 form-group"><label>Alert Details<span class="required " aria-required="true"><b> *</b> </span></label></div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label>Set Alert Date</label>
+                                        <input type="date" class="inputbox" id="callfromdate" onkeydown="return false" />
+                                    </div>
+                                </div>
+                            </div>*@
+                            <div class="col-md-4 form-group"></div>
+                            <div class="col-md-8">
+                                <div class="form-group" id="divfrequency">
+                                    @*<label>Frequency</label>*@
+                                    <label>No of Alerts</label>
+                                    <label style="margin-left:236px">No of Days</label>
+                                    <div class="actions5">
+                                        <div class="button11">
+                                            <div>
+                                                <select name="ddlHearing" id="ddlHearing" style="width: 100%; border: none !important; height: auto;">
+                                                    <option selected="selected" value="3">On Same Day</option>
+                                                    <option value="1">Days Before Hearing</option>
+                                                    <option value="2">Days After Hearing</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="button11">
+                                            <div>
+                                                <select name="ddldays" id="ddldays" style="width: 100%; border: none !important; height: auto;">
+                                                    @*<option selected="selected" value="">Number of Days</option>*@
+                                                    <option value="0" selected="selected">No of Days</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Set Alert For</label>
+                                    <select name="ddlalertfor" id="ddlalertfor" class="selctInputFormat">
+                                        <option selected="selected" value="4">Self</option>
+                                        <option value="0">Client </option>
+                                    </select>
+                                </div>
+
+                                @*<div class="form-group" id="alertmobpanel1" style="display:none;">
+
+                                        <div class="actions5">
+                                            <div class="button11" style="border: none;padding: 0;">
+                                                <label>Client Mobile</label>
+                                                <div>
+                                                    <input class="selctInputFormat" id="clientmobile" type="text" maxlength="10">
+                                                </div>
+                                            </div>
+                                            <div class="button11" style="border: none;padding: 0;">
+                                                <label>Client Email</label>
+                                                <div>
+                                                    <input class="selctInputFormat" id="cientemail" type="email" maxlength="50">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>*@
+
+                                <div class="form-group" id="casewatchtypeid" style="display:none">
+
+                                    <div class="col-lg-4 alignNav">
+                                        <div id="clientnamediv" class="button11" style="border: none; padding: 12px 0 0 0;display:none">
+
+                                            <label>Client Name</label>
+                                            <div id="selectedClientValue">
+                                                <input class="selctInputFormat" id="clientname" type="text" maxlength="100">
+                                            </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="" id="alertmobpanel" style="display:none">
+
+                                            <div class="col-lg-4">
+                                                <label>Client Mobile</label>
+                                                <input class="selctInputFormat" id="clientmobile" type="text" maxlength="10">
+                                            </div>
+                                        </div>
+                                        <div id="alertemailpanel" style="display:none">
+
+                                            <div class="col-lg-4 ">
+                                                <label>Client Email</label>
+                                                <input class="selctInputFormat" id="cientemail" type="email" maxlength="50">
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4"><button class="btn btn-secondary" id="" data-dismiss="modal" style="width:100%;">Cancel</button></div>
+                    <div class="col-md-4"><button class="btn btn-primary" id="savealerts" date-val="" type="button" name="submit" value="Submit" text="Set Alert" style="width:100%;">Set Alert</button></div>
+                </div>
+            </div>
+
+            @*<div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div id="exTab1">
+                                <ul class="nav nav-pills">
+                                    <li class="active">
+                                        <a href="#2a" data-toggle="tab">Create Alerts</a>
+                                    </li>
+                                    <li>
+                                        <a href="#1a" data-toggle="tab">View Alerts</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content clearfix">
+                                    <div class="tab-pane " id="1a">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="table-panel table-responsive" style="overflow-x:auto; margin-top: 10px !important">
+                                                    <table class="dataTable table-panel" style="overflow-x:auto">
+                                                        <tr>
+                                                            <th width="10%"><div class="thbg">Matter</div></th>
+                                                            <th width="20%"><div class="thbg">Matter Name</div></th>
+                                                            <th width="10%"><div class="thbg">Court</div></th>
+                                                            <th width="20%"><div class="thbg">Hearing  Date</div></th>
+                                                            <th width="5%"><div class="thbg">Manual Hearing Date</div></th>
+                                                            <th width="10%"><div class="thbg">Mobile No</div></th>
+                                                            <th width="10%"><div class="thbg">Email Id</div></th>
+                                                            <th width="5%"><div class="thbg">Created Date</div></th>
+                                                            <th width="5%"><div class="thbg">Alert On</div></th>
+                                                            <th width="5%"><div class="thbg">Sent</div></th>
+                                                            <th width="5%"><div class="thbg">Alert For</div></th>
+                                                            <th width="5%"><div class="thbg"></div></th>
+                                                        </tr>
+                                                        <tbody id="assignusercasedata"></tbody>
+                                                    </table>
+                                                    <center><div class="nofoundst" style="display:none">No data found.</div></center>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane active" id="2a" style="margin-top:10px;">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <span id="textleadid" style="display:none"></span>
+                                                <form id="savecasealert">
+                                                    <div>
+                                                        <b>Matter Name:</b> <span id="casenotext"></span>
+                                                    </div>
+                                                    <div><b>Court:</b><span id="courttext"> </span></div>
+                                                    <div><b>Matter No.:</b> <span id="casenametext"></span></div>
+                                                    <div><b>Hearing:</b>
+                                                        <span id="hearingradiodiv"><input type="radio" id="hearingradio" name="hearingdateradio" style="cursor:default !important;" value=""> &nbsp;Next Hearing (<span id="hearingdttext"></span>)</span>
+                                                        <span id="mhearingradiodiv"><input type="radio" id="mhearingradio" name="hearingdateradio" style="cursor:default !important;" value=""> &nbsp;Manual Next Hearing (<span id="mhearingdttext"></span>)</span>
+                                                    </div>
+                                                    <div>
+                                                        <label class="col-md-3" style="margin-left:-15px;">
+                                                            Set Alert Date:
+                                                        </label>
+                                                        <div class="col-md-9">
+                                                            <input type="date" class="form-control1 inputFormat" id="callfromdate" onkeydown="return false" />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label class=" col-md-3">
+                                                        </label>
+                                                        <div class="col-md-9" style="padding: 10px 0px 0 0px;">
+                                                            <span>Or</span>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label class=" col-md-3">
+                                                        </label>
+                                                        <div class="col-md-9" style="margin-left:-17px;">
+                                                            <select name="ddldays" id="ddldays" class="selctInputFormat" style="background-color: white !important;">
+                                                                <option selected="selected" value="">-Day-</option>
+                                                                <option value="0">0</option>
+                                                                <option value="1">1</option>
+                                                                <option value="2">2</option>
+                                                                <option value="3">3</option>
+                                                                <option value="4">4</option>
+                                                                <option value="5">5</option>
+                                                                <option value="6">6</option>
+                                                                <option value="7">7</option>
+                                                                <option value="8">8</option>
+                                                                <option value="9">9</option>
+                                                                <option value="10">10</option>
+                                                                <option value="11">11</option>
+                                                                <option value="12">12</option>
+                                                                <option value="13">13</option>
+                                                                <option value="14">14</option>
+                                                                <option value="15">15</option>
+                                                                <option value="16">16</option>
+                                                                <option value="17">17</option>
+                                                                <option value="18">18</option>
+                                                                <option value="19">19</option>
+                                                            </select>
+                                                            <select name="ddlHearing" id="ddlHearing" class="selctInputFormat" style="background-color: white !important;">
+                                                                <option selected="selected" value="0">--Select--</option>
+                                                                <option value="1">Days Before Hearing</option>
+                                                                <option value="2">Days After Hearing</option>
+                                                                <option value="3">On Same Day</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label class="col-md-3" style="margin-left:-15px;">
+                                                            Set Alert For:
+                                                        </label>
+                                                        <div class="col-md-9">
+                                                            <select name="ddlalertfor" id="ddlalertfor" class="selctInputFormat" style="background-color: white !important;">
+                                                                <option selected="selected" value="">--Select--</option>
+                                                                <option value="4">Self</option>
+                                                                <option value="0">Client </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group form-horizontal" id="alertmobpanel" style="display:none">
+                                                        <label class="control-label col-md-3">
+                                                            Mobile: <span class="required" aria-required="true" style="color:red"><b>*</b> </span>
+                                                        </label>
+                                                        <div class="col-md-9">
+                                                            <input class="txtbox-setting3" id="clientmobile" type="text" maxlength="10">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group form-horizontal" id="alertemailpanel" style="display:none">
+                                                        <label class="control-label col-md-3">
+                                                            Email: <span class="required" aria-required="true" style="color:red"><b>*</b> </span>
+                                                        </label>
+                                                        <div class="col-md-9">
+                                                            <input class="txtbox-setting3" id="cientemail" type="email" maxlength="50">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group form-horizontal" style="clear:both">
+                                                        <label class="control-label col-md-3"></label>
+                                                        <div class="col-md-9" style="padding: 10px 0px 0 0px;">
+                                                            <button class="sbtbtn" id="savealerts" date-val="" type="button" name="submit" value="Submit" text="Save" style="margin:0px 6px 0 1px;">SAVE</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+
+        </div>
+
+
+    </div>
+    <div class="modal-content" id="Alertdetailslist" style="display:none;width:850px;margin:0 auto">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">
+                <img src="/newassets/img/set-aleart.png" style="margin:-15px 0px 0 -15px">
+            </h4>
+        </div>
+        <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+            <a href="#" class="goback" id="gopreviuspage"><span>&larr;</span> Go Back</a>
+            <h4 id="fstitle1" style="font-weight:500; color:#4e4e4e;">Previous Alerts List</h4>
+        </div>
+        <div class="modal-body">
+
+            <div class="tablearea">
+                <div class="tablecontainer" style="border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; ">
+                    <table class="table-panel">
+                        <tr>
+                            <th width="10%"><div class="thbg">Matter</div></th>
+                            <th width="20%"><div class="thbg">Matter Name</div></th>
+                            <th width="10%"><div class="thbg">Court</div></th>
+                            <th width="20%"><div class="thbg">Hearing  Date</div></th>
+                            <th width="5%"><div class="thbg">Manual Hearing Date</div></th>
+                            <th width="10%"><div class="thbg">Mobile No</div></th>
+                            <th width="10%"><div class="thbg">Email Id</div></th>
+                            <th width="5%"><div class="thbg">Created Date</div></th>
+                            <th width="5%"><div class="thbg">Alert On</div></th>
+                            <th width="5%"><div class="thbg">Sent</div></th>
+                            <th width="5%"><div class="thbg">Alert For</div></th>
+                            <th width="5%"><div class="thbg">Action</div></th>
+                        </tr>
+                        <tbody id="assignusercasedata"></tbody>
+                    </table>
+                    <center><div class="nofoundst" style="display:none">No data found.</div></center>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--<div id="myModalcasealerts" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog" style="width:870px;">
+            <!-- Modal content-->
+    <!--<input type="hidden" id="hearingradio" value="" />
+    <input type="hidden" id="mhearingradio" value="" />
+    <div class="modal-content" id="alersettigspopup">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">
+                <img src="/newassets/img/set-aleart.png" style="margin:-15px 0px 0 -15px">
+            </h4>
+        </div>
+        <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+            <h4 id="fstitle1">Set Aleart <span><a href="#" id="showtabledeatils" style="float: right; font-size: 15px;color: #6B7280;text-decoration: underline; margin: 0px 0 0 0; position:relative;">Previous Alerts</a></span></h4>
+        </div>
+        <div class="modal-body">
+            <div id="aleartform">
+                <form id="savecasealert">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span id="textleadid" style="display:none"></span>
+                            <input type="hidden" value="" id="Isreras" />
+
+                            <div><b>Matter Name:</b> <span id="casenotext"></span></div>
+                            <div><b>Court:</b><span id="courttext"> </span></div>
+                            <div><b>Matter No.:</b> <span id="casenametext"></span></div>
+                        </div>
+                    </div>
+                    <div class="row" id="datebased" style="padding:20px 0 0 0;">
+                        <div class="col-md-4"><label>Aleart Type<sup>*</sup></label></div>
+                        <div class="col-md-8">
+                            <div class="actions5">
+                                <div class="button11">
+                                    <div>
+                                        <input type="radio" id="Alerttypes" name="Alerttypes" value="hearigbasis"> Hearing Day Based
+                                    </div>
+                                </div>
+                                <div class="button11">
+                                    <div>
+                                        <input type="radio" id="Alerttypes" name="Alerttypes" value="datebasis"> Date Based
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="hearingdaybased">
+                        <div id="hearingdates">
+                            <div class="col-md-4 form-group"><label>Next Hearing Date<sup>*</sup></label></div>
+                            <div class="col-md-8">
+                                <div class="actions5 form-group">
+                                    <div class="button11" id="hearingradiodiv">
+                                        <div>
+                                            <input type="radio" id="hdate" name="hearingdates" value="nexthearingdate"> Next Hearing (<span id="hearingdttext"></span>)
+                                        </div>
+                                    </div>
+                                    <div class="button11" id="mhearingradiodiv">
+                                        <div>
+                                            <input type="radio" id="hdate" name="hearingdates" value="manualhdate"> Manual Next Hearing (<span id="mhearingdttext"></span>)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="" id="divalertdeatils">
+                            <div class="col-md-4 form-group"><label>Aleart Details<sup>*</sup></label></div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label>Set Alert Date</label>
+                                    <input type="date" class="inputbox" id="callfromdate" onkeydown="return false" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 form-group"></div>
+                        <div class="col-md-8">
+                            <div class="form-group" id="divfrequency">
+                                <label>Frequency</label>
+                                <div class="actions5">
+                                    <div class="button11">
+                                        <div>
+                                            <select name="ddldays" id="ddldays" style="width: 100%; border: none; height: auto;">
+                                                <option selected="selected" value="">Number of Days</option>
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
+                                                <option value="8">8</option>
+                                                <option value="9">9</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                                <option value="13">13</option>
+                                                <option value="14">14</option>
+                                                <option value="15">15</option>
+                                                <option value="16">16</option>
+                                                <option value="17">17</option>
+                                                <option value="18">18</option>
+                                                <option value="19">19</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="button11">
+                                        <div>
+                                            <select name="ddlHearing" id="ddlHearing" style="width: 100%; border: none; height: auto;">
+                                                <option selected="selected" value="0">On Same Day</option>
+                                                <option value="1">Days Before Hearing</option>
+                                                <option value="2">Days After Hearing</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Set Alert For</label>
+                                <select name="ddlalertfor" id="ddlalertfor" class="selctInputFormat">
+                                    <option selected="selected" value="4">Self</option>
+                                    <option value="0">Client </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="alertmobpanel1" style="display:none;">
+
+                                <div class="actions5">
+                                    <div class="button11" style="border: none;padding: 0;">
+                                        <label>Client Mobile</label>
+                                        <div>
+                                            <input class="selctInputFormat" id="clientmobile" type="text" maxlength="10">
+                                        </div>
+                                    </div>
+                                    <div class="button11" style="border: none;padding: 0;">
+                                        <label>Client Email</label>
+                                        <div>
+                                            <input class="selctInputFormat" id="cientemail" type="email" maxlength="50">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary" id="savealerts" date-val="" type="button" name="submit" value="Submit" text="Set Alert">Set Alert</button>
+        </div>
+    </div>
+    <div class="modal-content" id="Alertdetailslist" style="display:none;">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">
+                <img src="/newassets/img/set-aleart.png" style="margin:-15px 0px 0 -15px">
+            </h4>
+        </div>
+        <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+            <a href="#" class="back-link" id="gopreviuspage"><span>&larr;</span> Go Back</a>
+            <h4 id="fstitle1" style="font-weight:500; color:#4e4e4e;">Previous Alerts List</h4>
+        </div>
+        <div class="modal-body">
+
+            <div class="tablearea">
+                <div class="tablecontainer" style="border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; ">
+                    <table class="table-panel">
+                        <tr>
+                            <th width="10%"><div class="thbg">Matter</div></th>
+                            <th width="20%"><div class="thbg">Matter Name</div></th>
+                            <th width="10%"><div class="thbg">Court</div></th>
+                            <th width="20%"><div class="thbg">Hearing  Date</div></th>
+                            <th width="5%"><div class="thbg">Manual Hearing Date</div></th>
+                            <th width="10%"><div class="thbg">Mobile No</div></th>
+                            <th width="10%"><div class="thbg">Email Id</div></th>
+                            <th width="5%"><div class="thbg">Created Date</div></th>
+                            <th width="5%"><div class="thbg">Alert On</div></th>
+                            <th width="5%"><div class="thbg">Sent</div></th>
+                            <th width="5%"><div class="thbg">Alert For</div></th>
+                            <th width="5%"><div class="thbg"></div></th>
+                        </tr>
+                        <tbody id="assignusercasedata"></tbody>
+                    </table>
+                    <center><div class="nofoundst" style="display:none">No data found.</div></center>
+                </div>
+            </div>
+
+        </div>
+
+    </div>-->
+    @*<div class="panel-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div id="exTab1">
+                        <ul class="nav nav-pills">
+                            <li class="active">
+                                <a href="#2a" data-toggle="tab">Create Alerts</a>
+                            </li>
+                            <li>
+                                <a href="#1a" data-toggle="tab">View Alerts</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content clearfix">
+                            <div class="tab-pane " id="1a">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="table-panel table-responsive" style="overflow-x:auto; margin-top: 10px !important">
+                                            <table class="dataTable table-panel" style="overflow-x:auto">
+                                                <tr>
+                                                    <th width="10%"><div class="thbg">Matter</div></th>
+                                                    <th width="20%"><div class="thbg">Matter Name</div></th>
+                                                    <th width="10%"><div class="thbg">Court</div></th>
+                                                    <th width="20%"><div class="thbg">Hearing  Date</div></th>
+                                                    <th width="5%"><div class="thbg">Manual Hearing Date</div></th>
+                                                    <th width="10%"><div class="thbg">Mobile No</div></th>
+                                                    <th width="10%"><div class="thbg">Email Id</div></th>
+                                                    <th width="5%"><div class="thbg">Created Date</div></th>
+                                                    <th width="5%"><div class="thbg">Alert On</div></th>
+                                                    <th width="5%"><div class="thbg">Sent</div></th>
+                                                    <th width="5%"><div class="thbg">Alert For</div></th>
+                                                    <th width="5%"><div class="thbg"></div></th>
+                                                </tr>
+                                                <tbody id="assignusercasedata"></tbody>
+                                            </table>
+                                            <center><div class="nofoundst" style="display:none">No data found.</div></center>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane active" id="2a" style="margin-top:10px;">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span id="textleadid" style="display:none"></span>
+                                        <form id="savecasealert">
+                                            <div>
+                                                <b>Matter Name:</b> <span id="casenotext"></span>
+                                            </div>
+                                            <div><b>Court:</b><span id="courttext"> </span></div>
+                                            <div><b>Matter No.:</b> <span id="casenametext"></span></div>
+                                            <div><b>Hearing:</b>
+                                                <span id="hearingradiodiv"><input type="radio" id="hearingradio" name="hearingdateradio" style="cursor:default !important;" value=""> &nbsp;Next Hearing (<span id="hearingdttext"></span>)</span>
+                                                <span id="mhearingradiodiv"><input type="radio" id="mhearingradio" name="hearingdateradio" style="cursor:default !important;" value=""> &nbsp;Manual Next Hearing (<span id="mhearingdttext"></span>)</span>
+                                            </div>
+                                            <div>
+                                                <label class="col-md-3" style="margin-left:-15px;">
+                                                    Set Alert Date:
+                                                </label>
+                                                <div class="col-md-9">
+                                                    <input type="date" class="form-control1 inputFormat" id="callfromdate" onkeydown="return false" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class=" col-md-3">
+                                                </label>
+                                                <div class="col-md-9" style="padding: 10px 0px 0 0px;">
+                                                    <span>Or</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class=" col-md-3">
+                                                </label>
+                                                <div class="col-md-9" style="margin-left:-17px;">
+                                                    <select name="ddldays" id="ddldays" class="selctInputFormat" style="background-color: white !important;">
+                                                        <option selected="selected" value="">-Day-</option>
+                                                        <option value="0">0</option>
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
+                                                        <option value="6">6</option>
+                                                        <option value="7">7</option>
+                                                        <option value="8">8</option>
+                                                        <option value="9">9</option>
+                                                        <option value="10">10</option>
+                                                        <option value="11">11</option>
+                                                        <option value="12">12</option>
+                                                        <option value="13">13</option>
+                                                        <option value="14">14</option>
+                                                        <option value="15">15</option>
+                                                        <option value="16">16</option>
+                                                        <option value="17">17</option>
+                                                        <option value="18">18</option>
+                                                        <option value="19">19</option>
+                                                    </select>
+                                                    <select name="ddlHearing" id="ddlHearing" class="selctInputFormat" style="background-color: white !important;">
+                                                        <option selected="selected" value="0">--Select--</option>
+                                                        <option value="1">Days Before Hearing</option>
+                                                        <option value="2">Days After Hearing</option>
+                                                        <option value="3">On Same Day</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="col-md-3" style="margin-left:-15px;">
+                                                    Set Alert For:
+                                                </label>
+                                                <div class="col-md-9">
+                                                    <select name="ddlalertfor" id="ddlalertfor" class="selctInputFormat" style="background-color: white !important;">
+                                                        <option selected="selected" value="">--Select--</option>
+                                                        <option value="4">Self</option>
+                                                        <option value="0">Client </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal" id="alertmobpanel" style="display:none">
+                                                <label class="control-label col-md-3">
+                                                    Mobile: <span class="required" aria-required="true" style="color:red"><b>*</b> </span>
+                                                </label>
+                                                <div class="col-md-9">
+                                                    <input class="txtbox-setting3" id="clientmobile" type="text" maxlength="10">
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal" id="alertemailpanel" style="display:none">
+                                                <label class="control-label col-md-3">
+                                                    Email: <span class="required" aria-required="true" style="color:red"><b>*</b> </span>
+                                                </label>
+                                                <div class="col-md-9">
+                                                    <input class="txtbox-setting3" id="cientemail" type="email" maxlength="50">
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal" style="clear:both">
+                                                <label class="control-label col-md-3"></label>
+                                                <div class="col-md-9" style="padding: 10px 0px 0 0px;">
+                                                    <button class="sbtbtn" id="savealerts" date-val="" type="button" name="submit" value="Submit" text="Save" style="margin:0px 6px 0 1px;">SAVE</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+</div>
+</div>
+
+
+<div id="myModalopentag" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:450px;">
+        <!-- Modal content-->
+        <div class="modal-content" style="height: auto;">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Case Tag Settings
+                </h4>
+            </div>
+            <form id="tagrestform">
+                <div class="ec_bg" style="margin-top:10px;">
+                    <input type="hidden" val="" id="tagusercasid" />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Select Tag</label>
+                                <select name="TagListSave" id="TagListSave" class="form-control selctInputFormat">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="tagmoreoption" style="display:none;">
+                                <label>Tag Name</label>
+                                <input type="text" placeholder="Enter Name" class="form-control inputFormat" id="tagname">
+                            </div>
+                        </div>
+                        <div class="col-md-12 text-right" style="margin:20px 0;">
+                            <button type="button" class="btn btn-secondary" id="hidetag">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="Litigationsavetag">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="row" style="margin-top:20px">
+                <input type="hidden" value="" id="Idslist" />
+                <div class="col-md-12" id="taglisttable">
+                    <table class="table-panel">
+                        <thead>
+                            <tr>
+                                <td width="20%"><div class="thbg">Date</div></td>
+                                <td width="80%"><div class="thbg">Tag Name</div></td>
+                                <td><div class="thbg">Action</div></td>
+                            </tr>
+                        </thead>
+                        <tbody id="tagListContent"></tbody>
+                    </table>
+                    <p id="taglistContentNA" style="text-align:center">No result found...</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <input type="hidden" id="exportrecords">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">
+                Export Cases
+            </h4>
+        </div>
+        <div class="modal-body  partynamebody " id="" style="height:505px; overflow-y:scroll;background:white;">
+            <table class="table-panel">
+                <thead>
+                    <tr style="font-size: 12px;">
+                        <th><div class="thbg">Page No.</div></th>
+                        <th><div class="thbg">FileName</div></th>
+                    </tr>
+                </thead>
+                <tbody id="printexport"></tbody>
+                <tr></tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" id="modalwidth" style="width:700px;">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" style="height:90%; overflow-y:scroll;" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="myModalmanualhearing" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:440px;">
+        <!-- Modal content-->
+        <div class="modal-content" style="height: 240px;">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Update Next Hearing
+                </h4>
+            </div>
+            <div class="modal-body" sstyle="height:500px; overflow-y:scroll;">
+                <input type="hidden" id="caseidhide">
+                <input type="hidden" id="nhhide">
+                <input type="hidden" id="mastercaseid">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="form-group ">
+
+                            <div>
+                                <label>Next Hearing Date</label>
+                                <input type="date" class="inputFormat" id="manualnhdate1" placeholder="yyyy-mm-dd">
+                            </div>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+
+                <div class="modal-footer" style="border-top: none !important">
+                    <button type="button" id="setmanualnh" class="btn btn-primary pull-right">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalSCourtDetails" style="z-index:1200;" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:80%;">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" id="ScourtDetailsLabel"></h4>
+        </div>
+        <div class="modal-body  SCourtDetailsbody " id="SCourtDetailsbody" style="height:550px; z-index:1200; overflow-y:scroll;background:white;">
+        </div>
+    </div>
+</div>
+<div id="myModalcasedetails" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Case Details
+                </h4>
+            </div>
+            <div class="modal-body" style="height:260px; overflow-y:auto;">
+                <div class="row">
+                    <input type="hidden" id="lUsecaseid" value="" />
+                    <div class="scdetails">
+                        <form id="casedetais">
+                            <div id="editor">
+                                <table class="table-panel">
+                                    <tbody>
+                                        <tr>
+                                            <td width="25%">Filing No.:</td>
+                                            <td id="Lfilingno"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Filing Date:</td>
+                                            <td id="Lfilingdate"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Registation No:</td>
+                                            <td id="lRegistrionNo"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Registation Date:</td>
+                                            <td id="lRegistrationdate"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>First Hearing Date:</td>
+                                            <td id="lfirsthearingdate"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>CourtNumber:</td>
+                                            <td id="lcourrtno"></td>
+                                        </tr>
+                                        <tr id="erliercourttr" style="display:none;">
+                                            <td>Details:</td>
+                                            <td><a href="#" title="Earlier Court Details" id="opendetails" type="earliercourt"><i class="fa fa-university" aria-hidden="true"></i></a> / <a href="#" title="Notices" type="notices" id="opendetails"><span class="glyphicon glyphicon-list-alt"></span></a> / <a href="#" title="Office Reports" id="opendetails" type="officereports"><i class="fa fa-list" aria-hidden="true"></i></a> / <a href="#" title="Caveat" type="caveat" id="opendetails"><i class="fa fa-bell" aria-hidden="true"></i></a></td>
+                                        </tr>
+                                        <tr id="othercourttr" style="display:none;">
+                                            <td>Other Details:</td>
+                                            <td><a href="#" title="Other Details" type="OtherDetails" id="opendetails"><i class="fa fa-list" aria-hidden="true"></i></a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="casewatchuseralert" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog " style="width:600px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    User Details for Live Update
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group col-md-12" ">
+                        <label>Select Users</label>
+                        <select multiple class="selctInputFormat" name="languageSelect[]" id="UsersCasewatchAlert"></select>
+                    </div>
+                    <div class="form-group col-md-12 text-right" style="margin:20px 0;">
+                        <button type="button" class="btn btn-primary" id="savecasewatchuser">Save</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" style="overflow-x:scroll;margin-top:5px;">
+                        <table class="table-panel">
+                            <thead>
+                                <tr> <th><div class="thbg">Sl NO.</div></th><th><div class="thbg">UserName</div></th><th><div class="thbg">Email</div></th><th><div class="thbg">Mobile</div></th><th><div class="thbg">Action</div></th></tr>
+                            </thead>
+                            <tbody id="bindcasewatchalertuser"></tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: none !important">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalOrderNotes" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:50%;height: 500px;">
+        <!-- Modal content-->
+        <div class="modal-content" style="margin-top: 15%;height: 100%;width: 70%;margin-left: 15%;">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Order Notes
+                </h4>
+            </div>
+            <div class="ec_bg" style="margin-top:10px;">
+                <input type="hidden" value="" id="hdnOrderid" />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-3">
+                            <label class="control-label ">Order Notes Details</label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea id="Otherordertxt" class="inputFormatTextArea" value="" style="margin: 0px; width: 100%; height: 40px;" maxlength="10000"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style=" display: flex;justify-content: flex-end;padding: 15px;">
+                    <button type="submit" class="btn btn-primary" id="SaveOrderNotes">Save</button>
+
+
+                    <button class="sbtbtn pull-right" id="CancelOrderDetails" style="display:None">Cancel</button>
+                    <button class="sbtbtn pull-right" id="updateOrderDetails" style="display:None">Update</button>
+
+                </div>
+            </div>
+            <div class="row" style="margin-top:20px">
+                <div class="col-md-12">
+                    <table class="table-panel">
+                        <thead>
+                            <tr>
+                                <td width="20%"><div class="thbg">Dates</div></td>
+                                <td width="80%"><div class="thbg">Notes</div></td>
+                            </tr>
+                        </thead>
+                        <tbody id="orderdetailsContent"></tbody>
+                    </table>
+                    <p id="orderdetailsContentNA" style="text-align:center">No result found...</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--For Update Litigation Matter-->
+<div id="UpdateCWmatter" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog " style="width:450px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <input type="hidden" id="CWmatterId" value="" />
+            <input type="hidden" id="CWCaseId" value="" />
+            <input type="hidden" id="CWCaseNo" value="" />
+            <input type="hidden" id="CWCourtName" value="" />
+            <input type="hidden" id="CWOtherCourtName" value="" />
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Matter Details
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group col-md-12 ">
+                        <label>Matter Name</label>
+                        <textarea id="CWMatterName" class="inputFormatTextArea" value="" style="margin: 0px; width: 100%; height: 90px !important;" maxlength="10000"></textarea>
+
+                    </div>
+                    <div class="col-md-12 text-right" style="margin:20px 0;">
+                        <button type="button" class="btn btn-primary " id="saveCWCaseList" style="display:none;">Save</button>
+                        <button type="button" class="btn btn-primary" id="EditCWCaseList">Update</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: none !important">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="myModalAppendCOurtManualOrder" data-backdrop="static">
+    <div class="modal-dialog" role="document" style="width:550px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Order</h5>
+                <button type="button" id="clickupload" class="close" style="margin-top:-30px" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label>Upload Document <span aria-required="true"><b>*</b> </span></label>
+                        <input type="file" id="fileCustomOrder" name="fileCustomOrder" class="form-control inputFormat" accept=".xls,.xlsx,.pdf,.txt,.ppt,.htm,.html">
+                        <input type="hidden" id="hdnCustomCaseid" name="hdnCustomCaseid" value="">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label>Order Date <span aria-required="true"><b>*</b> </span></label>
+                        <input placeholder="Select Date" class="form-control inputFormat" name="customorderdate" id="customorderdate" type="date" value="">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label>Status</label>
+                        <input type="text" id="customstatus" class="form-control inputFormat" name="customstatus" maxlength="100">
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" name="submit" value="Upload" id="btnAddCustomOrder"> Upload</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--For IOB Custmization-->
+<div id="myModalIOBCustmization"  class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" style="width:650px;">
+        <input type="hidden" value="" id="updatedusercasesid1" />
+        <div class="modal-content" style="padding: 15px;">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="closemodels" data-dismiss="modal">&times;</button>
+                <div>
+                    <h4 class="modal-title">
+                        <img src="/newassets/img/add-icon.png" style="margin: -10px 0px 0 -12px">
+                    </h4>
+                </div>
+                <div class="modaltitle" style="border-bottom: none; margin: -32px 0 0 0;">
+                    <h4>
+                        Add Information
+                    </h4>
+                </div>
+            </div>
+            <div class="modal-body " style="height:131px;background:white;">
+                <form id="IOBList" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <label class="formLabel colorDark" style="font-weight: 600;">Region</label>
+                            <select class="selctInputFormat" id="fregionname" name="fregionname">
+                                <option value="" selected>Please Select</option>
+                                <option value="lnorthregion">North Region</option>
+                                <option value="lsouthregion">South Region</option>
+                                <option value="lapac">Apac Region</option>
+                                <option value="llatom">Apac Region</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="formLabel colorDark">Branch</label>
+                            <select class="selctInputFormat" id="fbrancename" name="fbrancename"></select>
+                        </div>
+
+                    </div>
+                    <div class="form-group col-md-12">
+                        <button type="button" class="btn btn-primary float-end" style="float: inline-end" id="btnsavevalus">Save</button>
+                        <button type="button" class="btn btn-primary float-end" id="btnUpdatevauresr" style="display: none; float: inline-end">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--For IOB Advocate Customization-->
+<div id="UpdateAdvocateModel" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <input type="hidden" id="CWUserCaseId" value="" />
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Advocate Details
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row ec_bg" style="overflow: unset;">
+                    <div class="form-group col-md-12">
+                        <label style="margin: 10px 0" class="control-label ">Advocate Name</label>
+
+                    </div>
+                    <div class="form-group col-md-12 ">
+                        <textarea id="CWAdvocateName" class="inputFormatTextArea" value="" style="margin: 0px; width: 100%; height: 90px !important;" maxlength="10000"></textarea>
+
+                    </div>
+                    <div class="col-md-12 text-center">
+                        <button type="button" class="sbtbtn " id="EditCWAdvocate" style=" margin: 10px 0px;">Update</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: none !important">
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Alert List Data Modal*@
+@*<div class="modal-content" id="Alertdetailslist" style="display:none;">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">
+                <img src="/newassets/img/set-aleart.png" style="margin:-15px 0px 0 -15px">
+            </h4>
+        </div>
+        <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+            <a href="#" class="back-link" id="gopreviuspage"><span>&larr;</span> Go Back</a>
+            <h4 id="fstitle1" style="font-weight:500; color:#4e4e4e;">Previous Alerts List</h4>
+        </div>
+        <div class="modal-body">
+
+            <div class="tablearea">
+                <div class="tablecontainer" style="border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; ">
+                    <table class="table-panel">
+                        <tr>
+                            <th width="10%"><div class="thbg">Matter</div></th>
+                            <th width="20%"><div class="thbg">Matter Name</div></th>
+                            <th width="10%"><div class="thbg">Court</div></th>
+                            <th width="20%"><div class="thbg">Hearing  Date</div></th>
+                            <th width="5%"><div class="thbg">Manual Hearing Date</div></th>
+                            <th width="10%"><div class="thbg">Mobile No</div></th>
+                            <th width="10%"><div class="thbg">Email Id</div></th>
+                            <th width="5%"><div class="thbg">Created Date</div></th>
+                            <th width="5%"><div class="thbg">Alert On</div></th>
+                            <th width="5%"><div class="thbg">Sent</div></th>
+                            <th width="5%"><div class="thbg">Alert For</div></th>
+                            <th width="5%"><div class="thbg"></div></th>
+                        </tr>
+                        <tbody id="assignusercasedata"></tbody>
+                    </table>
+                    <center><div class="nofoundst" style="display:none">No data found.</div></center>
+                </div>
+            </div>
+
+        </div>
+
+    </div>*@
+<div id="myModalcolumn" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:580px;">
+        <!-- Modal content-->
+        <div class="modal-content mymodelscolumnselection" id="mymodelscolumnselection">
+        </div>
+    </div>
+</div>
+<div id="deleteLitigationcaselist" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="createdocclose">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/delete-notice.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4>
+                    Delete Case
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862;">Are you sure to delete case?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-toggle="modal" id="deletesingle_finaltime">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ArchiveLitigationcaselist" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="~/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px" />
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_archivematterrequesr">Archive Matter</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want archive the matter- <span id="id_Archivematternames"></span>.</p>
+            </div>
+            <div class="footer_buttons modal-footer" style="margin-top:0; border-top:0 !important;">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="archsingle_finaltime">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="removelivetrackingModal" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="createdocclose">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/RMLive.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -32px 0 0 0;">
+                <h4>
+                    Remove Live Tracking
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862;" id="msgRemoveTracking"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-toggle="modal" id="removeLiveTrackingPopup">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="AddlivetrackingModal" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="createdocclose">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/lv-tracking.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -32px 0 0 0;">
+                <h4>
+                    Add Live Tracking
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862;" id="msgAddTracking"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-toggle="modal" id="btnAddLiveTrackingDetail" data-id="QtSEwnJrVLbyKiqDyeNa5Q==">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="AddReRunModal" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="createdocclose">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/Re-Run.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -32px 0 0 0;">
+                <h4>
+                    Re-run in process
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862;">
+                            Case status set for rerun. Please wait for process to complete.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="display: flex; justify-content: end;">
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-dismiss="modal" id="idCaseRerunOk">
+                            Ok
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="removeUserModalConf" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/delete-notice.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4>
+                    Remove User
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862;">Are you sure you want to remove user</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-toggle="modal" id="removeUserPopup">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalSetAlertConfirmation" class="modal fade in" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false" style="display: none;">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-10px 0px 0 -12px">
+                </h4>
+
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -32px 0 0 0;">
+                <h4>Set Alert Request</h4>
+            </div>
+            <div class="modal-body" style="margin:-15px 0 0 0;">
+                <form role="form" id="editfile">
+                    <div class="form-group">
+                        <p style="margin:0;">Alert Saved Successfully.</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer footer_buttons" style="margin-top:0; border-top:none !important;">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" data-dismiss="modal">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="removeNoteModalConf" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/delete-notice.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4>
+                    Remove Note
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862;">Are you sure you want to remove note</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-toggle="modal" id="removeNotePopup">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

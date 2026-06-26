@@ -1,0 +1,790 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+
+    .glyphicon-pencil, .glyphicon-trash, .fa-download {
+        color: black !important;
+    }
+
+    a.morelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span {
+        display: none;
+    }
+
+    .modal-content .form-group {
+        margin: 4px 0 0 0;
+    }
+
+    .modal-header {
+        border-bottom: none !important;
+    }
+
+    .action-ul {
+        list-style-type: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .modal-content p {
+        color: #535862;
+        font-size: 14px;
+        font-family: Inter;
+        font-weight: 400;
+        line-height: 20px;
+        margin: 0;
+        padding: 0;
+        margin-top: 6px;
+    }
+
+
+    .content1 {
+        align-self: stretch;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 20px 14px 20px;
+        gap: 10px;
+    }
+
+    .dropdown-menu{
+        position: absolute;
+        top: 72%;
+        left: 73% 1397.94px;
+        z-index: 1000;
+        display: none;
+        float: left;
+        min-width: 160px;
+        padding: 5px 0;
+        /* margin: 2px 0 0; */
+        font-size: 14px;
+        list-style: none;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 4px;
+        -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+        background-clip: padding-box;
+    }
+
+    .open > .dropdown-menu {
+        display: block;
+        margin-left: 25px;
+        margin-top: -79px;
+    }
+
+</style>
+<script>
+    var totpagesize=@ViewBag.pagesize;
+    var roleid= "@Session["sessionroleid"]";
+    var isDelete = "@ViewBag.IsDelete";
+    var IsCreate = "@ViewBag.IsCreate";
+    var IsEdit = "@ViewBag.IsEdit";
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<script src="~/Scripts/Firm/Pages/ViewTimer.js?3.1" type="text/javascript"></script>
+
+<section class="wrapper">
+    <div class="container-main">
+        <div class="">
+            <section id="header">
+                <div class="container-main" style="display:flex; justify-content:space-between;">
+                    <div class="text-left">
+                        <p class="ctitle"> Time Entry List </p>
+                    </div>
+                    <div>
+                        <a href="#" id="CreateTimeEntrybtn" title="Add Time Entry" class="button4" style="border: 0" ;><span><img src="/newassets/img/plus-icon.png"></span>Create Time Entry</a>
+                    </div>
+                </div>
+            </section>
+            <div class="expense_total_card_wrapper">
+                <div class="card" id="sumdiv">
+                    <h6>Total Hours Logged </h6>
+                    <span id="totalloggedHrs">0</span>
+                </div>
+
+                <div class="card" id="sumdiv">
+                    <h6>Total Billable Hours </h6>
+                    <span id="totalBillHrs">0</span>
+                </div>
+
+                <div class="card" id="sumdiv">
+                    <h6>Total Non-Billable Hours </h6>
+                    <span id="totalNonbillHrs">0</span>
+                </div>
+            </div>
+
+            <section id="table">
+                <div class="container-main">
+                    <div class="table">
+                        <div class="card-header">
+                            <div class="content1">
+                                <div class="text-and-supporting-text1">
+
+                                    <h5>List of Time Entry</h5>
+                                    
+                                </div>
+                                <div>
+                                    <div class="menuexport" style="position:relative; cursor:pointer;">
+                                        <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                            <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                                        </div>
+                                        <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                            <li><a href="javascript:void();" id="excel" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</a>
+                                            <li>
+                                            <li><a href="javascript:void();" title="expensepdf" id="pdf"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</a>
+                                            <li>
+                                        </ul>
+                                    </div>
+                                </div>
+                               
+                                <div class="table-header">
+                                   
+                                            <div class="button13 " data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">          
+                                                   
+                                               <a href="javascript:void()" id="ChangeMultipletimeentry" title="change status"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/change_circle.svg"></span>Change Status</a>
+                                            </div>
+
+                                        </div>
+                                        <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                                            <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                                            <div class="text-padding">
+                                                <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                            </div>
+                                        </div>
+
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tablearea">
+                            <div class="tablecontainer">
+                                <div id="page-wrapper" style="width:100%;">
+                                    <div class="container-fluid showcontent" id="showcontent">
+                                        <!-- /.panel-heading -->
+                                    </div>
+                                    <div id="updatePanel" class="table-panel table-responsive" style="margin-top:5px; overflow:auto;min-height:62px;">
+                                    </div>
+
+                                    @*<div><center>
+                                         <div class="notfound" id="datastatus" style="display:none;">
+                                            <img src="~/newassets/img/not-found.png" />
+                                              <p>No data found.</p>
+                                            </div>
+                                        </center></div>*@
+                                    <div style="float:left;width:43%;margin-bottom:5px;">
+                                        &nbsp;
+                                    </div>
+
+                                    <div class="pagination" id="tradePagination">
+                                        <div class="pagination-button-group">
+                                            <div id="prev" class="pagination-button-group-base">
+                                                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                            </div>
+                                            <div id="pageNumbers" class="pagination-button-group-base1">
+                                            </div>
+                                            <div id="next" class="pagination-button-group-base8">
+                                                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-parent">
+                                            <div class="page-btn">Result <span id="idtimeentrycount" style="font-weight: bold;"></span></div>
+                                            <div class="input">
+                                                <div class="content">
+                                                    <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                                </div>
+                                                <div class="help-icon">
+                                                </div>
+                                            </div>
+                                            <div class="text-and-supporting-text-group">
+                                                <div class="text-and-supporting-text">
+                                                    <div id="divGo" class="text9">Go</div>
+                                                </div>
+                                                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @*<div class="table-panel" style="clear:both">
+                                    <div class="row settingpanel">
+                                        <div class="col-md-6">
+                                            <div style="float: left;padding: 0 10px 0 0;">
+                                                <ul>
+                                                    <li>
+                                                        <div class="btn-group dropup">
+                                                            <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <span class="glyphicon glyphicon-cog" style="font-size:14px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                                                customize field
+                                                            </a>
+                                                            <ul class="dropdown-menu settingshowhide" id="od">
+                                                                <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="matter" checked>Matter Name</a></li>
+                                                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="client" checked>Client</a></li>
+                                                                <li title="Entry Date"><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="date" checked>date of task</a></li>
+                                                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="date_time">Date</a></li>
+                                                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="duration" checked>Duration</a></li>
+                                                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="createdby">User</a></li>
+                                                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="item" checked>Task Type</a></li>
+                                                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="tdetails" checked>Notes</a></li>
+                                                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="shcheckbox1" name="timertype" checked>Time Entry Type</a></li>
+                                                                <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="documents" name="documents">Attachments</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div id="tfooter">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="pull-right">
+                                                <li><span>|</span></li>
+                                                <li>
+                                                    <div class="btn-group dropup" style="left: -42px;">
+                                                        <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            Action Selected
+                                                        </a>
+                                                        <ul class="dropdown-menu settingaction">
+                                                            @if (role.ToString() == "1")
+                                                            {
+                                                                <li>
+                                                                    <a href="javascript:void()" id="excel" title="Export to Excel"> Export to Excel</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="javascript:void()" id="pdf" title="Export data to PDF">
+                                                                        Export to PDF
+                                                                    </a>
+                                                                </li>
+                                                                <li><a href="javascript:void()" id="ChangeMultipletimeentry" title="change status"> change status</a></li>
+                                                            }
+                                                            else
+                                                            {
+                                                                if (Convert.ToInt32(ViewBag.TimeEntrySpecial) == 1)
+                                                                {
+                                                                    <li>
+                                                                        <a href="javascript:void()" id="excel" title="Export to Excel"> Export to Excel</a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a href="javascript:void()" id="pdf" title="Export data to PDF">Export to PDF</a>
+                                                                    </li>
+                                                                    <li><a href="javascript:void()" id="ChangeMultipletimeentry" title="change status"> change status</a></li>
+                                                                }
+                                                                else if (Convert.ToInt32(ViewBag.export) == 1)
+                                                                {
+                                                                    <li>
+                                                                        <a href="javascript:void()" id="excel" title="Export to Excel"> Export to Excel</a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a href="javascript:void()" id="pdf" title="Export data to PDF">Export to PDF</a>
+                                                                    </li>
+                                                                }
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>*@
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+
+@* customise modal start *@
+
+<div id="myModalCustomizedcolumn" class="modal right fade myModal in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <ul style="margin-top:20px;">
+                            <li><input type="checkbox" class="shcheckbox1" name="matter" checked> Matter Name</li>
+                            <li><input type="checkbox" class="shcheckbox1" name="client" checked> Client</li>
+                            <li title="Entry Date"><input type="checkbox" class="shcheckbox1" name="date" checked> Date of Task</li>
+                            <li><input type="checkbox" class="shcheckbox1" name="date_time"> Date</li>
+                            <li><input type="checkbox" class="shcheckbox1" name="duration" checked> Duration</li>
+                            <li><input type="checkbox" class="shcheckbox1" name="createdby"> User</li>
+                            <li><input type="checkbox" class="shcheckbox1" name="item" checked> Task Type</li>
+                            <li><input type="checkbox" class="shcheckbox1" name="tdetails" checked> Notes</li>
+                            <li><input type="checkbox" class="shcheckbox1" name="timertype" checked> Time Entry Type</li>
+                            <li><input type="checkbox" class="documents" name="documents"> Attachments</li>
+                        </ul>
+
+
+                    </div>
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                    <button class="btn btn-secondary" id="ClearCustomSelection">Clear</button>
+                    <button class="btn btn-primary" id="SaveCustomSelection">Confirm</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+@* customise modal end *@
+
+
+<div id="myModal5" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels5" id="mymodels5">
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<div id="myModalwipchange" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:450px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="~/newassets/img/checkin-icon.png" style="margin:-10px 0px 0 -14px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -15px 0 0 0; border-bottom: none;">
+                <h4 id="ids_archivematterrequesr" style="font-size:18px; line-height:16px; ">Change Entry Type</h4>
+            </div>
+                <form id="timeentrytypefrm" enctype="multipart/form-data">
+                    <input type="hidden" value="" id="selecttimerids" />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group form-horizontal ec_bg">
+                                        <div class="col-md-12"style="margin-left: -30px;">
+                                            <label class="formLabel colorDark col-md-12"> Entry type <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                        </div>
+                                        <div class="col-md-12" style="margin-bottom: 25px;margin-left: -16px;width: 445px;">
+                                            <select class="form-control selctInputFormat" id="timeentrytypeformodel" required>
+                                                <option value="" selected=""> Select Type</option>
+                                            </select>
+                                        </div>
+                                        <div class="modal-footer" style="border:none !important;">
+                                            <div class="row">
+                                                <div class="col-md-6"><button class="btn btn-secondary" data-dismiss="modal" style="width:100%;">Cancel</button></div>
+                                                <div class="col-md-6">
+                                                    <button type="submit" class="btn btn-primary" id="btnsavestatus" style="width:100%;">Confirm</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+        </div>
+    </div>
+</div>
+
+
+<div id="myModalAddTimeEntry" class="modal right fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="~/newassets/img/t-entry-icon.png" /> Add Time Entry</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form id="savecallform" enctype="multipart/form-data" autocomplete="new-text">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label>Client</label>
+                            <input type="hidden" id="timecontactvalue">
+                            <input type="hidden" id="timecontactcomapnyvalue">
+                            <input type="hidden" id="expenseclienthide">
+                            <input type="hidden" id="expensecomapnyclienthide">
+                            <input type="text" id="timecontact" name="timecontact" class="form-control fp_input " autocomplete="new-text" />
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>Type</label>
+                            <select class="form-control selctInputFormat" id="Timeentrytype"></select>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>Matter Name </label>
+                            <table cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td>
+                                        <select class="form-control selctInputFormat" id="timematter" required>
+                                            <option value="" selected="">Select</option>
+                                        </select>
+                                    </td>
+                                    <td style="display:none;" id="casemoreoptiondiv4">
+                                        <div style="cursor:pointer; padding:9px;" id="casemoreoption4" class="selctInputFormat" title="View more matters"><img src="~/newassets/img/plus-icon-black.png" /></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Task <span aria-required="true"><b>*</b> </span></label>
+                            <select class="form-control selctInputFormat" id="item" required>
+                                <option value="" selected="selected">Select </option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Date <span aria-required="true"><b>*</b> </span></label>
+                            <input class="form-control inputFormat fp_input" onkeydown="return false" name="dt" type="date" placeholder="Date" id="dt" required="">
+                        </div>
+                        <div class="col-md-12">
+                            <label>Timer</label>
+                            <div style="border: 1px solid #d5d7da; border-radius: 7px; padding: 3px 0;">
+                                <table cellpadding="0" cellspacing="0" align="center" width="210px">
+                                    <tr>
+                                        <td align="left">
+                                            <span class="timerhidden">
+                                                <p id="taskstarttimer1" type="button" class=" taskstarttimer" title="Start Timer" style="cursor: pointer; display: block;width: 40px;height: 40px; border-radius: 50%;border: 2px solid ">
+                                                    <i class="fa fa-play timer-icon" style="padding: 8px 0 0 12px; font-size: 20px;"></i>
+                                                </p>
+                                            </span>
+                                            <span class="timerhidden">
+                                                <p id="taskstoptimer1" type="button" class=" taskstarttimer" style="cursor: pointer; display: none;width: 40px;height: 40px; border-radius: 50%;border: 2px solid "><span class="glyphicon glyphicon-pause" style="padding: 6px 0 0 8px;font-size:20px;"></span></p>
+                                            </span>
+                                            <span class="timerhidden" style="display:none">
+                                                <p class="dropdown-toggle"> <i class="glyphicon glyphicon-time" style="cursor:default !important;"></i> <span id="secondtimer" style="cursor:default;">0h:0m:0s</span></p>
+                                            </span>
+                                        </td>
+                                        <td></td>
+                                        <td align="left">
+                                            <input title="Time can be edited" class="form-control inputFormat valid fp_input" name="duration" type="text" required="" id="duration2" autocomplete="new-text" placeholder="Format: 1h 10m 1s" value="0h:0m:0s" aria-invalid="false"
+                                                   style="border: none; font-weight: 700; color: #000; font-size: 17px; box-shadow:none;">
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label>Note</label>
+                            <textarea cols="25" class="form-control fp_txtbox" id="details" style="height:45px !important;" maxlength="2000" autocomplete="new-text" placeholder="Max 2000 characters allowed"></textarea>
+                        </div>
+                        <div class="form-group col-md-12" style="margin:8px 0;">
+                            <div class="form-control selctInputFormat dropup">
+                                <span style="cursor:pointer;padding:0 20px 0 0" id="timeattachtitle" title="Upload attachment" class="dropdown-toggle s_btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <img src="~/newassets/img/uploaddocument-icon.png" /> Attachments
+                                </span>
+                                <ul class="dropdown-menu " style="width:310px; top: auto;bottom: 100%;margin-bottom: 1px; padding:5px;" id="uploadTimerDiv">
+                                    <li>
+                                        <div class="dragUpload">
+                                            <div class="upload-icon"> <img src="/newassets/img/upload-cloud.svg"> </div>
+                                            <p class="upload-text">Choose a file</p>
+                                            <p class="upload-subtext">@*SVG, PNG, JPG or GIF (max. 800x400px)*@</p>
+                                            <div class="upload-buttons" style="padding-top:7px;">
+                                                <label for="postedfile" class="upload-btn">Local Drive</label>
+                                                <label title="No file chosen" class="upload-btn browsetaskfile browsetaskfile1" id="browsefileTimeEntry" module="TimeEntry">
+                                                    MyKase Drive
+                                                </label>
+                                                <input type="file" id="postedfile" name="fileupload" multiple class="form-control selctInputFormat" style="display:none; " />
+                                            </div>
+                                            <!-- From Uiverse.io by escannord -->
+
+
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div id="fileListTimer" style="margin-top:10px;"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 text-right">
+                            <button type="button" id="savetimeentry" class="btn btn-primary">Save</button>
+                        </div>
+                           
+                        </div>
+</form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="convertbilled" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="createdocclose">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/receipt-check.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                <h4>
+                    Convert To Billed
+                </h4>
+            </div>
+            <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p style="font-size: 14px; font-weight: 400; color: #535862;">Are you sure you want to convert time entries to billed?</p>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-toggle="modal" id="deletesingle_final">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="successfullyconverted" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="createdocclose">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/receipt-check.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                <h4>
+                    Converted To Billed
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862; margin: 0 0 35px 0;">Time entries has been "successfully converted to billed".</p>
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+    </div>
+</div>
+<div id="deletetimeentry" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="createdocclose">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/cancel-icon.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -7px 0 0 0;">
+                <h4>
+                    Delete Time Entry
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862;">Are you sure to delete matter time entry?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-toggle="modal" id="deletesingle_finaltime">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="deletetimeentryForMatter" class="modal fade" role="dialog">
+    <div class="modal-dialog " style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="createdocclose">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/cancel-icon.png" style="margin: -10px 0px 0 -12px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -7px 0 0 0;">
+                <h4>
+                    Delete Time Entry
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="font-size: 14px; font-weight: 400; color: #535862;">Are you sure to delete matter time entry?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" style="width:100%;" data-toggle="modal" id="deletesingle_finaltimeMatter">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("example");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+        $("#ColumnSelectionopen").click(function () {
+            $("#myModalCustomizedcolumn").modal('show'); // Opens the modal
+        });
+
+        $(document).click(function (event) {
+            if ($(event.target).is(".myModal")) {
+                $("#myModalCustomizedcolumn").modal('hide'); // Closes the modal
+            }
+        });
+    });
+</script>

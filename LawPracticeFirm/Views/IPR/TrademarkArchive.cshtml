@@ -1,0 +1,566 @@
+﻿
+
+@{
+    /**/
+
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+
+
+@*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">*@
+
+
+@*<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>*@
+
+
+
+@*<script src="~/CssJsfiles/js/jquery-1.12.4.js"></script>
+<script src="~/CssJsfiles/js/jquery-ui.js"></script>*@
+
+@*<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />*@
+<link href="~/Manupanel/css/IPRSearchStyle.css" rel="stylesheet" />
+
+@*<link href="~/Manupanel/css/IPRSearchStyle.css" rel="stylesheet" />*@
+
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/IPR/TrademarkArchive.js?2.2" type="text/javascript" language="javascript"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<style>
+    #opentrademarkdetails {
+        cursor: pointer;
+    }
+    .btnManual {
+        padding: 10px;
+        display: flex;
+        gap: 5px;
+        border: 2px solid gray;
+        border-radius: 7px;
+        margin-right: 5px;
+        text-decoration: none;
+        color: gray;
+    }
+</style>
+
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"><h2 id="dynamicnotiheader"></h2></p> <input type="text" id="searchdata" style="display:none">
+        </div>
+        <div class="tabs-and-filters">
+            <div class="button-group">
+                <a href="#" title="Tracker List" id="trackertab" class="button-group-base">Tracker <span id="trademarkcount"></span></a>
+                <a href="#" class="button-group-base1" title="My List" id="mylisttab">My List <span id="MyListCount"></span></a>
+                <a href="#" title="Search Result" class="button-group-base2 active" id="searchtab">Search History <span id="SearchCount"></span></a>
+                @if (ViewBag.RoleId == "1")
+                {
+                    <a href="#" title="Delete" class="button-group-base2" id="deletemattertab">Delete Request<span id="DeleteTradeCount"></span></a>
+                    <a href="#" title="alert history" class="button-group-base2" style="@Session["IPRJournalAlertSub"]" id="jAlertHistorytab">Journal Alert History <span id="JournalAlertCount"></span></a>
+                }
+                else
+                {
+                    <a href="#" title="Shared Trademark" class="button-group-base2" style="display:none" id="SharedTradetab">Shared <span id="SharedTradeCount"></span></a>
+                }
+                @*<span id="spPhoneticSearch" style="display:none"><a href="#" title="Phonetic Search" class="button-group-base2" id="searchPhonetictab">Phonetic Search<span id="PhoSearchCount"></span></a></span>*@
+            </div>
+            <div style="display:inline-flex">
+                <a href="#" title="Add new Manually" id="AddmanuallyTrade" class="btnManual"><span><img class="plus-icon" alt="" src="/newassets/img/Icon.svg"></span>Add Manually</a>
+                <a href="#" title="Add new Matter" id="AddTradeAfterSearch" class="button4"><span><img src="~/newassets/img/plus-icon.png" /></span><span id="btnNameDetail"></span></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="wrapper" style="margin:unset !important">
+    <input type="hidden" value="0" id="hdnsort" />
+    <input type="hidden" value="0" id="hdncounter" />
+    <input type="hidden" value="@ViewBag.UserName" id="username" />
+    <input type="hidden" value="@ViewBag.UserFullName" id="userfname" />
+
+    <div class="container-main">
+
+        @*<h2 class="title" id="dynamicnotiheader"></h2>*@
+        <div id="page-wrapper">
+            <div class="showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header" style="padding:5px;">
+                        <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp"></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Main content -->
+            <form class="ec_bg" enctype="multipart/form-data" autocomplete="off" id="iprform" hidden>
+                <!-- Start About boxes -->
+                <input type="hidden" value="" id="hiddenid" />
+
+            </form>
+
+            <div class="table-panel table-responsive" id="showlist">
+                <div style="overflow-x:auto; border-radius:15px;">
+                    <table class="table-panel fixed_table_head" style="border-radius:15px;">
+                        <thead>
+                            <tr>
+                                <th style="display:none;">
+                                    <div class="thbg">
+                                        S.NO
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg">
+                                        Keyword
+                                        <button type="button" id="sortapplno" class="btn-style" value="vApplNo" onclick="fnSort('0',$(this).val());" hidden />
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg">
+                                        Searched On
+                                        <button type="button" id="sortpropname" class="btn-style" value="vProprietor" onclick="fnSort('0',$(this).val());" />
+                                    </div>
+                                </th>
+                                <th style="width: 245px;" hidden>
+                                    <div class="thbg">
+                                        Username
+                                        <button type="button" id="sortstatus" class="btn-style" value="vStatus" onclick="fnSort('0',$(this).val());" />
+                                    </div>
+                                </th>
+                                <th><div class="thbg">User Name</div></th>
+                                <th style="text-align:center;">
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="bindIPRSearchData"></tbody>
+                    </table>
+                    <center>
+                        <div class="notfound" id="pdatastatus" style="display:none;">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4><span id="dtNotFound"></span></h4>
+
+                        </div>
+                    </center>
+                </div>
+                <div class="pagination" id="tradePagination">
+                    <div class="pagination-button-group">
+                        <div id="prev" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbers" class="pagination-button-group-base1">
+                        </div>
+                        <div id="next" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGo" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+
+                @*<div class="table-panel">
+                        <div class="settingpanel">
+                            <div class="col-md-6">
+                                <div style="float: left;padding: 0 10px 0 0;">
+                                </div>
+                                <div id="ptfooter">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="pull-right">
+                                    <li>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>*@
+
+            </div>
+        </div>
+
+
+
+
+        <div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+            <div class="modal-dialog">
+                <input type="hidden" id="exportrecords">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        Export IPR List
+                    </h4>
+                </div>
+                <div class="modal-body  partynamebody " id="" style="height:505px; overflow-y:scroll;background:white;">
+                    <table class="table " style="font-size:12px;">
+                        <thead>
+
+                            <tr style="font-size: 12px;">
+                                <th><div class="thbg">Page No.</div></th>
+                                <th><div class="thbg">FileName</div></th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="printexport"></tbody>
+                        <tr></tr>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal View trade mark content-->
+    <div id="viewtrademarkdata" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog ">
+
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        trade mark information
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="col-md-12 table-panel table-responsive" style=" margin-top:5px;">
+
+                                <table class="table ">
+                                    <tbody id="bindTrademarkDetails"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: none !important">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+
+<script type="text/javascript">
+
+
+
+
+
+    $(function () {
+
+        //$("#searchuserdetetail").typeahead({
+
+        //    //   $("#searchuserdetetail").typeahead({
+
+        //    hint: true,
+        //    highlight: true,
+        //    minLength: 2,
+        //    source: function (request, response) {
+        //        var formData = new FormData();
+        //        formData.append("prefix", EncodeText(request));
+        //        //request = request.replace(/"/g, "").replace(/\\/g, "");
+        //        var prefix = request;
+        //        $.ajax({
+        //            async: true,
+        //            url: '/api/IPRApi/UsedSinceList',
+        //            //data: "{ 'prefix': '" + request + "'}",
+        //            data: formData,
+        //            dataType: "json",
+        //            type: "POST",
+        //            contentType: false,
+        //            processData: false,
+        //            // contentType: "application/json; charset=utf-8",
+        //            success: function (response1) {
+
+        //                var obj = JSON.parse(response1.Data.data);
+        //                items = [];
+        //                map = {};
+        //                $.each(obj.data, function (i, item) {
+        //                    var vUsedSince = item.vUsedSince;
+
+
+        //                    map[name] = { vUsedSince };
+        //                    items.push(vUsedSince);
+
+        //                });
+        //                response(items);
+
+        //                $(".dropdown-menu").css("height", "auto");
+        //                $(".typeahead li").removeClass("active");
+        //            },
+        //            error: function (response) {
+        //                //alert(response.responseText);
+        //            },
+        //            failure: function (response) {
+        //                //alert(response.responseText);
+        //            }
+        //        });
+        //    },
+        //    updater: function (item) {
+
+        //        return item;
+
+        //    }
+        //});
+    });
+    $(function () {
+
+        $("#txtProprietor").typeahead({
+
+
+
+            hint: true,
+            highlight: true,
+            minLength: 4,
+            source: function (request, response) {
+                var formData = new FormData();
+                formData.append("prefix1", EncodeText(request));
+                //request = request.replace(/"/g, "").replace(/\\/g, "");
+                var prefix = request;
+                $.ajax({
+                    async: true,
+                    url: '/api/IPRApi/ProprietorList',
+                    //data: "{ 'prefix': '" + request + "'}",
+                    data: formData,
+                    dataType: "json",
+                    type: "POST",
+                    contentType: false,
+                    processData: false,
+                    // contentType: "application/json; charset=utf-8",
+                    success: function (response1) {
+
+                        var obj = JSON.parse(response1.Data.data);
+                        items = [];
+                        map = {};
+                        $.each(obj.data, function (i, item) {
+                            var vproprietor = item.vproprietor;
+
+
+                            map[name] = { vproprietor };
+                            items.push(vproprietor);
+
+                        });
+                        response(items);
+
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        //alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        //alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+
+                return item;
+
+            }
+        });
+    });
+
+</script>
+<script type="text/javascript">
+
+
+
+    var exportfilter = false;
+
+    $("#oexcel").click(function () {
+
+        $("#myModalexport").modal({ show: true });
+
+        var totalRecord = $("#exportrecords").val();
+
+        var pagesize = 500;
+        var recordsection = totalRecord / pagesize;
+
+        recordsection = recordsection + 1;
+        var html = '';
+        for (var i = 1; i < recordsection; i++) {
+            html += '<tr>';
+
+
+            html += '<td>Page No:' + i + ' </td>';
+            html += '<td><span style="cursor:pointer;color:#069;" id="exporttoexcelfile" pageno="' + i + '" type="excel">Download File</span></td>';
+            html += '</tr>';
+
+        }
+        $("#printexport").html(html);
+    });
+
+    $("#opdf").click(function () {
+
+        $("#myModalexport").modal({ show: true });
+
+        var totalRecord = $("#exportrecords").val();
+        var pagesize = 500;
+        var recordsection = totalRecord / pagesize;
+        recordsection = recordsection + 1;
+        var html = '';
+        for (var i = 1; i < recordsection; i++) {
+            html += '<tr>';
+
+
+            html += '<td>Page No:' + i + ' </td>';
+            html += '<td><span style="cursor:pointer;color:#069;" id="exporttopdffile" pageno="' + i + '" type="pdf">Download File</span></td>';
+            html += '</tr>';
+
+        }
+        $("#printexport").html(html);
+    });
+
+
+    $(document).on("click", "#exporttoexcelfile", function () {
+
+
+        var chkArray3 = [];
+        var selected = $("#od input[type='checkbox']:checked");
+
+        selected.each(function () {
+            chkArray3.push($(this).val());
+        });
+        var selected3;
+        selected3 = chkArray3.join(',');
+        if (selected3.length > 0) {
+
+
+        }
+
+
+
+        var IPList = $("#IPList").val();
+        var filtertradmark = $("#filtertradmark").val();
+        var txtapplicationno = $("#txtapplicationno").val();
+        var searchclass = $("#searchclass").val();
+        var searchtype = $("#searchtype").val();
+        var searchstatus = $("#searchstatus").val();
+        var txtdateapplicationfrom = $("#txtdateapplicationfrom").val();
+        var txtdateapplicationto = $("#txtdateapplicationto").val();
+        var searchuserdetetail = $("#searchuserdetetail").val();
+        var txtProprietor = $("#txtProprietor").val();
+        var JurisdictionList = $("#JurisdictionList").val();
+        var usedsincefrom = $("#usedsincefrom").val();
+        var usedsinceto = $("#usedsinceto").val();
+
+
+        window.location = encodeURI("/IPR/ExportoExcelNewCases?IPList=" + IPList + "&filtertradmark=" + filtertradmark + "&txtapplicationno=" + txtapplicationno
+            + "&searchclass=" + searchclass + "&searchtype=" + searchtype + "&searchstatus=" + searchstatus + "&txtdateapplicationfrom=" + txtdateapplicationfrom
+            + "&searchuserdetetail=" + searchuserdetetail + "&txtProprietor=" + txtProprietor + "&JurisdictionList=" + JurisdictionList
+            + "&txtdateapplicationto=" + txtdateapplicationto + "&usedsincefrom=" + usedsincefrom + "&usedsinceto=" + usedsinceto + "&pagesize1=500");
+
+    })
+    $("#ExporttoExcelCFHistory").click(function () {
+
+
+        var chkArray3 = [];
+        var selected = $("#cfod input[type='checkbox']:checked");
+
+        selected.each(function () {
+            chkArray3.push($(this).val());
+        });
+        var selected3;
+        selected3 = chkArray3.join(',');
+        if (selected3.length > 0) {
+
+
+        }
+
+        var vdate = $('#cfversion').val();
+
+        if (vdate == "") {
+            alert("Please select custom field version.");
+            return false;
+        }
+
+        window.location = encodeURI("/firm/ExportoExcelCustomFieldMatter?status=true&vdate=" + vdate + "&type=" + type + "&exportcolumn=" + selected3);
+
+    })
+
+    //$(document).on("click", "#exporttopdffile", function () {
+
+    //    var esearchdata = $('#casefiltercasename').val();
+    //    var ecasefilterdate = $('#casefilterdate').val();
+    //    var ecasefilterdate = $('#casefilterdate').val();
+    //    var ecasefilterclient = $('#casefilterclient').val();
+    //    var ecasefiltercourt = $('#casefiltercourt').val();
+    //    var ecasefilterstatus = $('#casefilterstatus').val();
+    //    var eusers = $('#filtercaseusermatter').val();
+    //    var createdby = $('#casefilterCreatedBy').val();
+    //    var esearchdatanotes = $('#casefilternotes').val();
+    //    var ecasefiltercompanyname = $('#companynamefilter').val();
+    //    var ecasefiltermattertype = $('#MatterTypefilter').val();
+    //    var ecasefiltersubjecttype = $("#SubjectTypefilter").val();
+    //    var ecasefiltercourtname = $("#casefiltercourtname").val();
+    //    var ecasefilterdateto = $('#casefilterdateTo').val();
+    //    var ecasefFilingdate = $('#caseFilingdate').val();
+    //    var ecasefFilingdateto = $('#caseFilingdateTo').val();
+    //    var serhdisposeoptions = $('#casefilterdisposeoption').val();
+
+    //    var casefilterCaseDetails1 = $('#casefilterCaseDetails').val();
+    //    var casefiltermtrno1 = $('#casefiltermtrno').val();
+    //    var casefilterInternalno1 = $('#casefilterInternalno').val();
+    //    var casefiltercnrno1 = $('#casefiltercnrno').val();
+    //    var pagenum = $(this).attr("pageno");
+    //    var pagesizedata = 500;
+    //    window.location = encodeURI("/firm/ExportoPDFNewCases?pagenum=" + pagenum + "&pagesize=" + pagesizedata + "&esearchdata=" + esearchdata +
+    //        "&ecasefilterdate=" + ecasefilterdate + "&ecasefiltercourt=" + ecasefiltercourt + "&ecasefilterclient=" + ecasefilterclient +
+    //        "&ecasefilterstatus=" + ecasefilterstatus + "&eusers=" + eusers + "&createdby=" + createdby + "&esearchdatanotes=" + esearchdatanotes +
+    //        "&ecasefiltercompanyname=" + ecasefiltercompanyname + "&ecasefiltermattertype=" + ecasefiltermattertype +
+    //        "&ecasefiltersubjecttype=" + ecasefiltersubjecttype + "&ecasefiltercourtname=" + ecasefiltercourtname +
+    //        "&ecasefilterdateto=" + ecasefilterdateto + "&ecasefFilingdate=" + ecasefFilingdate +
+    //        "&ecasefFilingdateto=" + ecasefFilingdateto + "&searchcustomcolname=" + fieldnamecust + "&searchcustomcolvalue=" + fieldvaluecust +
+    //        "&searchdisposeoption=" + serhdisposeoptions, "&casefilterCaseDetails=" + casefilterCaseDetails1 + "&casefiltermtrno=" + casefiltermtrno1,
+    //        "&casefilterInternalno=" + casefilterInternalno1 + "&casefiltercnrno=" + casefiltercnrno1);
+    //})
+
+
+
+    $(document).on("click", "#exporttopdffile", function () {
+        var IPList = $("#IPList").val();
+        var filtertradmark = $("#filtertradmark").val();
+        var txtapplicationno = $("#txtapplicationno").val();
+        var searchclass = $("#searchclass").val();
+        var searchtype = $("#searchtype").val();
+        var searchstatus = $("#searchstatus").val();
+        var txtdateapplicationfrom = $("#txtdateapplicationfrom").val();
+        var txtdateapplicationto = $("#txtdateapplicationto").val();
+        var searchuserdetetail = $("#searchuserdetetail").val();
+        var txtProprietor = $("#txtProprietor").val();
+        var JurisdictionList = $("#JurisdictionList").val();
+        var usedsincefrom = $("#usedsincefrom").val();
+        var usedsinceto = $("#usedsinceto").val();
+
+        window.location = encodeURI("/IPR/ExporttoPDFNewCases?IPList=" + IPList + "&filtertradmark=" + filtertradmark + "&txtapplicationno=" + txtapplicationno
+            + "&searchclass=" + searchclass + "&searchtype=" + searchtype + "&searchstatus=" + searchstatus + "&txtdateapplicationfrom=" + txtdateapplicationfrom
+            + "&searchuserdetetail=" + searchuserdetetail + "&txtProprietor=" + txtProprietor + "&JurisdictionList=" + JurisdictionList
+            + "&txtdateapplicationto=" + txtdateapplicationto + "&usedsincefrom=" + usedsincefrom + "&usedsinceto=" + usedsinceto + "&pagesize1=500");
+    })
+
+</script>

@@ -1,0 +1,781 @@
+﻿@{
+    ViewBag.Title = "CreateUser";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+@*<style>
+        input {
+            cursor: text !important;
+            background-color: #fff !important;
+        }
+
+        .addc:nth-last-child(odd) {
+            color: green;
+        }
+
+        .addc:nth-last-child(even) {
+            color: green;
+        }
+    </style>*@
+<!--Prem style start-->
+<style>
+    
+
+    .section-header {
+        padding: 14px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+        background: #F9FAFB;
+        border-bottom: 1px solid #e9eaeb;
+    }
+
+    .section-content {
+        padding: 20px;
+        display: none;
+    }
+
+
+
+    .toggle-icon {
+        font-size: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .rotate {
+        transform: rotate(180deg);
+    }
+    .form-check {
+        border-radius: 8px;
+        background-color: #fff;
+        border: 1px solid #d5d7da;
+        padding: 5px 10px;
+        color: #4b5563;
+        cursor: pointer;
+    }
+
+
+</style>
+<!--End prem style-->
+
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+    var type = '@ViewBag.type'
+    var filesize =@ViewBag.filesize;
+    var stfUser =@ViewBag.stfUser;
+    var stfUserRole = @ViewBag.stfUserRole;
+    var hierarchyCustomtype = '@ViewBag.HierarchyCustomtype';
+    var hierarchyUserLevel = @(ViewBag.UserLevel ?? 0);
+    var loggedInUserId = '@ViewBag.LoggedInUserId';
+</script>
+<script src="~/Scripts/Firm/Pages/CreateUser.js?2.10"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<script>
+    $(document).ready(function () {
+        if (stfUser > 0) {
+            $("#StfHide").hide();
+            $("#stfFirmFiled").hide();
+        } else {
+            $("#StfHide").show();
+            $("#stfFirmFiled").show();
+
+        }
+
+        var $select = $("#firmexperience");
+        $select.append($('<option ></option>').val("").html("Select"));
+        for (i = 1; i <= 25; i++) {
+            $select.append($('<option></option>').val(i).html(i))
+        }
+        try {
+            var ddlCountry = $('#cocountry');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    $.each(d.Data, function (i, country) {
+                        ddlCountry.append($("<option selected></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //auto state
+        try {
+            var CountryId = "India";
+            var ddlState = $('#costate');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#cocity');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //State details by country id
+        $("#cocountry").change(function () {
+            var CountryId = $(this).val();
+            if (CountryId != "India") {
+                $("#ostate").css("display", "unset");
+                $("#ocity").css("display", "unset");
+                $("#lstate").css("display", "none");
+                $("#lcity").css("display", "none");
+                return false;
+            }
+            else {
+                $("#ostate").css("display", "none");
+                $("#ocity").css("display", "none");
+                $("#lstate").css("display", "unset");
+                $("#lcity").css("display", "unset");
+            }
+            var ddlState = $('#costate');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#cocity');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select City'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#costate").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#cocity');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const firstHeader = document.querySelector('.section-header');
+            if (firstHeader) {
+                toggleSection(firstHeader);
+            }
+        });
+
+
+    });
+    function toggleSection(header) {
+        const allSections = document.querySelectorAll('.section-content');
+        const allIcons = document.querySelectorAll('.toggle-icon');
+
+        const content = header.nextElementSibling;
+        const icon = header.querySelector('.toggle-icon');
+
+        allSections.forEach(sec => {
+            if (sec !== content) sec.style.display = 'none';
+        });
+
+        allIcons.forEach(ic => {
+            if (ic !== icon) ic.classList.remove('rotate');
+        });
+
+        const isOpen = content.style.display === 'block';
+        content.style.display = isOpen ? 'none' : 'block';
+        icon.classList.toggle('rotate', !isOpen);
+    }
+</script>
+<form id="saveuser" enctype="multipart/form-data" autocomplete="off">
+    <section id="header">
+
+        <div class="container-main" style="display:flex; justify-content:space-between;">
+            <div class="text-left">
+                <a class="goback" id="goBack" href="/@Session["firmcode"]/firm/StandardUserList"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+                <p class="ctitle"> Add New User</p>
+            </div>
+            <button type="submit" id="addcontact" class="btn btn-primary" value="Save">Save User Details</button>
+        </div>
+    </section>
+    <section id="table">
+        <div class="container-main">
+            <div class="table" style="margin:0;">
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        Basic Information
+                        <span class="toggle-icon"><img src="/newassets/img/arrow.png" /></span>
+                    </div>
+                    <div class="section-content">
+                        @* Hierarchy Feature: Level-based user creation with proper parent chain *@
+                        @if (ViewBag.HierarchyCustomtype != null && ViewBag.HierarchyCustomtype.ToString() == "HierarchyCustomtype")
+                        {
+                            int creatorLevel = ViewBag.UserLevel != null ? Convert.ToInt32(ViewBag.UserLevel) : 1;
+                            if (creatorLevel < 1 || creatorLevel > 6) { creatorLevel = 1; }
+                            string[] lvlNames = { "", "CP", "Zonal", "Range", "District", "Sub-District", "Police Station" };
+                            // Static level options based on creator's level
+                            var allowedLevels = new List<SelectListItem>();
+                            if (creatorLevel == 1) { allowedLevels.Add(new SelectListItem { Value = "2", Text = "Level 2 - Zonal" }); allowedLevels.Add(new SelectListItem { Value = "3", Text = "Level 3 - Range" }); allowedLevels.Add(new SelectListItem { Value = "4", Text = "Level 4 - District" }); allowedLevels.Add(new SelectListItem { Value = "5", Text = "Level 5 - Sub-District" }); allowedLevels.Add(new SelectListItem { Value = "6", Text = "Level 6 - Police Station" }); }
+                            else if (creatorLevel == 2) { allowedLevels.Add(new SelectListItem { Value = "3", Text = "Level 3 - Range" }); allowedLevels.Add(new SelectListItem { Value = "4", Text = "Level 4 - District" }); }
+                            else if (creatorLevel == 3) { allowedLevels.Add(new SelectListItem { Value = "4", Text = "Level 4 - District" }); allowedLevels.Add(new SelectListItem { Value = "5", Text = "Level 5 - Sub-District" }); allowedLevels.Add(new SelectListItem { Value = "6", Text = "Level 6 - Police Station" }); }
+                            else if (creatorLevel == 4) { allowedLevels.Add(new SelectListItem { Value = "5", Text = "Level 5 - Sub-District" }); allowedLevels.Add(new SelectListItem { Value = "6", Text = "Level 6 - Police Station" }); }
+                            else if (creatorLevel == 5) { allowedLevels.Add(new SelectListItem { Value = "6", Text = "Level 6 - Police Station" }); }
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label>Your Level</label>
+                                    <input type="text" class="form-control" value="Level @creatorLevel - @lvlNames[creatorLevel]" readonly />
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>New User Level <span class="required" aria-required="true"><b> *</b></span></label>
+                                    <select id="hierarchyNewUserLevel" class="form-control selctInputFormat">
+                                        <option value="">Select Level</option>
+                                        @foreach (var opt in allowedLevels)
+                                        {
+                                            <option value="@opt.Value">@opt.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-4" id="reportsToGroup">
+                                    <label>Reports To <span class="required" aria-required="true"><b> *</b></span></label>
+                                    <select id="hierarchyParentUser" name="hierarchyParentUser" class="form-control selctInputFormat">
+                                        <option value="">-- First select New User Level --</option>
+                                    </select>
+                                    <small id="hierarchyParentHint" style="color:#888;"></small>
+                                </div>
+                            </div>
+                            <div id="hierarchyCascadeContainer"></div>
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label>Employee Code</label>
+                                    <input type="text" id="empcode" name="empcode" maxlength="25" class="form-control inputFormat" placeholder="Enter Employee Code" autocomplete="off">
+                                </div>
+                            </div>
+                            <input type="hidden" id="hdnCreatorLevel" value="@creatorLevel" />
+                            <input type="hidden" id="hdnNewUserLevel" value="" />
+                            <input type="hidden" name="partner" value="0" />
+                        }
+                        else
+                        {
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label>User Type <span class="required " aria-required="true"><b> *</b> </span></label>
+                                @if (ViewBag.stfUserRole == 2)
+                                {
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="47%">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="partner" value="0" id="userType1"
+                                                           @(ViewBag.stfUser > 0 ? "checked" : "")>
+                                                    <label class="form-check-label" for="userType1">
+                                                        @(ViewBag.stfUser > 0 ? "Tertiary User" : "User")
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                }
+                                else
+                                {
+                                    <table width="100%">
+                                        <tr>
+                                            <td width="47%">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="partner" value="1" id="userType2"
+                                                           @(ViewBag.stfUser > 0 ? "checked" : "")>
+                                                    <label class="form-check-label" for="userType2">
+                                                        @(ViewBag.stfUser > 0 ? "Secondary User" : "Partner")
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td width="6%"></td>
+                                            <td width="47%">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="partner" value="0" id="userType3">
+                                                    <label class="form-check-label" for="userType3">
+                                                        @(ViewBag.stfUser > 0 ? "Tertiary User" : "User")
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                }
+                            </div>
+                            <div class="form-group col-md-4" id="partnerdiv">
+                                <label>Select Partner</label>
+                                <select id="rpartner" class="form-control selctInputFormat">
+                                    <option value="" selected>Select @(ViewBag.stfUser > 0 ? "Secondary User" : "Partner")</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label>Employee Code</label>
+                                <input type="text" id="empcode" name="empcode" maxlength="25" class="form-control inputFormat" placeholder="Enter Employee Code" autocomplete="off">
+                            </div>
+                        </div>
+                        }
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>First Name <span class="required " aria-required="true"><b> *</b> </span></label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="ufname" id="ufname" required="" autocomplete="new-text" placeholder="Enter your first name" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Middle Name</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="umname" id="umname" autocomplete="new-text" placeholder="Enter your middle name" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Last Name <span class="required " aria-required="true"><b> *</b> </span></label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="ulname" id="ulname" autocomplete="new-text" required placeholder="Enter your last name" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>Mobile Number <span class="required " aria-required="true"><b> *</b> </span></label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" maxlength="10" minlength="10" name="umobile" id="umobile" autocomplete="new-text" required="" placeholder="Enter mobile number">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Email Id <span class="required " aria-required="true"><b> *</b> </span> </span></label>
+                                <input autofocus="" class="form-control inputFormat" type="email" value="" name="uemail" id="uemail" required autocomplete="new-text" placeholder="Enter email id" />
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="table">
+        <div class="container-main">
+            <div class="table" style="margin:0;">
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        Contact Details
+                        <span class="toggle-icon"><img src="/newassets/img/arrow.png" /></span>
+                    </div>
+                    <div class="section-content">
+
+                        <div class="row">
+
+                            <div class="form-group col-md-4">
+                                <label>Landline Number</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" maxlength="16" onkeypress="return restrictAlphabetsfax(event)" value="" name="ulandline" id="ulandline" autocomplete="new-text" placeholder="Enter Number" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Extension</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="uextenion" maxlength="10" id="uextention" autocomplete="new-text" placeholder="Enter Extension" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                    <label>Country </label>
+                                    <select class="form-control selctInputFormat" name="cocountry" id="cocountry"></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-8">
+                                <label>Address</label>
+                                    <input autofocus="" class="form-control inputFormat" type="text" value="" name="uaddress" id="uaddress" autocomplete="new-text" placeholder="Enter User Address" />
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                    <label>State </label>
+                                    <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="costate" id="costate">
+                                        <option value="">Select</option>
+                                    </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                    <label>Çity</label>
+                                    <select class="form-control selctInputFormat" name="cocity" id="cocity">
+                                        <option></option>
+                                    </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>Pin</label>
+                                    <input autofocus="" class="form-control inputFormat" type="text" value="" maxlength="6" name="upin" id="upin" autocomplete="new-text" placeholder="Enter Pin">
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="table">
+        <div class="container-main">
+            <div class="table" style="margin:0;">
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        Professional Information
+                        <span class="toggle-icon"><img src="/newassets/img/arrow.png" /></span>
+                    </div>
+                    <div class="section-content">
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>Designation</label>
+                                <select id="designation" class="form-control selctInputFormat" autocomplete="new-text">
+                                    <option value="" selected="">Select Designation</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Branch</label>
+                                <select id="branch" class="form-control selctInputFormat">
+                                    <option value="" selected="">Select Branch</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Department</label>
+                                <select id="department" class="form-control selctInputFormat" style="background-color: white !important;">
+                                    <option value="" selected="">Select Department</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row" id="StfHide">
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>Reporting Manager</label>
+                                <select id="rmanager" class="form-control selctInputFormat">
+                                    <option value="" selected="">Select Manager</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="table">
+        <div class="container-main">
+            <div class="table" style="margin:0;">
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        Employment Details
+                        <span class="toggle-icon"><img src="/newassets/img/arrow.png" /></span>
+                    </div>
+                    <div class="section-content">
+                        <div class="row" id="StfHide">
+
+                            <div class="form-group col-md-4">
+                                <label>Qualification</label>
+                                <select class="form-control selctInputFormat" name="qualification" id="qualification" autocomplete="new-text"></select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label title="Post Qualification Experience">PQE</label>
+                                <select class="form-control selctInputFormat" name="pqe" id="pqe" autocomplete="new-text"></select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>Experience with the Firm</label>
+                                <select class="form-control selctInputFormat" name="firmexperience" id="firmexperience" autocomplete="new-text">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row" id="stfFirmFiled">
+
+                            <div class="form-group col-md-6">
+                                <input type="hidden" id="hidid" />
+                                <label>Areas of Expertise</label>
+                                <select class="form-control selctInputFormat" name="areaofexpertise" id="areaofexpertise" autocomplete="new-text"></select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Bar Registration Number</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="barno" id="barno" autocomplete="new-text" placeholder="Enter Number" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <input type="hidden" id="hidid" />
+                                <label>Hourly Rate(Rs/Hour)</label>
+                                <input class="form-control inputFormat" type="text" value="" name="uhrate" id="uhrate" autocomplete="new-text" placeholder="Enter Amount">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <input type="hidden" id="hidid" />
+                                <label>Additional Information</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="details" id="details" autocomplete="new-text" placeholder="Enter Information" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+
+@if (ViewBag.HierarchyCustomtype != null && ViewBag.HierarchyCustomtype.ToString() == "HierarchyCustomtype")
+{
+<script>
+    $(document).ready(function () {
+        var lvlNames = ['', 'CP', 'Zonal', 'Range', 'District', 'Sub-District', 'PS'];
+        var allUsers = [];
+
+        function getUsersByLevel(level, parentId) {
+            return $.grep(allUsers, function (u) {
+                var ul = parseInt(u.UserLevel) || 0;
+                if (ul !== level) return false;
+                if (parentId !== undefined && parentId !== null && parentId !== '') {
+                    return String(u.ParentUserId) === String(parentId);
+                }
+                return true;
+            });
+        }
+
+        function populateDropdown($dd, level, parentId, placeholder) {
+            var users = getUsersByLevel(level, parentId);
+            $dd.empty();
+            $dd.append('<option value="">' + (placeholder || 'Select ' + lvlNames[level]) + '</option>');
+            var added = 0;
+            $.each(users, function (i, u) {
+                $dd.append('<option value="' + u.Id + '" data-level="' + u.UserLevel + '">' +
+                    u.UserFullName + ' (' + lvlNames[level] + ')</option>');
+                added++;
+            });
+            if (added === 0) {
+                $dd.html('<option value="">No ' + lvlNames[level] + ' users yet</option>');
+                return 0;
+            }
+            if (added === 1) {
+                $dd.find('option:eq(1)').prop('selected', true);
+                $dd.trigger('change');
+            }
+            return added;
+        }
+
+        // Build cascade: levels 2 through N-1 (last one IS the Reports To)
+        function buildCascadeUI(newUserLevel) {
+            var cascadeHtml = '';
+            for (var lvl = 2; lvl <= newUserLevel - 1; lvl++) {
+                var selectId = 'hierarchyCascadeLvl' + lvl;
+                var isLast = (lvl === newUserLevel - 1);
+                var labelText = 'Select ' + lvlNames[lvl] + (isLast ? ' (Reports To)' : '');
+                cascadeHtml += '<div class="form-group col-md-3">' +
+                    '<label>' + labelText + ' <span class="required"><b>*</b></span></label>' +
+                    '<select id="' + selectId + '" class="form-control selctInputFormat hierarchyCascade" data-level="' + lvl + '">' +
+                    '<option value="">-- Loading --</option></select></div>';
+            }
+            $('#hierarchyCascadeContainer').html(
+                cascadeHtml ? '<div id="hierarchyCascadeRows" class="row">' + cascadeHtml + '</div>' : ''
+            );
+        }
+
+        // Filter Reports To hint
+        function updateHint(newUserLevel) {
+            var sel = $('#hierarchyParentUser').find('option:selected');
+            var parentLevel = parseInt(sel.data('level') || '0');
+            if (parentLevel > 0 && newUserLevel > 0) {
+                $('#hierarchyParentHint').text(
+                    'New: Lvl ' + newUserLevel + ' (' + lvlNames[newUserLevel] +
+                    ') → reports to Lvl ' + parentLevel + ' (' + lvlNames[parentLevel] + ')'
+                );
+            }
+        }
+
+        // --- MAIN ---
+        $('#hierarchyNewUserLevel').off('change').on('change', function () {
+            var newUserLevel = parseInt($(this).val() || '0');
+            $('#hdnNewUserLevel').val(newUserLevel);
+            $('#hierarchyCascadeContainer').html('');
+            $('#hierarchyParentUser').val('');
+
+            // Level 1 (CP) cannot be created
+            if (newUserLevel === 2) {
+                // Zonal → Reports To = CP, no cascade
+                $('#reportsToGroup').show();
+                $('#hierarchyParentUser').html('<option value="' + loggedInUserId + '" data-level="1" selected>CP (Auto - You)</option>');
+                $('#hierarchyParentHint').text('Zonal always reports to CP');
+                return;
+            }
+
+            if (newUserLevel >= 3) {
+                // Hide the original Reports To — it will appear inside the cascade
+                $('#reportsToGroup').hide();
+                $('#hierarchyParentUser').html('<option value="">Loading...</option>');
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/CallApi/LoadHierarchyParentUsers",
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        var users = response.Data;
+                        if (users && typeof users === 'object' && !Array.isArray(users) && users.Data !== undefined)
+                            users = users.Data;
+                        if (typeof users === 'string')
+                            try { users = JSON.parse(users); } catch(e) { users = []; }
+
+                        if (!users || !users.length) {
+                            $('#hierarchyParentUser').html('<option value="">No users found</option>');
+                            return;
+                        }
+                        allUsers = users;
+
+                        // Build cascade UI including Reports To level (2 through N-1)
+                        buildCascadeUI(newUserLevel);
+
+                        // Wire events BEFORE population so auto-select cascades work
+                        wireCascadeEvents(newUserLevel);
+
+                        // Populate top level (Zonal = level 2) — cascade flows down from here
+                        var $topDD = $('#hierarchyCascadeLvl2');
+                        if ($topDD.length) {
+                            populateDropdown($topDD, 2, null);
+                        }
+                    },
+                    error: function () {
+                        $('#hierarchyParentUser').html('<option value="">API unavailable</option>');
+                    }
+                });
+            } else {
+                $('#reportsToGroup').show();
+                $('#hierarchyParentUser').html('<option value="">-- First select New User Level --</option>');
+                $('#hierarchyParentHint').text('');
+            }
+        });
+
+        function wireCascadeEvents(newUserLevel) {
+            var deepestLevel = newUserLevel - 1;  // Reports To level
+            for (var lvl = 2; lvl <= deepestLevel; lvl++) {
+                (function (currentLevel) {
+                    $('#hierarchyCascadeLvl' + currentLevel).off('change').on('change', function () {
+                        var selectedId = $(this).val();
+                        var nextLevel = currentLevel + 1;
+
+                        if (nextLevel <= deepestLevel) {
+                            // Filter next cascade dropdown
+                            var $nextDD = $('#hierarchyCascadeLvl' + nextLevel);
+                            if ($nextDD.length) {
+                                var label = lvlNames[nextLevel] + (nextLevel === deepestLevel ? ' (Reports To)' : '');
+                                populateDropdown($nextDD, nextLevel, selectedId || null, 'Select ' + label);
+                            }
+                        }
+
+                        // If deepest level changed, set hidden hierarchyParentUser value
+                        if (currentLevel === deepestLevel) {
+                            // Must set innerHTML (not .val()) because the select has no matching option
+                            $('#hierarchyParentUser').html(
+                                '<option value="' + selectedId + '" selected data-level="' + currentLevel + '"></option>'
+                            );
+                            $('#hierarchyParentHint').text(
+                                'New: Lvl ' + newUserLevel + ' (' + lvlNames[newUserLevel] +
+                                ') → reports to Lvl ' + currentLevel + ' (' + lvlNames[currentLevel] + ')'
+                            );
+                        }
+                    });
+                })(lvl);
+            }
+        }
+    });
+</script>
+}

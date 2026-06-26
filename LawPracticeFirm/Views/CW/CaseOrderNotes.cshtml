@@ -1,0 +1,64 @@
+﻿@{
+    Layout = null;
+}
+<script>
+        var CaseId = "@ViewBag.CaseId"
+        var search = "@ViewBag.search"
+        GetCaseOrderNotes(CaseId, search);
+    function GetCaseOrderNotes(val, search) {
+            var html3 = '';
+            var formData = new FormData();
+            formData.append("caseid", val);
+            formData.append("search", search);
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/CW/GetCaseOrderNotes",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response1) {
+                    var length = response1.length;
+                    $("#casenotes tr").remove();
+                    if (length > 0) {
+                        $.each(response1, function (i, a) {
+                                html3 += '<tr>'
+                                html3 += '<td>'
+                                html3 += a.Orderdt
+                                html3 += '</td>'
+                                html3 += '<td>'
+                                html3 += a.Notes
+                                html3 += '</td>'
+                                html3 += '</tr>'
+                        });
+                    } else {
+                        html3 += '<tr>'
+                        html3 += '<td colspan=2 align=center>Data Not Found</td></tr>'
+                    }
+                    html3 += '</table>'
+                    $("#casenotes").html("");
+                    $("#casenotes").append(html3);
+                },
+                failure: function (data) {
+                    alert(data.responseText);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
+</script>
+<div id="content">
+    <div class="table-panel table-responsive">
+        <table id="" class="dataTable table table-bordered table-striped" cellspacing="0" width="100%" style="font-size:13px;">
+            <thead style=" text-align:center;">
+                <tr>
+                    <th scope="col" width="20%">Created Date</th>
+                    <th scope="col" width="80%">Notes</th>
+                </tr>
+            </thead>
+            <tbody style="text-align:center;" id="casenotes"></tbody>
+        </table>
+    </div>
+</div>

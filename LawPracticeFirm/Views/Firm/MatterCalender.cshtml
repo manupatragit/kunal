@@ -1,0 +1,930 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<!-- Page Content -->
+<script>
+      var type = '@ViewBag.type'
+</script>
+<script>
+    function printDiv(elem) {
+        var mywindow = window.open('', 'PRINT', 'height=500,width=500');
+        mywindow.document.write('<html><head>');
+        mywindow.document.write("<link href=\"/Scripts/Calendar/dhtmlxscheduler.css\" rel=\"stylesheet\"><link href=\"/newassets/css/PrintCalendar.css\" rel=\"stylesheet\"><link href=\"/newassetsw/css/style.css?3.0\" rel=\"stylesheet\"><link href=\"../css/icons.css\" rel=\"stylesheet\">")
+        mywindow.document.write('</head><body >');
+        mywindow.document.write(document.getElementById('scheduler_here').innerHTML);
+        mywindow.document.write('</body></html>');
+        mywindow.document.close(); // necessary for IE >= 10
+        mywindow.focus(); // necessary for IE >= 10*/
+        setTimeout(function () {
+            mywindow.print();
+            mywindow.close();
+        }, 1000)
+        return true;
+    }
+    function printDiv1(id) {
+        var printContents = document.getElementById(id).innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+</script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<style>
+    td.highlightTask > a {
+        background: #3aa0d4 !important;
+        color: #fff !important;
+    }
+
+    td.highlight > a {
+        background: #47a447 !important;
+        color: #fff !important;
+    }
+
+    .ui-datepicker-inline {
+        width: 100%;
+    }
+
+    .rectangle {
+        height: 12px;
+        width: 11px;
+        background-color: #3aa0d4;
+        float: left;
+        border-radius: 3px;
+    }
+
+    .rectangle1 {
+        height: 12px;
+        width: 11px;
+        background-color: #47a447;
+        float: left;
+        clear: both;
+        border-radius: 3px;
+    }
+
+    .rectangle2 {
+        height: 12px;
+        width: 11px;
+        background-color: #a97516;
+        float: left;
+        clear: both;
+        border-radius: 3px;
+    }
+
+    .colorlbl {
+        margin: -2px 0 0 13px;
+        float: left;
+        font-size: 12px;
+    }
+</style>
+<style>
+    .ui-datepicker table {
+        font-size: 12px !important;
+    }
+
+    .ui-datepicker td {
+        border: 0;
+        padding: 3px !important;
+    }
+
+    .ui-datepicker {
+        width: 100% !important;
+    }
+
+    .ui-widget-header {
+        border: none !important;
+        background: #ebebeb !important;
+        color: #020202 !important;
+        font-weight: bold !important;
+        border-radius: 50px !important;
+    }
+
+    .ui-widget.ui-widget-content {
+        border: none !important;
+    }
+
+    .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+        border: none !important;
+        font-weight: normal !important;
+        border-radius: 4px;
+    }
+
+    .ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+        border: 1px solid #dad55e;
+        background: #4D95DD !important;
+        color: #ffffff !important;
+    }
+
+    .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html
+    .ui-datepicker td span, .ui-datepicker td a {
+        padding: 6px !important;
+    }
+
+    .ui-widget-header .ui-icon {
+        background-image: url(/newassets/images/ui-icons_444444_256x240.png) !important;
+    }
+
+    .dhx_cal_header {
+        background-image: none !important;
+    }
+
+    .dhx_scale_bar {
+        background-image: none !important;
+    }
+
+    .dhx_scale_bar {
+        color: #020202 !important;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .ui-icon {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .ui-icon-circle-triangle-w {
+        background-position: -80px -191px !important;
+    }
+
+    .ui-icon-circle-triangle-e {
+        background-position: -47px -191px !important;
+    }
+
+    .ui-datepicker .ui-datepicker-prev-hover,
+    .ui-datepicker .ui-datepicker-next-hover {
+        top: 2px !important;
+    }
+
+    .ui-datepicker .ui-datepicker-prev-hover {
+        left: 2px !important;
+    }
+
+    .ui-datepicker .ui-datepicker-next-hover {
+        right: 2px !important;
+    }
+</style>
+<style>
+    /* width */
+    #scheduler_here::-webkit-scrollbar {
+        width: 20px;
+    }
+    /* Track */
+    #scheduler_here::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 5px grey;
+        border-radius: 10px;
+    }
+    /* Handle */
+    #scheduler_here::-webkit-scrollbar-thumb {
+        background: red;
+        border-radius: 10px;
+    }
+        /* Handle on hover */
+        #scheduler_here::-webkit-scrollbar-thumb:hover {
+            background: #b30000;
+        }
+</style>
+<section class="wrapper" style="margin:unset !important">
+    <div class="container-main" id="showcontent">
+        <h2 class="title">Matter and Task Calendar</h2>
+        <div class="col-md-12">
+            <div class="row">
+                <style>
+                    #calendar {
+                        max-width: 900px;
+                        margin: 0 auto;
+                    }
+                </style>
+                <div class="content-header " style="margin-bottom: 10px;">
+                    <ul class="btn_panel" style="padding:0;" id="sectiontemp">
+                        @if (role.ToString() == "1")
+                        {
+                            <li>
+                                <button class="sbtbtn" onclick="authenticate().then(loadClient).then(calendarsync).then(execute)" title="Sync to Google Calendar"><span class="glyphicon glyphicon-refresh"></span> Sync to Google Calendar</button>
+                            </li>
+                            <li><button class="sbtbtn" onclick="download();" title="See your calendar on any device using your iCalendar link (ICS):"><span class="glyphicon glyphicon-calendar"></span>Export to ICS File</button></li>
+                            <li><button class="sbtbtn" onclick="downloadPDF()" title="Export Calendar to PDF"><img src="/newassets/images/pdf_icon.png" style="margin:-5px 0 0 0;" />PDF</button></li>
+                            <li><button class="sbtbtn" onclick="downloadExcel()" title="Export Calendar to excel"><img src="/newassets/images/excel_icon.png" style="margin:-5px 0 0 0;" />Excel</button></li>
+                        }
+                        else
+                        {
+                            if (Convert.ToInt32(ViewBag.export) == 1)
+                            {
+                                <li>
+                                    <button class="sbtbtn" onclick="authenticate().then(loadClient).then(calendarsync).then(execute)" title="Sync to Google Calendar"><span class="glyphicon glyphicon-refresh"></span> Sync to Google Calendar</button>
+                                </li>
+                                <li><button class="sbtbtn" onclick="download();" title="See your calendar on any device using your iCalendar link (ICS):"><span class="glyphicon glyphicon-calendar"></span>Export to ICS File</button></li>
+                                <li><button class="sbtbtn" onclick="downloadPDF()" title="Export Calendar to PDF"><img src="/newassets/images/pdf_icon.png" style="margin:-5px 0 0 0;" />PDF</button></li>
+                                <li><button class="sbtbtn" onclick="downloadExcel()" title="Export Calendar to excel"><img src="/newassets/images/excel_icon.png" style="margin:-5px 0 0 0;" />Excel</button></li>
+                            }
+                        }
+                        <li><button class="sbtbtn" onclick="eventlist()" title="Calendar Event" style="cursor:pointer">Event</button></li>
+                    </ul>
+                </div>
+                <!-- Main content -->
+                <section class="content">
+                    <div id="page-wrapper">
+                        <div class="row" style="padding:10px 0 0 0;">
+                            <div class="col-md-3">
+                                <div class="box box-primary">
+                                    <div class="box-header">
+                                        <div id="demo2"></div>
+                                    </div>
+                                    <div class="box-header" style="margin-top:15px;">
+                                        <div style="float:left;width:25%;">
+                                            <div class="rectangle"><span class="colorlbl">Task</span></div>
+                                        </div>
+                                        <div style="float:left;width:25%;">
+                                            <div class="rectangle1"><span class="colorlbl">Hearing</span></div>
+                                        </div>
+                                        <div style="float:left;width:25%;margin-left:10px;">
+                                            <div class="rectangle2"><span class="colorlbl">Event</span></div>
+                                        </div>
+                                    </div>
+                                </div><!-- /. box -->
+                            </div><!-- /.col -->
+                            <div class="col-md-9">
+                                <div class="box box-primary" style="padding:5px 0 0 0;">
+                                    <div class="box-body no-padding">
+                                        <!-- THE CALENDAR -->
+                                        <div>
+                                            <div id="scheduler_here" class="dhx_cal_container container calendar_inner" style="clear:both;">
+                                                <div class="dhx_cal_navline">
+                                                    <div class="dhx_cal_prev_button" style="margin-top: -5px !important"><img src="/newassets/images/arrow_left.png" /></div>
+                                                    <div class="dhx_cal_date" style="margin-top: -5px !important; margin-left: 130px !important"></div>
+                                                    <div class="dhx_cal_next_button" style="margin-top: -5px !important"><img style="margin-left: 10px !important" src="/newassets/images/arrow_right.png" /></div>
+                                                    <div class="dhx_cal_tab" name="month_tab"></div>
+                                                </div>
+                                                <div class="dhx_cal_header">
+                                                </div>
+                                                <div class="dhx_cal_data">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div><!-- /.box-body -->
+                                </div><!-- /. box -->
+                            </div><!-- /.col -->
+                        </div><!-- /.row -->
+                    </div>
+                </section><!-- /.content -->
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Right side column. Contains the navbar and content of the page -->
+<!-- Modal -->
+<script>
+    var fcode1 = localStorage.getItem("FirmCode");
+    function downloadExcel() {
+        window.location = encodeURI("/firm/ExportoExcelCalendar");
+    }
+    function downloadPDF() {
+        window.location = encodeURI("/firm/ExportoPDFCalendar");
+    }
+    function eventlist() {
+        window.location = encodeURI("/" + fcode1 + "/firm/CalendarEventList");
+    }
+    $(document).ready(function () {
+        var fcode = localStorage.getItem("FirmCode");
+        $(document).on("click", "#transferpageevent", function () {
+            var modelid = $(this).attr("type");
+            var transferid = $(this).attr("data-date");
+            var url = "/firm/ScheduleTask?token=" + encodeURI(transferid);
+            $('.mymodels').load(url, function (result) {
+                closeload3();
+                $('#myModal').modal({ show: true });
+            });
+        });
+        $(document).on("click", "#transferpagecalevent", function () {
+            var modelid = $(this).attr("type");
+            var transferid = $(this).attr("data-date");
+            var url = "/firm/ScheduleCalendarEvent?token=" + encodeURI(transferid);
+            $('.mymodels').load(url, function (result) {
+                closeload3();
+                $('#myModal').modal({ show: true });
+            });
+        });
+        $(document).on("click", "#transferpagemore", function () {
+            var modelid = $(this).attr("data-val");
+            openload3();
+            var url = "/firm/CalendarMoreEvent?status=true&token=" + encodeURI(modelid);
+            $('.mymodels').load(url, function (result) {
+                closeload3();
+                $('#myModal').modal({ show: true });
+            });
+        });
+    });
+</script>
+<!-- Modal -->
+<div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:800px !important;">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<style>
+    .btn_panel {
+        margin: 0;
+        /* padding: 15px 0;*/
+        width: 100%;
+        /*border-top: 1px solid #cccccc;*/
+        /*border-bottom: 1px solid #cccccc;*/
+        overflow: hidden;
+    }
+    .d_btn {
+        margin: 0;
+        padding: 7px 15px;
+        background: #01496b;
+        color: #ffffff;
+        font-size: 14px;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+    .c_btn {
+        margin: 0 5px;
+        padding: 7px 15px;
+        background: #606d05;
+        color: #ffffff;
+        font-size: 14px;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+    .l_btn {
+        margin: 0;
+        padding: 7px 15px;
+        background: #941616;
+        color: #ffffff;
+        font-size: 14px;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+    .panel {
+        margin: 0;
+        padding: 15px 0;
+        width: 100%;
+        background: #ebf0f4;
+        height: 527px;
+    }
+        .panel h2 {
+            margin: 0;
+            padding: 15px 0;
+            font-size: 24px;
+            text-align: center;
+        }
+    .cases {
+        background: #54960f;
+        width: 100%;
+        border-radius: 4px;
+        color: #ffffff;
+    }
+    .client {
+        background: #0b9875;
+        width: 100%;
+        border-radius: 4px;
+        color: #ffffff;
+    }
+    .cal_btn {
+        margin: 0 5px 0 0;
+        padding: 7px 15px;
+        background: #3c3c3c;
+        color: #ffffff;
+        font-size: 14px;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+        .cal_btn:hover {
+            color: #ffffff;
+            text-decoration: none;
+        }
+    .document {
+        background: #a0200a;
+        width: 100%;
+        border-radius: 4px;
+        color: #ffffff;
+    }
+    .team {
+        background: #8e5f00;
+        width: 100%;
+        border-radius: 4px;
+        color: #ffffff;
+    }
+    .to-do {
+        background: #0588bb;
+        width: 100%;
+        border-radius: 4px;
+        color: #ffffff;
+    }
+    .invoice {
+        background: #4c669f;
+        width: 100%;
+        border-radius: 4px;
+        color: #ffffff;
+    }
+    .icon {
+        margin: 0;
+        padding: 10px 0;
+        text-align: center;
+    }
+    .label {
+        margin: 0;
+        padding: 5px 0;
+        text-align: center;
+        font-size: 18px;
+        font-weight: normal;
+    }
+        .label a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    .calendar_inner {
+        height: 85%;
+        /* border: 1px solid #686868; */
+        border-top: none;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .custom_btn_info {
+        background-image: url('../../Scripts/Calendar/imgs/controls.gif');
+        width: 20px;
+    }
+    .dhx_cal_navline {
+        background: #ffffff;
+        @* background: -moz-linear-gradient(left, #ffffff 0%, #0e0e0e 100%);
+        background: -webkit-linear-gradient(left, #ffffff 0%,#0e0e0e 100%);
+        background: linear-gradient(to right, #ffffff 0%,#0e0e0e 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#0e0e0e',GradientType=1 ); *@
+        height: 35px !important;
+    }
+        .dhx_cal_navline div {
+            top: 7px !important;
+        }
+    .dhx_scale_bar {
+        color: #000;
+    }
+    .dhx_cal_prev_button {
+        width: 30px;
+        height: 24px;
+    }
+    .dhx_cal_next_button {
+        width: 30px;
+        height: 24px;
+    }
+    .dhx_cal_today_button {
+        padding: 4px 0 0 0 !important;
+        width: 69px;
+        color: #fff;
+        height: 20px;
+    }
+    .dhx_cal_navline .dhx_cal_date {
+        padding-top: 3px;
+        left: 197px;
+        font-size: 14px;
+    }
+    .dhx_cal_tab.active {
+        height: 20px;
+        width: 67px;
+        padding-top: 4px;
+        margin-top: 0px;
+        color: #fff;
+        display: none;
+    }
+    .dhx_scale_bar {
+        Padding-top: 2px;
+    }
+    .dhx_cal_event_clear {
+        text-align: center;
+        width: 178px !important;
+    }
+    .txt {
+        margin: 0;
+        padding: 2px;
+        font-family: Tahoma, Geneva, sans-serif;
+        font-size: 10px;
+        color: #000;
+        text-decoration: underline;
+        text-align: center;
+    }
+    .txt1 {
+        margin: 0;
+        padding: 2px;
+        font-family: Tahoma, Geneva, sans-serif;
+        font-size: 10px;
+        color: #000;
+        text-decoration: underline;
+        text-align: center;
+        font-weight: normal;
+    }
+        .txt1:hover {
+            color: #0059c1;
+            text-decoration: none;
+        }
+    .more {
+        margin: 0;
+        padding: 2px;
+        font-family: Tahoma, Geneva, sans-serif;
+        font-size: 11px;
+        color: #007279;
+        /*font-weight: bold;*/
+        /*text-decoration: underline;*/
+    }
+    div.dhx_cal_event_clear {
+        position: absolute;
+        left: 628px;
+        margin-top: -5px !important;
+        width: 100px !important;
+        display: table;
+        /*width: auto;*/
+        margin: 0px;
+        padding: 0px;
+    }
+    .mhide {
+        margin-top: 20px !important;
+    }
+    .dhx_month_body {
+        height: 120px !important;
+    }
+    .modal-dialog {
+        width: 650px !important;
+    }
+    .dhx_month_head {
+        font-size: 12px;
+    }
+</style>
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="overlay-content">
+            <div class="spinner2">
+                <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
+@*<script src="https://code.jquery.com/jquery-1.12.4.js"></script>*@
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link href="/CssJsfiles/css/fullcalendar.min.css" rel="stylesheet" />
+<link href="~/Manupanel/calender/dist/jquery.datetimepicker.min.css" rel="stylesheet" />
+<script src="~/CssJsfiles/js/moment.min.js"></script>
+<script src="~/Manupanel/calender/fullcalendar.min.js"></script>
+<script src="~/Manupanel/calender/dist/jquery.datetimepicker.min.js"></script>
+<style>
+    td.highlightEvent > a {
+        background: #a97516 !important;
+        color: #fff !important;
+    }
+
+    td.highlightTask > a {
+        background: #3aa0d4 !important;
+        color: #fff !important;
+    }
+
+    td.highlight > a {
+        background: #47a447 !important;
+        color: #fff !important;
+    }
+
+    .ui-datepicker-inline {
+        width: 100%;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/Calender.js?2.7"></script>
+<link href="~/Scripts/Calendar/dhtmlxscheduler.css" rel="stylesheet" charset="utf-8" type="text/css" />
+<script src="~/Scripts/Calendar/dhtmlxscheduler.js" type="text/javascript" charset="utf-8"></script>
+<input type="hidden" id="hdnqrystr" name="hdnqrystr" value="" />
+<script type="text/javascript">
+    var counter = 0
+    var currentTime = new Date()
+    // returns the month (from 0 to 11)
+    var month = currentTime.getMonth()
+    //alert("month:"+month);
+    // returns the day of the month (from 1 to 31)
+    var day = currentTime.getDate()
+    //alert("day:" + day);
+    // returns the year (four digits)
+    var year = currentTime.getFullYear()
+    //alert("year:" + year);
+    init();
+    function init() {
+        var formData = new FormData();
+        openload();
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/Client/CalendardataMerge",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                var data = response;
+                scheduler.init('scheduler_here', new Date(), "month");
+                scheduler.parse(data, "json");
+                closeload();
+            }, //End of AJAX Success function
+            failure: function (response) {
+                closeload();
+            }, //End of AJAX failure function
+            error: function (response) {
+                closeload();
+            } //End of AJAX error function
+        });
+    }
+    function Call() {
+        setTimeout(function () { closeload(); }, 2000);
+    }
+    function validate() {
+        if (document.getElementById("fileCertificate").value == "") {
+            alert("please select file");
+            document.getElementById("fileCertificate").focus();
+            return false;
+        }
+    }
+    function validatenotes() {
+        if (document.getElementById("txtnote").value == "") {
+            alert("please enter notes");
+            document.getElementById("txtnote").focus();
+            return false;
+        }
+    }
+</script>
+<div id="myModal1" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="myModalpopup" class="modal_a" style="display:none;">
+    <div class="modal_a-content">
+        <span onclick="ModalClose()" class="close_a">&times;</span>
+        <p style="color: #000; padding: 3px; border-radius: 5px; text-align: center; font-size: 24px; font-weight:bold; margin:0;">Matter Detail</p>
+        <div class="modal-body" style="width: 1000px;">
+            <form id="studentDetailForm" name="studentDetailForm" action="" method="post" target="IframestudentDetailForm">
+                <iframe style="width:950px; height: 450px; overflow-y:scroll;" frameborder="0" id="IframestudentDetailForm"
+                        name="IframestudentDetailForm" src=""></iframe>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="Nexthearing" class="modal_a" style="display:none;">
+    <div class="modal_a-content">
+        <span onclick="ModalClose1()" class="close_a">&times;</span>
+        <p style="color: #000; padding: 3px; border-radius: 5px; text-align: center; font-size: 24px; font-weight:bold; margin:0;">Next Hearing Detail</p>
+        <div class="modal-body" style="width: 1000px;">
+            <form id="studentDetailForm1" name="studentDetailForm1" action="" method="post" target="IframeNexthearingDetailForm1">
+                <iframe style="width:950px; height: 450px; overflow-y:scroll;" frameborder="0" id="IframeNexthearingDetailForm1"
+                        name="IframeNexthearingDetailForm1" src=""></iframe>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<script>
+    function ModalClose() {
+        document.getElementById("myModalpopup").style.display = "none";
+    }
+    function ModalClose1() {
+        document.getElementById("Nexthearing").style.display = "none";
+    }
+</script>
+<script type="text/javascript">
+    function openload3() {
+        $('#myOverlay').css("display", "block");
+    }
+    function closeload3() {
+        $('#myOverlay').css("display", "none");
+    }
+    function DateUservalue(date) {
+        var fcode = localStorage.getItem("FirmCode");
+        var url = '/' + fcode + '/Client/CaseDetailsByDate/' + btoa(date.toString());
+        openload3();
+        $('.mymodels').load(url, function (result, status, xhr) {
+            $('#myModal').modal({ show: true });
+            closeload3();
+        });
+    }
+    function NexthearingbyUser(date) {
+        var fcode = localStorage.getItem("FirmCode");
+        var url = '/' + fcode + '/Client/NextHearingByClient/' + btoa(date.toString());
+        openload3();
+        $('.mymodels').load(url, function (result, status, xhr) {
+            $('#myModal').modal({ show: true });
+            closeload3();
+        });
+    }
+</script>
+<script>
+    msgData1 = "20120315T170000Z";// $('.start-time').text();
+    msgData2 = "20120316T170000Z";//$('.end-time').text();
+    msgData3 = "delhi";//$('.Location').text();
+    var icsMSG = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Our Company//NONSGML v1.0//EN\nBEGIN:VEVENT\nUID:me@google.com\nDTSTAMP:20120315T170000Z\nATTENDEE;CN=My Self ;RSVP=TRUE:MAILTO:me@gmail.com\nORGANIZER;CN=Me:MAILTO::me@gmail.com\nDTSTART:" + msgData1 + "\nDTEND:" + msgData2 + "\nLOCATION:" + msgData3 + "\nSUMMARY:Our Meeting Office\nEND:VEVENT\nEND:VCALENDAR";
+    $('#test1').click(function () {
+        // alert("hi");
+        window.open("data:text/calendar;charset=utf8," + escape(icsMSG));
+    });
+</script>
+<script src="~/Manupanel/icsfile/ics.js"></script>
+<script src="~/Manupanel/icsfile/FileSaver.js"></script>
+<form id="form1" runat="server">
+    <div>
+        <script>
+            function download() {
+                var urls31 = "/firm/LoadMergeNextHearing";
+                var cal = ics();
+                $.ajax({
+                    async: true,
+                    type: "POST",
+                    url: urls31,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        var datas = JSON.stringify(data);
+                        if (data.length > 0) {
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i].Caseyear == "NA") {
+                                    appealno = data[i].Casename;
+                                    cdescription = data[i].CourseName;
+                                }
+                                else if (data[i].Caseyear != "") {
+                                    appealno = data[i].CourseName + " " + data[i].CaseNo + "/" + data[i].Caseyear;
+                                    cdescription = data[i].CourseName + ", Advocate:" + data[i].Advname;
+                                }
+                                else {
+                                    appealno = data[i].Casetype;
+                                    cdescription = "";
+                                }
+                                cal.addEvent(appealno, cdescription, "", data[i].Disposeddt, "");
+                            }
+                            cal.download();
+                        }
+                        else {
+                            alert("No data available for calendar.");
+                        }
+                    }
+                });
+            }
+        </script>
+    </div>
+</form>
+<script src="https://apis.google.com/js/api.js"></script>
+<script type="text/javascript">
+    function calendarsync() {
+        var urls3 = "/firm/LoadMergeNextHearing";
+        var dataval = [];
+        var dataObj = {};
+        var dd = $.ajax({
+            async: true,
+            type: "POST",
+            url: urls3,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                if (data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].Caseyear == "NA") {
+                            appealno = data[i].Casename;
+                            cdescription = data[i].CourseName;
+                        }
+                        else if (data[i].Caseyear != "") {
+                            appealno = data[i].Casetype + " " + data[i].CaseNo + "/" + data[i].Caseyear;
+                            cdescription = data[i].CourseName + ", Advocate:" + data[i].Advname;
+                        }
+                        else {
+                            appealno = data[i].Casetype;
+                            cdescription = data[i].Casetype;
+                        }
+                        dataObj.summary = appealno;
+                        dataObj.location = "";
+                        dataObj.description = cdescription;
+                        dataObj.start = { dateTime: formatDate(data[i].Disposeddt) + '-01:00' }
+                        dataObj.end = { dateTime: formatDate(data[i].Disposeddt) + '-01:00' }
+                        execute1(dataObj)
+                    }
+                    new PNotify({
+                        title: 'Success!',
+                        text: 'Google Calendar synchronized successfully',
+                        type: 'success',
+                        delay: 2000
+                    });
+                }
+                else {
+                    alert("No data available for calendar.");
+                }
+            },
+            error: function (error) {
+                alert('failed');
+            }
+        });
+        $.when(dd).then(function (data, textStatus, jqXHR) {
+            //execute1(dataval);
+        });
+    }
+    /**
+     * Sample JavaScript code for calendar.events.insert
+     * See instructions for running APIs Explorer code samples locally:
+     * https://developers.google.com/explorer-help/guides/code_samples#javascript
+     */
+    function authenticate() {
+        return gapi.auth2.getAuthInstance()
+            .signIn({ scope: "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events" })
+            .then(function () { console.log("Sign-in successful"); },
+                function (err) { console.error("Error signing in", err); });
+    }
+    function loadClient() {
+        gapi.client.setApiKey("AIzaSyDjSC9a17z8xMYUr7av3iuMdlNLrU53E4Y");
+        return gapi.client.load("https://content.googleapis.com/discovery/v1/apis/calendar/v3/rest")
+            .then(function () { console.log("GAPI client loaded for API"); },
+                function (err) { console.error("Error loading GAPI client for API", err); });
+    }
+    // Make sure the client is loaded and sign-in is complete before calling this method.
+    function execute() {
+    }
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+        return [year, month, day].join('-');
+    }
+    function execute1(dataObj) {
+        return gapi.client.calendar.events.insert({
+            "calendarId": "primary",
+            "resource": dataObj
+        })
+            .then(function (response) {
+                // Handle the results here (response.result has the parsed body).
+                console.log("Response", response);
+            },
+                function (err) { console.error("Execute error", err); });
+    }
+    gapi.load("client:auth2", function () {
+        gapi.auth2.init({ client_id: "748718720814-nfcrrb0h0vt48vlob3fel75jpg68douk.apps.googleusercontent.com" });
+    });
+</script>

@@ -1,0 +1,375 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+}
+@Html.Action("UserPageSecurity", "employee")
+@{
+    var id = ViewBag.token;
+}
+<script>
+    var type = 7;
+      id = "@id";
+</script>
+<script type='text/javascript'>
+    if (String(id) != "") {
+        localStorage.setItem("contacttoken", id);
+    }
+    if (String(id) == "") {
+        var urls = window.location.href;
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": localStorage.getItem("contacttoken") }
+        });
+    }
+    function goodbye(e) {
+        localStorage.setItem("contacttoken", id);
+        if (!e) e = window.event;
+        //e.cancelBubble is supported by IE - this will kill the bubbling process.
+        e.cancelBubble = true;
+        //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+        //e.stopPropagation works in Firefox.
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+    window.onbeforeunload = goodbye;
+</script>
+<script src="~/Manupanel/aes/aes.js"></script>
+<script src="~/Manupanel/aes/pbkdf2.js"></script>
+<script src="~/Manupanel/aes/LAWPRACTICEAESFILE.js"></script>
+<script src="~/Scripts/Employee/Pages/ContactSingleView.js"></script>
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+</script>
+<script>
+    $(document).on("click", "#print1", function () {
+        window.print();//  document.body.innerHTML = originalContents;
+    });
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        @{
+            var firmcode = Request.Url.Segments[1];
+        }
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/employee/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active"><a href="/@firmcode/Employee/vcontact/contact"> Contact List</a></li>
+            <li class="active"> Contact Details</li>
+        </ol>
+        <h1><span class="fa fa-user"></span> Contact Details</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="">
+                    <div class="box-header">
+                        &nbsp;&nbsp;&nbsp;<btn class="btn btn-warning pull-right " id="print1" title="Print" idval="printcontent" style="margin-left:15px;"><span class="glyphicon glyphicon-print"></span> Print</btn>
+                        @if (ViewBag.validuser == "true")
+                        {
+                            <btn class="btn btn-success pull-right publish" id="menucontact"><span class="glyphicon glyphicon-pencil"></span> Edit</btn>
+                        }                        &nbsp;&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content" id="PrinDivID">
+        <form id="savecontact" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <fieldset>
+                        <legend>About</legend>
+                        <div class="form-group form-horizontal">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        @*//<h4 class="form-section">Contact</h4>*@
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-2 contact-photo" style="padding-top:8px">
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <div>
+                                                <div class="fileupload-new thumbnail"> <img src="~/PanelDesign/images/Default_User_pic_new.png" alt="" id="output_image"> </div>
+                                                <div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="col-lg-10 contact-details">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4 col-xs-12"> <b>Full Name </b></label>
+                                                <div class="col-md-6  col-xs-8">
+                                                    <label class="control-label" id="fname"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4 col-xs-12"> <b>Contact Type </b></label>
+                                                <div class="col-md-6  col-xs-8">
+                                                    <label class="control-label" id="contacttypes"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4" for="Home"><b> Home </label>
+                                                <div class="col-md-8">
+                                                    <label class="control-label" id="home"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4" for="Mobile"> <b>Mobile </label>
+                                                <div class="col-md-8">
+                                                    <label class="control-label" id="mob"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4" for="Office"><b> Office </label>
+                                                <div class="col-md-8">
+                                                    <label class="control-label" id="office"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4" for="Fax"><b> Fax </label>
+                                                <div class="col-md-8">
+                                                    <label class="control-label" id="fax"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4" for="Email"><b> Email </label>
+                                                <div class="col-md-8">
+                                                    <label class="control-label" id="email"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6" style="display:none">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4"><b> Client Portal</label>
+                                                <div class="col-md-8 col-sm-8">
+                                                    <label class="control-label" id="cport"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4" for="Email"><b> Notes </label>
+                                                <div class="col-md-8">
+                                                    <label class="control-label" id="cnotes"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <div class="col-md-8 col-sm-8">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <fieldset>
+                                <legend>Custom Fields</legend><div class="row">
+                                    <div class="col-lg-6" id="content">
+                                    </div>
+                                </div>
+                        </div>
+                        </fieldset>
+                    </div>
+                    <fieldset>
+                        <legend>Others</legend>
+                        <div class="form-group form-horizontal">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4" for="AssignedToGuids"><b>Address </label>
+                                        <div class="col-md-8">
+                                            <label class="control-label" id="address"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4" for="TagNames"> <b>Tags </label>
+                                        <div class="col-md-8">
+                                            <label class="control-label" id="tags"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4" for="Number"><b> Number </label>
+                                        <div class="col-md-8">
+                                            <label class="control-label" id="number"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4" for="Website"><b> Website </label>
+                                        <div class="col-md-8">
+                                            <label class="control-label" id="website"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </div>
+            </div>
+    </section>
+</aside>
+        </form>
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Custom Field
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger alert-dismissable validpanel">
+                            <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                            . <a href="#" class="alert-link">Alert Link</a>.
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form role="form" id="form2">
+                                            <div class="form-group">
+                                                <label>Custom Field Name</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                <input class="form-control" type="text" value="" id="txtcustomFieldName">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Custom Field Type</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                <select class="form-control" id="ctype">
+                                                    <option value="0">-Select Any-</option>
+                                                </select>
+                                            </div>
+                                            <div id="common">
+                                                <div class="form-group">
+                                                    <label id="listid">List options</label>
+                                                    <input class="form-control" data-val="true" id="txtcustomFieldvalue" />
+                                                    <p>(Add the options you would like to have in the drop down list list, separate values with a comma.)</p>
+                                                </div>
+                                                <div class="form-group">
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal" style="margin-top:10px;">
+                                                <label class="control-label col-xs-3">Is Required :</label>
+                                                <div class="col-xs-8">
+                                                    <label class="switch">
+                                                        <input type="checkbox" id="chkRequired" name="assign" value="1">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="addfield">Add Field</button>
+                <button type="reset" class="btn btn-default">Reset</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+<!-- /.col-lg-12 -->
+        </div>
+<!-- /.row -->
+        </div>
+<!-- /.container-fluid -->
+        </div>
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    @*//<span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>*@
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

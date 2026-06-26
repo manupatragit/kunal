@@ -1,0 +1,158 @@
+﻿@model LawPracticeFirm.Models.FileModel
+
+
+@{
+    Layout = null;
+}
+
+@using System.Web.Configuration
+@using LawPracticeFirm.Helpers
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" href="~/favicon.ico" type="image/x-icon" />
+    <title>@Model.FileName + " - ONLYOFFICE" %></title>
+    @Styles.Render("~/Content/editor")
+
+
+</head>
+<body>
+    <div class="form">
+        <div id="iframeEditor">
+        </div>
+    </div>
+    <span id="loadScripts" data-docs="@System.Configuration.ConfigurationManager.AppSettings["files.docservice.url.preloader"]"></span>
+    <script src="http://10.60.1.47/ds-vpath/web-apps/apps/api/documents/api.js"></script>
+
+    @*    @Scripts.Render(new []{ WebConfigurationManager.AppSettings["files.docservice.url.api"] })*@
+    @*<%: Scripts.Render(new []{ WebConfigurationManager.AppSettings["files.docservice.url.api"] }) %>*@
+
+
+    <script type="text/javascript" src="@Url.Content("/Scripts/SomeScript.js")"></script>
+    @*<script src="@WebConfigurationManager.AppSettings["files.docservice.url.api"]" ok="d"></script>*@
+    <script type="text/javascript" language="javascript">
+
+
+       
+        var docEditor;
+        var fileName = "@Model.FileName ";
+
+        var fileType = "@Path.GetExtension(Model.FileName).Trim('.')";
+
+        var innerAlert = function (message) {
+            if (console && console.log)
+                console.log(message);
+        };
+
+        var onReady = function () {
+            innerAlert("Document editor ready");
+        };
+
+        var onDocumentStateChange = function (event) {
+            var title = document.title.replace(/\*$/g, "");
+            document.title = title + (event.data ? "*" : "");
+        };
+
+        var onRequestEditRights = function () {
+            location.href = location.href.replace(RegExp("action=view\&?", "i"), "");
+        };
+
+        var onError = function (event) {
+            if (event)
+                innerAlert(event.data);
+        };
+
+        var onOutdatedVersion = function (event) {
+            location.reload(true);
+        };
+
+        var baseurl = window.location.origin + "@ViewBag.Fullpath";
+        alert(baseurl);
+         var mystring = "@Model.FileName"
+  filekey = mystring.replace(/[,.]/g , '');
+  //alert(filekey);
+  //var randkey = filekey;
+  //alert(filekey);
+
+        var сonnectEditor = function () {
+
+            docEditor = new DocsAPI.DocEditor("iframeEditor",
+                {
+                    width: "100%",
+                    height: "100%",
+
+                    type: '@Request["mode"] != "embedded" ? "desktop" : "embedded"',
+                    documentType: "@Model.DocumentType",
+                    document: {
+                        title: fileName,
+                        url: baseurl,
+                        fileType: fileType,
+                        key: "@Model.Key",
+
+                        info: {
+                            author: "Me",
+                            created: "@DateTime.Now.ToShortDateString()",
+                        },
+
+                        permissions: {
+                            edit: "@DocManagerHelper.EditedExts.Contains(Path.GetExtension(Model.FileName))" == "True",
+                            download: true,
+                        }
+                    },
+                    documentType: "text",
+                    editorConfig: {
+                        mode: '@DocManagerHelper.EditedExts.Contains(Path.GetExtension(Model.FileName)) && Request["mode"] != "view" ? "edit" : "view"',
+
+                        lang: "en",
+
+                     callbackUrl: "http://10.60.1.47:52695/webeditor.ashx?type=track&fileName=@Model.FileName&userAddress=",
+
+                        user: {
+                            //id: '@ViewBag.Firmid',
+                            //name: "John Smith",
+                            id: '@DocManagerHelper.CurUserHostAddress()',
+                            name: '@ViewBag.userid',
+                        },
+
+                        embedded: {
+                            saveUrl: baseurl,
+                            embedUrl: baseurl,
+                            shareUrl: baseurl,
+                            toolbarDocked: "top",
+                        },
+
+                        customization: {
+                            about: true,
+                            feedback: true,
+                            goback: {
+                                url: "@Url.Action("Index", "Docs")",
+                            },
+                        },
+                    },
+                    events: {
+                        'onReady': onReady,
+                        'onDocumentStateChange': onDocumentStateChange,
+                        'onRequestEditRights': onRequestEditRights,
+                        'onError': onError,
+                        'onOutdatedVersion': onOutdatedVersion,
+                        
+                    }
+                });
+        };
+
+        //alert("docEditor: " + docEditor);
+
+        if (window.addEventListener) {
+            window.addEventListener("load", сonnectEditor);
+        } else if (window.attachEvent) {
+            window.attachEvent("load", сonnectEditor);
+        }
+
+    </script>
+</body>
+</html>

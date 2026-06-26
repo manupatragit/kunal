@@ -1,0 +1,810 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+
+<style>
+    .ms-options-wrap button {
+        width: 100% !important;
+        padding: 6px !important;
+        border: none !important;
+        border-radius: 7px !important;
+        font-size: 14px !important;
+    }
+
+    .control-label {
+        margin: 6px 0;
+    }
+
+    .ms-options-wrap > .ms-options > ul input[type="checkbox"] {
+        top: 0px !important;
+    }
+
+    .ms-options-wrap > .ms-options > ul label {
+        font-size: 13px !important;
+    }
+
+    .m10 {
+        margin-top: 10px;
+    }
+
+    .note {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    .button-group a.selected {
+        background-color: #fafafa;
+        border: 1px solid #D5D7DA;
+        border-radius: 4px;
+        padding: 8px 12px;
+        color: #000;
+    }
+    .overlay {
+        z-index: 99999!important;
+    }
+
+    
+</style>
+
+
+
+</style>
+<script>
+    var requestpaged = "@ViewBag.Courtflag";
+    var MatterName = "@ViewBag.MatterNames";
+    var MatterId = "@ViewBag.MatterIds";
+    var TeamMember = "@ViewBag.TeamMember";
+    var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter = "@Session["dashmatter"]";
+
+</script>
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+<script src="~/Scripts/CW/LitigationAddLiveUpdate.js?4.9" type="text/javascript" language="javascript"></script>
+
+@*---------------------------------------------------------New code------------------------------------------------------*@
+<section id="header">
+    <div class="container-main">
+        @if (Session["hsmklitigation"].ToString() == "display:unset" && Session["dashmatter"].ToString() == "display:none")
+        {
+            <div class="text-left">
+                <a class="goback" id="goBack" href="/@Session["firmcode"]/CW/LitigationCaseList"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+                <p class="ctitle">Add Matter to Live Tracking</p>
+            </div>
+        }
+        else
+        {
+            <div class="text-left">
+                <a class="goback" id="goBack" href="/@Session["firmcode"]/firm/StandardCaseList"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+                <p class="ctitle">Add Matter to Live Tracking</p>
+            </div>
+        }
+        <div class="supporting-text"></div>
+        <div class="tabs-and-filters">
+            <div class="button-group">
+                <a href="/@Session["firmcode"]/CW/LitigationAddLiveUpdate?type=0" title="Court Details" class="active button-group-base">Court Details</a>
+                <a href="javascript:void(0);" title="CNR Number" class="button-group-base2" id="cnrCaseAdd">CNR Number</a>
+            </div>
+
+        </div>
+    </div>
+</section>
+<script>
+    const courtBtn = document.querySelector(".button-group-base");
+    const cnrBtn = document.getElementById("cnrCaseAdd");
+    const currentURL = window.location.href;
+
+    // Highlight Court Details if URL matches
+    if (currentURL.includes("LitigationAddLiveUpdate?type=0")) {
+        courtBtn.classList.add("selected");
+        sessionStorage.removeItem("selectedTab"); // Clear other tab
+    }
+
+    // Check stored selected tab
+    if (sessionStorage.getItem("selectedTab") === "cnr") {
+        cnrBtn.classList.add("selected");
+    }
+
+    // When CNR is clicked, mark it as selected
+    cnrBtn.addEventListener("click", function () {
+        sessionStorage.setItem("selectedTab", "cnr");
+        cnrBtn.classList.add("selected");
+        courtBtn.classList.remove("selected");
+    });
+</script>
+
+<section id="table">
+    <div class="container-main">
+        <div class="table" style="padding:15px;">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="courtType"> Select Court Type <span class="required" aria-required="true">*</span></label>
+
+                </div>
+                <div class="col-md-8">
+                    <select name="divSCHCDistrict" id="divSCHCDistrict1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="selectCourtType();">
+                    </select>
+                </div>
+
+
+            </div>
+            <hr>
+            <div id="CnrSection" style="display:none;">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Select State/UT  <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpcourtnameDC" id="drpcourtnameDC1Cnr" class="form-control selctInputFormat"></select>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <hr>
+                    <div class="col-md-4">
+                        <label class="control-label">CNR Number <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8" id="divdcourtcnr1">
+                        <input type="text" name="drpdcourtcnr" maxlength="16" id="drpdcourtcnr1" class="form-control inputFormat">
+                    </div>
+                </div>
+            </div>
+            <div id="HighCourtType" style="display:none; margin-top:6px">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Select Court Name <span class="required" aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="drpcourtname" id="drpcourtname1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="GetBench();"></select>
+                    </div>
+                </div>
+            </div>
+            <div id="PrimeCourt" style="display:none">
+
+
+                <div id="divSCDE1" style="display:none;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="control-label">CaseType / Diary<span class="required" aria-required="true">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select name="divSCDECD" id="divSCDECD1" class="form-control selctInputFormat" style="background-color : white !important;" onchange="HideDairyAndCaseType();">
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+                <div id="divDistrict" style="display:none;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="control-label">Select State/UT  <span class="required" aria-required="true">*</span> </label>
+                        </div>
+                        <div class="col-md-8">
+                            <select name="drpcourtnameDC" id="drpcourtnameDC1" class="form-control selctInputFormat" onchange="divdrpcourtnameDC1();"></select>
+                        </div>
+
+                    </div>
+                    <div class="row m10" id="divDistrict1" style="display:none">
+                        <div class="col-md-4">
+                            <label class="control-label">Select District <span class="required" aria-required="true">*</span> </label>
+                        </div>
+                        <div class="col-md-8">
+                            <select name="drpdistrictcourtname" id="drpdistrictcourtname1" class="form-control selctInputFormat" onchange="divdistrictchange1();"></select>
+                        </div>
+                    </div>
+                    <div class="row m10" id="divcourtcomplexestb1" style="display:none">
+                        <div class="col-md-4">
+                            <label class="control-label"> Court Establishment <span class="required" aria-required="true">*</span> </label>
+                        </div>
+                        <div class="col-md-8">
+                            <select name="drpcourtcomplexestb" id="drpcourtcomplexestb1" class="form-control selctInputFormat" onchange="drpcourtcompestbchange1();"></select>
+                        </div>
+
+                    </div>
+                    <div class="row m10" id="divdrpcompestbcourt1" style="display:none">
+                        <div class="col-md-4">
+                            <label class="control-label">District Court <span class="required" aria-required="true">*</span> </label>
+                        </div>
+                        <div class="col-md-8" id="divcompestbcourt1">
+                            <select name="drpcompestbcourt" id="drpcompestbcourt1" class="form-control selctInputFormat" onchange="drpcompestbcourtchange1();"></select>
+                        </div>
+                    </div>
+
+
+
+                </div>
+                <hr>
+                <div id="OtherDetailsPannel" style="display:none">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="control-label">Other Details <span class="required " aria-required="true"><b> *</b> </span></label>
+                        </div>
+
+                        <div id="NoDocBenchType" style="display:none;">
+                            <div class="col-md-4">
+                                <label class="control-label">Select Bench</label>
+                                <select name="divBenchtype" id="divBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="ChangeDuringGetData();"></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label">Matter Type <span class="required" aria-required="true">*</span> </label>
+                                <select name="drptype" id="drptypeBench" class="form-control selctInputFormat"
+                                        style="background-color: white !important;">
+                                </select>
+                            </div>
+
+                        </div>
+                        <div id="MHBenchType" style="display:none;">
+                            <div class="col-md-4">
+                                <label class="control-label">Select Bench</label>
+                                <select name="divBenchtype" id="divBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="ChangeDuringGetData1();"></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label">Side <span class="required" aria-required="true">*</span></label>
+                                <select name="drpside" id="drpside1" class="form-control selctInputFormat"
+                                        style="background-color: white !important;" onchange="GetMhcaseType();">
+                                </select>
+                            </div>
+                        </div>
+                        <div id="WithoutBenchBenchType" style="display:none;">
+                            <div class="col-md-8">
+                                <label class="control-label">Matter Type <span class="required" aria-required="true">*</span> </label>
+                                <select name="drptype" id="drptype" class="form-control selctInputFormat"
+                                        style="background-color: white !important;">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="MhSideType">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-4">
+                            <label class="control-label">Stamp/Register <span class="required" aria-required="true">*</span></label>
+                            <select name="drpstampregister" id="drpstampregister1" class="form-control selctInputFormat"
+                                    style="background-color: white !important;">
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="control-label">Matter Type <span class="required" aria-required="true">*</span> </label>
+                            <select name="drptype" id="drptypeMH" class="form-control selctInputFormat"
+                                    style="background-color: white !important;">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" id="divDtDairyBench" style="display:none">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-8">
+                            <label class="control-label">Select Bench<span class="required" aria-required="true">*</span> </label>
+                            <select name="divBenchtype" id="divBenchDt" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                        </div>
+                    </div>
+                    <div class="row" id="NormalcaseType" style="display:none">
+                        <div class="col-md-4">
+                        </div>
+
+                        <div class="col-md-4" id="matterNumberType" style="display:none;">
+                            <label class="control-label">Matter Number<span class="required" aria-required="true">*</span> </label>
+                            <input type="text" class="inputFormat form-control" autocomplete="off" name="txtno" id="txtno1" maxlength="500" style="margin-bottom:10px !important" />
+
+                        </div>
+                        <div class="col-md-4" id="DaryNumberType" style="display:none;">
+                            <label class="control-label">Dairy Number<span class="required" aria-required="true">*</span> </label>
+                            <input type="text" class="inputFormat form-control" autocomplete="off" name="txtDiaryNo" id="txtDiaryNo1" maxlength="500" style="margin-bottom:10px !important" />
+
+                        </div>
+                        <div class="col-md-4" id="drpyearshow">
+                            <label class="control-label">Matter Year <span class="required" aria-required="true">*</span> </label>
+                            <select name="drpYear" id="drpYear1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                        </div>
+                    </div>
+                    <div id="ConsumercaseType" style="display:none">
+                        <div class="row">
+                            <div class="col-md-4">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label">
+                                    Appeal Number <span class="required" aria-required="true">*</span>
+                                </label>
+                                <input type="text" class="inputFormat form-control" autocomplete="off" name="appealNo" id="txtno2" maxlength="500" style="margin-bottom:10px !important" onkeyup="OpenAppealInformationOnSelect()" />
+
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label">Select Bench <span class="required" aria-required="true">*</span> </label>
+                                <select name="divBenchtype" id="CFBench1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="ConsumerDistrictAndState();"></select>
+                            </div>
+                        </div>
+                        <div class="row" id="ConsumerDistrictState" style="display:none">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4" id="CfState" style="display:none">
+                                <label class="control-label">State <span class="required" aria-required="true">*</span> </label>
+                                <select name="drpncdrcstate" id="drpncdrcstate1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="DecideStateAndDistrictType();"></select>
+                            </div>
+                            <div class="col-md-4" id="CfDistrict" style="display:none">
+                                <label class="control-label"> District Forum <span class="required" aria-required="true">*</span></label>
+                                <select name="drpncdrcDistrict" id="drpncdrcDistrict1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="AddaCourtArea" style="display:none;">
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Other Details <span class="required " aria-required="true"><b> *</b> </span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Matter Number<span class="required" aria-required="true">*</span> </label>
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="txtnoAdd" id="txtnoAdd1" maxlength="500" style="margin-bottom:10px !important" />
+
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Matter Year <span class="required" aria-required="true">*</span> </label>
+                        <select name="drpYear" id="drpYearAdd" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Case Name<span class="required" aria-required="true">*</span> </label>
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="txtcasename1" id="txtcasename" maxlength="500" style="margin-bottom:10px !important" />
+
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Advocate</label>
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="txtcustomadvocate1" id="txtcustomadvocate" maxlength="500" style="margin-bottom:10px !important" />
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Next Hearing / Disposed Date<span class="required" aria-required="true">*</span> </label>
+                        <input placeholder="yyyy-mm-dd" class="form-control InputFormat" name="dtnhearingdate" id="dtnhearingdate1" type="date" value="">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Status</label>
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="txtcustomstatus" id="txtcustomstatus1" maxlength="500" style="margin-bottom:10px !important" />
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="control-label">Matter Name<span class="required" aria-required="true">*</span> </label>
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="mattersAdd1" id="mattersAdd" maxlength="500" style="margin-bottom:10px !important" text />
+
+                    </div>
+                </div>
+            </div>
+
+            <div id="RevnuewArea" style="display:none;">
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Select Mandal <span class="required" aria-required="true">*</span> </label>
+                        <select name="RevenueMandal" id="RevenueMandal1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueJanpad1(this.value);"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Select Janpad <span class="required" aria-required="true">*</span></label>
+                        <select name="RevenueJanpad" id="RevenueJanpad1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueTehsil1(this.value);"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Other Details </label>
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="txtnoOther" id="txtOther" maxlength="500" style="margin-bottom:10px !important" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <label class="control-label">Select Tahsil <span class="required" aria-required="true">*</span> </label>
+                        <select name="RevenueTahsil" id="RevenueTahsil1" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueCourtNameByTahsil1(this.value);"></select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="control-label">Select Revenue Court <span class="required" aria-required="true">*</span> </label>
+                        <select name="RevenueCourtName" id="RevenueCourtName1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+
+                    <div class="col-md-4">
+                        <label class="control-label">Matter Number<span class="required" aria-required="true">*</span> </label>
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="Revenuetxtno" id="Revenuetxtno1" maxlength="500" style="margin-bottom:10px !important" />
+
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">
+                            Matter Year <span class="required" aria-required="true">*</span>
+                        </label>
+                        <select name="drpYear" id="RevenueYear1" class="form-control selctInputFormat" style="background-color: white !important;">
+                        </select>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4"></div>
+                    <div class="col-md-1" style="padding: 0; margin: 0 0 0 -7px;"><strong>or</strong></div>
+                    <div class="col-md-3"></div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+
+
+                    <div class="col-md-8">
+                        <label class="control-label">
+                            Computerized Case No.
+                        </label>
+                        <input type="text" name="RevenueRefNo" maxlength="16" id="RevenueRefNo1" class="form-control inputFormat">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+
+                    <div class="col-md-8">
+                        <label class="control-label">Matter Name<span class="required" aria-required="true">*</span> </label>
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="mattersRevnue1" id="mattersRevnue" maxlength="500" style="margin-bottom:10px !important" text />
+
+                    </div>
+
+                </div>
+            </div>
+
+            @* NEW Change *@
+            <div id="RevnuewAreaRERH" style="display:none;">
+                <hr>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <label class="control-label">Select District <span class="required" aria-required="true">*</span></label>
+                        <select name="RevenueJanpad" id="RevenueJanpadR" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueCourtNameByTahsilAndJanpad();"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Select Court Type <span class="required" aria-required="true">*</span> </label>
+                        <select name="RevenueTahsil" id="RevenueTahsilR" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueCourtNameByTahsilAndJanpad();"></select>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <label class="control-label">Select Court Name <span class="required" aria-required="true">*</span> </label>
+                        <select name="RevenueCourtName" id="RevenueCourtNameR" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="control-label">Appeal No.(Computer ID) <span class="required" aria-required="true">*</span> </label>
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="Revenuetxtno" id="RevenuetxtnoR" maxlength="500" style="margin-bottom:10px !important" />
+
+                    </div>
+                </div>
+                @*<div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <label class="control-label">Matter Name<span class="required" aria-required="true">*</span> </label>
+                        <input type="text" class="inputFormat form-control" autocomplete="off" name="mattersRevnue1" id="mattersRevnueR" maxlength="500" style="margin-bottom:10px !important" text />
+                    </div>
+                </div>*@
+            </div>
+            @* END *@
+            <div id="ReraCourtArea">
+
+                <div id="divreracasetype1" style="display:none;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="control-label">Other Details <span class="required " aria-required="true"><b> *</b> </span></label>
+
+                        </div>
+                        <div class="col-md-4">
+                            <label class="control-label">Case/Appeal Authority <span class="required" aria-required="true">*</span> </label>
+                            <select name="reracasetype" id="reracasetype1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+
+                        </div>
+                        <div class="col-md-4">
+                            <label class="control-label">Case/Appeal No <span class="required" aria-required="true">*</span> </label>
+                            <input type="number" name="reracasno" id="reracasno1" maxlength="50" size="10" class="form-control InputFormat" placeholder="Case/Appeal No" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-4">
+                            <label class="control-label">Case Year <span class="required" aria-required="true">*</span> </label>
+                            <select name="reracaseyear" id="reracaseyear1" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                        </div>
+                    </div>
+                </div>
+                <div id="NonCasetypeRera" style="display:none">
+                    <div class="row">
+                        <div class="col-md-4">
+
+                            <label class="control-label">Other Details </label>
+
+                        </div>
+                        <div class="col-md-4">
+                            <label class="control-label">Case/Appeal No <span class="required" aria-required="true">*</span> </label>
+                            <input type="number" name="reracasno" id="reracasno1" maxlength="50" size="10" class="form-control InputFormat" placeholder="Case/Appeal No" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="optionalCourtMatter" style="display:none">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <label class="control-label">Matter Name<span class="required" aria-required="true">*</span></label>
+                        <input type="text" id="reraMatterName" class="form-control inputFormat ui-autocomplete-input" placeholder="Enter Matter Name" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="MemberFortempCourt" style="display:none;">
+                <div class="col-md-4">
+
+                </div>
+                <div class="col-md-8" id="addtaskmember4Block" style="display:none">
+                    <label class="control-label">TEAM Member </label>
+                    <select class="form-control InputFormat" name="languageSelect[]" id="addtaskmember4" multiple></select>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <hr />
+                    <div class="form-actions">
+                        <button id="MaincaseCourt" class="btn btn-primary pull-right" onclick="FetchCaseDetails()" style="display:none; margin:0 0 0 15px;">Search Matter</button>
+                        <button class="btn btn-secondary pull-right" onclick="RestValue()">Clear All</button>
+
+                        <button id="optionalCourt" class="btn btn-primary pull-right" onclick="AddManualCaseWithoutSearch()" style="display:none; margin:0 15px 0 0;">Add Matter</button>
+                    </div>
+                </div>
+            </div>
+            @*<div id="myOverlayRERH" class="overlay" style="display:block;z-index: 9999;">
+                <div class="overlay-content">
+                    <div class="spinner2">
+                        <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+                    </div>
+                </div>
+            </div>*@
+        </div>
+    </div>
+</section>
+<div class="container-main">
+    @*<a href="#" class="back-link">&larr; Go Back</a>*@
+
+    @*<div class="heading">Add Matter To Live Tracking</div>*@
+    <!--<div class="button-group">
+        <a class="btn" href="/CASE/CW/LitigationAddLiveUpdate?type=0">Court Details</a>-->
+    @*<button class="btn">Party Name</button>*@
+    <!--<a class="btn" href="/CASE/CW/LitigationAddLiveUpdate?type=1">CNR Number</a>
+    </div>-->
+
+</div>
+<div id="myOverlay" class="overlay" style="display: none">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addMatterModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document" style="width:400px;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="editclose"> <span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <h4 class="modal-title">Add Matter to Live Tracking</h4>
+            </div>
+            <div class="modal-body" style="padding:20px 0;">
+                <form id="mattermanualName">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="control-label">Matter Name<span class="required" aria-required="true">*</span></label>
+                            <input type="text" id="Modalmattername" class="form-control selctInputFormat">
+                        </div>
+                        <div class="col-md-12" id="addtaskmemberManualBlock" style="display:none">
+                            <label class="control-label">Team Member </label>
+                            <select class="modal-input" name="languageSelect[]" id="addtaskmemberManual" multiple></select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" style="width:48%;" onclick="ModelMatterNameReset()">Reset</button>
+                <button class="btn btn-primary" style="width:48%;" onclick="AddManualCaseWithoutSearch()">+ Add to Tracking</button>
+            </div>
+        </div>
+        <div id="myOverlay1" class="overlay">
+            <div class="overlay-content">
+                <div class="spinner2">
+                    <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<div class="modal fade" id="addMatterModalDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="editclose"> <span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <h4 class="modal-title">Case Search Details</h4>
+            </div>
+            <div class="modal-body" style="padding:0;">
+                <input type="hidden" value="" id="StateId" />
+                <input type="hidden" value="" id="Districtid" />
+                <input type="hidden" value="" id="Courttype" />
+                <input type="hidden" value="" id="Casetype" />
+                <input type="hidden" value="" id="Court" />
+                <input type="hidden" value="" id="Courtcompestbtype" />
+                <input type="hidden" value="" id="Courtcompestbcourt" name="Courtcompestbcourt" />
+                <input type="hidden" value="" id="BenchID" name="BenchID" />
+                <form id="mongoreset">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label>Court </label>
+                            <input type="text" id="courtnamess" name="courtnamess" class="inputFormat form-control" readonly />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Case Name</label>
+                            <input type="text" id="casename" name="casename" class="inputFormat form-control" readonly />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Bench </label>
+                            <input type="text" id="BenchName" name="BenchName" class="inputFormat form-control" readonly />
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Case Appeal No</label>
+                            <input type="text" id="DiaryNo" name="DiaryNo" class="inputFormat form-control" readonly />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Case No</label>
+                            <input type="text" id="Caseno" name="Caseno" class="inputFormat form-control" readonly />
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Case Year</label>
+                            <input type="text" id="Caseyear" name="Caseyear" class="inputFormat form-control" readonly />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>CNR No. </label>
+                            <input type="text" id="Cnrno" name="Cnrno" class="inputFormat form-control" readonly />
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Advocate</label>
+                            <input type="text" id="madvocatename" name="madvocatename" class="inputFormat form-control" readonly />
+                        </div>
+
+                        <div class="form-group col-md-12">
+                            <label>Matter Name</label>
+                            <input type="text" id="MatterNamess" name="MatterNamess" class="inputFormat form-control" />
+                        </div>
+
+                        <div class="form-group col-md-12" id="teammemberssBlock" style="display:none">
+                            <label>Team Member</label>
+                            <select class="form-control selctInputFormat" name="languageSelect[]" id="teammemberss" multiple></select>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                @*<button class="btn btn-secondary" style="width:48%;">Reset</button>*@
+                <button class="btn btn-primary" style="width: 48%;" id="AddcaseSearchCase">+ Add to Tracking</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* RERH *@
+<div class="modal fade" id="addMatterModalDetailsRERH" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="editclose"> <span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <h4 class="modal-title">Case Search Details</h4>
+            </div>
+            <div class="modal-body" style="padding:0;">
+                <form id="mongoresetRERH">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label>Court</label>
+                            <input type="text" id="vCourt" name="court" class="inputFormat form-control" readonly />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Case Name</label>
+                            <input type="text" id="Appres" name="casename" class="inputFormat form-control" readonly />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Appeal No.(Computer ID):</label>
+                            <input type="text" id="appealNo" name="AppealNo" class="inputFormat form-control" readonly />
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>District</label>
+                            <input type="text" id="District" name="District" class="inputFormat form-control" readonly />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Court Type</label>
+                            <input type="text" id="CourtType" name="courtType" class="inputFormat form-control" readonly />
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Court Name</label>
+                            <input type="text" id="courtName" name="CourtName" class="inputFormat form-control" readonly />
+                        </div>
+
+
+                        <div class="form-group col-md-6">
+                            <label>Matter Name</label>
+                            <input type="text" id="Matters" name="MatterName" class="inputFormat form-control" readonly />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Status</label>
+                            <input type="text" id="Status" name="Status" class="inputFormat form-control" readonly />
+                        </div>
+                        <div class="form-group col-md-12" id="teammemberssBlock" style="display:none">
+                            <label>Team Member</label>
+                            <select class="form-control selctInputFormat" name="languageSelect[]" id="teammemberss" multiple></select>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                @*<button class="btn btn-secondary" style="width:48%;">Reset</button>*@
+                <button class="btn btn-primary" style="width: 48%;" id="AddcaseSearchCaseRERH">+ Add to Tracking</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Appeal no modal*@
+
+<div id="AppealModalInformation" class="modal fade" role="dialog" data-backdrop="static" style="clear:both;">
+    <div class="modal-dialog" style="width:720px;">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+
+            </div>
+
+            <div class="modal-body" style="height: 450px; font-family: Arial, sans-serif; margin: 20px;">
+                <div class="note">
+                    <h4>Note:</h4>
+                    <p>Please ensure that the Appeal No. is entered in the exact format as given on the Consumer Forum Site.</p>
+                    <div class="example">
+                        <h5>The Matter type must be Case-sensitive.</h5>
+                        <h5>Below are a few examples for reference:</h5>
+                        <p>CC/15/2010, cc/20/2017, FA/1125/10, RBR/A/40/2021, CC 172/2018, F.A. 631/2017, FA-221/19, 181/20</p>
+                        <p style="margin:10px 0 40px"> <strong>Please note that the case will not be indexed if the case format is not entered correctly.</strong></p>
+                    </div>
+                    <div style="text-align:center;">
+                        <a class="btn btn-primary" onclick="closeModalAppeal()" style="cursor:pointer !important;">CLOSE</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

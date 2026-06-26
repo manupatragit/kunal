@@ -1,0 +1,272 @@
+﻿@{
+    ViewBag.Title = "PrivateChannelList";
+    Layout = null;//"~/Views/Shared/_ManuPanelPartial.cshtml";
+    var strcurdate = DateTime.Now.ToString("dd MMM yyyy");
+    var firmcode121 = Session["FirmCode"];
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link href="/Manupanel/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="~/newassets/css/style.css" rel="stylesheet" type="text/css" />
+<link href="~/newassets/css/custom.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<style>
+    table th, td {
+        font-size: 12px !important;
+    }
+</style>
+<style>
+    .glyphicon-pencil, .glyphicon-trash, .glyphicon-open-eye {
+        color: black !important;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/Chat.js?4.1"></script>
+<div>
+    <div>
+        <div class="content-header">
+            <ul class="btn_panel" style="padding:0;" id="sectiontemp">
+                <li>Channel Name :</li>
+                <li><input type="text" class="form-control inputbg" id="Channelname" /><button type="button" class="sbtbtn" style="margin-top:-25px; float: right" id="btnsearch" onclick="PrivateChannelList(1);"><i class="glyphicon glyphicon-search"></i></button></li>
+            </ul>
+            @*<p style="padding:0 0 0 0;float:right"><a class="sbtbtn" href="CreatePrivateChannel" title="Create Channel">Create Channel</a></p>*@
+        </div>
+        <div class="table-panel table-responsive">
+            <table id="pvtexampleteam" class="table " style="margin:0 auto;">
+                <thead>
+                    <tr><th><div class="thbg">Date</div></th><th><div class="thbg">Channel Name</div></th><th width="40px" style="text-align:center;"><div class="thbg">Chat</div></th><th><div class="thbg">Action</div></th></tr>
+                </thead>
+                <tbody id="pvtbinddata"></tbody>
+            </table>
+            <div class="row settingpanelteam settingpanel">
+                <div class="col-md-6">
+                    <div>
+                        <ul>
+                            <li>
+                                <div class="btn-group dropup" style="display:none">
+                                    <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                        Customize Field <span class="glyphicon glyphicon-chevron-down"></span>
+                                    </a>
+                                    <ul class="dropdown-menu settingshowhide" id="EColli">
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Team" checked><a href="#" class="dropdown-item">Team</a></li>
+                                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Chat" checked><a href="#" class="dropdown-item">Chat</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li style="margin-left:18px;margin-top:12px;">
+                                <div id="ecfooterpvt"></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="currdate" value="@strcurdate" />
+<script src="~/Scripts/Firm/Pages/Chat.js?1.7"></script>
+<script>
+    $(document).ready(function () {
+        PrivateChannelList(1);
+        $(document).on('click', '#mclose', function () {
+            $("#modalview").hide();
+        });
+        $(document).on('click', '#ChannelidGroup1', function () {
+            var strteamname = $(this).attr("data-tname");
+            var strfchannelid = $(this).attr("data-val");
+            var strffirmid = $("#firmid");
+            var strfuserid = $("#userid");
+            var strfusername = $("#username");
+            var url = "UserLogin?tid=" + strfchannelid + "&uid=" + strfuserid + "&unm=" + strfusername + "&fid=" + strffirmid + "&tnm=" + strteamname + "&ty=p";            //window.location.href = url;
+            window.open(url, '', "menubar=0,resizable=1,width=1000,height=600,left=200");
+            //$("#frm").attr("src", url);
+            //$("#modalview").show();
+        });
+        $(document).on('click', '#ViewEdit', function () {
+            var strchannelid = $(this).attr("datachannel");
+            //var strteamid = $(this).attr("datateamid");
+            var strchannelname = $(this).attr("datachname");
+            var stractiontype = $(this).attr("dataaction");
+            //  var strteamname = $(this).attr("datateamname");
+            if (stractiontype == "view") {
+                var url = "PrivateChannelMember?cid=" + strchannelid + '&at=1&chn=' + strchannelname;    //window.location.href = url;
+            }
+            else {
+                var url = "PrivateChannelMember?cid=" + strchannelid + '&at=2&chn=' + strchannelname;     //window.location.href = url;
+            }
+            window.open(url, '', "menubar=0,resizable=1,width=1000,height=400,left=200,top=100");
+            // $("#frm").attr("src", url);
+            // $("#modalview").show();
+        });
+        $(document).on('click', '#channeldelete', function () {
+            if (confirm("Are you sure to delete this channel ?")) {
+                var formData = new FormData();
+                var strchannelid = $(this).attr("datadel");
+                formData.append("Channelguid", strchannelid);
+                $.ajax(
+                    {
+                        type: "POST",
+                        url: "/api/ChatApi/ChannelDel", // Controller/View
+                        dataType: 'json',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            alert("Deleted successfully.");
+                        },
+                        failure: function (data) {
+                            alert(data.responseText);
+                        },
+                        error: function (data) {
+                            alert(data.responseText);
+                        }
+                    });
+                PrivateChannelList(1);
+            }
+        });
+    });
+</script>
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("exampleteam");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 1; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<div id="modalview" class="modal_a" style="display:none">
+    <div class="modal_a-content">
+        <img src="/NewDesign/images/v_btn.png" class="close_a" id="mclose" width="22px" height="22">
+        <iframe src="" id="frm" width="100%" height="550px" frameborder="0"></iframe>
+    </div>
+</div>
+<style>
+    .modal_a {
+        position: fixed;
+        z-index: 9999999999;
+        padding-top: 20px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.8);
+    }
+
+    .modal_a-content {
+        background-color: #fefefe;
+        margin: 0px auto 0;
+        padding: 10px 10px;
+        border: 1px solid #000;
+        border-radius: 5px;
+        width: 90%;
+        height: 600px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+    }
+
+    .close_a {
+        position: relative;
+        right: -20px;
+        top: -22px;
+        float: right;
+    }
+
+        .close_a:hover, .close_a:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+</style>

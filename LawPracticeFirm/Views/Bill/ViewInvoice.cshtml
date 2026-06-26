@@ -1,0 +1,807 @@
+﻿@{
+    ViewBag.Title = "InvoiceSetting";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+<script>
+        var roleids ="@role";
+</script>
+<script>
+    var roleids = "@Session["sessionroleid"]";
+    var isDelete = "@ViewBag.IsDelete";
+    var IsCreate = "@ViewBag.IsCreate";
+    var IsEdit = "@ViewBag.IsEdit";
+</script>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#clearnewseach").click(function () {
+            $("#searchname,#searchfrom,#searchto,#searchamount").val("");
+            $("#searchinvoice").click();
+            $("#clearnewseach").css("display", "none");
+        });
+        $("#searchdata").on("keyup", function () {
+            var value = $("#searchdata").val().toLowerCase();
+            $("#invlist tbody tr ").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+
+        $("#ColumnSelectionopen").click(function () {
+            $("#myModalCustomizedcolumn").modal('show'); // Opens the modal
+        });
+
+        $(document).click(function (event) {
+            if ($(event.target).is(".myModal")) {
+                $("#myModalCustomizedcolumn").modal('hide'); // Closes the modal
+            }
+        });
+    });
+</script>
+<script language=Javascript>
+<!--
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+    //-->
+</script>
+<style>
+    .InvoiceNo {
+        display: table-cell;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/ViewInvoiceSearch.js?5.2"></script>
+
+<section id="header">
+    <div class="container-main" style="display:flex; justify-content:space-between;">
+        <div class="text-left">
+            <p class="ctitle"> List of Invoices</p>
+        </div>
+        <div>
+            @if (role.ToString() == "1")
+            {
+
+                <a href="/@Session["firmcode"]/Bill/createinvoice" title="Create Invoice" class="button4"><img src="/newassets/img/plus-icon.png">  Create Invoice</a>
+            }
+            else
+            {
+                if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                {
+                    <a href="/@Session["firmcode"]/Bill/createinvoice" title="Create Invoice" class="button4"><img src="/newassets/img/plus-icon.png"> Create Invoice</a>
+                }
+            }
+
+        </div>
+    </div>
+</section>
+<form id="fileupload" enctype="multipart/form-data">
+    <section>
+        <div class="expense_total_card_wrapper">
+            <div class="card" id="">
+                <h6>Total Collected </h6>
+                <span>₹ </span><span id="totcolamt">0</span>
+            </div>
+
+            <div class="card" id="">
+                <h6>Total Outstanding</h6>
+                <span>₹ </span><span id="totoutamt">0</span>
+            </div>
+
+            <div class="card" id="">
+                <h6>Overdue Amount</h6>
+                <span>₹ </span><span id="totoverdueamt">0</span>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="card-header">
+            <div class="content1" style="justify-content: space-between; padding:0;">
+                <div class="left_input" style="display: grid; gap: 10px; grid-template-columns: 150px 150px 150px 170px 100px 40px;">
+                    <select type="text" id="searchname" class="form-control selctInputFormat">
+                        <option value="">Client Name</option>
+                    </select>
+                    <input class="form-control inputFormat" name="mname" type="date" onkeydown="return false" id="searchfrom" />
+                    <input class="form-control inputFormat" name="mname" type="date" onkeydown="return false" id="searchto" />
+                    <input type="text" id="searchamount" class="form-control inputFormat" placeholder="Search by Amount">
+                    <button type="button" id="searchinvoice" class="btn btn-secondary" style="padding: 8px 0;"><img src="~/newassets/img/search-lg.png" /> Search</button>
+                    <div class="btn btn-secondary" id="clearnewseach" title="Click here to reset search" style="padding:8px 0; display:none"><img src="~/newassets/img/btn-close.png" /></div>
+                </div>
+                <div class="table-header">
+                    <div class="actions3">
+
+                        <div class="menuexport" style="position:relative; cursor:pointer;">
+                            <div class="dropdown-toggle button13" type="button" data-toggle="dropdown" title="Invoice Setting">
+                                <img class="plus-icon" alt="" src="/newassets/img/settings.png" />
+                                <div class="text-padding">
+                                    <div class="text1">
+                                        <a href="javascript:void()"> Invoice Setting</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <ul class="dropdown-menu settingaction">
+                                @if (role.ToString() == "1")
+                                {
+                                    <li>
+                                        <a href="/@Session["firmcode"]/Bill/InvoiceSetting" title="Settings">Invoice Settings</a>
+                                    </li>
+                                    <li>
+                                        <a href="/@Session["firmcode"]/Bill/paymentclearance" title="Clear Payment">Clear Payment</a>
+                                    </li>
+                                }
+
+                            </ul>
+                        </div>
+                        <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                            <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+                            <div class="text-padding">
+                                <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="table">
+        <div class="container-main">
+            <div class="table">
+
+                <div class="tablearea" style="margin:0;">
+                    <div class="tablecontainer">
+                        <div id="invoicetabparentdiv">
+                            <table id="invlist" class="table-panel">
+                                <thead>
+                                    <tr>
+                                        @*<th>Sl. No.</th>*@
+                                        <th onclick="sortTable(0)" class="InvoiceNo" style="min-width:180px;line-height: normal;"><div class="thbg">Invoice Number&nbsp;&nbsp;&nbsp;<span class="fa fa-sort fa-fw"></span></div></th>
+                                        <th onclick="sortTable(1)" class="ClientName"><div class="thbg">Client Name &nbsp;&nbsp;&nbsp;<span class="fa fa-sort fa-fw"></span></div></th>
+                                        <th onclick="sortTable(2)" class="invMatterName"><div class="thbg">Matter Name &nbsp;&nbsp;&nbsp;<span class="fa fa-sort fa-fw"></span></div></th>
+                                        <th class="invName"><div class="thbg">Name &nbsp;&nbsp;&nbsp;<span class="fa fa-sort fa-fw"></span></div></th>
+                                        <th onclick="sortTable(3,1)" class="invdate"><div class="thbg">Invoice Date&nbsp;&nbsp;&nbsp;<span class="fa fa-sort fa-fw"></span></div></th>
+                                        <th class="Invoicetype">
+                                            <div class="thbg">
+                                                <select type="text" id="InvoiceType" class="form-control" style="min-width: 120px">
+                                                    <option value="">Invoice Type</option>
+                                                    <option value="Taxable">Taxable</option>
+                                                    <option value="Nonaxable">Non-Taxable</option>
+                                                </select>
+                                            </div>
+                                        </th>
+                                        <th class="InvoiceStatus">
+                                            <div class="thbg">
+                                                <select type="text" id="InvoiceStatus" class="form-control" style="min-width: 120px">
+                                                    <option value="">Invoice Status</option>
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="settled">Settled</option>
+                                                </select>
+                                            </div>
+                                        </th>
+                                        <th class="TotAmt"><div class="thbg">Amount</div> </th>
+                                        <th class="PaidAmt"><div class="thbg">Pay Received</div> </th>
+                                        <th class="PaymentType"><div class="thbg">Payment Type </div></th>
+                                        <th class="ChequeStatus"><div class="thbg">Cheque Status</div> </th>
+                                        <th class="famt"><div class="thbg">Pay Due</div> </th>
+                                        <th onclick="sortTable(11,1)" class="Inovicedate"><div class="thbg">Created On <span class="fa fa-sort fa-fw"></span></div></th>
+                                        <th onclick="sortTable(12)" class="CreatedBy"><div class="thbg">Created By <span class="fa fa-sort fa-fw"></span></div></th>
+                                        <th onclick="sortTable(13,1)" class="duedate"><div class="thbg">Due Date <span class="fa fa-sort fa-fw"></span></div></th>
+                                        <th class="ClientGST"><div class="thbg">Client GST No</div> </th>
+                                        <th class="ClientPAN"><div class="thbg">Client PAN No</div> </th>
+                                        <th style="min-width:130px;"><div class="thbg">Action &nbsp; </div></th>
+                                        @*<th><div class="thbg">Download </div></th>*@
+                                    </tr>
+                                </thead>
+                                <tbody id="assignuserdata"></tbody>
+                            </table>
+
+                            <center>
+
+                                <div class="notfound" id="paymentdetaisnoresultdiv" style="display:none;">
+                                    <img src="~/newassets/img/not-found.png" />
+                                    <h4>No result found</h4>
+                                </div>
+                            </center>
+                        </div>
+                    </div>
+                    <div class="pagination" id="Invoicepagination">
+                        <div class="pagination-button-group">
+                            <div id="prev" class="pagination-button-group-base">
+                                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                            </div>
+                            <div id="pageNumbers" class="pagination-button-group-base1">
+                            </div>
+
+                            <div id="next" class="pagination-button-group-base8">
+                                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-parent">
+                            <div class="input">
+                                <div class="content">
+                                    <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                </div>
+                                <div class="help-icon">
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-group">
+                                <div class="text-and-supporting-text">
+                                    <div id="divGo" class="text9">Go</div>
+                                </div>
+                                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+
+@*<div class="row">
+        <div class="col-md-12">
+
+            <div><center><span id="datastatus"></span></center></div>
+            <div class="table-panel">
+                <div class="settingpanel">
+                    <div class="col-md-6">
+
+                        <div id="casetfooter1">
+                            <div class="box-footer clearfix">
+                                <ul class="pagination pagination-sm no-margin pull-right"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+<div id="tokens"></div>
+<!-- Modal -->
+<div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+
+<div id="myModaldocs1" class="modal fade" role="dialog" style="z-index:2000;">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <span id="spanhead"> Email Invoice</span>
+                </h4>
+            </div>
+            <div class="minebody modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="hidden" id="textinvid">
+                                        <fieldset>
+                                            <legend>Email Invoice</legend>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-3">Invoice Type<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                <div class="col-md-8">
+                                                    <select id="invoicetype" class="form-control">
+                                                        <option value="">Select</option>
+                                                        <option value="o">Original</option>
+                                                        <option value="d">Duplicate</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-3">Please enter the E-mail Id<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                <div class="col-md-8">
+                                                    <input type="email" class="form-control" id="shareemail" placeholder="Please enter the E-mail Id. with Comma Separated (,) in case of Multiple recipients." />
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-labeled btn-info" id="sharedocs">
+                                                <span class="btn-label"><i class="fa fa-envelop"></i></span>Share to mail
+                                            </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        </fieldset>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModaldocs" class="modal fade" role="dialog" data-backdrop="false">
+    <div class="modal-dialog" style="width:480px;">
+        <!-- Modal content-->
+        <div class="modal-content" style="height:450px;">
+            <div class="modal-header btn-success">
+                <button type="button" id="closesharebox" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/share.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                <h4 id="spanhead" style=" margin-left: 10px; margin-top: 20px;">Share As Mail</h4>
+            </div>
+            <div class="modal-body" style="overflow:hidden;">
+
+                @*<div class="col-md-12">
+                        <div class="form-group form-horizontal">
+                            <label>Invoice Version</label>
+                            <div id="emailVersion" style="margin-top:5px;cursor:default"></div>
+                        </div>
+                    </div>*@
+                <div class="col-md-12">
+                    <div class="form-group form-horizontal">
+                        <label>Invoice Inversion</label>
+                        <select class="form-control" id="emailVersion">
+                            <option value="1">Select Version</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-horizontal">
+                        <label>E-mail Id</label>
+                        <input type="email" class="form-control inputFormat" id="semail" title="Enter E-mail Id" placeholder="Enter Email ID" />
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group form-horizontal">
+                        <label>Remarks</label>
+                        <input type="text" class="form-control inputFormat" id="remarksemail" placeholder="Enter here" maxlength="1000" multiple style="height:60px;" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-6">
+                    <button type="button" class="btn btn-secondary" style="width:100%;">Cancel</button>
+                </div>
+                <div class="col-md-6">
+                    <button type="button" id="shareinvoice" data-val="" data-type="" class="btn btn-primary" value="Save" style="width:100%;">Send Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModaldocsclient" class="modal fade" role="dialog" style="z-index:2000;" data-backdrop="false">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content" style="height: 303px; width: 480px;">
+            <div class="modal-header btn-success ">
+                <button type="button" id="closesharebox" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/share.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                <h4 id="spanhead" style=" margin-left: 10px; margin-top: 25px;">Share Invoice With Client</h4>
+            </div>
+            <div class="minebody modal-body" style="margin-top: 34px" ;
+                 }">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Invoice Version<span><sup>*</sup></span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control selctInputFormat" id="emailVersionclient">
+                            @*<option>Original</option>
+                                <option>Revised</option>
+                                <option>Final</option>*@
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="margin:10px;">
+                    <div class="col-md-6"><button class="btn btn-secondary" style="width: 100%" data-dismiss="modal">Cancel</button></div>
+                    <div class="col-md-6"><button type="button" id="saveshareinvoiceclient" class="btn btn-primary" style="width: 100%">Share</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalpayment" class="modal fade" role="dialog" style="z-index:2000;" data-backdrop="false">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" id="closesharebox" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <span id="spanhead"> Invoice Payment Details</span>
+                </h4>
+            </div>
+            <div class="minebody modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="table-panel table-responsive" style="overflow-x:auto">
+                                        <table id="invlistpay" class="dataTable">
+                                            <thead>
+                                                <tr>
+                                                    <th><div class="thbg">Date</div></th>
+                                                    <th><div class="thbg">Payment Mode</div></th>
+                                                    <th><div class="thbg">Pay Received</div></th>
+                                                    <th><div class="thbg">Bank Name</div></th>
+                                                    <th><div class="thbg">DD NO</div></th>
+                                                    <th><div class="thbg">DD Date</div></th>
+                                                    <th><div class="thbg">Cheque No</div></th>
+                                                    <th><div class="thbg">Cheque Date</div></th>
+                                                    <th><div class="thbg">Ref No</div></th>
+                                                    <th><div class="thbg">Other Details</div></th>
+                                                    <th><div class="thbg">Payment History</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="PaymentDetailsdiv"></tbody>
+                                        </table>
+                                        <div id="paymentdetaisnoresultdiv" style="text-align:center;display:none">No result found</div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sortTable(n, type = null) {
+            try {
+                var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+                table = document.getElementById("invlist");
+                switching = true;
+                //Set the sorting direction to ascending:
+                dir = "asc";
+                /*Make a loop that will continue until
+                no switching has been done:*/
+                while (switching) {
+                    //start by saying: no switching is done:
+                    switching = false;
+                    rows = table.rows;
+                    /*Loop through all table rows (except the
+                    first, which contains table headers):*/
+                    for (i = 1; i < (rows.length - 1); i++) {
+                        //start by saying there should be no switching:
+                        shouldSwitch = false;
+                        /*Get the two elements you want to compare,
+                        one from current row and one from the next:*/
+                        x = rows[i].getElementsByTagName("TD")[n];
+                        y = rows[i + 1].getElementsByTagName("TD")[n];
+                        /*check if the two rows should switch place,
+                        based on the direction, asc or desc:*/
+                        if (type == "1") {
+                            if (dir == "asc") {
+                                if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            } else if (dir == "desc") {
+                                if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            }
+                        }
+                        else if (type == "2") {
+                            if (dir == "asc") {
+                                if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            } else if (dir == "desc") {
+                                if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            }
+                        }
+                        else {
+                            if (dir == "asc") {
+                                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            } else if (dir == "desc") {
+                                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (shouldSwitch) {
+                        /*If a switch has been marked, make the switch
+                        and mark that a switch has been done:*/
+                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                        switching = true;
+                        //Each time a switch is done, increase this count by 1:
+                        switchcount++;
+                    } else {
+                        /*If no switching has been done AND the direction is "asc",
+                        set the direction to "desc" and run the while loop again.*/
+                        if (switchcount == 0 && dir == "asc") {
+                            dir = "desc";
+                            switching = true;
+                        }
+                    }
+                }
+            }
+            catch (er) {
+                //alert(er.message);
+            }
+        }
+    </script>
+</div>
+
+@* modal started *@
+<div id="myModalCustomizedcolumn" class="modal right fade myModal" role="dialog" data-backdrop="static" aria-hidden="false" style="display: none;">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="margin-top:15px;">
+                        <ul id="od">
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="InvoiceNo" checked><a href="#">Invoice Number</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ClientName" checked><a href="#">Client Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invMatterName" checked><a href="#">Matter Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invName" checked><a href="#">Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="invdate" checked><a href="#">Invoice Date</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Invoicetype" checked><a href="#">Invoice Type</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="InvoiceStatus" checked><a href="#">Invoice Status</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="TotAmt" checked><a href="#">Amount</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="PaidAmt" checked><a href="#">Pay Received</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="PaymentType"><a href="#">Payment Type</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ChequeStatus"><a href="#">Cheque Status </a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="famt" checked><a href="#">Pay Due</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="duedate" checked><a href="#">Due date</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Inovicedate"><a href="#">Created On </a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="CreatedBy"><a href="#">Created By </a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ClientGST"><a href="#">Client GST No </a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ClientPAN"><a href="#">Client PAN No </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<div id="myModalcancelinvoice" class="modal fade in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px;">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/invoice.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                <h4>Cancel Invoice</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to <span>“IE445THY_890UI_09IH”</span> cancel this Invoice?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" id="" date-val="" type="button" name="submit" value="Submit" text="Confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Start Version History*@
+<div id="versionDetailModel" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:50%;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h3 class="modal-title" id="modal-header">
+                    Invoice Vesion
+                </h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="col-md-12 table-panel table-responsive" style=" margin-top:5px;">
+                            <div style="height:410px;overflow-y:scroll">
+                                <table class="table-panel ">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <div class="thbg">
+                                                    S.NO
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div class="thbg">
+                                                    Created By
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div class="thbg">
+                                                    Invoice Date
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div class="thbg" id="th2">
+                                                    Document name
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div class="thbg" id="th2">
+                                                    Action
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bindInvoiceData"></tbody>
+                                </table>
+                                <center>
+                                    <div class="notfound" id="invoicepdatastatus" style="display:none;">
+                                        <img src="~/newassets/img/not-found.png" />
+                                        <h4>Data Not Found</h4>
+                                    </div>
+                                </center>
+                            </div>
+                            <div class="pagination" id="inPagination" style="display:none">
+                                <div class="pagination-button-group">
+                                    <div id="inPrev" class="pagination-button-group-base">
+                                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                    </div>
+                                    <div id="inPageNumbers" class="pagination-button-group-base1">
+                                    </div>
+                                    <div id="inNext" class="pagination-button-group-base8">
+                                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-parent">
+                                    <div class="input">
+                                        <div class="content">
+                                            <input type="text" id="intxtgopage" name="query" placeholder="Page No.">
+                                        </div>
+                                        <div class="help-icon">
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-group">
+                                        <div class="text-and-supporting-text">
+                                            <div id="inDivGo" class="text9">Go</div>
+                                        </div>
+                                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*End Version History*@
+
+@* Delete popup started *@
+<div id="myModalDelConfirmation" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:480px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_deleteTraderequesr">Cancel Invoice Request</h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgRUSure">Are you sure to cancel this invoice?</p>
+            </div>
+            <div class="footer_buttons modal-footer">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="cancelInvoiceDetails">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* Delete popup ended *@

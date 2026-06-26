@@ -1,0 +1,787 @@
+﻿<!DOCTYPE html>
+@{
+    Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+}
+@using NJDGDetail.Models;
+@{
+    var firmcode = Request.Url.Segments[1];
+}
+@using QueryStringEDAES;
+<script>
+    var filesize = @ViewBag.filesize;
+      var id="@ViewBag.token";
+</script>
+<script type='text/javascript'>
+    $(document).ready(function () {
+        if (String(id) != "") {
+            localStorage.setItem("contacttoken", id);
+        }
+        if (String(id) == "") {
+            var urls = window.location.href;
+            url_redirect({
+                url: urls,
+                method: "post",
+                data: { "token": localStorage.getItem("contacttoken") }
+            });
+        }
+        function goodbye(e) {
+            localStorage.setItem("contacttoken", id);
+            if (!e) e = window.event;
+            //e.cancelBubble is supported by IE - this will kill the bubbling process.
+            e.cancelBubble = true;
+            //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+            //e.stopPropagation works in Firefox.
+            if (e.stopPropagation) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }
+        window.onbeforeunload = goodbye;
+    });
+</script>
+<i class="pp-icon-user"></i>
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script src="~/Scripts/Firm/Pages/AddCaseFile.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+
+    .form-control1 {
+        width: 49%;
+        border: 1px solid #ccc;
+        /* border-radius: 4px; */
+        height: 30px;
+        color: #000;
+        padding: 0 3px;
+    }
+
+    .txtbox-setting {
+        width: 80px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        font-size: 14px;
+    }
+
+    .txtbox-setting1 {
+        width: 200px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        font-size: 14px;
+    }
+
+    .txtbox-setting2 {
+        width: 284px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        margin: 8px 0 9px 0;
+        font-size: 14px;
+    }
+
+    .txtbox-setting3 {
+        width: 284px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        margin: 0 0 9px 0;
+    }
+</style>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/employee/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active"> <a href="/@firmcode/employee/vmatter/matter">Case List</a></li>
+            <li class="active"> Case Details</li>
+        </ol>
+        <h1><span class="glyphicon glyphicon-briefcase"></span> Case Details</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header" style="margin-top:5px;">
+                        <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp">
+                            <li>
+                                <input type="button" class="btn btn-primary" onclick="tableToExcelnew('questionLIst', 'CaseDetails')" value=" Excel">
+                            </li>
+                            <li>
+                                <input type="button" class="btn btn-primary" id="btnExport" value=" PDF" />
+                            </li>
+                            <li>
+                                <input type="textbox" style="border:1px solid #cccccc; height:34px; display:none" id="searchdata" />&nbsp;&nbsp;&nbsp;
+                            </li>
+                            <li>
+                                <input type="textbox" style="border:1px solid #cccccc; display:none; height:34px;" id="searchdata2" onkeyup='searchTable()' />&nbsp;&nbsp;&nbsp;
+                            </li>
+                            <li>
+                                @*<button type="button" id="seachsubmit" class="btn btn-success">Search</button>*@
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> <span class="caret"></span></button>
+                                <ul class="dropdown-menu" id="bd" style="width: 116px !important; top: 0px; position: absolute; transform: translate3d(924px, -142px, 0px); left: 0px; will-change: transform;">
+                                    <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox" class="case" name="case" checked>Case</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="court" name="court" checked>Court</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="dno" name="dno" checked>Diary No</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="cname" name="cname" checked>Case Name</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="bname" name="bname" checked>bench name</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="adv" name="adv" checked>Advocate</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="nh" name="nh" checked>Next Hearing </a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="dd" name="dd" checked>Disposed Date</a></li>
+                                    <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox" class="status1" name="status1" checked>Status</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div><!-- /.box-header -->
+                <!-- /.panel-heading -->
+                <script>
+            var type = '@ViewBag.type'
+            //console.log(type);
+                </script>
+                <script>
+                </script>
+                <script type="text/javascript">
+                    var tableToExcel = (function () {
+                        var uri = 'data:application/vnd.ms-excel;base64,'
+                            , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                            , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                            , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+                        return function (table, name) {
+                            if (!table.nodeType) table = document.getElementById(table)
+                            var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+                            window.location.href = uri + base64(format(template, ctx))
+                        }
+                    })()
+                </script>
+                <script src="~/CssJsfiles/js/1.8.3/jquery.min.js"></script>
+                <script src="~/CssJsfiles/js/pdfmake.min.js"></script>
+                <script src="~/CssJsfiles/js/html2canvas.min.js"></script>
+                <script type="text/javascript">
+                    $("body").on("click", "#btnExport", function () {
+                        html2canvas($('#questionLIst')[0], {
+                            onrendered: function (canvas) {
+                                var data = canvas.toDataURL();
+                                var docDefinition = {
+                                    content: [{
+                                        image: data,
+                                        width: 500
+                                    }]
+                                };
+                                pdfMake.createPdf(docDefinition).download("CaseDetails.pdf");
+                            }
+                        });
+                    });
+                </script>
+                <script>
+                    function searchTable() {
+                        var input, filter, found, table, tr, td, i, j;
+                        input = document.getElementById("searchdata2");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByTagName("td");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                tr[i].style.display = "";
+                                found = false;
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                    function fsearchTable() {
+                        var input, filter, found, table, tr, td, i, j;
+                        input = document.getElementById("fstatus");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByClassName("cstatus");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                tr[i].style.display = "";
+                                found = false;
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                    function asearchTable() {
+                        var input, filter, found, table, tr, td, i, j;
+                        input = document.getElementById("fassign");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("example");
+                        tr = table.getElementsByTagName("tr");
+                        for (i = 0; i < tr.length; i++) {
+                            td = tr[i].getElementsByClassName("auserto");
+                            for (j = 0; j < td.length; j++) {
+                                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                                    found = true;
+                                }
+                            }
+                            if (found) {
+                                tr[i].style.display = "";
+                                found = false;
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                </script>
+                <div id="updatePanel" style="overflow-x:auto; ">
+                    <table id="questionLIst" border="1px solid" class="dataTable table table-bordered table-striped" cellspacing="0" border="1"
+                           width="100%">
+                        <thead>
+                            <tr>
+                                <th bgcolor="DIMGRAY" class="sno" width="7%">Sl. No.</th>
+                                <th bgcolor="DIMGRAY" class="case" width="12%">Case / Diary No</th>
+                                <th bgcolor="DIMGRAY" class="court">Court</th>
+                                <th bgcolor="DIMGRAY" class="cname">Case Name</th>
+                                <th bgcolor="DIMGRAY" class="bname">Bench Name</th>
+                                <th bgcolor="DIMGRAY" class="adv" style="width:250px;">Advocate</th>
+                                <th bgcolor="DIMGRAY" class="nh">Next Hearing</th>
+                                <th bgcolor="DIMGRAY" class="dd">Disposed Date</th>
+                                <th bgcolor="DIMGRAY" class="status1">Status</th>
+                                <th bgcolor="DIMGRAY" class="Files">CauseList</th>
+                                <th bgcolor="DIMGRAY" class="Files">Documents</th>
+                                <th bgcolor="DIMGRAY" class="Alerts" width="7%">Set Alerts</th>
+                            </tr>
+                        </thead>
+                        <tbody style="text-align:center;">
+                            @{
+                                var u = 0;
+                                int casemasterddatascount = 0;
+                                var username = ViewBag.username;
+                                var courtname = ViewBag.courtname;
+                                var iid = ViewBag.iid;
+                                if (iid != null)
+                                {
+                                    CaseDetailObjectList casemasterddata = CaseDetailObjeController.GetMasterCaseDataLawPractice(username, courtname, iid);
+                                    for (int j = 0; j <= casemasterddata.Count - 1; j++)
+                                    {
+                                        u = u + 1;
+                                        var whtsdata = "";
+                                        if (casemasterddata[j].Csno.Trim() == "")
+                                        {
+                                            whtsdata = "Case / Diary No:" + @casemasterddata[j].Diaryno + ", Court Name:" + @casemasterddata[j].Courtname + ", Case Name:" + @casemasterddata[j].Casename + ", Advocate Name:" + @Html.Raw(HttpUtility.HtmlDecode(casemasterddata[j].Advname)) + ", Status:" + @casemasterddata[j].Status;
+                                        }
+                                        else
+                                        {
+                                            whtsdata = "Case / Diary No:" + @casemasterddata[j].Csno + ", Court Name:" + @casemasterddata[j].Courtname + ", Case Name:" + @casemasterddata[j].Casename + ", Advocate Name:" + @Html.Raw(HttpUtility.HtmlDecode(casemasterddata[j].Advname)) + ", Status:" + @casemasterddata[j].Status;
+                                        }
+                                        <tr>
+                                            <td class="sno">
+                                                @u
+                                                <a id="socialnetwork" title="share to whatsapp" href="whatsapp://send?text=@whtsdata" data-action="share/whatsapp/share" class="fa fa-whatsapp socialnetwork socialwhats"></a>
+                                            </td>
+                                            <td class="case">
+                                                @*@if (casemasterddata[j].Diaryno)*@
+                                                @if (casemasterddata[j].Csno.Trim() == "")
+                                                {
+                                                    @casemasterddata[j].Diaryno
+                                                }
+                                                else
+                                                {
+                                                    if (casemasterddata[j].Iid == 0)
+                                                    {
+                                                        @casemasterddata[j].Csno
+                                                    }
+                                                    else
+                                                    {
+                                                        <a class="mycursor" onclick="loadcasedata('@QueryAES.ConvertStringToHex(QueryAES.EncryptStringAES(@casemasterddata[j].Iid.ToString()), System.Text.Encoding.Unicode)')" name="A1" id="A3"> @casemasterddata[j].Csno</a>
+                                                    }
+                                                }
+                                            </td>
+                                            <td class="court">
+                                                @casemasterddata[j].Courtname
+                                            </td>
+                                            @*<td class="dno">
+                                                    @casemasterddata[j].Diaryno
+                                                </td>*@
+                                            <td class="cname">
+                                                @casemasterddata[j].Casename
+                                            </td>
+                                            <td class="bname">
+                                                @casemasterddata[j].Benchname
+                                            </td>
+                                            <td class="adv">
+                                                @Html.Raw(HttpUtility.HtmlDecode(casemasterddata[j].Advname))
+                                            </td>
+                                            <td class="nh">
+                                                @if (casemasterddata[j].Nexthearing.Trim() == "" || casemasterddata[j].Nexthearing.Trim() == null)
+                                                {
+                                                }
+                                                else
+                                                {
+                                                    if (casemasterddata[j].OrderdateFinal == "01 Jan 1900")
+                                                    {
+                                                    }
+                                                    else
+                                                    {
+                                                        @casemasterddata[j].OrderdateFinal
+                                                    }
+                                                }
+                                            </td>
+                                            <td class="dd">
+                                                @if (casemasterddata[j].Disposeddt.Trim() == "" || casemasterddata[j].Disposeddt.Trim() == null)
+                                                {
+                                                }
+                                                else
+                                                {
+                                                    if (casemasterddata[j].Disposeddt == "01 Jan 1900")
+                                                    {
+                                                    }
+                                                    else
+                                                    {
+                                                        @casemasterddata[j].OrderdateFinal
+                                                    }
+                                                }
+                                            </td>
+                                            <td class="status1">
+                                                @casemasterddata[j].Status
+                                            </td>
+                                            <td class="causelist" align="center">
+                                                <center><button type='button' val-data='@iid' id='getcauselist' class='btn btn-sm btn-info'><span class='glyphicon glyphicon-list-alt'></span>&nbsp; </button></center>
+                                            </td>
+                                            <td class="files" align="center">
+                                                <button type='button' val-data='@iid' id='addcasefile' class='btn btn-sm btn-success'><span class='glyphicon glyphicon-file'></span>&nbsp; </button>
+                                            </td>
+                                            <td class="files" align="center">
+                                                @if (casemasterddata[j].Nexthearing.Trim() == "" || casemasterddata[j].Nexthearing.Trim() == null)
+                                                {
+                                                }
+                                                else
+                                                {
+                                                    <center><button type='button' val-data='@iid' id='setalerts' class='btn btn-sm btn-info'><span class='glyphicon glyphicon-bell'></span>&nbsp; </button></center>
+                                                }
+                                            </td>
+                                        </tr>
+                                        casemasterddatascount = casemasterddata.Count;
+                                    }
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    @if (casemasterddatascount == 0)
+                    {
+                        <center><span id="datastatus">Case Details not available...</span></center>
+                    }
+                </div>
+</aside>
+<script src="~/PanelDesign/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="~/CssJsfiles/js/2.1.3/jquery.min.js"></script>
+<script>
+    //# sourceURL=pen.js
+</script>
+<script>
+    /*					PAGINATION
+    - on change max rows select options fade out all rows gt option value mx = 5
+    - append pagination list as per numbers of rows / max rows option (20row/5= 4pages )
+    - each pagination li on click -> fade out all tr gt max rows * li num and (5*pagenum 2 = 10 rows)
+    - fade out all tr lt max rows * li num - max rows ((5*pagenum 2 = 10) - 5)
+    - fade in all tr between (maxRows*PageNum) and (maxRows*pageNum)- MaxRows
+    */
+    getPagination('#questionLIst');
+    function getPagination(table) {
+        $('#maxRows').on('change', function () {
+            // alert(table);
+            $('.pagination').html('');                      // reset pagination
+            var trnum = 0;                                   // reset tr counter
+            var maxRows = parseInt($(this).val());
+            // alert(maxRows);
+            // alert(maxRows);// get Max Rows from select option
+            var totalRows = $(table + ' tbody tr ').length;
+            // alert(totalRows);// numbers of rows
+            $('#example tbody tr').each(function () {           // each TR in  table and not the header
+                trnum++;
+                //alert(trnum);// Start Counter
+                if (trnum > maxRows) {						// if tr number gt maxRows
+                    $(this).hide();                         // fade it out
+                } if (trnum <= maxRows) { $(this).show(); }// else fade in Important in case if it ..
+            });                                          //  was fade out to fade it in
+            if (totalRows > maxRows) {                       // if tr total rows gt max rows option
+                var pagenum = Math.ceil(totalRows / maxRows);
+                // alert(pagenum);// ceil total(rows/maxrows) to get ..
+                //	numbers of pages
+                for (var i = 1; i <= pagenum;) {			// for each page append pagination li
+                    $('.pagination').append('<li data-page="' + i + '">\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                      <span>'+ i++ + '<span class="sr-only">(current)</span></span>\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    </li>').show();
+                }                                           // end for i
+            } 												// end if row count > max rows
+            $('.pagination li:first-child').addClass('active'); // add active class to the first li
+            $('.pagination li').on('click', function () {       // on click each page
+                var pageNum = $(this).attr('data-page');
+                // alert(pageNum);// get it's number
+                var trIndex = 0;							// reset tr counter
+                $('.pagination li').removeClass('active');	// remove active class from all li
+                $(this).addClass('active');					// add active class to the clicked
+                $('#example tbody tr').each(function () {       // each tr in table not the header
+                    trIndex++;
+                    // alert(trIndex);
+                    // tr index counter
+                    // if tr index gt maxRows*pageNum or lt maxRows*pageNum-maxRows fade if out
+                    if (trIndex > (maxRows * pageNum) || trIndex <= ((maxRows * pageNum) - maxRows)) {
+                        $(this).hide();
+                    } else { $(this).show(); }               //else fade in
+                });                                      // end of for each tr in table
+            });										// end of on click pagination list
+        });
+        // end of on select change
+        // END OF PAGINATION
+    }
+</script>
+<br />
+<div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script>
+    function loadcasedata(ids) {
+        var url = "/employee/VCaseDetails/" + ids;
+        $('.mymodels').load(url, function (result) {
+            $('#myModal').modal({ show: true });
+        });
+    }
+    $("input:checkbox:not(:checked)").each(function () {
+        var column = "table ." + $(this).attr("name");
+        $(column).hide();
+    });
+    $("input:checkbox").click(function () {
+        var column = "table ." + $(this).attr("name");
+        $(column).toggle();
+    });
+</script>
+<div id="myModalcasealerts" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:994px;">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Case Alerts Settings
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div id="exTab1">
+                                            <ul class="nav nav-pills">
+                                                <li class="active">
+                                                    <a href="#2a" data-toggle="tab">Create Alerts</a>
+                                                </li>
+                                                <li>
+                                                    <a href="#1a" data-toggle="tab">View Alerts</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content clearfix">
+                                                <div class="tab-pane " id="1a">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <fieldset>
+                                                                <div class="form-group form-horizontal" style="overflow-x:auto">
+                                                                    <table class="dataTable table table-bordered table-striped" style="overflow-x:auto">
+                                                                        <tr>
+                                                                            <th bgcolor="DIMGRAY" width="10%" style="background-color:#5c5c5c">Case</th>
+                                                                            <th bgcolor="DIMGRAY" width="20%" style="background-color:#5c5c5c">CaseName</th>
+                                                                            <th bgcolor="DIMGRAY" width="10%" style="background-color:#5c5c5c">Court</th>
+                                                                            <th bgcolor="DIMGRAY" width="20%" style="background-color:#5c5c5c">Hearing  Date</th>
+                                                                            <th bgcolor="DIMGRAY" width="10%" style="background-color:#5c5c5c">Mobile No</th>
+                                                                            <th bgcolor="DIMGRAY" width="10%" style="background-color:#5c5c5c">Email Id</th>
+                                                                            <th bgcolor="DIMGRAY" width="5%" style="background-color:#5c5c5c">Created Date</th>
+                                                                            <th bgcolor="DIMGRAY" width="5%" style="background-color:#5c5c5c">Alert On</th>
+                                                                            <th bgcolor="DIMGRAY" width="5%" style="background-color:#5c5c5c">Sent</th>
+                                                                            <th bgcolor="DIMGRAY" width="5%" style="background-color:#5c5c5c">Alert For</th>
+                                                                            <th bgcolor="DIMGRAY" width="5%" style="background-color:#5c5c5c"></th>
+                                                                        </tr>
+                                                                        <tbody id="assignusercasedata"></tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane active" id="2a">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <fieldset>
+                                                                <span id="textleadid" style="display:none"></span>
+                                                                <form id="savecasealert">
+                                                                    <div>
+                                                                        <b>Case No.:</b> <span id="casenotext"></span><br>
+                                                                    </div>
+                                                                    <div style="padding-top:4px"> <b>Court:</b><span id="courttext"> </span><br></div>
+                                                                    <div style="padding-top:4px"> <b>Case Name:</b> <span id="casenametext"></span><br></div>
+                                                                    <div style="padding-top:4px"><b>Next Hearing:</b>  <span id="nhdatetext"> </span><br></div>
+                                                                    <br /><br />
+                                                                    <div class="form-group form-horizontal">
+                                                                        <label class="control-label col-xs-3">
+                                                                            Set Alert Date:
+                                                                        </label>
+                                                                        <div class="col-xs-8">
+                                                                            <input type="date" class="form-control1" id="callfromdate" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group form-horizontal">
+                                                                        <label class="control-label col-xs-3">
+                                                                        </label>
+                                                                        <div class="col-xs-8">
+                                                                            Or
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group form-horizontal">
+                                                                        <label class="control-label col-xs-3">
+                                                                        </label>
+                                                                        <div class="col-xs-8">
+                                                                            <select name="ddldays" id="ddldays" class="txtbox-setting">
+                                                                                <option selected="selected" value="">-Day-</option>
+                                                                                <option value="0">0</option>
+                                                                                <option value="1">1</option>
+                                                                                <option value="2">2</option>
+                                                                                <option value="3">3</option>
+                                                                                <option value="4">4</option>
+                                                                                <option value="5">5</option>
+                                                                                <option value="6">6</option>
+                                                                                <option value="7">7</option>
+                                                                                <option value="8">8</option>
+                                                                                <option value="9">9</option>
+                                                                                <option value="10">10</option>
+                                                                                <option value="11">11</option>
+                                                                                <option value="12">12</option>
+                                                                                <option value="13">13</option>
+                                                                                <option value="14">14</option>
+                                                                                <option value="15">15</option>
+                                                                                <option value="16">16</option>
+                                                                                <option value="17">17</option>
+                                                                                <option value="18">18</option>
+                                                                                <option value="19">19</option>
+                                                                            </select>
+                                                                            <select name="ddlHearing" id="ddlHearing" class="txtbox-setting1">
+                                                                                <option selected="selected" value="0">--Select--</option>
+                                                                                <option value="1">Days Before Hearing</option>
+                                                                                <option value="2">Days After Hearing</option>
+                                                                                <option value="3">On Same Day</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group form-horizontal">
+                                                                        <label class="control-label col-xs-3">
+                                                                            Set Alert For:
+                                                                        </label>
+                                                                        <div class="col-xs-8">
+                                                                            <select name="ddlalertfor" id="ddlalertfor" class="txtbox-setting2">
+                                                                                <option selected="selected" value="">--Select--</option>
+                                                                                <option value="4">Self</option>
+                                                                                <option value="0">Client </option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group form-horizontal" id="alertmobpanel" style="display:none">
+                                                                        <label class="control-label col-xs-3">
+                                                                            Mobile:
+                                                                        </label>
+                                                                        <div class="col-xs-8">
+                                                                            <input class="txtbox-setting3" id="clientmobile" type="text" maxlength="10">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group form-horizontal" id="alertemailpanel" style="display:none">
+                                                                        <label class="control-label col-xs-3">
+                                                                            Email:
+                                                                        </label>
+                                                                        <div class="col-xs-8">
+                                                                            <input class="txtbox-setting3" id="cientemail" type="email" maxlength="50">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group form-horizontal" style="clear:both">
+                                                                        <label class="control-label col-xs-3"></label>
+                                                                        <div class="col-xs-8">
+                                                                            <button class="btn btn-success" id="savealerts" date-val="" type="button" name="submit" value="Submit" text="Save" style="margin:0px 6px 0 1px;">SAVE</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalcasefile" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:994px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Case Documents
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div id="exTab1">
+                                            <ul class="nav nav-pills">
+                                                <li class="active">
+                                                    <a href="#3a" data-toggle="tab">View Documents</a>
+                                                </li>
+                                                <li>
+                                                    <a href="#4a" data-toggle="tab">Add Document</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content clearfix">
+                                                <div class="tab-pane active" id="3a">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <fieldset>
+                                                                <div class="form-group form-horizontal">
+                                                                    <table class="dataTable table table-bordered table-striped" style="overflow-x:auto">
+                                                                        <tr>
+                                                                            <th bgcolor="DIMGRAY" width="15px;" style="background-color:#5c5c5c">Sl. No.</th>
+                                                                            <th bgcolor="DIMGRAY" style="background-color:#5c5c5c" width="100px;">File Name</th>
+                                                                            <th bgcolor="DIMGRAY" style="background-color:#5c5c5c" width="140px;">Date</th>
+                                                                            <th bgcolor="DIMGRAY" style="background-color:#5c5c5c" width="200px;">Created By</th>
+                                                                        </tr>
+                                                                        <tbody id="assignuserdata"></tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane" id="4a">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <fieldset>
+                                                                <span id="textleadid" style="display:none"></span>
+                                                                <form id="saveleadcallform">
+                                                                    <div class="form-group form-horizontal">
+                                                                        <label class="control-label col-xs-3">Select Document <span class="required" aria-required="true">*</span></label>
+                                                                        <div class="col-xs-8">
+                                                                            <input type="file" class="form-control" id="attachment" multiple />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group form-horizontal">
+                                                                        <label class="control-label col-xs-3"></label>
+                                                                        <div class="col-xs-8">
+                                                                            <button type="button" class="btn btn-success" id="savecasefile">Save</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>

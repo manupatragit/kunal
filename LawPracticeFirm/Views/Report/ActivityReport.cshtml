@@ -1,0 +1,414 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/Scripts/Firm/Pages/ActivityReport.js?2.2"></script>
+<script>
+    var roleid = "@Session["sessionroleid"]";
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<style>
+    .report_wrapper .form-group {
+        min-height: auto;
+        height: auto;
+    }
+</style>
+@*Activity Report*@
+<main class="wrapper report_wrapper">
+    <section id="header">
+        <div class="container-main">
+            <div class="text-left">
+                <p class="ctitle">Workspace Reports</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="main_content">
+        <div class="horizontal-tabs">
+            <div class="tabs">
+                <div class="tab-button-base1">
+                    <div class="text1" style="cursor:pointer;"><a href="/@Session["firmcode"]/report/ActivityReport" title="User Report">Activity</a> </div>
+                </div>
+                <div class="tab-button-base">
+                    <div class="text1" id="alink_expensecreated"> <a href="/@Session["firmcode"]/report/UsersReport" title="User Report">Users</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="mid-section ec_bg">
+            <div class="row report_row">
+                <form id="activirtyreportform">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">User Type<span class="required" style="color:red"><b>*</b></span></label>
+                            <select class="form-control selctInputFormat bg-white" name="usertypess" id="usertypess">
+                                <option value="" selected>User Type</option>
+                                <option value="Firm">Admin</option>
+                                <option value="Partner">Partner</option>
+                                <option value="User">User</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">User<span class="required" style="color:red"><b>*</b></span></label>
+                            <select class="form-control selctInputFormat" name="languageSelect[]" id="actcontacttype" multiple></select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Creation Date<span class="required" style="color:red"><b>*</b></span></label>
+                            <div class="row gy-sm-4">
+                                <div class="col-md-6">
+                                    <input class="form-control inputFormat" id="fdate" onkeypress="return false;" type="date" placeholder="from">
+                                </div>
+                                <div class="col-md-6">
+                                    <input class="form-control inputFormat" id="tdate" onkeypress="return false;" type="date" placeholder="to">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 flex-end" style="padding:0px 0px;">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <div class="row gy-sm-4">
+                                    <div class="col-md-8">
+                                        <button class="btn btn-primary" type="button" style="width:100%;" id="getreport">Generate Report</button>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button class="btn btn-secondary" type="button" style="width:100%;" id="ActivityClearReport">Clear</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="tabuler_section">
+            <section id="table">
+                <div class="container-main">
+                    <div class="table">
+                        <div class="card-header">
+                            <div class="content1" style="padding-bottom:20px;">
+                                <div class="text-and-supporting-text1">
+
+                                </div>
+                                <div class="table-header">
+                                    <div class="actions3">
+                                        <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                                            <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+                                            <div class="text-padding">
+                                                <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                            </div>
+                                        </div>
+                                        <div class="dropdown">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                                <div class="button13 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <img alt="" src="/newassets/img/download-01.png">
+                                                    <div class="text-padding">
+                                                        <div class="text1"><a href="javascript:void()" id="download" title="Column Selection">Download Report </a></div>
+                                                    </div>
+                                                </div>
+                                            </a>
+
+                                            <ul class="dropdown-menu settingaction">
+                                                <li><a href="javascript:void()" id="oexcel" title="export to excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</a></li>
+                                                <li><a href="javascript:void()" id="opdf" title="export to pdf"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to Pdf</a></li>
+                                            </ul>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive" id="activityreport">
+                            <table id="loadactivity" class="table-panel">
+                                <thead>
+                                    <tr>
+                                        <th><div class="thbg">Sl.No</div></th>
+                                        <th class="activitytype"><div class="thbg">Activity Type</div></th>
+                                        <th class="activityaction"><div class="thbg">Activity Action</div></th>
+                                        <th class="adatetime"><div class="thbg">Date/Time</div></th>
+                                        <th class="ausername"><div class="thbg">UserName</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loadactivitydata"></tbody>
+                            </table>
+                            @*<center><div id="dataarstatus"></div></center>
+                                <div class="table-panel">
+                                    <div class="settingpanel">
+                                        <div class="col-md-6">
+                                            <div style="float: left;padding: 0 10px 0 0; display:block;">
+                                                <ul>
+                                                    <li>
+                                                        <div class="btn-group dropup">
+                                                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                                                customize field
+                                                            </a>
+                                                            <ul class="dropdown-menu settingshowhide" id="useractivity">
+                                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="activitytype" checked><a href="#">Activity Type</a></li>
+                                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="activityaction" checked><a href="#">Activity Action</a></li>
+                                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="adatetime" checked><a href="#">Date/Time</a></li>
+                                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ausername" checked><a href="#">UserName</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div id="actfooter">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="pull-right" id="ulfooter1">
+                                                <li>
+                                                    <div class="btn-group dropup">
+                                                        <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            Action Selected
+                                                        </a>
+                                                        <ul class="dropdown-menu settingaction">
+                                                            <li><a href="javascript:void();" id="oexcel" title="export to excel"> export to excel </a></li>
+                                                            <li><a href="javascript:void();" id="opdf" title="export to pdf"> export to pdf</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>*@
+                            <center>
+                                <div class="notfound" id="docpdatastatus">
+                                    <img src="~/newassets/img/not-found.png" />
+                                    <h4>Data Not Found</h4>
+
+                                </div>
+                            </center>
+                        </div>
+                        <div class="pagination" style="display:none" id="rptPagination">
+                            <div class="pagination-button-group">
+                                <div id="prev" class="pagination-button-group-base">
+                                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                </div>
+                                <div id="pageNumbers" class="pagination-button-group-base1">
+                                </div>
+
+                                <div id="next" class="pagination-button-group-base8">
+                                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-parent">
+                                <div class="input">
+                                    <div class="content">
+                                        <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                    </div>
+                                    <div class="help-icon">
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-group">
+                                    <div class="text-and-supporting-text">
+                                        <div id="divGo" class="text9">Go</div>
+                                    </div>
+                                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+</main>
+
+
+<div id="myModalCustomizedcolumn" class="modal right fade myModal in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row mt-10">
+                    <div class="col-md-12" style="overflow-y:auto; max-height: 360px;">
+                        <ul id="bindcolumnmaster">
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="activitytype" checked><a href="#">Activity Type</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="activityaction" checked><a href="#">Activity Action</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="adatetime" checked><a href="#">Date/Time</a>
+                            </li>
+                            <li>
+                                <input type="checkbox" class="shcheckbox1 chkdhide" name="ausername" checked><a href="#">UserName</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#ColumnSelectionopen").click(function () {
+            $("#myModalCustomizedcolumn").modal('show'); // Opens the modal
+        });
+
+        $(document).click(function (event) {
+            if ($(event.target).is(".myModal")) {
+                $("#myModalCustomizedcolumn").modal('hide'); // Closes the modal
+            }
+        });
+    });
+</script>
+
+
+<script>
+    function sortTable(n) {
+        try {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("invlist");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+        catch (er) {
+        }
+    }
+</script>
+
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<style>
+    a.morelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span {
+        display: none;
+    }
+
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+</style>

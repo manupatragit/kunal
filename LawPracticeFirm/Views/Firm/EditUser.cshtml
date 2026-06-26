@@ -1,0 +1,806 @@
+﻿@{
+    ViewBag.Title = "EditUser";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<i class="pp-icon-user"></i>
+<!--Prem style start-->
+<style>
+    .section-header {
+        padding: 14px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+        background: #F9FAFB;
+        border-bottom: 1px solid #e9eaeb;
+    }
+
+    .section-content {
+        padding: 20px;
+        display: none;
+    }
+
+
+
+    .toggle-icon {
+        font-size: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .rotate {
+        transform: rotate(180deg);
+    }
+
+    .form-check {
+        border-radius: 8px;
+        background-color: #fff;
+        border: 1px solid #d5d7da;
+        padding: 5px 10px;
+        color: #4b5563;
+        cursor: pointer;
+        font-size:13px;
+    }
+</style>
+<!--End prem style-->
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+    var loginid = "@ViewBag.loginid";
+    var type = '@ViewBag.type'
+    var filesize =@ViewBag.filesize;
+    var stfUser =@ViewBag.stfUser;
+    var stfUserRole = @ViewBag.stfUserRole;
+</script>
+<script src="~/Scripts/Firm/Pages/EditUser.js?2.4"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script>
+    $(document).ready(function () {
+
+        if (stfUser > 0) {
+            $("#StfHide").hide();
+            $("#stfFirmFiled").hide();
+        } else {
+            $("#StfHide").show();
+            $("#stfFirmFiled").show();
+
+        }
+        var $select = $("#firmexperience");
+        $select.append($('<option ></option>').val("").html("Select"));
+        for (i = 1; i <= 25; i++) {
+            $select.append($('<option></option>').val(i).html(i))
+        }
+        try {
+            var ddlCountry = $('#cocountry');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    $.each(d.Data, function (i, country) {
+                        ddlCountry.append($("<option selected></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                    ddlCountry.append($("<option value='' ></option>").val('').html('Select'));
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //auto state
+        try {
+            var CountryId = "India";
+            var ddlState = $('#costate');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#cocity');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //State details by country id
+        $("#cocountry").change(function () {
+            // alert($(this).val());
+            var CountryId = $(this).val();
+            if (CountryId != "India") {
+                $("#ostate").css("display", "unset");
+                $("#ocity").css("display", "unset");
+                $("#lstate").css("display", "none");
+                $("#lcity").css("display", "none");
+                return false;
+            }
+            else {
+                $("#ostate").css("display", "none");
+                $("#ocity").css("display", "none");
+                $("#lstate").css("display", "unset");
+                $("#lcity").css("display", "unset");
+            }
+            //alert(CountryId);
+            var ddlState = $('#costate');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            var ddCity = $('#cocity');
+            ddCity.empty();
+            ddCity.append($("<option value='' selected ></option>").val('').html('Select'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    ddlState.append($("<option value='' selected ></option>").val('').html('Select'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#costate").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#cocity');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+        window.addEventListener('DOMContentLoaded', () => {
+            const firstHeader = document.querySelector('.section-header');
+            if (firstHeader) {
+                toggleSection(firstHeader);
+            }
+        });
+
+    });
+
+    function toggleSection(header) {
+        const allSections = document.querySelectorAll('.section-content');
+        const allIcons = document.querySelectorAll('.toggle-icon');
+
+        const content = header.nextElementSibling;
+        const icon = header.querySelector('.toggle-icon');
+
+        allSections.forEach(sec => {
+            if (sec !== content) sec.style.display = 'none';
+        });
+
+        allIcons.forEach(ic => {
+            if (ic !== icon) ic.classList.remove('rotate');
+        });
+
+        const isOpen = content.style.display === 'block';
+        content.style.display = isOpen ? 'none' : 'block';
+        icon.classList.toggle('rotate', !isOpen);
+    }
+</script>
+<form id="saveuser" enctype="multipart/form-data" autocomplete="off">
+    <section id="header">
+        <div class="container-main" style="display:flex; justify-content:space-between;">
+            <div class="text-left">
+                <p class="ctitle"> Edit User Details</p>
+            </div>
+            <button type="submit" id="addcontact" class="btn btn-primary" value="Save">Save User Details</button>
+        </div>
+    </section>
+    <section id="table">
+        <div class="container-main">
+            <div class="table" style="margin:0;">
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        Basic Information
+                        <span class="toggle-icon"><img src="/newassets/img/arrow.png" /></span>
+                    </div>
+                    <div class="section-content">
+                        <div class="row ">
+                            <input type="hidden" id="usertypepartnerornot">
+                            <div class="form-group col-md-4">
+                                <label>User Type <span class="required " aria-required="true"><b> *</b> </span></label>
+                                <table width="100%">
+                                    <tr>
+                                        <td width="47%">
+                                            <div class="form-check">
+                                                <input type="radio" value="1" name="partner" id="rdpartner" @(ViewBag.stfUser > 0 ? "checked" : "") /> @(ViewBag.stfUser > 0 ? "Secondary user" : "Partner")
+
+                                            </div>
+                                        </td>
+                                        <td width="6%"></td>
+                                        <td width="47%">
+                                            <div class="form-check">
+                                                <input type="radio" value="0" name="partner" id="rduser" /> @(ViewBag.stfUser > 0 ? "Tertiary user" : "User")
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="form-group col-md-4" id="partnerdiv">
+                                <label>Select Partner</label>
+                                <select id="rpartner" class="form-control selctInputFormat">
+                                    <option value="" selected>Select @(ViewBag.stfUser > 0 ? "Secondary User" : "Partner")</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label>Employee Code</label>
+                                <input type="text" id="empcode" name="empcode" maxlength="25" class="form-control inputFormat" placeholder="Enter Employee Code" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>First Name <span class="required " aria-required="true"><b> *</b> </span></label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="ufname" id="ufname" required="" autocomplete="new-text" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Middle Name</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="umname" id="umname" autocomplete="new-text" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Last Name <span class="required " aria-required="true"><b> *</b> </span></label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="ulname" id="ulname" autocomplete="new-text" required />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>Mobile Number <span aria-required="true"><b>*</b> </span></label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" maxlength="10" minlength="10" name="umobile" id="umobile" autocomplete="new-text" required="" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Email Id <span aria-required="true"><b>*</b> </span></label>
+                                <input autofocus="" class="form-control inputFormat" type="email" value="" name="uemail" id="uemail" required autocomplete="new-text" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="table">
+        <div class="container-main">
+            <div class="table" style="margin:0;">
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        Contact Details
+                        <span class="toggle-icon"><img src="/newassets/img/arrow.png" /></span>
+                    </div>
+                    <div class="section-content">
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label>Landline Number</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" maxlength="16" onkeypress="return restrictAlphabetsfax(event)" value="" name="ulandline" id="ulandline" autocomplete="new-text" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Extension</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="uextenion" maxlength="10" id="uextention" autocomplete="new-text" />
+                            </div>
+                            <div class="form-group col-md-4">
+                                    <label>Country </label>
+                                    <select class="form-control selctInputFormat" name="cocountry" id="cocountry"></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-8">
+                                <label>Address</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="uaddress" id="uaddress" autocomplete="new-text" />
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                    <label>State </label>
+                                    <select class="form-control selctInputFormat" name="costate" id="costate">
+                                        <option value="">Select</option>
+                                    </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                    <label>Çity</label>
+                                    <select class="form-control selctInputFormat" name="cocity" id="cocity">
+                                        <option></option>
+                                    </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>Pin</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" maxlength="6" name="upin" id="upin" autocomplete="new-text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="table">
+        <div class="container-main">
+            <div class="table" style="margin:0;">
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        Professional Information
+                        <span class="toggle-icon"><img src="/newassets/img/arrow.png" /></span>
+                    </div>
+                    <div class="section-content">
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>Designation</label>
+                                <select id="designation" class="form-control selctInputFormat" autocomplete="new-text">
+                                    <option value="" selected="">Select</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Branch</label>
+                                <select id="branch" class="form-control selctInputFormat">
+                                    <option value="" selected="">Select</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Department</label>
+                                <select id="department" class="form-control selctInputFormat">
+                                    <option value="" selected="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row" id="StfHide">
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>Reporting Manager</label>
+                                <select id="rmanager" class="form-control selctInputFormat">
+                                    <option value="" selected="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="table">
+        <div class="container-main">
+            <div class="table" style="margin:0;">
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        General Information
+                        <span class="toggle-icon"><img src="/newassets/img/arrow.png" /></span>
+                    </div>
+                    <div class="section-content">
+                        <div class="row" id="StfHide">
+
+                            <div class="form-group col-md-4">
+                                <label>Qualification</label>
+                                <select class="form-control selctInputFormat" name="qualification" id="qualification" autocomplete="new-text"></select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label title="Post Qualification Experience">PQE</label>
+                                <select class="form-control selctInputFormat" name="pqe" id="pqe" autocomplete="new-text"></select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <input type="hidden" id="hidid" />
+                                <label>Experience with the Firm</label>
+                                <select class="form-control selctInputFormat" name="firmexperience" id="firmexperience" autocomplete="new-text">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row" id="stfFirmFiled">
+
+                            <div class="form-group col-md-6">
+                                <input type="hidden" id="hidid" />
+                                <label>Areas of Expertise</label>
+                                <select class="form-control selctInputFormat" style="background-color: white !important;" name="areaofexpertise" id="areaofexpertise" autocomplete="new-text"></select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Bar Registration Number</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="barno" id="barno" autocomplete="new-text" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <input type="hidden" id="hidid" />
+                                <label>Hourly Rate(Rs/Hour)</label>
+                                <input class="form-control inputFormat" type="text" value="" name="uhrate" id="uhrate" autocomplete="new-text">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <input type="hidden" id="hidid" />
+                                <label>Additional Information</label>
+                                <input autofocus="" class="form-control inputFormat" type="text" value="" name="details" id="details" autocomplete="new-text" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="container-main showcontent" id="showcontent">
+        <div class="row" style="display:none">
+            <div class="form-group col-md-4" style="display:none;">
+                <label class="formLabel colorDark"><span class="control-label col-md-12">Activate</span></label>
+                <input aclass="form-control inputFormat" type="checkbox" value="1" name="isactivate" id="isactivate" />
+            </div>
+        </div>
+</form>
+
+
+    <!--<div class="col-md-12">
+        <div class="ec_bg">
+            <section class="content">
+                <div class="row">
+                    <form id="saveuser" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <input type="hidden" id="usertypepartnerornot">
+                                <div class="">
+                                    <div class="row">
+                                        <div class="col-lg-12 contact-details">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-12">
+                                                        <table cellpadding="0" cellspacing="0">
+                                                            <tr>
+                                                                <td width="100px"><label> USER TYPE <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label></td>
+                                                                <td style="font-size:12px;">
+                                                                    <input type="radio" value="1" name="partner" id="rdpartner" @(ViewBag.stfUser > 0 ? "checked" : "") /> @(ViewBag.stfUser > 0 ? "Secondary user" : "Partner")
+                                                                    <input type="radio" value="0" name="partner" id="rduser" /> @(ViewBag.stfUser > 0 ? "Tertiary user" : "User")
+
+                                                                </td>
+                                                                <td>-->
+    @*<div id="partnerdiv" style="display:none; width: 200px; padding: 0 15px;">
+        <select id="rpartner" class="form-control selctInputFormat ">
+         <option value="" selected="">Select Partner</option>
+                             </select>
+        </div>*@
+    <!--<div id="partnerdiv" style="display:none; width: 200px; padding: 0 15px;">
+                                <select id="rpartner" class="form-control selctInputFormat ">
+                                    <option value="" selected="">Select @(ViewBag.stfUser > 0 ? "Select secondary user" : " Select partner")</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-12">
+                <table cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td style="padding:20px 0;"><label class="formLabel colorDark">Emplolyee Code </label></td>
+                        <td>
+                            <div class="form-group col-md-12">
+                                <input class="form-control inputFormat" type="text" maxlength="25" value="" name="empcode" id="empcode" autocomplete="new-text">
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4">
+            <input type="hidden" id="hidid" />
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> FIRST NAME <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" type="text" value="" name="ufname" id="ufname" required="" autocomplete="new-text">
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> MIDDLE NAME </span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" type="text" value="" name="umname" id="umname" autocomplete="new-text" />
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> LAST NAME <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" type="text" value="" name="ulname" id="ulname" autocomplete="new-text" required />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> MOBILE NUMBER <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" type="text" value="" maxlength="10" minlength="10" name="umobile" id="umobile" autocomplete="new-text" required="">
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> EMAILID <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" type="email" value="" name="uemail" id="uemail" required />
+            </div>
+        </div>
+        <div class="form-group col-md-2">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> LANDLINE NUMBER </span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" type="text" value="" name="ulandline" id="ulandline" maxlength="16" onkeypress="return restrictAlphabetsfax(event)" autocomplete="new-text" />
+            </div>
+        </div>
+        <div class="form-group col-md-2">
+            <label class="formLabel colorDark"><span class="control-label col-md-12">EXTENSION </span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" type="text" value="" name="uextenion" id="uextention" maxlength="10" autocomplete="new-text" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> CONTACT ADDRESS </span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" type="text" value="" name="uaddress" id="uaddress" autocomplete="new-text" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group col-md-12">
+                <label class="formLabel colorDark">Country </label>
+                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="cocountry" id="cocountry"></select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group col-md-12">
+                <label class="formLabel colorDark">State </label>
+                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="costate" id="costate">
+                    <option value="">Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group col-md-12">
+                <label class="formLabel colorDark">Çity </label>
+                <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" name="cocity" id="cocity">
+                    <option></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-md-2">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> PIN </span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" type="text" value="" maxlength="6" name="upin" id="upin" autocomplete="new-text">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12">DESIGNATION </span></label>
+            <div class="col-md-12">
+                <select id="designation" class="form-control selctInputFormat" style="background-color: white !important;">
+                    <option value="" selected="">Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> BRANCH </span></label>
+            <div class="col-md-12">
+                <select id="branch" class="form-control selctInputFormat" style="background-color: white !important;">
+                    <option value="" selected="">Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> DEPARTMENT </span></label>
+            <div class="col-md-12">
+                <select id="department" class="form-control selctInputFormat" style="background-color: white !important;">
+                    <option value="" selected="">Select</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="StfHide">
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> REPORTING MANAGER </span></label>
+            <div class="col-md-12">
+                <select id="rmanager" class="form-control selctInputFormat" style="background-color: white !important;">
+                    <option value="" selected="">Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12">Qualification</span></label>
+            <div class="col-md-12">
+                <select class="form-control selctInputFormat" style="background-color: white !important;" name="qualification" id="qualification" autocomplete="new-text"></select>
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12" title="Post Qualification Experience">PQE</span></label>
+            <div class="col-md-12">
+                <select class="form-control selctInputFormat" style="background-color: white !important;" name="pqe" id="pqe" autocomplete="new-text"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="stfFirmFiled">
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12">Experience with the Firm</span></label>
+            <div class="col-md-12">
+                <select class="form-control selctInputFormat" style="background-color: white !important;" name="firmexperience" id="firmexperience" autocomplete="new-text"></select>
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12">Areas of Expertise</span></label>
+            <div class="col-md-12">
+                <select class="form-control selctInputFormat" style="background-color: white !important;" name="areaofexpertise" id="areaofexpertise" autocomplete="new-text"></select>
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> BAR REGISTRATION NUMBER</span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" autocomplete="new-text" type="text" value="" name="barno" id="barno" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label class="formLabel colorDark"><span class="control-label col-md-12">Hourly Rate(Rs/Hour) </label>
+            <div class="col-md-12">
+                <input class="form-control inputFormat" type="text" autocomplete="new-text" value="" name="uhrate" id="uhrate">
+            </div>
+        </div>
+        <div class="form-group col-md-8">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> ADDITIONAL INFORMATION </span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" autocomplete="new-text" type="text" value="" name="details" id="details" />
+            </div>
+        </div>
+        <div class="form-group col-md-4" style="display:none">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> SOCIAL MEDIA </span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" autocomplete="new-text" type="text" value="" name="somdia" id="somedia">
+            </div>
+        </div>
+        <div class="form-group col-md-4" style="display:none">
+            <label class="formLabel colorDark"><span class="control-label col-md-12"> TWITTER</span></label>
+            <div class="col-md-12">
+                <input autofocus="" class="form-control inputFormat" autocomplete="new-text" type="text" value="" name="twitter" id="twitter" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4" style="display:none;">
+            <label class="formLabel colorDark"><span class="control-label col-md-12">Activate</span></label>
+            <div class="col-md-12">
+                <input aclass="form-control inputFormat" type="checkbox" value="1" name="isactivate" id="isactivate" />
+            </div>
+        </div>
+        <div class="col-md-4" style="display:none;">
+            <div class="form-group col-md-12">
+                <label class="formLabel colorDark">USERID  <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                <input class="form-control form-control-sm inputFormat" id="couserid" autocomplete="new-text" name="couserid" type="text">
+            </div>
+        </div>
+        <div class="col-md-4" style="display:none;">
+            <div class="form-group col-md-12">
+                <label class="formLabel colorDark">PASSWORD  <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                <input class="form-control form-control-sm inputFormat" id="copassword" name="copassword" type="password" autocomplete="new-text">
+                <span toggle="#copassword" class="fa fa-fw fa-eye field-icon toggle-password" style="float: left;float: right;top: -9px; margin-top:-20px;"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4" style="display:none;">
+            <div class="form-group col-md-12">
+                <label class="formLabel colorDark">CONFIRM PASSWORD <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </label>
+                <input class="form-control form-control-sm inputFormat" id="cocpassword" name="cocpassword" type="password" autocomplete="new-text">
+                <span toggle="#cocpassword" class="fa fa-fw fa-eye field-icon toggle-password" style="float: left;float: right;top: -9px; margin-top:-20px;"></span>
+            </div>
+        </div>
+    </div>-->
+    <!---->
+    <!--<br>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                </div>
+                                                <div class="col-md-4">
+                                                </div>
+                                                <div class="col-md-4 ">
+                                                    <button type="submit" id="addcontact" class="sbtbtn  pull-right" style="background-color:#007bff" value="Save">save</button>
+                                                </div>
+                                            </div><br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>-->
+</div>
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

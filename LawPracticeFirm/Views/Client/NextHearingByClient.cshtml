@@ -1,0 +1,458 @@
+﻿@{
+    Layout = null;
+    //var id = Request.Url.Segments[3];
+}
+<script>
+    var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter ="@Session["dashmatter"]";
+</script>
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script>
+    var str1 = "@ViewBag.id";
+    var currentHtype = "@ViewBag.htype";
+    var nextCursor = "";
+    var hasMore = false;
+    var pageSize = 20;
+    var isLoading = false;
+    loaddata(currentHtype);
+    function loaddata(htype, append) {
+        currentHtype = htype;
+        var strheader1 = '';
+        var stritem1 = '';
+        var strtable1 = '';
+        var strid = str1;
+        strtable1 = $('<table /><tr><th>').addClass(' table-panel ');
+        $.ajax(
+            {
+                async: true,
+                url: "/Client/NextHearingClient/" + strid + "?type=" + htype + "&cursor=" + encodeURIComponent(nextCursor) + "&pagesize=" + pageSize, // Controller/View
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    hasMore = data.HasMore;
+                    nextCursor = data.NextCursor || "";
+                    if (data.OrdLists == "" && !append) {
+                        $(".stsdata").css("display", "block");
+                        $("#initLoader").css("display", "none");
+                    }
+                    else {
+                        $(".stsdata").css("display", "none");
+                    }
+                    if (data.IsReraCHeck > "0") {
+                        $("#NextHearingforRera").show();
+                    } else {
+                        $("#NextHearingforRera").hide();
+                    }
+                    if (!append) {
+                        strheader1 = $('<thead><tr><th class="name" width="15%" ><div class="thbg">Matter No.</div></th><th class="name" ><div class="thbg">Matter Name</div></th><th class="desc" width="20%" ><div class="thbg">Advocate Name</div></th><th class="taskCalender"><div class="thbg">Court</div></th><th class="desc" width="20%" ><div class="thbg">Next Hearing Date</div></th><th class="desc" width="20%" ><div class="thbg">Manual Next Hearing Date</div></th></tr></thead>');
+                        strtable1.append(strheader1);
+                    }
+                    stritem1 = "";
+                    $.each(data.OrdLists, function (i, val) {
+                        var DiaryNo ="";
+                        var Disposeddt = val.Disposeddt;
+                        var Nexthearidate = val.Vordernexthearing;
+                        var Manulnexthearidate = val.ManualNexthearing;
+                        if (val.Disposeddt == "01 Jan 1900") {
+                            Disposeddt = "";
+                        }
+                        if (val.Vordernexthearing == "01 Jan 1900") {
+                            Nexthearidate = "";
+                        }
+                        if (val.ManualNexthearing == "01 Jan 1900") {
+                            Manulnexthearidate = "";
+                        }
+                        var strcasename = val.csno;
+                        if (val.DiaryNo == "null" || val.DiaryNo == null) {
+                            DiaryNo = "";
+                        }
+                        else {
+                            DiaryNo = val.DiaryNo;
+                        }
+                        if (val.strfile == "") {
+                            stritem1 += "<tr>";
+                            stritem1 += "<td>" + (strcasename == null ? "" : strcasename) + "</td>";
+                            if (val.UserCaseId != "") {
+                                if (hsmklitigation == "display:unset" && dashmatter == "display:none") {
+                                    stritem1 += "<td><span  data-val=" + val.UserCaseId + ">" + val.Casename + "</td>";
+                                }
+                                else
+                                {
+                                    stritem1 += "<td><span style='cursor:pointer;color:#069;' id='viewcasedetails' data-val=" + val.UserCaseId + ">" + val.Casename + "</td>";
+                                }
+                            }
+                            else {
+                                stritem1 += "<td>" + val.Casename + "</td>";
+                            }
+                            stritem1 += "<td>" + (val.Advname ? val.Advname : '') + "</td>";
+                            stritem1 += "<td>" + val.Court + "</td>";
+                            stritem1 += "<td>" + Nexthearidate + "</td>";
+                            stritem1 += "<td>" + Manulnexthearidate + "</td>";
+                            stritem1 += "</tr>";
+                        }
+                        else {
+                            var filepath = "/DownloadFile.ashx?module=caseorder&ftoken=";
+                            strfile = filepath + enctypesingle(val.vLocalfile);
+                            stritem1 += "<tr>";
+                            stritem1 += "<td>" + strcasename + "</td>";
+                            if (val.UserCaseId != "") {
+                                if (hsmklitigation == "display:unset" && dashmatter == "display:none") {
+                                    stritem1 += "<td><span data-val=" + val.UserCaseId + ">" + val.Casename + "</td>";
+                                }
+                                else
+                                {
+                                    stritem1 += "<td><span style='cursor:pointer;color:#069;' id='viewcasedetails' data-val=" + val.UserCaseId + ">" + val.Casename + "</td>";
+                                }
+                            }
+                            else {
+                                stritem1 += "<td>" + val.Casename + "</td>";
+                            }
+                            stritem1 += "<td>" + (val.Advname ? val.Advname : '') + "</td>";
+                            stritem1 += "<td>" + val.Court + "</td>";
+                            stritem1 += "<td>" + Nexthearidate + "</td>";
+                            stritem1 += "<td>" + Manulnexthearidate + "</td>";
+                            stritem1 += "</tr>";
+                        }
+                    });
+                    if (append) {
+                        $(".divdata table tbody").append(stritem1);
+                    } else {
+                        stritem1 += "</tbody>";
+                        strtable1.append(stritem1);
+                        $(".divdata").html(strtable1);
+                    }
+                    $("#inlineLoader").remove();
+                    if (hasMore) {
+                        $("#loadMoreContainer").show();
+                    } else {
+                        $("#loadMoreContainer").hide();
+                    }
+                    isLoading = false;
+                    $("#initLoader").css("display", "none");
+                },
+                failure: function (data) {
+                    // alert(data.responseText);
+                },
+                error: function (data) {
+                    isLoading = false;
+                    $("#inlineLoader").remove();
+                    if (hasMore) $("#loadMoreContainer").show();
+                }
+             });
+    }
+    $(document).ready(function () {
+        $(document).on("click", "#loadMoreLink", function () {
+            if (isLoading || !hasMore) return;
+            isLoading = true;
+            $("#loadMoreContainer").hide();
+            $("#loadMoreContainer").after('<div id="inlineLoader" class="loader1" style="display:block;margin:10px auto;"></div>');
+            loaddata(currentHtype, true);
+        });
+        $("#Canceldiv").click(function () {
+            $("#emaildiv").hide();
+        });
+        $("#emailPDF").click(function () {
+            $("#emaildiv").show();
+        });
+        $("#NextHearingSendAlert").click(function () {
+            var formdata = new FormData();
+            var date = str1;
+            var IsRerachecks = $("#IsReara").val();
+            formdata.append("date", EncodeText(date));
+            formdata.append("IsRerachecks", EncodeText(IsRerachecks));
+            $.ajax({
+                async: true,
+                url: "/CW/NextHearingSendAlert",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    if (String(response) == "True") {
+                        alert("Alert sent successfully.");
+                    }
+                    else {
+                        alert(response);
+                    }
+                },
+                failure: function (response) {
+                    //alert(data.responseText);
+                },
+                error: function (response) {
+                    //alert(data.responseText);
+                }
+            });
+        });
+        $("#SendPDF").click(function () {
+            var formdata = new FormData();
+            var IsReracheck = $("#IsReara").val();
+            var email = $("#emailNH").val();
+            var name = $("#nameNH").val();
+            if (email == "") {
+                alert("Please enter email");
+                $("#emailNH").focus();
+                return false;
+            }
+            if (email != "") {
+            var reg = /^([A-Za-z0-9_\-\.])+\@@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+            if (reg.test(email) == false) {
+                alert('Invalid Email');
+                $("#emailNH").focus();
+                    return false;
+                }
+            }
+            var date = str1;
+            formdata.append("email", EncodeText(email));
+            formdata.append("date", EncodeText(date));
+            formdata.append("name", EncodeText(name));
+            formdata.append("IsReracheck", EncodeText(IsReracheck));
+            $.ajax({
+                async: true,
+                url: "/CW/NextHearingSendPDFMail",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    if (String(response) == "True") {
+                        $("#emaildiv").hide();
+                        $("#emailNH").val("");
+                        $("#nameNH").val("");
+                        alert("Mail sent successfully.");
+                    }
+                    else {
+                        alert(response);
+                    }
+                },
+                failure: function (response) {
+                    //alert(data.responseText);
+                },
+                error: function (response) {
+                    //alert(data.responseText);
+                }
+            });
+        });
+        //Download PDF
+        $("#DownloadPDF").click(function () {
+            var IsReracheckd = $("#IsReara").val();
+            var downloadpath = "/CW/NextHearingDownLoadPDF?date=" + str1 + "&IsReracheckd=" + IsReracheckd;
+            var link = document.createElement('a');
+            link.href = downloadpath;
+            link.target = "_blank";
+            link.click();
+        });
+        //DownLoad Excel
+        $("#DownloadExcel").click(function () {
+            var IsReracheckd = $("#IsReara").val();
+            var downloadpath = "/CW/NextHearingDownLoadExcel?date=" + str1 + "&IsReracheckd=" + IsReracheckd;
+            var link = document.createElement('a');
+            link.href = downloadpath;
+            link.target = "_blank";
+            link.click();
+        });
+
+        //Rera court binding
+        $("#NextHearingforNormal").click(function (e) {
+            $('.nav li.active').removeClass('active');
+            //htypetag = htype;
+            $("#IsReara").val('');
+            var $parent = $(this).parent();
+            $parent.addClass('active');
+            e.preventDefault();
+            nextCursor = "";
+            hasMore = false;
+            isLoading = false;
+            loaddata(currentHtype);
+        });
+        $("#NextHearingforRera").click(function (e) {
+            htypetag = "RERA";
+            $("#IsReara").val(htypetag);
+            $('.nav li.active').removeClass('active');
+            var $parent = $(this).parent();
+            $parent.addClass('active');
+            e.preventDefault();
+            nextCursor = "";
+            hasMore = false;
+            isLoading = false;
+            loaddata(htypetag);
+        });
+      //for redirect to case details
+        var fcode = localStorage.getItem("FirmCode");
+        $(document).on("click", "#viewcasedetails", function () {
+          //  var caseid = $(this).attr("data-val");
+            var usercaseid = $(this).attr("data-val");
+            var formdata = new FormData();
+            formdata.append("usercaseid", usercaseid);
+            $.ajax({
+                async: true,
+                url: "/CW/GetMatterCaseIdMaptoCW",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    if (response != "") {
+                        if (response[0]["MatterID"] == "00000000-0000-0000-0000-000000000000") {
+                            var urls = "/" + fcode + "/Firm/Casedetails";
+                            url_redirect({
+                                url: urls,
+                                method: "post",
+                                data: { "token": usercaseid }
+                            });
+                        }
+                        else {
+                            var urls = "/" + fcode + "/Firm/NewCaseDashboard?type=CW";
+                            url_redirect({
+                                url: urls,
+                                method: "post",
+                                data: { token: response[0]["MatterID"] }
+                            });
+                        }
+                    }
+                    else {
+                        var urls = "/" + fcode + "/Firm/Casedetails";
+                        url_redirect({
+                            url: urls,
+                            method: "post",
+                            data: { "token": usercaseid }
+                        });
+                    }
+                },
+                failure: function (response) {
+                    //alert(data.responseText);
+                },
+                error: function (response) {
+                    //alert(data.responseText);
+                }
+            });
+        });
+    });
+</script>
+<style>
+    .taskCalender {
+        background: none;
+        padding: 0;
+    }
+
+        .taskCalender:hover, .taskCalender.active {
+            background: none;
+            padding: 0;
+        }
+    .loader1 {
+        border: 5px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 5px solid #3498db;
+        width: 30px;
+        height: 30px;
+        -webkit-animation: spin 6s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+        margin: 0 auto;
+        margin-top: 50px;
+        top: 50%;
+        left: 50%;
+    }
+
+    @@-webkit-keyframes spin {
+        0% {
+            -webkit-transform: rotate(0deg);
+        }
+
+        100% {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    .nav-pills li.active {
+        color: #0369A1;
+        font-weight: 600;
+        border-bottom: 2px solid #0369A1;
+        padding: 0 0 6px 0;
+    }
+    .nav-pills li a {
+        margin: 0;
+        padding: 0 0 0 0;
+        color: inherit;
+        text-decoration: none;
+    }
+    .nav-pills li {
+        margin: 0 32px 0 0;
+        padding: 0;
+        float: left;
+        color: #717680;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: inherit;
+        background-color: inherit;
+    }
+    .email-pan {
+        box-shadow: 0 5px 30px 0 rgba(82, 63, 105, 0.2);
+        width: 270px;
+        overflow: hidden;
+        position: absolute;
+        z-index: 999;
+        background: #fff;
+        right: 31px;
+        border-radius: 10px;
+        padding: 10px;
+    }
+</style>
+<div class="modal-header btn-primary">
+    <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+    <ul class="nav nav-pills " style="margin-bottom: 7px">
+        <li class="active">
+            <a href="#a111" id="NextHearingforNormal">Court Hearing</a>
+        </li>
+        <li>
+            <a style="display:none" href="#a211" id="NextHearingforRera">Rera Court Hearing</a>
+        </li>
+    </ul>
+    <input type="hidden" value="" id="IsReara" />
+    <div class="card-header">
+        <div class="content1" style=" justify-content: flex-end;padding:4px 0;">
+            <div class="table-header">
+                <div class="actions3">
+                    <button class="button9" id="NextHearingSendAlert" title="Send Alert"><img src="/newassets/img/bell-01.png"></button>
+                    <button class="button9" id="DownloadPDF" title="Download PDF"><img src="/newassets/img/exportpdf-icon.png"></button>
+                    <button class="button9" id="DownloadExcel" title="Download Excel"><img src="/newassets/img/exportexl-icon.png"></button>
+                    <button class="button13" id="emailPDF" title="Send Email" style="position:relative;"><img src="/newassets/img/mail-01.png"> Send Email</button>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+</div>
+<div style="display:none;" id="emaildiv" class="email-pan">
+    <input placeholder="enter email" style="width:100%;" type="text" id="emailNH" class="inputFormat form-control">
+    <input type="text" id="nameNH" placeholder="ener name" class="inputFormat form-control" style="width: 100%; display: none;">
+    <div style="padding:10px 0;" class="text-right">
+        <button class="btn btn-primary" id="SendPDF">Send</button>
+        <button class="btn btn-secondary" id="Canceldiv">Cancel</button>
+    </div>
+</div>
+
+<div id="initLoader" class="loader1"></div>
+<div class="modal-body" style="clear:both">
+    <!-- Main content -->
+    <div id="content">
+        <div class="row">
+            <div id="divdata" class="divdata table-panel" style="overflow-y:scroll;height:500px"></div>
+            <div id="loadMoreContainer" style="text-align:center;padding:10px;display:none;">
+                <a href="javascript:void(0)" id="loadMoreLink" style="color:#069;font-size:13px;">Load More...</a>
+            </div>
+        </div>
+        <center><div id="stsdata" class="stsdata" style="display:none">No data found.</div></center>
+    </div>
+</div>

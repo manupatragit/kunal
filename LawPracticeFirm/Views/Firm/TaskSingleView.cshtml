@@ -1,0 +1,210 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+@{
+    var id = ViewBag.token;
+}
+<script>
+    var id="@id";
+</script>
+<script type='text/javascript'>
+    if (String(id) != "") {
+        localStorage.setItem("contacttoken", id);
+    }
+    if (String(id) == "") {
+        var urls = window.location.href;
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": localStorage.getItem("contacttoken") }
+        });
+    }
+    function goodbye(e) {
+        localStorage.setItem("contacttoken", id);
+        if (!e) e = window.event;
+        //e.cancelBubble is supported by IE - this will kill the bubbling process.
+        e.cancelBubble = true;
+        //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+        //e.stopPropagation works in Firefox.
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+    window.onbeforeunload = goodbye;
+</script>
+<script src="~/Scripts/Firm/Pages/TaskSingleView.js"></script>
+<script>
+    $(document).on("click", "#print1", function () {
+        window.print();//  document.body.innerHTML = originalContents;
+    });
+</script>
+<aside class="right-side">
+    <!-- Content Header (Page header) -->
+    <section class="note">
+        @{
+            var firmcode = Request.Url.Segments[1];
+            firmcode = firmcode.Replace("/", "");
+        }
+        <div class="col-md-12">
+            <ol class="breadcrumb" id="sectionbrud">
+                <li><i class="fa fa-file-text-o" aria-hidden="true"></i></li>
+                <li><span>Task</span> - <span id="taskname"></span></li>
+                <li><a href="/@firmcode/Firm/activities/">Activities List</a></li>
+                <li> <a class="dropdown-item " href="#" data-toggle="modal" data-target="#myModal" id="modelNote">  <i class="fa fa-pencil"></i> Edit</a></li>
+                <li>
+                    <btn class=" " id="print1" title="Print" style="margin-left:15px; cursor:pointer"><span class="glyphicon glyphicon-print" style="color:darkorange"></span> </btn>
+                </li>
+            </ol>
+        </div>
+    </section>
+    <section class="status">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="get-started-action action-complete bg-red" id="hddiv">
+                        <div class="icon"><i class="fa fa-clock-o" style="color:#ffffff;"></i></div>
+                        <div class="text">DUE DATE - <span id="hduedate"></span></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="get-started-action action-complete " id="hsdiv">
+                        <div class="icon"><i class="fa fa-check-circle-o" style="color:#ffffff;"></i></div>
+                        <div class="text">STATUS - <span id="hstatus"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Main content -->
+    <section class="content">
+        <!-- Start About boxes -->
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset>
+                    <legend>Task</legend>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-2"><b>Subject</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="subject"></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-2"><b>Due Date</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="duedate"></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-2"><b>Status</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="status"></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal" style="display:none">
+                        <label class="control-label col-md-2"><b>Contact</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="contact"></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-2"><b>Case</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="matter"></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-2"><b>Description</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="details"></label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-section-bordered">
+                    <div class="form-group form-horizontal" style="display:none">
+                        <label class="control-label col-md-2"><b>Priority</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="priority"></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal" style="display:none">
+                        <label class="control-label col-md-2"><b>Repeat</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="repeat"></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-2"><b>Assign To</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label col-md-2" style="margin-left:-15px;">User</label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-2"><b></b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="assignuser"></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal" style="display:none">
+                        <label class="control-label col-md-2"><b>Contact</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="assigncontact"></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-2"><b>Tags</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="tags"></label>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-2"><b>Attachments</b></label>
+                        <div class="col-md-4">
+                            <a href="#" id="alink">Attached File</a>
+                        </div>
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <label class="control-label col-md-2"><b>Email  Assignees</b></label>
+                        <div class="col-md-4">
+                            <label class="control-label" id="aemail"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End About boxes -->
+        <div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content mymodels" id="mymodels">
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- /.content -->
+</aside>
+<!-- Modal -->
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<script src="~/PanelDesign/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="~/CssJsfiles/js/2.1.3/jquery.min.js"></script>
+<script>
+    $('#modelNote').click(function (e) {
+        openload();
+        localStorage.setItem("temptaskid", id);
+        var url = "/firm/ConfigTaskEdit?data=true&token=" + id;
+        $('.mymodels').load(url, function (result) {
+            closeload();
+            $('#myModal').modal({ show: true });
+        });
+    });
+</script>

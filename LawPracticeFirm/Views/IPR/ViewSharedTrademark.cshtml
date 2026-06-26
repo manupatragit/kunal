@@ -1,0 +1,2043 @@
+﻿
+@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+@*<script src="jquery.min.js"></script>
+    <script src="jquery.multiselect.js"></script>*@
+<link href="~/Manupanel/css/IPRSearchStyle.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/IPR/ViewSharedTrademarks.js?2.7" type="text/javascript" language="javascript"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+<style>
+    #opentrademarkdetails {
+        cursor: pointer;
+    }
+
+    #removetrademarkdetails {
+        cursor: pointer;
+    }
+
+    /*#btnEmailForTracker {
+        position: relative;
+        top: -29px;
+        left: 9px;
+    }*/
+
+    #emasexc1 {
+        background: #ebebeb;
+    }
+
+    .btnManual {
+        padding: 10px;
+        display: flex;
+        gap: 5px;
+        border: 2px solid gray;
+        border-radius: 7px;
+        margin-right: 5px;
+        text-decoration: none;
+        color: gray;
+    }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"><h2 id="dynamiciprheader"></h2></p> <input type="text" id="searchdata" style="display:none">
+        </div>
+        <div class="tabs-and-filters">
+            <div class="button-group">
+                <a href="#" title="Tracker List" id="trackertab" class="button-group-base">Tracker <span id="trademarkcount"></span></a>
+                <a href="#" class="button-group-base1" title="My List" id="mylisttab">My List <span id="MyListCount"></span></a>
+                <a href="#" title="Search Result" class="button-group-base2" id="searchtab">Search History <span id="SearchCount"></span></a>
+                @if (ViewBag.RoleId == "1")
+                {
+                    <a href="#" title="Delete" class="button-group-base2" id="deletemattertab">Delete Request<span id="DeleteTradeCount"></span></a>
+                }
+                else
+                {
+                    <a href="#" title="Shared Trademark" class="button-group-base2 Active" id="SharedTradetab">Shared <span id="SharedTradeCount"></span></a>
+                }
+
+            </div>
+            <div style="display:inline-flex">
+                <a href="#" title="Add new Manually" id="AddmanuallyTrade" class="btnManual"><span><img class="plus-icon" alt="" src="/newassets/img/Icon.svg"></span>Add Manually</a>
+                <a href="#" title="Add new Matter" id="AddTradeAfterSearch" class="button4"><span><img src="~/newassets/img/plus-icon.png" /></span>Add Trademark</a>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="wrapper" style="margin:unset !important">
+    <input type="hidden" value="0" id="hdnsort" />
+    <div class="container-main">
+        <h2 class="title" id="dynamiciprheader"></h2>
+        <div id="page-wrapper">
+            @*<div class="showcontent" id="showcontent">
+                    <div class="box">
+                        <div class="box-header" style="padding:5px;">
+                            <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp"></ul>
+                        </div>
+                    </div>
+                </div>*@
+            <!-- Main content -->
+            @*<form class="ec_bg" enctype="multipart/form-data" autocomplete="off" id="iprform">
+                    <input type="hidden" value="" id="hiddenid" />
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark"><span class="control-label">Search</span></label>
+                                <input type="text" id="filtertradmark" placeholder="Search" class="inputFormat" autofocus>
+                            </div>
+                        </div>
+                        <div class="col-md-1 text-center" id="hideor" style="position:relative; top:28px;">
+                            OR
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark" style="visibility: hidden;"><span class="control-label">Application No</span></label>
+                                <input type="text" class="inputFormat" id="txtapplicationno" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="divHide1">
+                        <div class="col-md-3">
+                            <div class="form-group col-md-12">
+                                <div id="demo3" class="caseinfo in" style="border: 1px solid rgb(143, 213, 0); padding: 4px; width: 221px; top:-30px; position: absolute; height: auto; display:none;">
+                                    <b>You may select upto 5 classes at once.</b>
+                                </div>
+                                <label class="formLabel colorDark"><span class="control-label">Class</span></label><img class="cimg" src="~/newassets/images/info_icon.png" onmouseover="showinfoModal()" onmouseout="hideinfoModal()" />
+                                <select class="form-control InputFormat" name="languageSelect[]" id="searchclass" multiple></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark"><span class="control-label">Status</span></label>
+                                <select class="form-control InputFormat" name="languageSelect[]" id="searchstatus" multiple></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="proprietor">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark"><span class="control-label">Proprietor</span></label>
+                                <input type="text" onfocus="$(this).removeAttr('readonly');" readonly id="txtProprietor" name="txtProprietor" class="form-control inputFormat" autocomplete="new-text" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="divHide2">
+                        <div class="col-md-3">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark"><span class="control-label">Date Of Application - From</span></label>
+                                <input class="inputFormat" type="date" id="txtdateapplicationfrom" onkeypress="return false;" />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group col-md-12">
+                                <label class="formLabel colorDark"><span class="control-label">Date Of Application - To</span></label>
+                                <input class="inputFormat" type="date" id="txtdateapplicationto" onkeypress="return false;" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="divHide3">
+                        <div class="col-md-12">
+                            <div class="form-group" style="margin-top: 34px;" id="btns">
+                                <div class="col-md-2">
+                                    <button type="submit" id="btnsearch" class="sbtbtn pull-right" value="SEARCH" style="width:100%">SEARCH</button>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" id="btnclear" class="sbtbtn pull-right" value="CLEAR" style="width:100%">CLEAR</button>
+                                </div>
+                                <div class="col-md-3" style="display:none;" id="btncollapse">
+                                    <button type="submit" class="sbtbtn pull-right" value="COLLAPSE" style="width:100%">ADVANCED SEARCH</button>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" id="advsearch" class="sbtbtn pull-right" value="ADVANCED SEARCH" style="width:100%">ADVANCED SEARCH</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>*@
+
+            <div class="table-panel table-responsive">
+                <div style="overflow-x:scroll;">
+                    <div class="card-header">
+                        <div class="content1" style="padding-bottom:20px;">
+                            <div class="text-and-supporting-text1">
+                                <div class="filter" id="idcustomcommonFilter" style="cursor:pointer;">
+                                    <img src="/newassets/img/search-lg.png" alt="">
+                                    Filters
+                                </div>
+                            </div>
+                            <div class="table-header">
+                                <div class="actions3">
+                                    <div class="menuexport" style="position:relative; cursor:pointer;">
+                                        <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                            <img class="plus-icon" alt="" src="~/newassets/img/upload-icon.png">
+                                        </div>
+                                        <ul class="dropdown-menu settingaction" style="margin-left: -50px;" id="dynaction">
+                                            <li><a id="oexcel" title="Export to Excel"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span>Export to Excel</a></li>
+                                            <li><a id="opdf" title="Export to PDF"><span style="padding: 0 10px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span>Export to PDF</a></li>
+                                        </ul>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table-panel fixed_table_head">
+                        <thead>
+                            <tr id="thval">
+                                <th style="display:none;">
+                                    <div class="thbg">
+                                        S.No
+                                    </div>
+                                </th>
+                                <th id="th3" class="head_fix">
+                                    <div class="thbg">
+                                        Client/Proprietor Name
+                                    </div>
+                                </th>
+                                <th id="th1">
+                                    <div class="thbg">
+                                        Application No
+                                    </div>
+                                </th>
+                                <th id="th10">
+                                    <div class="thbg">
+                                        Image
+                                    </div>
+                                </th>
+                                <th id="th2">
+                                    <div class="thbg">
+                                        Mark
+                                    </div>
+                                </th>
+
+                                <th style="width: 245px;" id="th4">
+                                    <div class="thbg">
+                                        Status
+                                    </div>
+                                </th>
+                                <th id="th5">
+                                    <div class="thbg">
+                                        Class Details
+                                    </div>
+                                </th>
+                                <th id="th6">
+                                    <div class="thbg">
+                                        Date Of Application
+
+                                        <a href="#" data-toggle="modal" data-target="#spnDateOfApp" style="padding-left:10px;"><img width="15px" height="15px" src="/newassets/img/quickbar/calendar.svg" alt="calender"></a>
+
+
+                                        @*<div class="btn-group" style="margin-top: -4px;">
+                                                <button type="button" style="height: 23px;" class="taskoutboxbtnicon dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span class="glyphicon glyphicon-calendar" id="spnDateOfApp"></span>
+                                                    <span class="sr-only">Toggle Dropdown</span>
+                                                </button>
+                                                <div id="dropdown-menu1" style="width: 325px;height:38px; position: absolute;z-index: 1000;top: 28px;background: #FFF;border: 1px solid;display:none;right: 0 !important;left: auto !important;border-radius:10px !important">
+                                                    <ul>
+                                                        <li style="padding:4px 5px 8px 5px; float:left">
+                                                            <input type="date" title="From date" id="applfrmdate" class="form-control pull-left;" style="width:125px;" onkeypress="return false" />
+                                                        </li>
+                                                        <li style="padding:4px 5px 8px 5px; float:left">
+                                                            <input type="date" title="To date" id="ApplicationdateTo" class="form-control " style="width:125px;" onkeypress="return false" />
+                                                        </li>
+                                                        <li style="padding:4px 5px 8px 5px; float:left">
+                                                            <span class="glyphicon glyphicon-search" id="searchByApplDate" style="padding:4px 0 0 14px;background:none"></span>
+                                                        </li>
+                                                        <li style="padding:4px 5px 8px 5px; float:left">
+                                                            <span class="glyphicon glyphicon-remove" id="Applicationcleardate" title="Click here to clear Filing date" style="display: none; width: 7%; cursor: pointer; font-size:10px; padding:2px 0 0 0;"></span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>*@
+                                    </div>
+
+                                </th>
+                                <th id="th6">
+                                    <div class="thbg">
+                                        Hearing Date
+
+                                        <a href="#" data-toggle="modal" data-target="#spnHearingDate" style="padding-left:10px;"><img width="15px" height="15px" src="/newassets/img/quickbar/calendar.svg" alt="calender"></a>
+                                    </div>
+                                </th>
+                                <th id="th7">
+                                    <div class="thbg">
+                                        User Details
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg">
+                                        Action
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="bindIPRSearchData"></tbody>
+                    </table>
+                    <center>
+                        <div class="notfound" id="shareddatastatus" style="display:none;">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4>Data Not Found</h4>
+
+                        </div>
+                    </center>
+                </div>
+                <div class="pagination" id="tradePagination">
+                    <div class="pagination-button-group">
+                        <div id="prev" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbers" class="pagination-button-group-base1">
+                        </div>
+                        <div id="next" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGo" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    @* calender modal started --- Date of application *@
+    <div class="modal fade" id="spnDateOfApp" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="display: flex !important; justify-content: space-between;">
+                    <h5 class="modal-title" id="exampleModalLabel">&nbsp;</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-check-label" for="rdusers">
+                            Select Date Of Application
+                        </label>
+
+                        <div style="display:flex; gap:15px;">
+                            <input type="date" title="From date" id="applfrmdate" class="form-control" onkeypress="return false" />
+                            <input type="date" title="To date" id="ApplicationdateTo" class="form-control " onkeypress="return false" />
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="modal-footer flex-end" style="margin-top:20px;">
+                    <button type="button" id="searchByApplDate" class="btn btn-primary">Search</button>
+                    <button type="button" id="Applicationcleardate" class="btn btn-secondary">Reset</button>
+                    @*<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @* calender modal started hearing *@
+    <div class="modal fade" id="spnHearingDate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="display: flex !important; justify-content: space-between;">
+                    <h5 class="modal-title" id="exampleModalLabel">&nbsp;</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-check-label" for="rdusers">
+                            Select Date Of Hearing
+                        </label>
+
+                        <div style="display:flex; gap:15px;">
+                            <input type="date" title="From date" id="hearingfrmdate" class="form-control" onkeypress="return false" />
+                            <input type="date" title="To date" id="hearingdateTo" class="form-control " onkeypress="return false" />
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="modal-footer flex-end" style="margin-top:20px;">
+                    <button type="button" id="searchByHearDate" class="btn btn-primary">Search</button>
+                    <button type="button" id="ApplicationclearHear" class="btn btn-secondary">Reset</button>
+                    @*<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="myModalexport" class="modal fade myModal" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <input type="hidden" id="exportrecords">
+
+                <div class="modal-header main_header_modal">
+                    <h5 class="modal-title">Export IPR List</h5>
+                    <button type="button" class="close" id="closemodels22" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body partynamebody" style="max-height:505px; overflow-y:auto; background:white;">
+                    <table class="table" style="font-size:12px;">
+                        <thead>
+                            <tr>
+                                <th><div class="thbg">Page No.</div></th>
+                                <th><div class="thbg">FileName</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="printexport"></tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--For Common Custom Filter start-->
+    <div id="myModalCustomCommonFilter" class="modal right fade myModal" role="dialog" data-backdrop="static">
+        <div class="modal-dialog" style="width:400px;height: 100vh; padding:2px 0;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        <img src="~/newassets/img/mfilter-icon.png" />
+                    </h4>
+                </div>
+                <div class="modaltitle">
+                    <h4>Apply Filter</h4>
+                    <p>Select fields to apply your filter</p>
+                </div>
+                <div class="modal-body">
+                    <form class="ec_bg" enctype="multipart/form-data" autocomplete="off" id="iprform">
+                        <input type="hidden" value="" id="hiddenid" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark"><span class="control-label">Search</span></label>
+                                    <input type="text" id="filtertradmark" placeholder="Search" class="inputFormat" autofocus>
+                                </div>
+                            </div>
+                            @*<div class="col-md-1 text-center" id="hideor" style="position:relative; top:28px;">
+                                    OR
+                                </div>*@
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark"><span class="control-label">Application No</span></label>
+                                    <input type="text" class="form-control inputFormat" id="txtapplicationno" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="divHide1">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div id="demo3" class="caseinfo in" style="border: 1px solid rgb(143, 213, 0); padding: 4px; width: 221px; top:-30px; position: absolute; height: auto; display:none;">
+                                        <b>You may select upto 5 classes at once.</b>
+                                    </div>
+                                    <label class="formLabel colorDark"><span class="control-label">Class</span></label><img style="margin-left:5px;" data-toggle="tooltip" data-placement="right" title="You may select upto 5 classes at once." width="15px;" class="cimg" src="~/newassets/img/info-circle.png" />
+                                    <select class="form-control InputFormat" name="languageSelect[]" id="searchclass" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark"><span class="control-label">Status</span></label>
+                                    <select class="form-control InputFormat" name="languageSelect[]" id="searchstatus" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-md-12" id="proprietor">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark"><span class="control-label">Proprietor</span></label>
+                                    <input type="text" onfocus="$(this).removeAttr('readonly');" readonly id="txtProprietor" name="txtProprietor" class="form-control inputFormat" autocomplete="new-text" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="divHide2">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark"><span class="control-label">Date Of Application - From</span></label>
+                                    <input class="inputFormat" type="date" id="txtdateapplicationfrom" onkeypress="return false;" />
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark"><span class="control-label">Date Of Application - To</span></label>
+                                    <input class="inputFormat" type="date" id="txtdateapplicationto" onkeypress="return false;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="divHide3">
+                            <div class="col-md-12">
+                                <div class="form-group" style="margin-top: 34px;" id="btns">
+                                    <div class="col-md-6">
+                                        <button type="submit" id="btnsearch" class="btn btn-primary pull-left" value="SEARCH" style="width:100%">Confirm</button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="submit" id="btnclear" class="btn btn-primary pull-left" value="CLEAR" style="width:100%">Clear</button>
+                                    </div>
+                                    @*<div class="col-md-3" style="display:none;" id="btncollapse">
+                                            <button type="submit" class="sbtbtn pull-right" value="COLLAPSE" style="width:100%">ADVANCED SEARCH</button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="submit" id="advsearch" class="sbtbtn pull-right" value="ADVANCED SEARCH" style="width:100%">ADVANCED SEARCH</button>
+                                        </div>*@
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--Common Custom Filter End-->
+    <!-- Modal View trade mark content-->
+    @*<div id="viewaddedtrademarkdata" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" style="width:70%">
+
+                <div class="modal-content">
+                    <div class="modal-header btn-success">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" id="modalText">
+                            trademark information
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="col-md-12 table-panel table-responsive" style=" margin-top:5px;">
+
+                                    <table class="table ">
+                                        <tbody id="bindTrademarkDetails"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: none !important">
+                        <button class="sbtbtn pull-right" id="tmdetailsmodal" data-toggle="modal" data-target="#emailmodal">Email As Excel</button>
+                        <button class="sbtbtn pull-right" id="tmdetailsdownload">Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+    <div id="viewaddedtrademarkdata" class="modal fade viewaddedtrademarkdata" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" style="width: 99%">
+
+            <div class="modal-content"
+                 style="border-radius: 12px; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.1); padding: 24px; font-family: 'Segoe UI', sans-serif; max-width: 79%; margin: auto;">
+                <div class="modal-header">
+                    <div class="header_trademarks">
+                        <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 15px;">
+                            <li class="nav-item active" id="idOpenTradeInfo">
+                                <a class="nav-link active" data-toggle="tab" role="tab">
+                                    <span id="spShowMarkName" style="font-weight:500;cursor: pointer;">Trademark Information</span>
+                                </a>
+                            </li>
+                            <li class="nav-item" id="idOpenDocDetail">
+                                <a class="nav-link active" data-toggle="tab" role="tab">
+                                    <span id="spDocumentDetail" style="font-weight:500;cursor: pointer;">Document Details</span>
+                                </a>
+                            </li>
+                            <li class="nav-item" id="idOpenOppDoc" style="display:none">
+                                <a class="nav-link active" data-toggle="tab" role="tab">
+                                    <span style="font-weight:500;cursor: pointer;">Opposition Doc</span>
+                                </a>
+                            </li>
+                            <li class="nav-item" id="idOppositionDetails" style="display:none">
+                                <a class="nav-link active" data-toggle="tab" role="tab">
+                                    <span style="font-weight:500;cursor: pointer;">Opposition Details</span>
+                                </a>
+                            </li>
+                            <li class="nav-item" id="idExaminationDetails" style="display:none">
+                                <a class="nav-link active" data-toggle="tab" role="tab">
+                                    <span style="font-weight:500;cursor: pointer;">Examination Details</span>
+                                </a>
+                            </li>
+                            <li class="nav-item" id="idCorrAndNotices" style="display:none">
+                                <a class="nav-link active" data-toggle="tab" role="tab">
+                                    <span style="font-weight:500;cursor: pointer;">Correspondence and Notices</span>
+                                </a>
+                            </li>
+                            <li class="nav-item" id="idPRDetails" style="display:none">
+                                <a class="nav-link active" data-toggle="tab" role="tab">
+                                    <span style="font-weight:500;cursor: pointer;">PR Details</span>
+                                </a>
+                            </li>
+
+                            @*<li class="nav-item" id="idOpenDocTitle">
+                        <a class="nav-link" data-toggle="tab" role="tab">
+                            <span style="font-weight:500;">Document Details</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="idOpenOppDocTitle" style="display:none">
+                        <a class="nav-link" data-toggle="tab" role="tab">
+                            <span style="font-weight:500;">Opposition Document</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="idOpenOppDetailTitle" style="display:none">
+                        <a class="nav-link" data-toggle="tab" role="tab">
+                            <span style="font-weight:500;">Opposition Details</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="idOpenCorrNotTitle" style="display:none">
+                        <a class="nav-link" data-toggle="tab" role="tab">
+                            <span style="font-weight:500;">Correspondence & Notices</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="idOpenPRDetailTitle" style="display:none">
+                        <a class="nav-link" data-toggle="tab" role="tab">
+                            <span style="font-weight:500;">PR Details</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="idExamDetailTitle" style="display:none">
+                        <a class="nav-link" data-toggle="tab" role="tab">
+                            <span style="font-weight:500;">Examination Details</span>
+                        </a>
+                    </li>*@
+                        </ul>
+
+
+                        <div class="trademark_info_btns" id="btnTradeinfoDiv" style="display:none">
+                            <button class="btn btn-primary pull-right btn-flex" id="tmdetailsmodal" data-toggle="modal"
+                                    data-target="#emailmodal" tradeiid="430813">
+                                <img src="/newassets/img/mail_white.svg"> Email As Excel
+                            </button>
+                            <button class="btn btn-secondary pull-right" id="tmdetailsdownload" style="display: none;margin-right:6px">
+                                Download
+                            </button>
+                            <button type="button" id="btnClosePopup" class="btn btn-secondary pull-right" data-dismiss="modal"
+                                    style="margin-right: 10px;">
+                                Cancel
+                            </button>
+                        </div>
+
+                        @*start document*@
+                        <div class="trademark_info_btns" id="btnTradeDocDiv" style="display:none">
+                            <button type="button" class="btn btn-secondary pull-right" data-dismiss="modal"
+                                    style="margin-right: 10px;">
+                                Cancel
+                            </button>
+                        </div>
+                        @*End document*@
+                        @*start opposition document*@
+                        <div class="trademark_info_btns" id="btnTradeOppDocDiv" style="display:none">
+                            <button type="button" class="btn btn-secondary pull-right" data-dismiss="modal"
+                                    style="margin-right: 10px;">
+                                Cancel
+                            </button>
+                        </div>
+                        @*End opposition document*@
+
+                        @*start Opposition detail*@
+                        <div class="trademark_info_btns" id="btnTradeOppDetailDiv" style="display:none">
+                            <button type="button" class="btn btn-secondary pull-right" data-dismiss="modal"
+                                    style="margin-right: 10px;">
+                                Cancel
+                            </button>
+                        </div>
+                        @*End Opposition detail*@
+
+                        @*start Corr & Notices Detail*@
+                        <div class="trademark_info_btns" id="btnTradeCorrDiv" style="display:none">
+                            <button type="button" class="btn btn-secondary pull-right" data-dismiss="modal"
+                                    style="margin-right: 10px;">
+                                Cancel
+                            </button>
+                        </div>
+                        @*End Corr & Notices Detail*@
+
+                        @*start PR Detail*@
+                        <div class="trademark_info_btns" id="btnTradePRDiv" style="display:none">
+                            <button type="button" class="btn btn-secondary pull-right" data-dismiss="modal"
+                                    style="margin-right: 10px;">
+                                Cancel
+                            </button>
+                        </div>
+                        @*End PR Detail*@
+
+                        @*start Examination Detail*@
+                        <div class="trademark_info_btns" id="btnTradeExamDiv" style="display:none">
+                            <button type="button" class="btn btn-secondary pull-right" data-dismiss="modal"
+                                    style="margin-right: 10px;">
+                                Cancel
+                            </button>
+                        </div>
+                        @*End Examination Detail*@
+
+
+                    </div>
+                </div>
+                <div id="divTradeInfoDetails-body" style="display:block">
+                    <div class="modal-body">
+                        <div class="trademark_info_table_wrapper">
+                            <div class="trade_info_heading">
+                                <span id="spMarkNameDetails">Trademark Information</span>
+                            </div>
+                            <div class="trademark_info_table">
+                                <div id="bindTrademarkDetails"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div id="divIPRTrademarkDoc-body" style="display:none">
+                    <div class="modal-body">
+                        <div class="trademark_info_table_wrapper">
+                            <div class="trade_info_heading">
+                                <span>Document Details</span>
+                            </div>
+                            <div class="table table-responsive" style="margin:0 !important; border:0px;box-shadow:none;">
+                                <div style="max-height:710px;overflow-y:auto">
+                                    <table class="table-panel border-0 ">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="thbg">
+                                                        S.NO
+                                                    </div>
+                                                </th>
+
+                                                <th>
+                                                    <div class="thbg" id="th2">
+                                                        Document name
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg text-center" style="justify-content:center;" id="th2">
+                                                        Action
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bindIPRTrademarkDocData"></tbody>
+                                    </table>
+                                    <center>
+                                        <div class="notfound" id="docpdatastatus" style="display:none;">
+                                            <img src="~/newassets/img/not-found.png" />
+                                            <h4>Data Not Found</h4>
+
+                                        </div>
+                                    </center>
+                                </div>
+                                <div class="pagination" id="docPagination">
+                                    <div class="pagination-button-group">
+                                        <div id="docPrev" class="pagination-button-group-base">
+                                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                        </div>
+                                        <div id="docPageNumbers" class="pagination-button-group-base1">
+                                        </div>
+                                        <div id="docNext" class="pagination-button-group-base8">
+                                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-parent">
+                                        <div class="input">
+                                            <div class="content">
+                                                <input type="text" id="doctxtgopage" name="query" placeholder="Page No.">
+                                            </div>
+                                            <div class="help-icon">
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-group">
+                                            <div class="text-and-supporting-text">
+                                                <div id="docDivGo" class="text9">Go</div>
+                                            </div>
+                                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="divOppDocDetail-body" style="display:none">
+                    <div class="modal-body">
+                        <div class="trademark_info_table_wrapper">
+                            <div class="trade_info_heading">
+                                <span>Opposition Document</span>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="table-panel table-responsive" style="margin:0 !important; border:0px;box-shadow:none;">
+                                        <div style="max-height:410px; overflow-y:auto">
+                                            <table class="table-panel border-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            <div class="thbg">
+                                                                S.NO
+                                                            </div>
+                                                        </th>
+
+                                                        <th>
+                                                            <div class="thbg" id="th2">
+                                                                Document name
+                                                            </div>
+                                                        </th>
+                                                        <th>
+                                                            <div class="thbg text-center" style="display:flex; justify-content:center;" id="th2">
+                                                                Action
+                                                            </div>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="IPRTradeOppDocData"></tbody>
+                                            </table>
+                                            <center>
+                                                <div class="notfound" id="docpdatastatus" style="display:none;">
+                                                    <img src="~/newassets/img/not-found.png" />
+                                                    <h4>Data Not Found</h4>
+                                                </div>
+                                            </center>
+                                        </div>
+                                        <div class="pagination" id="OppdocPagination">
+                                            <div class="pagination-button-group">
+                                                <div id="OppdocPrev" class="pagination-button-group-base">
+                                                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                                </div>
+                                                <div id="OppdocPageNumbers" class="pagination-button-group-base1">
+                                                </div>
+                                                <div id="OppdocNext" class="pagination-button-group-base8">
+                                                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                                </div>
+                                            </div>
+                                            <div class="text-and-supporting-text-parent">
+                                                <div class="input">
+                                                    <div class="content">
+                                                        <input type="text" id="Oppdoctxtgopage" name="query" placeholder="Page No.">
+                                                    </div>
+                                                    <div class="help-icon">
+                                                    </div>
+                                                </div>
+                                                <div class="text-and-supporting-text-group">
+                                                    <div class="text-and-supporting-text">
+                                                        <div id="OppdocDivGo" class="text9">Go</div>
+                                                    </div>
+                                                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="divOppositionDetails-body" style="display:none">
+                    <div class="modal-body">
+                        <div class="trademark_info_table_wrapper">
+                            <div class="trade_info_heading">
+                                <span>Opposition Details</span>
+                            </div>
+                            <div class="table-panel table-responsive" style="margin:0 !important; border:0px;box-shadow:none;">
+                                <div style="max-height:410px; overflow-y:auto">
+                                    <table class="table-panel border-0">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="thbg">
+                                                        S. No.
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th2">
+                                                        Application No.
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th3">
+                                                        Opponent Name
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th4">
+                                                        Opponent Address
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th5">
+                                                        Opposition No.
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th6">
+                                                        Opponent Code
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th7">
+                                                        Opposition Date
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th8">
+                                                        Attorney Name
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th9">
+                                                        Attorney Address
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th10">
+                                                        Status
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th10">
+                                                        Decision
+                                                    </div>
+                                                </th>
+                                                @*<th>
+                                            <div class="thbg" id="th11">
+                                                Download
+                                            </div>
+                                        </th>*@
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bindIPROppositionDetailsData"></tbody>
+                                    </table>
+                                    <center>
+                                        <div class="notfound" id="oppIpdatastatus" style="display:none;">
+                                            <img src="~/newassets/img/not-found.png" />
+                                            <h4>Data Not Found</h4>
+
+                                        </div>
+                                    </center>
+                                </div>
+
+                                <div class="pagination" id="oppDPagination">
+                                    <div class="pagination-button-group">
+                                        <div id="oppDPrev" class="pagination-button-group-base">
+                                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                        </div>
+                                        <div id="oppPageNumbers" class="pagination-button-group-base1">
+                                        </div>
+                                        <div id="oppDNext" class="pagination-button-group-base8">
+                                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-parent">
+                                        <div class="input">
+                                            <div class="content">
+                                                <input type="text" id="opptxtgopage" name="query" placeholder="Page No.">
+                                            </div>
+                                            <div class="help-icon">
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-group">
+                                            <div class="text-and-supporting-text">
+                                                <div id="oppDDivGo" class="text9">Go</div>
+                                            </div>
+                                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="divExaminationDetail-body" style="display:none">
+                    <div class="modal-body">
+                        <div class="trademark_info_table_wrapper">
+                            <div class="trade_info_heading">
+                                <span>Examination Details</span>
+                            </div>
+                            <div class="table-panel table-responsive" style="margin:0 !important; border:0px;box-shadow:none;">
+                                <div style="max-height:410px; overflow-y:auto">
+                                    <table class="table-panel border-0">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="thbg">
+                                                        S.NO
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" id="th2">
+                                                        Document name
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="thbg" style=" justify-content:center; text-align:center;" id="th2">
+                                                        Action
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bindIPRExamDocData"></tbody>
+                                    </table>
+                                    <div class="pagination" id="ExamPagination">
+                                        <div class="pagination-button-group">
+                                            <div id="ExamPrev" class="pagination-button-group-base">
+                                                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                            </div>
+                                            <div id="ExamPageNumbers" class="pagination-button-group-base1">
+                                            </div>
+                                            <div id="ExamNext" class="pagination-button-group-base8">
+                                                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-parent">
+                                            <div class="input">
+                                                <div class="content">
+                                                    <input type="text" id="Examtxtgopage" name="query" placeholder="Page No.">
+                                                </div>
+                                                <div class="help-icon">
+                                                </div>
+                                            </div>
+                                            <div class="text-and-supporting-text-group">
+                                                <div class="text-and-supporting-text">
+                                                    <div id="ExamDivGo" class="text9">Go</div>
+                                                </div>
+                                                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="divCorrAndNoticesDetail-body" style="display:none">
+                    <div class="modal-body">
+                        <div class="trademark_info_table_wrapper">
+                            <div class="trade_info_heading">
+                                <span>Correspondence & Notices</span>
+                            </div>
+                            <div class="table  table-responsive" style="margin:0 !important; border:0px;box-shadow:none;">
+                                <div style="max-height:410px;overflow-y:auto;">
+                                    <table class="table-panel border-0">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="thbg">
+                                                        S.No.
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    Corres. No.
+                                                </th>
+                                                <th>
+                                                    Corres. Date
+                                                </th>
+                                                <th>
+                                                    Subject
+                                                </th>
+                                                <th>
+                                                    Despatch No.
+                                                </th>
+                                                <th>
+                                                    Despatch Date
+                                                </th>
+                                                <th>
+                                                    Hearing Date
+                                                </th>
+                                                <th class="thbg" style="text-align:center">
+                                                    Doc
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bindIPRCorrespondence"></tbody>
+                                    </table>
+                                </div>
+                                <div class="pagination" id="corrPagination">
+                                    <div class="pagination-button-group">
+                                        <div id="corrPrev" class="pagination-button-group-base">
+                                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                        </div>
+                                        <div id="corrPageNumbers" class="pagination-button-group-base1">
+                                        </div>
+                                        <div id="corrNext" class="pagination-button-group-base8">
+                                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-parent">
+                                        <div class="input">
+                                            <div class="content">
+                                                <input type="text" id="corrtxtgopage" name="query" placeholder="Page No.">
+                                            </div>
+                                            <div class="help-icon">
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-group">
+                                            <div class="text-and-supporting-text">
+                                                <div id="corrDivGo" class="text9">Go</div>
+                                            </div>
+                                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="divPRDetails-body" style="display:none">
+                    <div class="modal-body">
+                        <div class="trademark_info_table_wrapper">
+                            <div class="trade_info_heading">
+                                <span>PR Details</span>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="table-responsive" style="margin:0 !important; border:0px;box-shadow:none;">
+                                        <div style="max-height:410px; overflow-y:auto">
+                                            <table class="table-panel border-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:20%">
+                                                            S.No.
+                                                        </th>
+                                                        <th style="width:80%">
+                                                            History/PR Details
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="bindIPRPropertyRights"></tbody>
+                                            </table>
+                                            <center>
+                                                <div class="notfound" id="prDatastatus" style="display:none;">
+                                                    <img src="~/newassets/img/not-found.png" />
+                                                    <h4>Data Not Found</h4>
+
+                                                </div>
+                                            </center>
+                                        </div>
+                                        <div class="pagination" id="prPagination">
+                                            <div class="pagination-button-group">
+                                                <div id="prPrev" class="pagination-button-group-base">
+                                                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                                </div>
+                                                <div id="prPageNumbers" class="pagination-button-group-base1">
+                                                </div>
+                                                <div id="prNext" class="pagination-button-group-base8">
+                                                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                                </div>
+                                            </div>
+                                            <div class="text-and-supporting-text-parent">
+                                                <div class="input">
+                                                    <div class="content">
+                                                        <input type="text" id="prtxtgopage" name="query" placeholder="Page No.">
+                                                    </div>
+                                                    <div class="help-icon">
+                                                    </div>
+                                                </div>
+                                                <div class="text-and-supporting-text-group">
+                                                    <div class="text-and-supporting-text">
+                                                        <div id="prdivGo" class="text9">Go</div>
+                                                    </div>
+                                                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Modal View Email Tracker -->
+    @*<div class="modal fade" id="emailmodalTracker" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+                <div class="modal-content" id="emasexc1">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" onclick="fn_clrtxt()">&nbsp;</button>
+                        <h4 class="modal-title" id="mdChange1">Send information Details To :</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="email" id="emailtxtfortracker" class="inputFormat valid" placeholder="example@123.com" title="Please enter the receiver's mail address. Maximum 5 emails can be added." required />
+                        <div id="emailValidationMessage" style="color: red;"></div>
+                    </div>
+                    <div class="modal-footer" style="border-top: none !important">
+                        <button id="btnEmailForTracker" class="sbtbtn pull-right">Send Email</button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+    @*<div class="modal fade" id="emailmodalTracker" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+                <div class="modal-content" id="emasexc1">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" onclick="fn_clrtxt()">&times;</button>
+                        <h4 class="modal-title" id="mdChange1">Send information Details To :</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" value="" id="rowcounterdata" />
+                        <div class="col-md-8" style="display:flex;flex-direction: row;">
+                            <input type="email" id="emailTrackerId_" class="inputFormat valid" placeholder="example@123.com" title="Please enter the receiver's mail address." />
+                            <span style="padding-left:12px;"><span id="btn_SaveMail" class="glyphicon glyphicon-plus-sign" style="cursor: pointer; color:deepskyblue" title="add more alerts"></span></span>
+                        </div>
+                        <div class="col-md-8">
+                            <div id="addNewDiv"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: none !important">
+                        <button id="btnEmailForTracker" class="sbtbtn pull-right">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+    <div class="modal fade" id="emailmodalTracker" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog manuModal1" style="width:480px;">
+            <div class="modal-content" id="emasexc1" style="background: #fff;">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="editclose">
+                        <span aria-hidden="true" style="font-size:unset !important">×</span>
+                    </button>
+                    <div class="modal-title">
+                        <div class="icon_header_pulse">
+                            <span class="pulse_div">
+                                <img src="/newassets/img/mail.svg" alt="user_blue">
+                            </span>
+                        </div>
+                        <h4 class="modal-ctitle" style="margin-top:0px; font-size:18px;" id="mdChange1">
+                            Share via Email:
+                        </h4>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" value="" id="rowcounterdata" />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <input type="email" id="emailTrackerId_" class="inputFormat valid" style="width:93% !important" placeholder="example@123.com" title="Please enter the receiver's mail address." />
+                            </div>
+                            <div class="form-group">
+                                <div id="addNewDiv"></div>
+                            </div>
+
+                            <a href="#" id="btn_SaveMail" style="display:flex; align-items:center; gap:10px; color:#3276b1;">
+                                <img src="/newassets/img/plus-icon-blue.png" />
+                                <h6 style="font-size:14px; font-weight:600;">Add Email Id</h6>
+                            </a>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div id="emailValidationMessage" style="color: red;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer footer_buttons" style="border-top: none !important">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close" id="editclose">Cancel</button>
+                    <button id="btnEmailForTracker" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="trademarkDoctDetails" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" style="width:70%;">
+
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title" id="modal-header">
+                        Document Details
+                    </h3>
+                </div>
+                <div class="modal-body">
+
+                    <div class="table-panel table-responsive" style=" margin-top:5px;">
+                        <div style="height:410px;overflow-y:scroll">
+                            <table class="table-panel">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <div class="thbg">
+                                                S.NO
+                                            </div>
+                                        </th>
+
+                                        <th>
+                                            <div class="thbg" id="th2">
+                                                Document name
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th2" style="display:flex; justify-content:center;">
+                                                Action
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bindIPRTrademarkDocData"></tbody>
+                            </table>
+                            <center>
+                                <div class="notfound" id="docpdatastatus" style="display:none;">
+                                    <img src="~/newassets/img/not-found.png" />
+                                    <h4>Data Not Found</h4>
+
+                                </div>
+                            </center>
+                        </div>
+                        <div class="pagination" id="docPagination">
+                            <div class="pagination-button-group">
+                                <div id="docPrev" class="pagination-button-group-base">
+                                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                </div>
+                                <div id="docPageNumbers" class="pagination-button-group-base1">
+                                </div>
+                                <div id="docNext" class="pagination-button-group-base8">
+                                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-parent">
+                                <div class="input">
+                                    <div class="content">
+                                        <input type="text" id="doctxtgopage" name="query" placeholder="Page No.">
+                                    </div>
+                                    <div class="help-icon">
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-group">
+                                    <div class="text-and-supporting-text">
+                                        <div id="docDivGo" class="text9">Go</div>
+                                    </div>
+                                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @**Start Opposition document*@
+    <div id="OppDoctDetails" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title" id="modal-header">
+                        Document Details
+                    </h3>
+                </div>
+                <div class="modal-body">
+
+                    <div class="table-panel table-responsive">
+                        <div style="height:410px;overflow-y:scroll">
+                            <table class="table-panel">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <div class="thbg">
+                                                S.NO
+                                            </div>
+                                        </th>
+
+                                        <th>
+                                            <div class="thbg" id="th2">
+                                                Document name
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" style="display:flex; justify-content:center;" id="th2">
+                                                Action
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="IPRTradeOppDocData"></tbody>
+                            </table>
+                            <center>
+                                <div class="notfound" id="docOpppdatastatus" style="display:none;">
+                                    <img src="~/newassets/img/not-found.png" />
+                                    <h4>Data Not Found</h4>
+                                </div>
+                            </center>
+                        </div>
+                        <div class="pagination" id="OppdocPagination">
+                            <div class="pagination-button-group">
+                                <div id="OppdocPrev" class="pagination-button-group-base">
+                                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                </div>
+                                <div id="OppdocPageNumbers" class="pagination-button-group-base1">
+                                </div>
+                                <div id="OppdocNext" class="pagination-button-group-base8">
+                                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-parent">
+                                <div class="input">
+                                    <div class="content">
+                                        <input type="text" id="Oppdoctxtgopage" name="query" placeholder="Page No.">
+                                    </div>
+                                    <div class="help-icon">
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-group">
+                                    <div class="text-and-supporting-text">
+                                        <div id="OppdocDivGo" class="text9">Go</div>
+                                    </div>
+                                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    @**End Opposition document*@
+
+    @*<div class="modal fade" id="emailmodal" role="dialog" data-backdrop="static" data-keyboard="false">
+              <div class="modal-dialog">
+                  <!-- Modal content-->
+                  <div class="modal-content" id="emasexc">
+                      <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" onclick="fn_clrtxt()">&times;</button>
+                          <h4 class="modal-title" id="mdChange">Send Trademark Details To :</h4>
+                      </div>
+                      <div class="modal-body">
+                          <input type="email" id="emailtxt" name="sendemail" class="inputFormat valid" placeholder="example@123.com" title="Please enter the receiver's mail address" required />
+                          <button id="btnEmail" class="sbtbtn pull-right">Send Email</button>
+                      </div>
+                      <div class="modal-footer" style="border-top: none !important">
+                      </div>
+                  </div>
+
+              </div>
+        </div>*@
+
+    <div class="modal fade vertical-centered" id="emailmodal" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog manuModal1" role="document" style="width:480px;">
+            <!-- Modal content -->
+            <div class="modal-content" id="emasexc" style="background:#fff;">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="fn_clrtxt()" id="emailClose">
+                        <span aria-hidden="true" style="font-size:unset !important;">×</span>
+                    </button>
+                    <div class="modal-title">
+                        <div class="icon_header_pulse">
+                            <span class="pulse_div">
+                                <img src="/newassets/img/mail-01.png" alt="mail">
+                            </span>
+                        </div>
+                        <h4 class="modal-title" id="mdChange">Send Trademark Details To :</h4>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="formLabel colorDark" for="emailtxt">Email Id.</label>
+                        <input type="email" id="emailtxt" name="sendemail" class="form-control inputFormat" placeholder="example@123.com" title="Please enter the receiver's mail address" required />
+                    </div>
+                </div>
+
+                <div class="modal-footer footer_buttons" style="margin-top:20px; border-top: none !important;">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Cancel</button>
+                    <button type="button" id="btnEmail" class="btn btn-primary">Send Email</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @*Start Opposition Detail model popup*@
+    <div id="oppositionDetails" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" style="width:70%;">
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title" id="modal-header">
+                        Opposition Details
+                    </h3>
+                </div>
+                <div class="modal-body">
+
+                    <div class="table-panel table-responsive" style=" margin-top:5px;">
+                        <div style="height:410px;overflow-y:scroll">
+                            <table class="table ">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <div class="thbg">
+                                                S. No.
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th2">
+                                                Application No.
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th3">
+                                                Opponent Name
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th4">
+                                                Opponent Address
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th5">
+                                                Opposition No.
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th6">
+                                                Opponent Code
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th7">
+                                                Opposition Date
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th8">
+                                                Attorney Name
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th9">
+                                                Attorney Address
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th10">
+                                                Status
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th10">
+                                                Decision
+                                            </div>
+                                        </th>
+                                        @*<th>
+                                                <div class="thbg" id="th11">
+                                                    Download
+                                                </div>
+                                            </th>*@
+                                    </tr>
+                                </thead>
+                                <tbody id="bindIPROppositionDetailsData"></tbody>
+                            </table>
+                            <center>
+                                <div class="notfound" id="oppIpdatastatus" style="display:none;">
+                                    <img src="~/newassets/img/not-found.png" />
+                                    <h4>Data Not Found</h4>
+
+                                </div>
+                            </center>
+                        </div>
+
+                        @*<div class="table-panel">
+                                <div class="settingpanel">
+                                    <div class="col-md-6">
+                                        <div style="float: left;padding: 0 10px 0 0;">
+                                        </div>
+                                        <div id="ptfooter1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>*@
+
+                        <div class="pagination" id="oppDPagination">
+                            <div class="pagination-button-group">
+                                <div id="oppDPrev" class="pagination-button-group-base">
+                                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                </div>
+                                <div id="oppPageNumbers" class="pagination-button-group-base1">
+                                </div>
+                                <div id="oppDNext" class="pagination-button-group-base8">
+                                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-parent">
+                                <div class="input">
+                                    <div class="content">
+                                        <input type="text" id="opptxtgopage" name="query" placeholder="Page No.">
+                                    </div>
+                                    <div class="help-icon">
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-group">
+                                    <div class="text-and-supporting-text">
+                                        <div id="oppDDivGo" class="text9">Go</div>
+                                    </div>
+                                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    @*End Opposition Detail model popup*@
+
+    @*Start Examination Detail model popup*@
+    <div id="examinationDoctDetails" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" style="width:70%;">
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title" id="modal-header">
+                        Examination Document Details
+                    </h3>
+                </div>
+                <div class="modal-body">
+                    <div class="table-panel table-responsive" style=" margin-top:5px;">
+                        <div style="height:410px; overflow-y:scroll">
+                            <table class="table-panel">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <div class="thbg">
+                                                S.NO
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg" id="th2">
+                                                Document name
+                                            </div>
+                                        </th>
+                                        <th style="text-align:center;">
+                                            Action
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bindIPRExamDocData"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" id="ExamPagination">
+                            <div class="pagination-button-group">
+                                <div id="ExamPrev" class="pagination-button-group-base">
+                                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                </div>
+                                <div id="ExamPageNumbers" class="pagination-button-group-base1">
+                                </div>
+                                <div id="ExamNext" class="pagination-button-group-base8">
+                                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-parent">
+                                <div class="input">
+                                    <div class="content">
+                                        <input type="text" id="Examtxtgopage" name="query" placeholder="Page No.">
+                                    </div>
+                                    <div class="help-icon">
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-group">
+                                    <div class="text-and-supporting-text">
+                                        <div id="ExamDivGo" class="text9">Go</div>
+                                    </div>
+                                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="table-panel">
+                                <div class="settingpanel">
+                                    <div class="col-md-6">
+                                        <div style="float: left;padding: 0 10px 0 0;">
+                                        </div>
+                                        <div id="ExamFooter">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*End Examination Detail model popup*@
+
+    @*Start Correspondence Detail model popup*@
+    <div id="correspondenceDetails" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" style="width:70%;">
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title" id="modal-header">
+                        Correspondence & Notices
+                    </h3>
+                </div>
+                <div class="modal-body">
+
+                    <div class="table-panel table-responsive" style=" margin-top:5px;">
+                        <div style="height:410px;overflow-y:scroll">
+                            <table class="table-panel">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <div class="thbg">
+                                                S.No.
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div class="thbg">
+                                                Corres. No.
+                                            </div>
+
+                                        </th>
+                                        <th>
+                                            <div class="thbg">
+                                                Corres. Date
+                                            </div>
+
+                                        </th>
+                                        <th>
+                                            <div class="thbg">
+                                                Subject
+                                            </div>
+
+                                        </th>
+                                        <th>
+                                            <div class="thbg">
+                                                Despatch No.
+                                            </div>
+
+                                        </th>
+                                        <th>
+                                            <div class="thbg">
+                                                Despatch Date
+                                            </div>
+
+                                        </th>
+                                        <th style="text-align:center;">
+                                            Doc
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bindIPRCorrespondence"></tbody>
+                            </table>
+                        </div>
+                        @*<div class="table-panel">
+                                <div class="settingpanel">
+                                    <div class="col-md-6">
+                                        <div style="float: left;padding: 0 10px 0 0;">
+                                        </div>
+                                        <div id="corrFooter">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>*@
+                        <div class="pagination" id="corrPagination">
+                            <div class="pagination-button-group">
+                                <div id="corrPrev" class="pagination-button-group-base">
+                                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                </div>
+                                <div id="corrPageNumbers" class="pagination-button-group-base1">
+                                </div>
+                                <div id="corrNext" class="pagination-button-group-base8">
+                                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-parent">
+                                <div class="input">
+                                    <div class="content">
+                                        <input type="text" id="corrtxtgopage" name="query" placeholder="Page No.">
+                                    </div>
+                                    <div class="help-icon">
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-group">
+                                    <div class="text-and-supporting-text">
+                                        <div id="corrDivGo" class="text9">Go</div>
+                                    </div>
+                                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    @*End Correspondence Detail model popup*@
+
+    @*Start Property rights Detail model popup*@
+    <div id="PRDetails" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" style="width:70%;">
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title" id="modal-header">
+                        PR Details
+                    </h3>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="table-panel table-responsive" style=" margin-top:5px;">
+                                <div style="max-height:410px; overflow-y:auto">
+                                    <table class="table ">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:20%">
+                                                    S.No.
+                                                </th>
+                                                <th style="width:80%">
+                                                    History/PR Details
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bindIPRPropertyRights"></tbody>
+                                    </table>
+                                    <center>
+                                        <div class="notfound" id="prDatastatus" style="display:none;">
+                                            <img src="~/newassets/img/not-found.png" />
+                                            <h4>Data Not Found</h4>
+
+                                        </div>
+                                    </center>
+                                </div>
+                                @*<div class="table-panel">
+                                        <div class="settingpanel">
+                                            <div class="col-md-6">
+                                                <div style="float: left;padding: 0 10px 0 0;">
+                                                </div>
+                                                <div id="prFooter">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>*@
+                                <div class="pagination" id="prPagination">
+                                    <div class="pagination-button-group">
+                                        <div id="prPrev" class="pagination-button-group-base">
+                                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                        </div>
+                                        <div id="prPageNumbers" class="pagination-button-group-base1">
+                                        </div>
+                                        <div id="prNext" class="pagination-button-group-base8">
+                                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-parent">
+                                        <div class="input">
+                                            <div class="content">
+                                                <input type="text" id="prtxtgopage" name="query" placeholder="Page No.">
+                                            </div>
+                                            <div class="help-icon">
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-group">
+                                            <div class="text-and-supporting-text">
+                                                <div id="prdivGo" class="text9">Go</div>
+                                            </div>
+                                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*End property right Detail model popup*@
+
+    @* Delete popup started *@
+
+    <div id="myModalmarkdeleteTradeconfirmation" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog" style="width:480px;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">
+                        <img src="/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px">
+                    </h4>
+                </div>
+                <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                    <h4 id="ids_deleteTraderequesr"></h4>
+                </div>
+                <div class="modal-body">
+                    <p id="msgRUSure"></p>
+                </div>
+                <div class="footer_buttons modal-footer">
+                    <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="deleteTrademarkDetails">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @* Delete popup ended *@
+</section>
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+
+<script type="text/javascript">
+    var exportfilter = false;
+
+    $('#spnDateOfApp').on('click', function (e) {
+        $("#dropdown-menu1").show();
+        $("#dropdown-hear-menu").hide();
+    });
+    $('#spnHearingDate').on('click', function (e) {
+        $("#dropdown-hear-menu").show();
+        $("#dropdown-menu1").hide();
+    });
+    $(document).click(function (e) {
+        if (!$(e.target).closest("#dropdown-menu1, #toggleCalendar").length) {
+            $("#dropdown-menu1").hide();
+        }
+
+        if (!$(e.target).closest("#dropdown-hear-menu, #toggleCalendar").length) {
+            $("#dropdown-hear-menu").hide();
+        }
+
+    });
+
+    $("#opdf").click(function () {
+        $("#myModalexport").modal({ show: true });
+        var totalRecord = $("#exportrecords").val();
+        var pagesize = 10;
+        var recordsection = totalRecord / pagesize;
+        recordsection = recordsection + 1;
+
+        var res = totalRecord % 10;
+        if (res != 0) {
+            recordsection = parseInt(recordsection) + 1;
+        }
+        else {
+            recordsection = parseInt(recordsection);
+        }
+        var html = '';
+        for (var i = 1; i < recordsection; i++) {
+            html += '<tr>';
+            html += '<td>Page No:' + i + ' </td>';
+            html += '<td><span style="cursor:pointer;color:#069;" id="exporttopdffile" pageno="' + i + '" type="pdf">Download File</span></td>';
+            html += '</tr>';
+        }
+        $("#printexport").html(html);
+    });
+    $(document).on("click", "#exporttopdffile", function () {
+        var pageno = $(this).attr('pageno');
+        var IPList = $("#IPList").val();
+        var filtertradmark = $("#filtertradmark").val();
+        var txtapplicationno = $("#txtapplicationno").val();
+        var searchclass = $("#searchclass").val();
+        var searchtype = $("#searchtype").val();
+        var searchstatus = $("#searchstatus").val();
+        var txtdateapplicationfrom = $("#txtdateapplicationfrom").val();
+        var txtdateapplicationto = $("#txtdateapplicationto").val();
+        var searchuserdetetail = $("#searchuserdetetail").val();
+        var txtProprietor = $("#txtProprietor").val();
+        var JurisdictionList = $("#JurisdictionList").val();
+        var usedsincefrom = $("#usedsincefrom").val();
+        var usedsinceto = $("#usedsinceto").val();
+
+        window.location = encodeURI("/IPR/ViewSharedTrademarkExporttoPDF?IPList=" + IPList + "&filtertradmark=" + filtertradmark + "&applicationno=" + txtapplicationno
+            + "&searchclass=" + searchclass + "&searchtype=" + searchtype + "&searchstatus=" + searchstatus + "&txtdateapplicationfrom=" + txtdateapplicationfrom
+            + "&searchuserdetetail=" + searchuserdetetail + "&txtProprietor=" + txtProprietor + "&JurisdictionList=" + JurisdictionList
+            + "&txtdateapplicationto=" + txtdateapplicationto + "&usedsincefrom=" + usedsincefrom + "&usedsinceto=" + usedsinceto + "&hearingFrmDate=" + hearingFrmDate + "&hearingToDate=" + hearingToDate + "&pagenum=" + pageno + "&pagesize1=500");
+    })
+    $(document).on("click", "#tmdetailsdownload", function () {
+        var IPname = urlParams.get("IP");
+        var downTradeId = downloadTradeId;
+        window.location = encodeURI("/IPR/DownloadIPRDetails?IPList=" + IPname + "&filtertradmark=" + downTradeId);
+    });
+</script>
+

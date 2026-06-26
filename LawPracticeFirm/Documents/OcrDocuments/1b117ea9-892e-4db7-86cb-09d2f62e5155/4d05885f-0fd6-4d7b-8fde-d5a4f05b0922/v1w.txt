@@ -1,0 +1,75 @@
+  [FirmApiAuthorization()]
+        [System.Web.Mvc.HttpPost]
+        public IHttpActionResult CreatePrivateChatChannel()
+        {
+            try
+            {
+                var straff = 0;
+                var userid = HttpContext.Current.Request.Form["userid"];
+                var ChannelName = HttpContext.Current.Request.Form["ChannelName"];
+                var teamid = HttpContext.Current.Request.Form["teamid"];
+                teamid = QueryStringEDAES.QueryAES.DecryptAes(Convert.FromBase64String(teamid));
+                Guid guid = Guid.NewGuid();
+                var channelguid = guid.ToString();
+                var firmid = LoggedInUser.FirmId.ToString();
+                var createdby = LoggedInUser.UserId.ToString();
+                LawPracticeEntities db = new LawPracticeEntities();
+
+                string activedate = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
+
+                string[] srtuseridarr = userid.Split(',');
+                //self insert
+                straff = db.usp_CreatePrivateChatChannel(channelguid.ToString(), ChannelName, createdby, firmid, createdby, teamid);
+                if (straff > 0)
+                {
+                    db.InsertPrivateChatChannelInviteUser(firmid, channelguid, createdby, activedate, createdby, 2);
+
+                    foreach (var item in srtuseridarr)
+                    {
+                        if (!string.IsNullOrEmpty(item.ToString()))
+                        {
+                            straff = db.usp_CreatePrivateChatChannel(channelguid.ToString(), ChannelName, item.ToString(), firmid, createdby, teamid);
+                            var strinvitedaff = db.InsertPrivateChatChannelInviteUser(firmid, channelguid, item.ToString(), activedate, createdby, 2);
+                            if (strinvitedaff > 0)
+                            {
+                                try
+                                {
+                                    string AssignmentSubmittedMailSubject = "Chat notification from mykase";
+                                    string fromemail = WebConfigurationManager.AppSettings["fromemail"].ToString();
+                                    CommomUtility objmail = new CommomUtility();
+                                    //get user email
+                                    var useremail = db.usp_wf_GetUserDetails(Guid.Parse(firmid), Guid.Parse(item.ToString())).FirstOrDefault();
+                                    if (useremail != null)
+                                    {
+                                        var strbody = "";
+                                        strbody += "Dear User,<br><br>";
+                                        var senderuser = db.usp_wf_GetUserDetails(Guid.Parse(firmid), Guid.Parse(createdby)).FirstOrDefault();
+                                        if (senderuser != null)
+                                        {
+                                            strbody += "You have a new chat from " + senderuser.cfname;
+                                            strbody += "<br><br>Please login to <a target=\"_blank\" href=\"https://mykase.manupatra.com\">mykase</a>.";
+                                        }
+                                        string AssignmentSubmittedMailBody = WebConfigurationManager.AppSettings["basicmailtemplate"].ToString();
+                                        AssignmentSubmittedMailBody = AssignmentSubmittedMailBody.Replace("#CONTENT#", strbody);
+
+                                        objmail.SendEmail(fromemail, useremail.cemail, "", AssignmentSubmittedMailSubject, AssignmentSubmittedMailBody);
+                                    }
+                                }
+                                catch
+                                {
+
+                                }
+                            }
+                        }
+
+                    }
+                }
+                return Ok(straff);
+
+            }
+            catch (Exception ex)
+            {
+                // db1.usp_AddAudit(Convert.ToInt32(EventType.Case), Convert.ToInt32(Severity.High), Convert.ToInt32(REQUEST_TYPE.API), Convert.ToString(EventType.Case), Convert.ToString(Severity.High), Convert.ToString(REQUEST_TYPE.API), null, "Message=" + ex.Message + "@Inner Exception=" + ex.InnerException + "@Stack Trace=" + ex.StackTrace, myIP(), GetMacAddress().ToString(), 1, "");
+                return Ok();
+            }
+        }

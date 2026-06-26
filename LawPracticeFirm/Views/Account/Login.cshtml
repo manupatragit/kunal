@@ -1,0 +1,946 @@
+﻿@{
+    ViewBag.Title = "Login";
+}
+@Scripts.Render("~/bundles/jQueryBootStrap")
+@Scripts.Render("~/bundles/Utility")
+<script src="~/Scripts/Firm/Pages/FirmMain.js"></script>
+<script>
+    var Url = '@ViewBag.Url';
+</script>
+<script src="~/Scripts/Firm/Pages/FirmRegistration.js"></script>
+<script>
+    function CheckUser() {
+        try {
+            var struser = $("#rusername").val();
+            if (struser == "") {
+                alert("Please enter username");
+                return false;
+            }
+            else {
+                $.ajax({
+                    async: true,
+                    url: '/api/WorkFlowNewApi/CheckUser',
+                    type: 'POST',
+                    headers: {
+                        'username': struser
+                    },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.Status == true) {
+                            if (response.Data == "0") {
+                                $("#lblmsg").val("Available");
+                            }
+                            else {
+                                $("#lblmsg").val("Not Available");
+                            }
+                        }
+                    },
+                    error: function () {
+                        alert('Error!');
+                    }
+                });
+            }
+        }
+        catch (err) {
+            alert(err.message);
+        }
+    }
+</script>
+@Scripts.Render("~/bundles/Security")
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/Login.js?1.2"></script>
+<SCRIPT>
+    $(document).ready(function () {
+        try {
+            var ddlCountry = $('#country');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    $.each(d.Data, function (i, country) {
+                        ddlCountry.append($("<option></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                    ddlCountry.append($("<option value='' selected></option>").val('').html('Please Select Country'));
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //State details by country id
+        $("#country").change(function () {
+            var CountryId = $(this).val();
+            var ddlState = $('#state');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    if (d.Data != "") {
+                        ddlState.append($("<option value='' selected></option>").val('').html('Select the state.'));
+                        $.each(d.Data, function (i, states) {
+                            ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                        });
+                        $('#state').show();
+                        $('#city').show();
+                        $('#txtstate').hide();
+                        $('#txtcity').hide();
+                    }
+                    else {
+                        $('#txtstate').show();
+                        $('#state').hide();
+                        $('#txtcity').show();
+                        $('#city').hide();
+                    }
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#state").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#city');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            debugger;
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select City Name'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+    });
+</SCRIPT>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Manupatra - Mykase</title>
+    <!-- meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- css -->
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/css/ionicons.min.css">
+    <link rel="stylesheet" href="~/assets/css/owl.carousel.css">
+    <link rel="stylesheet" href="~/assets/css/owl.theme.css">
+    <link rel="stylesheet" href="~/assets/css/animate.css">
+    <link rel="stylesheet" href="~/assets/css/style.css">
+    <style>
+        #return-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgb(0, 0, 0);
+            background: rgba(0, 0, 0, 0.7);
+            width: 50px;
+            height: 50px;
+            display: block;
+            text-decoration: none;
+            -webkit-border-radius: 35px;
+            -moz-border-radius: 35px;
+            border-radius: 35px;
+            display: none;
+            -webkit-transition: all 0.3s linear;
+            -moz-transition: all 0.3s ease;
+            -ms-transition: all 0.3s ease;
+            -o-transition: all 0.3s ease;
+            transition: all 0.3s ease;
+        }
+
+            #return-to-top i {
+                color: #fff;
+                margin: 0;
+                position: relative;
+                left: 10px;
+                top: 5px;
+                font-size: 19px;
+                -webkit-transition: all 0.3s ease;
+                -moz-transition: all 0.3s ease;
+                -ms-transition: all 0.3s ease;
+                -o-transition: all 0.3s ease;
+                transition: all 0.3s ease;
+            }
+
+            #return-to-top:hover {
+                background: rgba(0, 0, 0, 0.9);
+            }
+
+                #return-to-top:hover i {
+                    color: #fff;
+                    top: 5px;
+                }
+    </style>
+    <!-- fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic|Roboto+Condensed:300italic,400italic,700italic,400,300,700|Oxygen:400,300,700' rel='stylesheet'>
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!--[if lt IE 9]>
+        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+</head>
+<body id="home">
+    <!-- ****************************** Preloader ************************** -->
+    <div id="preloader"></div>
+    <a href="javascript:" id="return-to-top"><b><i class="icon ion-chevron-up"></i></b></a>
+    <!-- ****************************** Sidebar ************************** -->
+    <nav id="sidebar-wrapper">
+        <a id="menu-close" href="#" class="close-btn toggle"><i class="ion-ios-close-empty"></i></a>
+        <ul class="sidebar-nav">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#howitwork">How It Works</a></li>
+            <li><a href="#legal">Legal</a></li>
+            <li><a href="#testimonial">Precious Reviews</a></li>
+            <li><a href="#contact">Contact us</a></li>
+            <li><a href="#frmreg">Firm Registration</a></li>
+        </ul>
+    </nav>
+    <!-- ****************************** Header ************************** -->
+    <header class="sticky" id="header">
+        <section class="container">
+            <section class="row" id="logo_menu">
+                <section class="col-xs-8"><a class="logo" href=""><img src="~/Manupanel/img/mykase.png" /></a></section>
+                <section class="col-xs-4"><a id="menu-toggle" href="#" class="toggle wow rotateIn" data-wow-delay="1s"><i class="ion-navicon"></i></a></section>
+            </section>
+        </section>
+    </header>
+    <!-- ****************************** Banner ************************** -->
+    <section id="banner">
+        <section class="container">
+            <a class="slidedown wow animated zoomIn" data-wow-delay="2s" href="#about"><i class="ion-ios-download-outline"></i></a>
+            <section class="row">
+                <div class="col-md-8">
+                    <div class="headings">
+                        <h1 class="wow animated fadeInDown">MyKase</h1>
+                        <p class="wow animated fadeInLeft">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.</p>
+                        <div class="row">
+                            <div class="col-xs-6 col-sm-6 col-md-5">
+                                <div>
+                                    <a href="#frmreg" class="polo-btn store wow animated bounceInUp"><i class="icon ion-person"></i> Sign Up</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div>
+                        <div class="form_bg">
+                            <h3>Login!</h3>
+                            <p><img src="~/assets/img/line.png" width="237" height="1" /></p>
+                            <form class="formcontainer" role="form" method="post" action="login/ValidateLogin">
+                                <table cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="left">  <input class="input100 form-control" type="text" name="username" placeholder="User name" id="username" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" height="7px"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input class="input100 form-control" type="password" name="pass" placeholder="Password" id="password" autocomplete="off" pattern="^[a-zA-Z1-9]{6,}$" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" height="15px"></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center">
+                                            <input class="login100-form-btn form-control login_btn" id="btnLogin" type="button" value="Login" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="right" style="padding:5px 0 0 0"><a href="#" class="ipuser" name="IPUserLogin" onClick="IPUserLogin();">IP User Login</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:20px 0 0 0;">
+                                            <table align="center" width="100%" cellspacing="0" cellpadding="0">
+                                                <tr>
+                                                    <td align="center"><a class="signup" href="#frmreg" name="Signup" onClick="SignUp();">Sign Up</a></td>
+                                                    <td align="center" width="4px">&nbsp;</td>
+                                                    <td align="center"><a class="signup1" href="#frmreg" name="TrialUserLogin" onClick="TrialUserLogin();">Trial User Signup</a></td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </section>
+    <!-- ****************************** About Section ************************** -->
+    <section id="about" class="block">
+        <section class="container">
+            <section class="row">
+                <div class="title-box">
+                    <h1 class="block-title wow animated rollIn">
+                        <span class="bb-top-left"></span>
+                        <span class="bb-bottom-left"></span>
+                        About
+                        <span class="bb-top-right"></span>
+                        <span class="bb-bottom-right"></span>
+                    </h1>
+                </div>
+            </section>
+            <section class="row">
+                <div class="col-md-12">
+                    <div class="about-box wow animated flipInX" data-wow-delay="0.3s">
+                        <p align="center">
+                            <em><strong>Manupatra®</strong></em><br>
+                            <em>Power your legal research</em>
+                        </p>
+                        <p align="center">
+                            <strong>
+                                <em>“</em><em>Legal research takes up enormous  amounts of time and energy. </em><br>
+                                <em>Manupatra  gets you the content, functionality and time </em><br>
+                                <em>saving  tools that increase your efficiency, and get you the information faster.&nbsp; </em><br>
+                                <em>Simply put, we make your research simple,  relevant and fast.”</em>
+                            </strong>
+                        </p><br /><br />
+                        <p>
+                            Manupatra, pioneer in online legal research in India since  2001,&nbsp; is India’s premier legal information resource. It is the largest  content aggregator of Indian and International material, linking primary information,  secondary material and proprietary analytical content. <br /><br />
+                            The Company started operations in  the year 2000 and launched its flagship product, the online database <a href="https://www.manupatra.com">www.manupatra.com</a> in August 2001. Today, it has delivery  capabilities in Online, Print and Mobile media.&nbsp;<br /><br />
+                            Over the years, Manupatra has reinvented legal research by  including intuitive and smarter legal research tools with database access, thus  strengthening lawyer’s practice. Research on Manupatra ensures that users spend  their time analyzing information, and in context and not gathering it.  Sophisticated legal research tools, which were the province of the privileged, has  been brought to the masses by Manupatra. <br /><br />
+                            India’s premier legal information  resource, is designed to be used by a wide  variety of users across Legal, Educational, Finance, Tax, Accounting,  Corporate, Risk Management, Banks, Consulting, Government, Law Enforcement,  Intellectual Property, Media markets and others. We are market leaders and customer preferred service  provider for accessing decision support information because:
+                        </p><br />
+                        <p>&bull; We provide authoritative and editorially  enhanced content accepted by Indian Courts;</p>
+                        <p>&bull; Our Enterprise Search Platform with advance  search options makes research easy, quick  and accurate;</p>
+                        <p>&bull; We offer quality legal research on the move,  through our Web and Mobile App; </p>
+                        <p>&bull; We have features such as Analytics,  Visualisation Tools, Integrated Citation, Apps  , News Alerts  &amp; more;</p>
+                        <p>&bull; Our documents have backward and forward cross  referencing and extensive hyper linking saving your  time;</p>
+                        <p>&bull; We have a database of over 20 Lakh Case Laws with  Citation Search on 300+ equivalent citations in  addition to other content.</p>
+                        <p>
+                            Manupatra offers &nbsp;customized  subscription plans to suit the research requirements of every researcher. Annual subscription plans start at Rs 7000/- ; Users with limited need can opt for a Rs 350/-  daily plan. Additional licenses come at a minimum of 50% discount, with  provision for users to pay for multiple years upfront at a discounted rate. <br /><br />
+                            The company is head  quartered in NOIDA and has a nationwide sales office network &nbsp;spread  across 17 cities. The team ensures that the subscribers have on ground support  365 days of the year.
+                        </p>
+                        Reach  us at <a href="mailto:contact@manupatra.com">contact@manupatra.com</a>&nbsp;
+                    </div>
+                </div>
+            </section>
+            <div class="clearfix"></div>
+        </section>
+    </section>
+    <!-- ****************************** Features Section ************************** -->
+    <section id="features" class="block">
+        <section class="container">
+            <section class="row">
+                <div class="title-box">
+                    <h1 class="block-title wow animated rollIn">
+                        <span class="bb-top-left"></span>
+                        <span class="bb-bottom-left"></span>
+                        Features
+                        <span class="bb-top-right"></span>
+                        <span class="bb-bottom-right"></span>
+                    </h1>
+                </div>
+            </section>
+            <section class="row">
+                <div class="col-sm-6 col-md-4">
+                    <div class="feature-box wow animated flipInX" data-wow-delay="0.3s">
+                        <i class="ion-ios-settings" style="color:#9b59b6;"></i>
+                        <h2>Tune up</h2>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="feature-box wow animated flipInX" data-wow-delay="0.3s">
+                        <i class="ion-ios-locked-outline" style="color:#d35400;"></i>
+                        <h2>Security</h2>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="feature-box wow animated flipInX" data-wow-delay="0.3s">
+                        <i class="ion-nuclear" style="color:#00ceb8;"></i>
+                        <h2>Firewall</h2>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="feature-box wow animated flipInX" data-wow-delay="0.6s">
+                        <i class="ion-ios-browsers-outline" style="color:#c0392b;"></i>
+                        <h2>HD Widgets</h2>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="feature-box wow animated flipInX" data-wow-delay="0.6s">
+                        <i class="ion-ios-loop" style="color:#27ae60;"></i>
+                        <h2>Data Sync</h2>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="feature-box wow animated flipInX" data-wow-delay="0.6s">
+                        <i class="ion-ios-glasses" style="color:#2c3e50;"></i>
+                        <h2>Customize</h2>
+                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard.</p>
+                    </div>
+                </div>
+            </section>
+            <div class="clearfix"></div>
+        </section>
+    </section>
+    <!-- ****************************** Gallery Section ************************** -->
+    <section id="howitwork" class="block">
+        <section class="container">
+            <section class="row">
+                <div class="title-box" style="color:#fff;">
+                    <h1 class="block-title wow animated rollIn">
+                        <span class="bb-top-left" style="border-color: #fff; "></span>
+                        <span class="bb-bottom-left" style="border-color: #fff; "></span>
+                        HOW It Works
+                        <span class="bb-top-right" style="border-color: #fff; "></span>
+                        <span class="bb-bottom-right" style="border-color: #fff; "></span>
+                    </h1>
+                </div>
+            </section>
+            <section class="row">
+                <div class="col-xs-12">
+                    <div id="screenshots" class="owl-carousel owl-theme">
+                        <div class="item"><img src="~/assets/img/screenshot-1.png" class="img_res wow animated zoomIn"></div>
+                        <div class="item"><img src="~/assets/img/screenshot-2.png" class="img_res wow animated zoomIn"></div>
+                        <div class="item"><img src="~/assets/img/screenshot-3.png" class="img_res wow animated zoomIn"></div>
+                        <div class="item"><img src="~/assets/img/screenshot-4.png" class="img_res wow animated zoomIn"></div>
+                        <div class="item"><img src="~/assets/img/screenshot-5.png" class="img_res wow animated zoomIn"></div>
+                        <div class="item"><img src="~/assets/img/screenshot-6.png" class="img_res wow animated zoomIn"></div>
+                        <div class="item"><img src="~/assets/img/screenshot-7.png" class="img_res wow animated zoomIn"></div>
+                        <div class="item"><img src="~/assets/img/screenshot-3.png" class="img_res wow animated zoomIn"></div>
+                        <div class="item"><img src="~/assets/img/screenshot-5.png" class="img_res wow animated zoomIn"></div>
+                        <div class="item"><img src="~/assets/img/screenshot-1.png" class="img_res wow animated zoomIn"></div>
+                    </div>
+                    <div class="customNavigation">
+                        <a class="btn prev gallery-nav wow animated bounceInLeft"><i class="ion-ios-arrow-left"></i></a>
+                        <a class="btn next gallery-nav wow animated bounceInRight"><i class="ion-ios-arrow-right"></i></a>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </section>
+    <!-- ****************************** Team Section ************************** -->
+    <section id="legal" class="block">
+        <section class="container">
+            <section class="row">
+                <div class="col-md-12">
+                    <div class="title-box">
+                        <h1 class="block-title wow animated rollIn">
+                            <span class="bb-top-left"></span>
+                            <span class="bb-bottom-left"></span>
+                            Legal
+                            <span class="bb-top-right"></span>
+                            <span class="bb-bottom-right"></span>
+                        </h1>
+                    </div>
+                </div>
+            </section>
+            <section class="row">
+                <section class="col-md-12">
+                    <div class="legal wow animated fadeIn" data-wow-delay= ="0.3s">
+                        <h2 class="wow animated fadeInDown" data-wow-delay= ="0.7s">Corporate</h2>
+                        <p class="wow animated fadeIn" data-wow-delay= ="0.7s">
+                            Company Name:&nbsp;<strong>Manupatra Information Solutions Pvt. Ltd.</strong></br>
+                            Regd Office:&nbsp;<strong>E-192 New Rajinder Nagar, New Delhi 110060, India</strong></br>
+                            Corporate Office: B-37, Sector 1, NOIDA 201301. U.P, India</br>
+                            C.I.N No.: U74899DL2000FTC106392</br>
+                            Tel: 91 120 4014444</br>
+                            Fax: 91 120 4014512</br>
+                            Email: contact@manupatra.com</br>
+                            Person responsible for grievance: Mr. Vijay Singh, Manager Finance. Tel: 0120 4014407; vsingh@manupatra.com
+                        </p>
+                        <h2 class="wow animated fadeInDown" data-wow-delay= ="0.7s">Copyright</h2>
+                        <p class="wow animated fadeIn" data-wow-delay= ="0.7s">
+                            All material available on this web site Manupatra is protected by copyright laws. (depicted as © Manupatra Information Solutions Pvt. Ltd. All rights reserved.)</br>
+                            Access to the Manupatra services and content is subject to Terms and Conditions which you accepted during the registration process. These&nbsp;<a href="https://www.manupatrafast.com/Regs/Terms.pdf" target="_blank"><strong>Terms and Conditions</strong></a>&nbsp;contain warranty&nbsp;disclaimers, guidelines for&nbsp;link to other websites &amp; linking disclaimer&nbsp;and&nbsp;limitation on use.</br>
+                            Manupatra grants users of this web site the permission to reproduce copies of the material strictly for private purposes to fight a case in the court of law and for allied research purposes. While no pecuniary consideration is required for this permission, Manupatra requires the following statement to be included in all reproductions of the material.<br>
+                            <strong>©Manupatra Information Solutions Pvt. Ltd. All rights reserved. Reprinted with the permission of Manupatra</strong><br>
+                            You are also not suppose to use any part of the material including graphics or logos available on the Manupatra Web Site for the purpose of copying, photocopying, reproduction, translation or reduction to any electronic medium or machine readable form, either in whole or in part, without prior written consent of Manupatra Information Solutions Pvt. Ltd. Any other reproduction in any form without the permission of Manupatra is prohibited.<br>
+                            Distribution of the material from the Web Site, for commercial purposes is prohibited. Domestic and International copyright and Trademark laws protect the entire Contents of the Site. The owners of the intellectual property, copyrights and trademarks are Manupatra Information Solutions Pvt. Ltd. its affiliates or third party licensors. You are expressly prohibited from modifying, copying, reproducing, republishing, uploading, posting, transmitting or distributing any material on this Site including text, graphics, code and/or software.<br>
+                            You also agree that you shall not take recourse against Manupatra for any alleged or actual infringement or misappropriation of any proprietary rights in your communications to Manupatra. If you, at any stage believe that the Contents appearing on this Site constitutes copyright infringement of another person’s rights, please communicate the same to us.<br>
+                            Manupatra reserves the right to remove any Content or links that allegedly infringes any other person’s copyright at any point of time. Notice to Manupatra regarding any alleged copyright infringement shall be directed at:<br>
+                            <strong>Manupatra Information Solutions Pvt. Ltd, B-37, Floor 1 A, Sector 1, Noida.</strong><br>
+                            Some contents on the site belongs to third party. Such contents have been reproduced after taking prior permission from the said party and the copyright of such contents would remain exclusively with the said third party. manupatra shall not be responsible for any mistakes which might appear in such contents<br>
+                            Third party contents may also be accessible via links, manupatra does not claim any copyright on the contents appearing on such third party sites nor shall be held responsible for any mistakes which might appear therein<br>
+                            Any request for any reprint or other permission should be mailed to:&nbsp;<br>
+                            <strong>Manupatra Information Solutions Pvt. Ltd, B-37, Floor 1 A, Sector1, Noida.</strong>
+                        </p>
+                        <h2 class="wow animated fadeInDown" data-wow-delay= ="0.7s">Our commitment to privacy</h2>
+                        <p class="wow animated fadeIn" data-wow-delay= ="0.7s">
+                            Your privacy is important to us. To better protect your privacy, we provide this notice explaining our online information practices and the choices you can make about the way your information is collected and used. To make this notice easy to find, we make it available on our home page and at every point where personally identifiable information may be requested.</br>
+                            We promise that we will take steps to use your personal information only in ways that are compatible with this Privacy Policy.</br>
+                            The Web Site contains links to other Web Sites operated by third parties. manupatra.com is not responsible for the privacy practices or policies of such third party Web Sites. We do not share any of the individual personal information you provide manupatra.com with the Sites to which manupatra.com links, although we may share aggregate data with such Web sites (such as how many people use our Site).</br>
+                            Please check with those sites to determine their privacy policy.</br>
+                            Please keep in mind that whenever you voluntarily disclose personal information online - for example through e-mail, discussion lists, or elsewhere - that information can be collected and used by others. In short, if you post personal information online that is accessible to the public, you may receive unsolicited messages from other parties in return.</br>
+                            Ultimately, you are solely responsible for maintaining the secrecy of your personal information. Please be careful and responsible whenever you're online.</br>
+                            <strong>The information we collect</strong></br>
+                            The Web Site manupatra.com is not set up to automatically collect personally identifiable information from each visitor to the Web Site. It does recognize the home server of visitors, but not e-mail addresses. For example, we can tell which Internet Service Provider our visitors use, but not the names, addresses or other information about our visitors that would allow us to identify a particular visitor to our Web Site. This information is used only for internal purposes by our technical support staff.</br>
+                            The Web Site does track certain information about the visits to the Web Site manupatra.com. For example, we compile statistics that show the numbers and frequency of visitors to the Web Site and its individual pages and time spent by each visitor on each page. These aggregated statistics are generally used internally to improve the Web Site and for product development and marketing purposes. Those aggregated statistics may also be provided to advertisers and other third parties, but again, the statistics contain no personal information and cannot be used to gather such information.</br>
+                            In a few areas on the Web Site manupatra.com, we ask you to provide information that will enable us to verify whether you are entitled to access and use certain information, materials and services available from the Web Site manupatra.com. This information may also be used to enable us to enhance your Site visit, to assist you with customer service or technical support issues, or to follow up with you after your visit, or to otherwise support your relationship with manupatra.com. It is completely optional for you to participate. However, failure to participate may mean that you cannot access and use certain information, materials and services.</br>
+                            <strong>For example, we request information from you when you:</strong></br>
+                            &bull; Log-on to certain areas of the Web Site manupatra.com where you may be prompted to provide&nbsp; us with your Log In Name and Password as a condition to gaining access to certain information, materials or services.</br>
+                            &bull; Register or sign-up to use a service.</br>
+                            &bull; Subscribe to a newsletter or desire to be added to our mailing lists for other products and services.</br>
+                            &bull; Place an order.</br>
+                            &bull; Provide feedback in an online survey.</br>
+                            </br>
+                            In each of the instances above, we typically ask for your name, e-mail address, phone number, address, area of practice information, product preference information, Log In Name and Password, as well as, other similar personal information that is needed to register or subscribe you to services or offers. On occasion, we may ask for additional information to enable us to provide you with access to and use of certain information, materials and services. In the case of newsletters or mailing lists, you will be able to "unsubscribe" to these mailers at any time.</br>
+                            Wherever manupatra.com collects personal information we make an effort to include a link to this Privacy Policy on that page.</br>
+                            <strong>How we use information</strong></br>
+                            manupatra.com uses your personal information for specific purposes only.</br>
+                            The personal information you provide to us when using the Web Site, such as your name, postal, e-mail address or telephone number will be kept confidential and used to support your relationship with manupatra.com, to notify you of special offers, updated information and new products and services from manupatra.com, or offers from third parties that we think may be of interest to you. Agents or contractors of manupatra.com who are given access to your personal information will be required to keep the information confidential and not use it for any other purpose other than to carry out the services they are performing for manupatra.com.</br>
+                            manupatra.com may enhance or merge your information collected at its Web Site with data from third parties for purposes of marketing products or services to you.</br>
+                            With respect to network advertising companies (companies that manage and provide advertising for numerous unrelated companies), to the extent that manupatra.com utilizes such advertising companies to provide advertisements on the Web Site, manupatra.com may provide them with your Sign in Name and any demographic information about you that we collect. Those advertising companies may combine that data with non-personally identifiable data collected by the advertising company from your computer, solely for the purpose of delivering on our Web Site, advertisements that are targeted to you.</br>
+                            Circumstances may arise where we are required to disclose your personal information to third parties for purposes other than to support your customer relationship with manupatra.com, such as in connection with a corporate divestiture or dissolution where we sell all or a portion of our business or assets (including our associated customer lists containing your personal information), or if disclosure is required by law or is pertinent to judicial or governmental investigations or proceedings.</br>
+                            We will send you information about our various products and services, or other products and services we feel may be of interest to you. Only manupatra.com (or agents or contractors working on behalf of manupatra.com and under confidentiality agreements) will send you these direct mailings.</br>
+                            <strong>Our commitment to data security</strong></br>
+                            To prevent unauthorized access, maintain data accuracy, and ensure the correct use of information, we have put in place appropriate physical, electronic, and managerial procedures to safeguard and secure the information we collect online.</br>
+                            <strong>Additional Information – For EU Residents</strong></br>
+                            Here at Manupatra Information Solutions Private Limited, we take your privacy seriously and will only use your personal information to manage your account and to provide the products and services you have requested from us. Under the General Data Protection Regulation (GDPR), if you are a resident in the European Union (hereinafter “the EU”), you have the right to request access to your data, or object to Manupatra Information Solutions Private Limited having your data, at any time. If you wish to do either of these things – please complete the form below and our representatives will follow the relevant process &amp; procedure and intimate accordingly, once it is completed.<br><br>
+                            <a href="https://www.manupatrafast.com/regs/Eu_Resident.aspx" target="_blank" style="background:#1860a3; color:#ffffff; font-size:13px; padding:4px; text-decoration:none; border-radius:4px;">Click here for details</a>
+                            </br></br>
+                            <strong>Cookies</strong></br>
+                            Cookies are small text files that are stored on the hard drive of the User’s computer and are used for record-keeping purposes. Use of cookies makes web surfing easier by performing certain functions such as saving your Passwords, your personal preferences regarding your use of the particular Web site and to make sure you don’t see the same ad repeatedly. Many consider the use of cookies to be an industry standard. If you choose to have your browser refuse cookies, it is possible that some areas of our Site will not function properly. You may note additionally that if you visit manupatra.com Web Site where you are prompted to log in or that are customizable, you may be required to accept cookies. Advertisers and partners may also use cookies. We do not control use of these cookies and disclaim responsibility for information collected through them.</br>
+                            You can however choose to accept or refuse the cookies by changing the settings of your browser. You can reset your browser to refuse all cookies or allow your browser to show you when a cookie is being sent. If you choose not to accept these cookies, your experience at our Site and other Web Sites may be diminished and some features may not work as intended.</br>
+                            <strong>How to access or correct your information</strong></br>
+                            Click on the Edit Profile button on your personalized home page to view or correct information provided.</br>
+                            <strong>Third-Party Sites and Services</strong></br>
+                            Manupatra websites, products, applications, and services may contain links to third-party websites, products, and services. Our products and services may also use or offer products or services from third parties − for example, a third-party service to show data or to upload Manupatra document to cloud such as Dropbox/ Google drive. Information collected by third parties, which may include such things as location data or contact details, credentials , is governed by their privacy practices. We encourage you to learn about the privacy practices of those third parties.</br>
+                            <strong>How to contact us</strong></br>
+                            If you would like to&nbsp;<a href="https://www.manupatrafast.in/Defaults/contactus.aspx">contact us</a>&nbsp;for any reason regarding our privacy practices, Please e-mail us at&nbsp;<a href="mailto:contact@manupatra.com">contact@manupatra.com</a></br>
+                            Revisions to this policy manupatra.com reserves the right to revise, amend or modify this policy at any time and in any manner it pleases. Any change or revision will be posted here.
+                        </p>
+                        <h2 class="wow animated fadeInDown" data-wow-delay= ="0.7s">Disclaimer</h2>
+                        <p class="wow animated fadeIn" data-wow-delay= ="0.7s">
+                            The information/material provided on the Web Site is provided on an “As Is” basis. Manupatra Information Solutions Pvt. Ltd. expressly disclaims to the maximum limit permissible by law, all warranties, express or implied, including, but not limiting to implied warranties of merchantability, fitness for a particular purpose and non-infringement. Manupatra Information Solutions Pvt. Ltd. disclaims all responsibility for any loss, injury, liability or damage of any kind resulting from and arising out of, or any way related to:</br>
+                            &bull; any errors in or omissions from the Web Site and its content, including but not limited to technical inaccuracies and typographical errors</br>
+                            &bull; any third party Web Sites or content therein directly or indirectly accessed through links in the Site, including but not limited to any errors in or omissions there from</br>
+                            &bull; the unavailability of this Site or any portion thereof</br>
+                            &bull; your use of any equipment or software in connection with the Site</br>
+                            &bull; your use of the Site.</br>
+                            <strong>Limitation of Liability</strong></br>
+                            Under no circumstances shall Manupatra Information Solutions Pvt. Ltd. be liable to any User for:</br>
+                            &bull; loss, injury, claim, liability or damages of any kind resulting from the use of or the inability to use the materials in the Web Site, even if Manupatra Information Solutions Pvt. Ltd. had been advised of the possibility of such damages and regardless of the form of action, whether in contract, tort or otherwise;</br>
+                            &bull; special, direct, incidental, punitive, exemplary or consequential damages of any kind whatsoever (including without limitation, attorney’s fees) in any way due, resulting from or arising in connection with the use of or the inability to use the Web Site or its content / materials; and</br>
+                            &bull; claim attributable to errors, omission or inaccuracies in or destructive properties of any information.</br>
+                            <strong align="justify">No Liability</strong></br>
+                            Manupatra Information Solutions Pvt. Ltd. makes reasonable effort to ensure that the information provided on the Web Site is accurate but does not guarantee or warrant its accuracy, adequacy, correctness, validity, completeness or suitability for any purpose.</br>
+                            Manupatra Information Solutions Pvt. Ltd. accepts no responsibility with respect to the information on the Site.</br>
+                            Use of this Site, by implication, means that you have gone through and agreed to abide by the Terms and Conditions and the Disclaimers of this Site.&nbsp;</br>
+                            Manupatra Information Solutions Pvt. Ltd. does not represent that the information downloaded from this Web Site is completely error-free and accurate or the servers that make Manupatra Web Sites available, are free of viruses or harmful components. Though due care has been taken to make the database completely reliable and error-free, manupatra claims exemption from any liability arising out of any such error in the data base.</br>
+                            Manupatra provides documents that you are likely to use in legal or non-legal transactions.</br>
+                            All forms in this database are provided without any warranty, express or implied, as to their legal effect and completeness. Forms should be used as a guide and modified to suit your requirement and laws. Please use at your own risk.</br>
+                            Manupatra Information Solutions Pvt. Ltd. does not warranty any form thay provide, nor are they creating an Lawyer-Client or Lawyer's-Lawyer relationship by providing forms.
+                        </p>
+                    </div>
+                </section>
+            </section>
+        </section>
+    </section>
+    <!-- ****************************** Testimonial ************************** -->
+    <section id="testimonial" class="block">
+        <section class="container">
+            <section class="row">
+                <div class="title-box">
+                    <h1 class="block-title wow animated rollIn">
+                        <span class="bb-top-left"></span>
+                        <span class="bb-bottom-left"></span>
+                        Precious Reviews
+                        <span class="bb-top-right"></span>
+                        <span class="bb-bottom-right"></span>
+                    </h1>
+                </div>
+            </section>
+        </section>
+        <section class="container">
+            <section class="row">
+                <section class="col-md-12">
+                    <div id="review" class="owl-carousel owl-theme">
+                        <div class="item">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="review-desc">
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                                        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                                    </p>
+                                    <p class="client-name">
+                                        Shahjahan Jewel1
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="review-desc">
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                                        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                                    </p>
+                                    <p class="client-name">
+                                        Shahjahan Jewel2
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="review-desc">
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                                        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                                    </p>
+                                    <p class="client-name">
+                                        Shahjahan Jewel3
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="review-desc">
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                                        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                                    </p>
+                                    <p class="client-name">
+                                        Shahjahan Jewel4
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </section>
+    </section>
+    <!-- ****************************** Contact Section ************************** -->
+    <section id="contact">
+        <section class="container contact-wrap">
+            <section class="row">
+                <div class="title-box">
+                    <h1 class="block-title wow animated rollIn">
+                        <span class="bb-top-left"></span>
+                        <span class="bb-bottom-left"></span>
+                        Contact Us
+                        <span class="bb-top-right"></span>
+                        <span class="bb-bottom-right"></span>
+                    </h1>
+                </div>
+            </section>
+        </section>
+        <section class="address">
+            <div class="container">
+                <div class="col-sm-12">
+                    <ul class="address-list">
+                        <li><i class="ion-ios-location" style="background-color: rgb(255, 102, 0);"></i> <span>B-37, Sector-1, Noida (UP) - 201301, INDIA</span></li>
+                        <li><i class="ion-ios-telephone" style="background-color: #63cfea;"></i> <span>91-120-4014444, 4014524<br>Toll Free: 1-800-103-3550 </span></li>
+                        <li><i class="ion-email" style="background-color: #6ecba9;"></i> <span>contact@manupatra.com</span></li>
+                        <li><i class="ion-earth" style="background-color: #ff6969;"></i> <span>www.manupatra.com</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section class="mailbox">
+            <div class="container">
+                <div class="col-sm-12">
+                    <form name="sentMessage" id="contactForm" novalidate>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="Your Name *" id="name" required data-validation-required-message="Please enter your name.">
+                                    <p class="help-block text-danger"></p>
+                                </div>
+                                <div class="form-group">
+                                    <input type="email" class="form-control" placeholder="Your Email *" id="email" required data-validation-required-message="Please enter your email address.">
+                                    <p class="help-block text-danger"></p>
+                                </div>
+                                <div class="form-group">
+                                    <input type="tel" class="form-control" placeholder="Your Phone *" id="phone" required data-validation-required-message="Please enter your phone number.">
+                                    <p class="help-block text-danger"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <textarea class="form-control" placeholder="Your Message *" id="message" required data-validation-required-message="Please enter a message."></textarea>
+                                    <p class="help-block text-danger"></p>
+                                    <div id="success"></div>
+                                    <button type="submit" class="polo-btn contact-submit"><i class="ion-paper-airplane"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </section>
+    <!-- ****************************** Firm Registration ************************** -->
+    <section id="frmreg" class="block">
+        <div class="container">
+            <div class="row">
+                <div class="title-box" style="color:#fff;">
+                    <h1 class="block-title wow animated rollIn animated" style="visibility: visible; animation-name: rollIn;">
+                        <span class="bb-top-left" style="border-color: #fff; "></span>
+                        <span class="bb-bottom-left" style="border-color: #fff; "></span>
+                        FIRM REGISTRATION
+                        <span class="bb-top-right" style="border-color: #fff; "></span>
+                        <span class="bb-bottom-right" style="border-color: #fff; "></span>
+                    </h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="firmpanel">
+                        <form id="saveuser" enctype="multipart/form-data">
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <fieldset>
+                                    <legend>Firm Details</legend>
+                                    <div class="row">
+                                        <div class="col-lg-10 contact-details">
+                                            <div class="row spacer20">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right">Firm Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                        <div class="col-md-8">
+                                                            <input autofocus="" class="form-control" placeholder="Full Name" type="text" value="" name="name" id="rname" maxlength="100" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right" for="Office"> Firm Titte   <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                        <div class="col-md-8">
+                                                            <input class="form-control" placeholder="Title" type="text" value="" id="rtitle" maxlength="50" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row spacer20">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right"> Email   <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                        <div class="col-md-8">
+                                                            <input autofocus="" class="form-control" placeholder="Email" type="text" value="" name="email" id="remail" maxlength="100" onblur="validateEmail(this);" required />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right" for="Home"> Contact  <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </span>
+                                                        <div class="col-md-8">
+                                                            <input class="form-control" maxlength="10" placeholder="Contact Number" type="text" name="contact" maxlength="20" value="" id="rcontact" required onkeypress="return isNumberKey(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row spacer20">
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right" for="Office"> Address  </span>
+                                                        <div class="col-md-8">
+                                                            <input class="form-control" placeholder="Address" type="text" value="" id="raddress" maxlength="200">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right"> Country <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                        <div class="col-md-8">
+                                                            <select class="form-control" name="country" id="country"></select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row spacer20">
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right"> State <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                        <div class="col-md-8">
+                                                            <select nname="state" id="state" class="form-control"></select>
+                                                            <input type="text" id="txtstate" style="display:none" maxlength="20" required class="input100 form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right"> City<span class="required" aria-required="true" style="color:red"><b>*</b> </span> </span>
+                                                        <div class="col-md-8">
+                                                            <select nname="city" id="city" class="form-control"></select>
+                                                            <input type="text" id="txtcity" style="display:none" maxlength="20" required class="input100 form-control" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row spacer20">
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right"> Pin Code </span>
+                                                        <div class="col-md-8">
+                                                            <input type="text" nname="pincode" id="pincode" class="form-control" maxlength="10">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row spacer20">
+                                                <div class="col-lg-12">
+                                                    <div class="form-group">
+                                                        <div class="col-md-10">
+                                                            <div class="grid-container" style="display:none">
+                                                                @*<textarea name="textarea" cols="5" rows="5" class="jqte-test"></textarea>*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="form-group">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <fieldset>
+                                    <legend>Create Login Details</legend>
+                                    <div class="row">
+                                        <div class="col-lg-10 contact-details">
+                                            <div class="row spacer20">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-6 text-right">Firm Admin User Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                        <div class="col-md-6">
+                                                            <input class="form-control" name="adminusername" type="text" id="adminusername" placeholder="Admin UserName" required maxlength="50" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row spacer20">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right">User Id <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                        <div class="col-md-8">
+                                                            <input class="form-control" name="username" type="text" id="rusername" placeholder="Username" required maxlength="50" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <input type="button" onclick="CheckUser();" value="Check Availability" />
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <input type="text" id="lblmsg" name="lblmsg" style="border:none;font-weight:bold;color:red" readonly />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row spacer20">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right">Password <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                        <div class="col-md-8">
+                                                            <input class="form-control" minlength=8 name="password" minlength="8" type="password" id="rpassword" autocomplete="off" placeholder="Password" required maxlength="50" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row spacer20">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <span class="control-label col-md-4 text-right">Confirm Password <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                        <div class="col-md-8">
+                                                            <input class="form-control" minlength=8 name="cpassword" type="password" id="rcpassword" autocomplete="off" placeholder="Confirm Password" required maxlength="50" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="col-md-8">
+                                                            <input type="button" id="btnsave" class="btn btn-primary save" value="Submit" style="padding:0 92px; font-size:24px;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ****************************** Footer ************************** -->
+    <section id="footer">
+        <section class="container">
+            <section class="row">
+                <div class="col-sm-6">
+                    <span>Powered By</span>
+                    <h1 class="footer-logo">
+                        <img src="~/assets/img/Manupatra_logo.png" />
+                    </h1>
+                </div>
+                <div class="col-sm-6">
+                    <p class="copyright">All &copy; Copyright Reserved 2019</p>
+                </div>
+            </section>
+        </section>
+    </section>
+    <!-- All the scripts -->
+    <script src="~/assets/js/jquery-2.1.3.min.js"></script>
+    <script src="~/assets/js/bootstrap.min.js"></script>
+    <script src="~/assets/js/wow.min.js"></script>
+    <script src="~/assets/js/owl.carousel.js"></script>
+    <script src="~/assets/js/script.js"></script>
+    <script>
+        // ===== Scroll to Top ====
+        $(window).scroll(function () {
+            if ($(this).scrollTop() >= 50) {        // If page is scrolled more than 50px
+                $('#return-to-top').fadeIn(200);    // Fade in the arrow
+            } else {
+                $('#return-to-top').fadeOut(200);   // Else fade out the arrow
+            }
+        });
+        $('#return-to-top').click(function () {      // When arrow is clicked
+            $('body,html').animate({
+                scrollTop: 0                       // Scroll to top of body
+            }, 500);
+        });
+    </script>
+</body>
+</html>

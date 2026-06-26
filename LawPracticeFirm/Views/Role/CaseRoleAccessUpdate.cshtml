@@ -1,0 +1,203 @@
+﻿@{
+    /**/
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+@{
+    var firmcode = Session["FirmCode"];
+}
+
+<script>
+    var gid = "@ViewBag.id";
+    var gop = "@ViewBag.op";
+    var editcaseid = "@ViewBag.editcaseid";
+    var pageid = "@ViewBag.pageid";
+</script>
+<script src="~/Scripts/Firm/Pages/CaseRoleAccessUpdate.js?1.3" type="text/javascript" language="javascript"></script>
+
+@*<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <a href="/@firmcode/Role/CaseRoleAccess" title="Matter Rights" class="tabstyle" id="assignMatterRights">Back</a>
+            <p class="ctitle"><h2 id="dynamiciprheader">edit matter rights</h2></p>
+        </div>
+        <div class="assign_wrapper_right">
+            <button type="button" class="btn btn-primary" id="rSaveRoleAccessLevel" style="float:right">Updates</button>
+        </div>
+
+    </div>
+</section>*@
+<style>
+    .edit_matter_rights h5, span.editMatterspan {
+        /*font: 400 16px;*/
+        font-size: 16px;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        color: #535862;
+    }
+    .edit_matter_rights {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        margin-bottom: 10px;
+        margin-top: 5px;
+    }
+        .edit_matter_rights label {
+            /*font: 400 16px;*/
+            margin-bottom: 0;
+            font-size: 16px;
+            font-weight: 400;
+            color: #535862;
+        }
+    .reward_back {
+        display: flex;
+        /* align-items: center; */
+        flex-direction: column;
+        gap: 0px;
+    }
+    .reward_back h3{
+        margin:0;
+        padding:3px 0 0px 0;
+    }
+</style>
+
+<section id="header">
+    <div class="container-main" style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="text-left">
+            <div class="reward_back">
+                @*<a href="/@firmcode/Role/CaseRoleAccess" title="Matter Rights" class="tabstyle" id="assignMatterRights"> <img src="~/newassets/img/backarrow.svg" /> Go Back </a>*@
+                <a class="goback" id="assignMatterRights" href="/@firmcode/Role/CaseRoleAccess"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+                <h3 class="ctitle" id="dynamiciprheader">Edit Matter Rights</h3>
+            </div>
+                <div class="edit_matter_rights">
+                    <span class="editMatterspan" id="divcasename"></span>
+                    <span class="editMatterspan"> User:&nbsp;<label id="lblusername"></label></span>
+                </div>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary" id="rSaveRoleAccessLevel" style="float:right">Updates</button>
+        </div>
+    </div>
+</section>
+<section class="wrapper">
+    <div class="container-main showcontent" id="showcontent">
+        <div>
+            @*<h2 class="title">edit matter rights</h2>*@
+            <table width="100%" style="font-size:12px;">
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            <div class="form-group form-horizontal">
+                                <div class="col-md-9" style=" margin-left: -15px;">
+                                    <div id="divddlUsers" style=" display:none;">
+                                        <select id="ddlUsers" name="ddlUsers">
+                                            <option value="">Select User</option>
+                                        </select>
+                                    </div>
+                                    @*<div id="divcasename" style="margin-bottom:5px;font-weight: 500;"></div>*@
+                                    @*<span style="font-weight: 500;"> User:</span>&nbsp;<label id="lblusername" style="font-weight: 500;"></label>*@
+                                    <div style="margin-top:15px; margin-bottom:15px !important; background-color:#cbeffe !important;  display:none;">
+                                        <input type="radio" id="rdgroups" name="roleaccess" onclick="fn_RoleCaseAccessOption(1);" />All Matters
+                                        <input type="radio" id="rdusers" name="roleaccess" onclick="fn_RoleCaseAccessOption(2);" />Select Matters
+                                        &nbsp;<a href="javascript:void();" onclick="fn_RoleCaseAccessOption(3);" title="Refresh radio button" id="arefresh"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+                                        <input type="radio" id="rdnone" name="roleaccess" style="display:none;" />
+                                        <input type="hidden" id="hdnrdCaseOption" value="0" />
+                                        <div id="divddlCases" style=" display:none;">
+                                            <a href="javascript:void()" class="dropdown-toggle selctInputFormat" style="background-color: #ebebeb; padding: 3px 10px 3px 10px; color: black" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Select Matter <span class="glyphicon glyphicon-chevron-down" style="padding: 0 0 0 57px;"></span>
+                                            </a>
+                                            <ul class="dropdown-menu settingshowhide" id="rEditCases"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="table-panel table-responsive" data-example-id="hoverable-table" id="home">
+                <table class="table-panel">
+                    <thead>
+                        <tr style="display:none">
+                            <th colspan="8"><h4>Role Access Levels</h4></th>
+                            <th colspan="7" style="display:none;">
+                                <h5>Settings for the User's Contacts</h5>@*Select All<input type="checkbox" id="chkContactsselectall">*@
+                            </th>
+                            <th colspan="2" style="display:none;">
+                                <h5>Settings for the All Contacts</h5>@*Select All<input type="checkbox" id="chkAllContactsselectall">*@
+                            </th>
+                        </tr>
+                        <tr>
+                            <th><div class="thbg">Feature</div></th>
+                            <th title="Rights to Create"><div class="thbg">Create</div></th>
+                            <th title="View Only Rights"><div class="thbg">View</div></th>
+                            <th title="Edit Rights"><div class="thbg">Edit</div></th>
+                            <th title="Delete Rights"><div class="thbg">Delete</div></th>
+                            <th title="Download PDF/XLS"><div class="thbg">Export/Download</div></th>
+                            <th title="Share with other users"><div class="thbg">Share</div></th>
+                            <th style="display:none;"><div class="thbg">Enable</div></th>
+                            <th style="display:none;" title="User view all the items or records in the system"><div class="thbg">View All</div></th>
+                            <th style="display:none;" title="User edit every items or records in the system"><div class="thbg">Edit All</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="bindcasetask"></tbody>
+                </table>
+                @*<button type="button" class="sbtbtn" id="rSaveRoleAccessLevel" style="float:right">Updates</button>*@
+                <center><div id="dataescstatus"></div></center>
+                <div id="tfooter" class="settingpanel" style="padding: 0 0 26px 0;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

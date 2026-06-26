@@ -1,0 +1,481 @@
+﻿@using QueryStringEDAES;
+@{
+    ViewBag.Title = "schedule-demo";
+    // Layout = "~/Views/Shared/_NewHomePartialHomeInner.cshtml";
+    Layout = null;
+    var strsitetype = QueryAES.UrlDecode(Request.QueryString["site"]) == null ? "1" : QueryAES.UrlDecode(Request.QueryString["site"]);
+    var strlogo = QueryAES.UrlDecode(Request.QueryString["f"]) != null ? QueryAES.UrlDecode(Request.QueryString["f"]) : "";
+}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+<!-- Styles -->
+<script src="~/Manupanel/NewTemplate/js/jquery.min.js">
+</ script > < !--jQuery for Bootstrap's JavaScript plugins -->
+<link href = "~/NewDesign/css/bootstrap.css?1" rel="stylesheet">
+<link href = "~/NewDesign/css/fontawesome-all.css?1" rel="stylesheet">
+<link href = "~/NewDesign/css/home.css?2.2" rel="stylesheet">
+<style>
+.multiselect {
+width: 100%;
+}
+.selectBox {
+position: relative;
+}
+.selectBox select
+{
+width: 100%;
+font-weight: bold;
+}
+.overSelect {
+position: absolute;
+left: 0;
+right: 0;
+top: 0;
+bottom: 0;
+}
+#checkboxes {
+display: none;
+border: 1px #dadada solid;
+}
+#checkboxes label {
+    display: block;
+    color: black;
+}
+    #checkboxes label:hover {
+        background-color: #1e90ff;
+    }
+.userinfoform.form-group input, select {
+margin: 0 !important;
+padding: 6px !important;
+color: #646464 !important;
+font-size: 14px !important;
+font-weight: 400 !important;
+border-top: 1px solid #d5d5d5 !important;
+border-left: 1px solid #d5d5d5 !important;
+border-right: 1px solid #d5d5d5 !important;
+border-bottom: 1px solid #d5d5d5 !important;
+background: #f4f4f4 !important;
+border-radius: 0 !important;
+height: 30px !important;
+}
+.userinfoform.form-group button
+{
+margin: 0px 0 0 0;
+padding: 2px 0;
+color: #fff;
+font-size: 16px;
+font-weight: 500;
+border-radius: 0;
+background: #0860b7;
+width: 100%;
+border: 1px solid #d5d5d5;
+text-transform: uppercase;
+}
+</style>
+<script>
+var Source = "@ViewBag.Source";
+</script>
+<script src="~/Scripts/Firm/Pages/Enquiry.js?3.0">
+</ script >
+< script >
+var expanded = false;
+function showCheckboxes()
+{
+var checkboxes = document.getElementById("checkboxes");
+if (!expanded)
+{
+checkboxes.style.display = "block";
+expanded = true;
+}
+else
+{
+checkboxes.style.display = "none";
+expanded = false;
+}
+}
+function CheckUser()
+{
+try
+{
+var struser = $("#rusername").val();
+if (struser == "")
+{
+    alert("Please enter username");
+    return false;
+}
+else
+{
+        $.ajax({
+        async: true,
+            url: '/api/WorkFlowNewApi/CheckUser',
+            type: 'POST',
+            headers:
+        {
+            'username': struser
+            },
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function(response) {
+            if (response.Status == true)
+            {
+                // var datas = JSON.stringify(response);
+                if (response.Data == "0")
+                {
+                        $("#lblmsg").css("color", "green").val("Available");
+                }
+                else
+                {
+                        $("#lblmsg").css("color", "red").val("Not Available");
+                }
+            }
+        },
+            error: function() {
+            alert('Error!');
+        }
+    });
+}
+}
+catch (err)
+{
+alert(err.message);
+}
+}
+</script>
+<script src="~/Manupanel/validation/jquery.validate.js">
+</ script >
+< SCRIPT >
+$(document).ready(function () {
+$("input[name='Hearabout[]']").click(function() {
+showCheckboxes();
+});
+try
+{
+var ddlCountry = $('#country');
+    $.ajax({
+    async: true,
+        url: '/api/EmployeeApi/BindCountryDetails',
+        type: 'POST',
+        dataType: 'json',
+        success: function(d) {
+            //alert(JSON.stringify(d));
+            $.each(d.Data, function(i, country) {
+            //alert(i.CountryId);
+            ddlCountry.append($("<option selected></option>").val(country.CountryName).html(country.CountryName));
+        });
+        ddlCountry.append($("<option value='' ></option>").val('').html('Please Select Country'));
+    },
+        error: function(d) {
+        alert(d.responseText);
+    }
+});
+}
+catch (err)
+{
+alert(err.message);
+}
+var ddlState = $('#state');
+ddlState.empty();
+//bind direct state
+$.ajax({
+async: true,
+    url: '/api/EmployeeApi/BindStateDetails',
+    type: 'POST',
+    dataType: 'json',
+    headers: { CountryName: 'India' },
+    success: function(d) {
+    ddlState.empty();
+    // Clear the please wait
+    // alert(d.Data);
+    if (d.Data != "")
+    {
+        ddlState.append($("<option value='' selected></option>").val('').html('Select the state.'));
+            $.each(d.Data, function(i, states) {
+            ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+        });
+        //$('#state').show();
+        //$('#city').show();
+        //$('#txtstate').hide();
+        //$('#txtcity').hide();
+    }
+    else
+    {
+        //$('#txtstate').show();
+        //$('#state').hide();
+        //$('#txtcity').show();
+        //$('#city').hide();
+    }
+},
+    error: function(d) {
+    alert(d.responseText);
+}
+});
+//State details by country id
+$("#country").change(function() {
+// alert($(this).val());
+var CountryId = $(this).val();
+//alert(CountryId);
+var ddlState = $('#state');
+ddlState.empty();
+ddlState.append($("<option></option>").val('').html('Please wait ...'));
+    $.ajax({
+    async: true,
+        url: '/api/EmployeeApi/BindStateDetails',
+        type: 'POST',
+        dataType: 'json',
+        headers: { CountryName: CountryId },
+        success: function(d) {
+        //alert(JSON.stringify(d));
+        ddlState.empty();
+        // Clear the please wait
+        // alert(d.Data);
+        if (d.Data != "")
+        {
+            ddlState.append($("<option value='' selected></option>").val('').html('Select the state.'));
+                $.each(d.Data, function(i, states) {
+                ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+            });
+                $('#state').show();
+                $('#city').show();
+                $('#txtstate').hide();
+                $('#txtcity').hide();
+        }
+        else
+        {
+                $('#txtstate').show();
+                $('#state').hide();
+                $('#txtcity').show();
+                $('#city').hide();
+        }
+    },
+        error: function(d) {
+        alert(d.responseText);
+    }
+});
+//alert(ddlState.val());
+/*
+  if (ddlState.val() == "") {
+      $('#txtstate').show();
+      $('#state').hide();
+      $('#txtcity').show();
+      $('#city').hide();
+  }
+  else {
+      $('#txtstate').hide();
+      $('#state').show();
+      $('#txtcity').hide();
+      $('#city').show();
+  }*/
+});
+//City Bind By satate id
+$("#state").change(function() {
+var StateId = $(this).val();
+var ddlCity = $('#city');
+ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+    $.ajax({
+    async: true,
+        url: '/api/EmployeeApi/BindCityDetails',
+        type: 'POST',
+        dataType: 'json',
+        headers: { StateName: StateId },
+        success: function(d) {
+        ddlCity.empty(); // Clear the plese wait
+        ddlCity.append($("<option value'' selected></option>").val('').html('Select City Name'));
+            $.each(d.Data, function(i, cities) {
+            ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+        });
+    },
+        error: function(d) {
+        alert('Error!'); alert(d.responseText);
+    }
+});
+});
+});
+</script>
+@*<link rel="stylesheet" href="~/assets/css/style.css">*@
+<link rel="manifest" href="/manifest.json">
+<!-- ****************************** Privacy Policy************************** -->
+<form id="saveenquiry" method="post">
+    <section class="userinfo" style="margin: -8px 0 0 0;">
+        <div class="container">
+            <div class="userinfoform">
+                @if (strlogo != "1")
+                {
+                    < div class="row" id="logo_hide">
+                    <div class="col-sm-12">
+                        <div style="text-align:center; border-bottom:1px solid #cccccc; padding: 7px 0 15px 0; margin: 0 0 20px 0;">< img src="/NewDesign/images/logo_enquiry.png" alt="MyKase"></div>
+                    </div>
+                </div>
+            }
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <input class="form-control" name="name" placeholder="Name*" type="text" id="name" required maxlength="100">
+                            </ div >
+                            </ div >
+                            < div class="col-sm-6">
+                            <div class="form-group">
+                                <input class="form-control" maxlength="10" type="text" placeholder="Phone*" name="rcontact" value="" id="rcontact" required onkeypress="return isNumberKey(event)">
+                                </ div >
+                                </ div >
+                                </ div >
+                                < div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input class="form-control" name="remail" placeholder="Email*" type="text" id="remail" required maxlength="100">
+                                        </ div >
+                                        </ div >
+                                        < div class="col-sm-6" style="display:none">
+                                        <div class="form-group">
+                                            <label for="">Message</label>
+                                            <input class="form-control" type="text" value="" id="message" maxlength="8000">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <input class="form-control" name="companyname" placeholder="Organisation Name*" type="text" id="companyname" maxlength="300">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <input class="form-control" type="text" placeholder="City" value="" id="ccity" maxlength="50">
+                                            @*<select class="form-control form-control-sm" name="ccity" required id="ccity"></select>*@
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <div class="multiselect">
+                                                <div class="selectBox" onclick="showCheckboxes()">
+                                                    <select>
+                                                        <option>How did you hear about MyKase</option>
+                                                    </select>
+                                                    <div class="overSelect"></div>
+                                                </div>
+                                                <div id="checkboxes">
+                                                    < label for="two" style="text-transform:lowercase !important; padding:3px;">
+                                                    <input type="checkbox" id="two" value="LinkedIn" name="Hearabout[]" style="height:auto !important;" /> LinkedIn
+                                                    </label>
+                                                    <label for="three" style="text-transform:lowercase !important; padding:3px;">
+                                                        <input type="checkbox" id="three" value="Manupatra Website" name="Hearabout[]" style="height:auto !important;" /> Manupatra Website
+                                                    </label>
+                                                    <label for="four" style="text-transform:lowercase !important; padding:3px;">
+                                                        < input type= "checkbox" id= "four" value= "Email Communication" name= "Hearabout[]" style= "height:auto !important;" /> Email Communication
+                                                    </label>
+                                                    <label for="five" style="text-transform:lowercase !important; padding:3px;">
+                                                        < input type= "checkbox" id= "five" value= "Whatsapp" name= "Hearabout[]" style= "height:auto !important;" /> Whatsapp
+                                                        </ label >
+                                                        < label for="six" style= "text-transform:lowercase !important; padding:3px;" >
+                                                        < input type= "checkbox" id= "six" value= "Shared by a Friend" name= "Hearabout[]" style= "height:auto !important;" text-transform:lowercase;" /> Shared by a Friend
+                                                    </label>
+                                                    <label for="seven" style="text-transform:lowercase !important; padding:3px;">
+                                                        <input type="checkbox" id="seven" value="Facebook" name="Hearabout[]" style="height:auto !important;" /> Facebook
+                                                    </label>
+                                                    <label for="ten" style="text-transform:lowercase !important; padding:3px;">
+                                                        <input type="checkbox" id="ten" value="Other" name="Hearabout[]" style="height:auto !important;" /> Other
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6" style="display:none">
+                                        <p style="font-size: 11px; text-transform: uppercase; padding:0; font-weight: bold;">Select date & time for an ONLINE Demo</p>
+                                        <div class="form-group">
+                                            <label for="">Date</label>
+                                            <input class="form-control" name="remail" type="date" id="ddate" onkeypress="return false" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6" style="display:none">
+                                        <div class="form-group">
+                                            <label for="">Available Slots</label>
+                                            <select id="timeslot" class="form-control"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="display:none">
+                                    <div class="col-sm-6">
+                                        <div class="form-group" style="display:none">
+                                            <label for="">Organisation Type <sup>*</sup></label>
+                                            <select class="form-control" id="OrganisationTypes"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+        </section>
+        <input type="hidden" id="otptemp">
+        <section class="userinfo" id="frmreg" style="margin: -8px 0 0 0;">
+            <div class="container">
+                <div class="userinfoform">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <table cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td width="180px"><div id="m_imgCaptcha" title="Captcha Code" style="padding:5px 0 0 0;color: #ffffff;font-size: 18px;background-image: url(/NewDesign/images/capcha_bg.png);width: 147px;height: 30px;margin: 0px;float: left;text-align: center;"></div> <a style="display:block; float:right;" href="javascript:void;" onclick="fn_RefreshCaptcha();" id="RefreshCaptcha"> <img src="/NewDesign/images/capcha_rbtn.png" height="30" width="30" alt="reset" title="reset" /></a></td>
+                                        <td width="15px">&nbsp;</td>
+                                        <td><input type="text" name="txtcaptcha" id="txtcaptcha" placeholder="Enter Captcha" class="form-control" maxlength="6" /></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <button type="button" id="btnsave">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
+        </section>
+        <input type="hidden" id="otptemp">
+        <input id="hdncaptcha" name="hdncaptcha" type="hidden" value="" />
+        <input id="sitetype" name="sitetype" type="hidden" value="@strsitetype" />
+    </form>
+    <script>
+        var picker = document.getElementById('ddate');
+        picker.addEventListener('input', function (e) {
+            var day = new Date(this.value).getUTCDay();
+            if ([6, 0].includes(day)) {
+                e.preventDefault();
+                this.value = '';
+                alert('Time slot not available in weekend');
+                return false;
+            }
+            var blockday = this.value;
+            if (blockday == "2021-03-11" || blockday == "2021-03-29" || blockday == "2021-04-21" || blockday == "2021-08-30" || blockday == "2021-10-15" || blockday == "2021-11-03" || blockday == "2021-11-04" || blockday == "2021-11-05") {
+                alert('Selected date not available.');
+                e.preventDefault();
+                $("#timeslot").empty();
+                this.value = '';
+            }
+            else {
+            }
+        });
+        $("#ddate").attr("min", new Date().toISOString().substring(0, 10));
+        jQuery(document).ready(function () {
+            var ddlCity = $('#ccity');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/Home/BindCity',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select'));
+                    $.each(d, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+    </script>
+    <script src="~/NewDesign/js/bootstrap.min.js"></script>  <!-- Bootstrap framework -->
+    <script src="~/NewDesign/js/bootstrap.bundle.js"></script>

@@ -1,0 +1,776 @@
+﻿<!DOCTYPE html>
+@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+@using NJDGDetail.Models;
+@{
+    var firmcode = Request.Url.Segments[1];
+}
+@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+@using QueryStringEDAES;
+<script>
+    var filesize = @ViewBag.filesize;
+    var id = "@ViewBag.token";
+    var cnr = "@ViewBag.cnr";
+    var roleids = "@role";
+</script>
+<script type='text/javascript'>
+    $(document).ready(function () {
+        if (String(id) != "") {
+            localStorage.setItem("contacttoken", id);
+        }
+        if (String(id) == "") {
+            var urls = window.location.href;
+            url_redirect({
+                url: urls,
+                method: "post",
+                data: { "token": localStorage.getItem("contacttoken") }
+            });
+        }
+        function goodbye(e) {
+            localStorage.setItem("contacttoken", id);
+            if (!e) e = window.event;
+            //e.cancelBubble is supported by IE - this will kill the bubbling process.
+            e.cancelBubble = true;
+            //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+            //e.stopPropagation works in Firefox.
+            if (e.stopPropagation) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }
+        window.onbeforeunload = goodbye;
+    });
+</script>
+<i class="pp-icon-user"></i>
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script src="~/Scripts/Firm/Pages/CnrCasedetails.js?3.2"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<style>
+    .hyperlink {
+        cursor: pointer;
+        color: #069;
+    }
+
+    #cexample td div {
+        background: #d3e9ff;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .form-control1 {
+        width: 49%;
+        border: 1px solid #ccc;
+        /* border-radius: 4px; */
+        height: 30px;
+        color: #000;
+        padding: 0 3px;
+    }
+
+    .txtbox-setting {
+        width: 80px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        font-size: 14px;
+    }
+
+    .txtbox-setting1 {
+        width: 200px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        font-size: 14px;
+    }
+
+    .txtbox-setting2 {
+        width: 284px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        margin: 8px 0 9px 0;
+        font-size: 14px;
+    }
+
+    .txtbox-setting3 {
+        width: 284px;
+        border: 1px solid #ccc;
+        padding: 5px 2px;
+        margin: 0 0 9px 0;
+    }
+</style>
+<script>
+     var type = '@ViewBag.type'
+</script>
+<section class="wrapper">
+    <div class="container-main">
+        <h2 class="title">CNR Matter Details </h2>
+        <div class="">
+            <div class="table-panel table-responsive">
+                <div id="updatePanel" style="overflow-x:auto; ">
+                    <table class="table" id="cexample">
+                        <tbody id="binddatacw"></tbody>
+                    </table>
+                    <div>
+                        <center><span id="datastatus"></span></center>
+                    </div>
+                </div>
+                <div class="row settingpanel">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <ul style="display:none;">
+                                <li>
+                                    <div class="btn-group dropup">
+                                        <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                            Customize Field <span class="glyphicon glyphicon-chevron-down"></span>
+                                        </a>
+                                        <ul class="dropdown-menu settingshowhide">
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="case" checked><a href="#" class="dropdown-item">Matter/Diary No</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="court" checked><a href="#" class="dropdown-item">Court</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="cname" checked><a href="#" class="dropdown-item">Matter Name</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="bname" checked><a href="#" class="dropdown-item">Bench name</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="adv" checked><a href="#" class="dropdown-item">Advocate</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="nh" checked><a href="#" class="dropdown-item">Next Hearing</a> </li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dd" checked><a href="#" class="dropdown-item">Disposed Date</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="status1" checked><a href="#" class="dropdown-item">Status</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div id="ulfooter"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <ul class="pull-right" id="ulfooter1" style="display:none;">
+                            <li>
+                                <div class="btn-group dropup">
+                                    <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Action Selected <span class="glyphicon glyphicon-chevron-down"></span>
+                                    </a>
+                                    <ul class="dropdown-menu settingaction">
+                                        @if (role.ToString() == "1")
+                                        {
+                                            <li><a href="javascript:void();" id="expenseexcel" title="Export to Excel"> Excel</a></li>
+                                            <li><a href="javascript:void();" id="expensepdf" title="Export data to PDF"> PDF</a></li>
+                                        }
+                                        else
+                                        {
+                                            if (Convert.ToInt32(ViewBag.export) == 1)
+                                            {
+                                                <li><a href="javascript:void();" id="expenseexcel" title="Export to Excel"> Excel</a></li>
+                                                <li><a href="javascript:void();" id="expensepdf" title="Export data to PDF"> PDF</a></li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels" style="width: 700px;">
+        </div>
+    </div>
+</div>
+<div id="myOverlay" class="overlay" style="display:block;">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    #linkcase {
+        overflow-y: scroll;
+        height: 350px;
+    }
+
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script>
+    function loadcasedata(ids) {
+        var url = "/firm/VCaseDetails/" + ids;
+        $('.mymodels').load(url, function (result) {
+            $('#myModal').modal({ show: true });
+        });
+    }
+    $("input:checkbox:not(:checked)").each(function () {
+        var column = "table ." + $(this).attr("name");
+        $(column).hide();
+    });
+    $("input:checkbox").click(function () {
+        var column = "table ." + $(this).attr("name");
+        $(column).toggle();
+    });
+</script>
+<div id="myModalmanualhearingcnr" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Update Next Hearing
+                </h4>
+            </div>
+            <div class="modal-body" sstyle="height:500px; overflow-y:scroll;">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ec_bg">
+                            <input type="hidden" id="usercaseidhide">
+                            <input type="hidden" id="caseidhide">
+                            <input type="hidden" id="nhhidecnr">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="form-group ">
+                                        <label class="formLabel colorDark col-md-4">Next Hearing Date</label>
+                                        <div class="col-md-8">
+                                            <input class="form-control inputFormat" style="background-color: white !important;" type="date" id="manualnhdatecnr">
+                                        </div>
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: none !important">
+                    <button type="button" id="setmanualnhcnr" class="sbtbtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="casenametxtval" />
+<input type="hidden" id="courttextval" />
+<input type="hidden" id="casenotxtval" />
+<input type="hidden" id="nhdateval" />
+<input type="hidden" id="mnhdateval" />
+<div id="myModalcasealerts" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Matter Alerts Settings
+                </h4>
+            </div>
+            <div class="modal-body" style="height:500px; overflow-y:scroll;">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ec_bg">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div id="exTab1">
+                                            <ul class="nav nav-pills alertbox" style="margin-bottom: 10px !important">
+                                                <li class="formLabel active">
+                                                    <a href="#2a" data-toggle="tab">Create Alerts</a>
+                                                </li>
+                                                <li>
+                                                    <a href="#1a" data-toggle="tab">View Alerts</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content clearfix">
+                                                <div class="tab-pane " id="1a">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="table-panel table-responsive" style="overflow-x:auto">
+                                                                <table class="dataTable table" style="overflow-x:auto">
+                                                                    <tr>
+                                                                        <th width="10%"><div class="thbg">Matter</div></th>
+                                                                        <th width="20%"><div class="thbg">Matter Name</div></th>
+                                                                        <th width="10%"><div class="thbg">Court</div></th>
+                                                                        <th width="20%"><div class="thbg">Hearing  Date</div></th>
+                                                                        <th width="5%"><div class="thbg">Manual Hearing Date</div></th>
+                                                                        <th width="10%"><div class="thbg">Mobile No</div></th>
+                                                                        <th width="10%"><div class="thbg">Email Id</div></th>
+                                                                        <th width="5%"><div class="thbg">Created Date</div></th>
+                                                                        <th width="5%"><div class="thbg">Alert On</div></th>
+                                                                        <th width="5%"><div class="thbg">Sent</div></th>
+                                                                        <th width="5%"><div class="thbg">Alert For</div></th>
+                                                                        <th width="5%"><div class="thbg"></div></th>
+                                                                    </tr>
+                                                                    <tbody id="assignusercasedata"></tbody>
+                                                                </table>
+                                                                <center><div class="nofoundst" style="display:none">No data found.</div></center>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane active" id="2a" style="margin-top:10px;">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <span id="textleadid" style="display:none"></span>
+                                                            <form id="savecasealert">
+                                                                <div>
+                                                                    <b>Matter Name:</b> <span class="inputFormat" id="casenotext"></span><br>
+                                                                </div>
+                                                                <div style="padding-top:4px"> <b>Court:</b><span class="inputFormat" id="courttext"> </span><br></div>
+                                                                <div style="padding-top:4px"> <b>Matter No.:</b> <span class="inputFormat" id="casenametext"></span><br></div>
+                                                                <div style="padding-top:4px">
+                                                                    <b> Hearing:</b>
+                                                                    <span class="inputFormat" id="hearingradiodiv"><input type="radio" id="hearingradio" name="hearingdateradio" style="cursor:default !important;" value=""> &nbsp;Next Hearing (<span id="hearingdttext"></span>)</span>
+                                                                    <span class="inputFormat" id="mhearingradiodiv"><input type="radio" id="mhearingradio" name="hearingdateradio" style="cursor:default !important;" value=""> &nbsp;Manual Next Hearing (<span id="mhearingdttext"></span>)</span>
+                                                                </div>
+                                                                <br /><br />
+                                                                <div>
+                                                                    <label class="col-md-3" style="margin-left:-15px;">
+                                                                        Set Alert Date:
+                                                                    </label>
+                                                                    <div class="col-md-9">
+                                                                        <input type="date" class="form-control inputFormat" id="callfromdate" onkeydown="return false" />
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label class=" col-md-3">
+                                                                    </label>
+                                                                    <div class="col-md-9 text-center" style="padding: 10px 0px 10px 0px;">
+                                                                        <span>Or</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label class=" col-md-3">
+                                                                    </label>
+                                                                    <div class="col-md-9" style="margin-left:-17px;">
+                                                                        <select name="ddldays" id="ddldays" class="selctInputFormat" style="background-color: white !important;  width: 30% !important">
+                                                                            <option selected="selected" value="">-Day-</option>
+                                                                            <option value="0">0</option>
+                                                                            <option value="1">1</option>
+                                                                            <option value="2">2</option>
+                                                                            <option value="3">3</option>
+                                                                            <option value="4">4</option>
+                                                                            <option value="5">5</option>
+                                                                            <option value="6">6</option>
+                                                                            <option value="7">7</option>
+                                                                            <option value="8">8</option>
+                                                                            <option value="9">9</option>
+                                                                            <option value="10">10</option>
+                                                                            <option value="11">11</option>
+                                                                            <option value="12">12</option>
+                                                                            <option value="13">13</option>
+                                                                            <option value="14">14</option>
+                                                                            <option value="15">15</option>
+                                                                            <option value="16">16</option>
+                                                                            <option value="17">17</option>
+                                                                            <option value="18">18</option>
+                                                                            <option value="19">19</option>
+                                                                        </select>
+                                                                        <select name="ddlHearing" id="ddlHearing" class="selctInputFormat" style="background-color: white !important;  width: 50% !important">
+                                                                            <option selected="selected" value="0">--Select--</option>
+                                                                            <option value="1">Days Before Hearing</option>
+                                                                            <option value="2">Days After Hearing</option>
+                                                                            <option value="3">On Same Day</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <label class="col-md-3" style="margin-left:-15px;">
+                                                                        Set Alert For:
+                                                                    </label>
+                                                                    <div class="col-md-9">
+                                                                        <select name="ddlalertfor" id="ddlalertfor" class="selctInputFormat" style="background-color: white !important;  width: 80% !important">
+                                                                            <option selected="selected" value="">--Select--</option>
+                                                                            <option value="4">Self</option>
+                                                                            <option value="0">Client </option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group form-horizontal" id="alertmobpanel" style="display:none">
+                                                                    <label class="control-label col-md-3">
+                                                                        Mobile: <span class="required" aria-required="true" style="color:red"><b>*</b> </span>
+                                                                    </label>
+                                                                    <div class="col-md-9">
+                                                                        <input class="inputFormat" id="clientmobile" type="text" maxlength="10">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group form-horizontal" id="alertemailpanel" style="display:none">
+                                                                    <label class="control-label col-md-3">
+                                                                        Email: <span class="required" aria-required="true" style="color:red"><b>*</b> </span>
+                                                                    </label>
+                                                                    <div class="col-md-9">
+                                                                        <input class="inputFormat" id="cientemail" type="email" maxlength="50">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group form-horizontal" style="clear:both">
+                                                                    <label class="control-label col-md-3"></label>
+                                                                    <div class="col-md-9" style="padding: 10px 0px 0 0px;">
+                                                                        <button class="sbtbtn" id="savealerts" date-val="" type="button" name="submit" value="Submit" text="Save" style="margin:0px 6px 0 1px;">SAVE</button>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModallinkedsmatters" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content" style="width:127%">
+            <div class="modal-header btn-primary">
+                <div class="form-group ">
+
+                    <div class="modal-title">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title"></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="hidden" id="linkmastercaseids" value="" />
+                        <input type="hidden" id="maincasenumber" value="" />
+                        <input type="hidden" id="linkedcaseusercaseids" value="" />
+                        <table cellspacing="0" cellpadding="0" width="100%">
+
+                            <tr>
+                                <td><p style="color: #0860b7; font-size: 22px;font-weight: 400;margin: -22px 0 0 0; padding: 0 0 10px 0; text-align: center;">Main Matter</p></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table cellspacing="3" cellpadding="3" width="100%" border="1">
+                                        <tr>
+                                            <td><p style="font-weight:400 !important; color:#000 !important; font-size:15px !important;">Case Number</p></td>
+                                            <td>
+                                                <input type="text" id="linkmainmatters1" readonly class="form-control inputFormat" name="linkmainmatters1" maxlength="100" style="font-weight:400 !important; color:#000 !important; font-size:15px !important;">
+                                            </td>
+                                            <td align="center">
+                                                <a href="#" id="addidss" style="font-weight:400 !important; font-size:15px !important;display:none;">Add</a>
+                                                <a href="#" id="viewidss" style="font-weight:400 !important; font-size:15px !important;display:none;">View</a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="linkcase" style="overflow:hidden;">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <p style="color:#0860b7; font-size:22px; font-weight:400; margin:0; padding:10px 0; text-align:center;">Linked Matters</p>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="table-panel table-responsive" style="overflow-y:auto">
+                                                    <table class="dataTable table">
+                                                        <tr>
+                                                            <th width="40%"><div class="thbg">Filing Number</div></th>
+                                                            <th width="40%"><div class="thbg">Case Number</div></th>
+                                                            <th width="20%"><div class="thbg" style="text-align:center;">Action</div></th>
+                                                        </tr>
+                                                        <tbody id="LinkedMattersDetails"></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.col-lg-12 -->
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Contemptsearchdetails" class="modal fade" role="dialog" data-backdrop="static" style="clear:both;">
+    <div class="modal-dialog" style="width:880px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    Linked Case Search Details
+                </h4>
+            </div>
+            <input type="hidden" value="" id="LinkedCasIds" />
+            <input type="hidden" value="" id="MasterCaseIdss" />
+            <input type="hidden" value="" id="LinkedCaseUserName" />
+            <input type="hidden" value="" id="Parentusercaseids" />
+            <input type="hidden" value="" id="Vcourttype" />
+            <input type="hidden" value="" id="vcasetypeids" />
+            <input type="hidden" value="" id="vcasenumverids" />
+            <input type="hidden" value="" id="vcaseyearids" />
+            <input type="hidden" value="" id="Scasetype" />
+            <input type="hidden" value="" id="linkedcasetypes" />
+            <div class="modal-body" style="height:516px;">
+                <form id="mongoreset">
+                    <div class="ec_bg" style="overflow: inherit;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label class="formLabel colorDark">Case Name</label>
+                                        <input type="text" id="casename" name="casename" class="form-control inputFormat" readonly />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Case No</label>
+                                        <input type="text" id="Caseno" name="Caseno" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Case Year</label>
+                                        <input type="text" id="Caseyear" name="Caseyear" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Case Type</label>
+                                        <input type="text" id="DiaryNo" name="DiaryNo" class="form-control inputFormat" readonly />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Court </label>
+                                        <input type="text" id="courtnamess" name="courtnamess" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Bench </label>
+                                        <input type="text" id="BenchName" name="BenchName" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">CNR No </label>
+                                        <input type="text" id="Cnrno" name="Cnrno" class="form-control inputFormat" readonly />
+                                    </div>
+                                </div>
+                                @*<div class="row">
+                                        <div class="form-group col-md-12">
+                                            <label class="formLabel colorDark">Advocate</label>
+                                            <input type="text" id="madvocatename" name="madvocatename" class="form-control inputFormat" readonly />
+                                        </div>
+                                    </div>*@
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label class="formLabel colorDark">Matter Name</label>
+                                        <input type="text" id="MatterNamess" name="MatterNamess" class="form-control inputFormat" />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label class="formLabel colorDark">Team Member</label>
+                                        <select class="form-control InputFormat" name="languageSelect[]" id="teammemberss" multiple></select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-group form-horizontal" style="padding:10px 0 0 0;">
+                                        <button type="button" class="sbtbtn pull-right" id="AddLinkedcase">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalFIRDetails" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content" style="width:127%">
+            <div class="modal-header btn-primary">
+                <div class="form-group ">
+
+                    <div class="modal-title">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title"></h4>
+                        <p style="color:#0860b7; font-size:22px; font-weight:400; margin:0; padding:10px 0; text-align:center;">FIR Details</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form id="FIRModalreset">
+                    <div class="ec_bg" style="overflow: inherit;">
+                        <div class="row">
+                            <div class="col-md-12">
+
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">FIR Number</label>
+                                        <input type="text" id="FIRNumber" name="FIRNumber" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Police Station</label>
+                                        <input type="text" id="PoliceStation" name="PoliceStation" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">FIR Year</label>
+                                        <input type="text" id="FIRYear" name="FIRYear" class="form-control inputFormat" readonly />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">State </label>
+                                        <input type="text" id="vState" name="vState" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">District </label>
+                                        <input type="text" id="vDistrict" name="vDistrict" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Section</label>
+                                        <input type="text" id="vSection" name="vSection" class="form-control inputFormat" readonly />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Incident Date</label>
+                                        <input type="text" id="vIncidentDate" name="vIncidentDate" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Complaint Date</label>
+                                        <input type="text" id="vComplaintDate" name="vComplaintDate" class="form-control inputFormat" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalFIRDetails" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content" style="width:127%">
+            <div class="modal-header btn-primary">
+                <div class="form-group ">
+
+                    <div class="modal-title">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title"></h4>
+                        <p style="color:#0860b7; font-size:22px; font-weight:400; margin:0; padding:10px 0; text-align:center;">FIR Details</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form id="FIRModalreset">
+                    <div class="ec_bg" style="overflow: inherit;">
+                        <div class="row">
+                            <div class="col-md-12">
+
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">FIR Number</label>
+                                        <input type="text" id="FIRNumber" name="FIRNumber" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Police Station</label>
+                                        <input type="text" id="PoliceStation" name="PoliceStation" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">FIR Year</label>
+                                        <input type="text" id="FIRYear" name="FIRYear" class="form-control inputFormat" readonly />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">State </label>
+                                        <input type="text" id="vState" name="vState" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">District </label>
+                                        <input type="text" id="vDistrict" name="vDistrict" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Section</label>
+                                        <input type="text" id="vSection" name="vSection" class="form-control inputFormat" readonly />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Incident Date</label>
+                                        <input type="text" id="vIncidentDate" name="vIncidentDate" class="form-control inputFormat" readonly />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="formLabel colorDark">Complaint Date</label>
+                                        <input type="text" id="vComplaintDate" name="vComplaintDate" class="form-control inputFormat" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

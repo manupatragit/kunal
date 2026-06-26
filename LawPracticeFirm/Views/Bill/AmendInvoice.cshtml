@@ -1,0 +1,1410 @@
+﻿@{
+    ViewBag.Title = "Edit Invoice";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>*@
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script src="~/Scripts/Firm/Pages/AmendInvoice.js?2.4"></script>
+<script>
+</script>
+<script>
+    $(document).ready(function () {
+         var invdate = "@ViewBag.invdate.ToString("yyyy-MM-dd")";
+        $("#duedate").attr("min", invdate);
+        bindstate();
+        function bindstate() {
+            var ddlState = $('#state');
+            var bddlState = $('#billerstate');
+            var sddlState = $('#sstate');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: 'India' },
+                success: function (d) {
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                        sddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+            function openload() {
+                $("#myOverlay").css("display", "block");
+            }
+            function closeload() {
+                $("#myOverlay").css("display", "none");
+            }
+            openload();
+            var address1 = "@ViewBag.billaddress";
+            var state1 = "@ViewBag.state";
+              var sstate1 = "@ViewBag.sstate";
+            var isdefault1 = "@ViewBag.isdefault";
+            var clientid = $("#hclientids").val();
+            var clientstate = $("#clientstate").val();
+        var sclientstate = $("#sclientstate").val();
+        var istax = "@ViewBag.istax";
+        var matteridnew = "@ViewBag.matterid";
+        var subtotatalcheckfortax = "@ViewBag.subtotal";
+        var billeraddress = "@ViewBag.billeraddress";
+        $("#invcid").val("@ViewBag.invid");
+        var a = ['', 'ONE ', 'TWO ', 'THREE ', 'FOUR ', 'FIVE ', 'SIX ', 'SEVEN ', 'EIGHT ', 'NINE ', 'TEN ', 'ELEVEN ', 'TWELVE ', 'THIRTEEN ', 'FOURTEEN ', 'FIFTEEN ', 'SIXTEEN ', 'SEVENTEEN ', 'EIGHTEEN ', 'NINETEEN '];
+        var b = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
+        function inWords(num) {
+            num = Math.round(num);
+            if ((num = num.toString()).length > 9) return 'overflow';
+            n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+            if (!n) return; var str = '';
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'CRORE ' : '';
+            str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'LAKH ' : '';
+            str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'THOUSAND ' : '';
+            str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'HUNDRED ' : '';
+            str += (n[5] != 0) ? ((str != '') ? 'AND ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'ONLY ' : '';
+            return str;
+        }
+          setTimeout(function () {
+            if (istax == 1) {
+                $('input:radio[name="tax"]').filter('[value="2"]').attr('checked', true);
+                $("#subtotals").hide();
+                $("#igst").hide();
+                $("#cgst").hide();
+                $("#sgst").hide();
+            }
+            else {
+                $("#subtotals").show();
+                $("#igst").show();
+                $("#cgst").show();
+                $("#sgst").show();
+                $('input:radio[name="tax"]').filter('[value="1"]').attr('checked', true);
+              }
+              if (subtotatalcheckfortax != 0) {
+                  $('#totinwords').text(inWords(Math.round(subtotatalcheckfortax)));
+              }
+              else
+              {
+              }
+                  $('#billerstate').val(state1);
+              $('#billeraddress').last().append($("<option></option>").prop("value", address1).text(address1).attr("state", state1).attr("tokenid", "00000000-0000-0000-0000-000000000000"));
+              try {
+                  $("#clientAddress option").filter(function () {
+                    var retaddres= `@ViewBag.address`;
+                      return this.text == retaddres;
+                  }).attr('selected', true);
+              }
+              catch
+              {
+              }
+                $('#client option[value="' + clientid.toLowerCase() + '"]').prop("selected", true);
+                $('#client option[value="' + clientid.toUpperCase() + '"]').prop("selected", true);
+              if (clientid != "00000000-0000-0000-0000-000000000000") {
+                  $("#client").prop("disabled", true);
+              }
+                loadmatter1(clientid);
+                $('#state option[value="' + clientstate + '"]').prop("selected", true);
+                $('#sstate option[value="' + sclientstate + '"]').prop("selected", true);
+                    $('#billeraddress option[tokenid="' + billeraddress + '"]').prop("selected", true);
+                $("#subtotal").text("@ViewBag.subtotal");
+                $("#finaltotal").text("@ViewBag.totamt");
+                $("#igsttot").text("@ViewBag.igst");
+                $("#cgsttot").text("@ViewBag.cgst");
+                $("#sgsttot").text("@ViewBag.sgst");
+                $("#igstpername").text("("+"@ViewBag.igstper"+"%)");
+                $("#cgstpername").text("(" +"@ViewBag.cgstper"+ "%)");
+                $("#sgstpername").text("(" + "@ViewBag.sgstper" + "%)");
+                $("#subtotaltemp").val("@ViewBag.subtotal");
+                $("#finaltotaltemp").val("@ViewBag.totamt");
+                $("#igsttempval").val("@ViewBag.igst");
+                $("#cgsttempval").val("@ViewBag.cgst");
+                $("#sgsttempval").val("@ViewBag.sgst");
+                $("#igsttemp").val("@ViewBag.igstper");
+                $("#cgsttemp").val("@ViewBag.cgstper");
+                $("#sgsttemp").val("@ViewBag.sgstper");
+              $("#sgsttemp").val("@ViewBag.sgstper");
+                closeload();
+            }, 10000);
+            function loadmatter1(clientid) {
+                $('#MatterName').empty().append('<option value="">Select Matter</option>').find('option:first').prop("selected", "selected");
+                $.ajax({
+                    async: true,
+                    type: "POST",
+                    url: "/api/callApi/LoadMatterforclient",
+                    headers: {
+                        "clientid": clientid
+                    },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.Status == true) {
+                            var datas = JSON.stringify(response);
+                        }
+                        else {
+                            alert("not found");
+                        }
+                        $.each(JSON.parse(response.Data), function (i, a) {
+                            var mattername = a.mname;
+                            var mid = a.Id;
+                            if (mattername == null) {
+                                mattername = "";
+                                mid = "";
+                            }
+                            else {
+                                var option = '<option value="' + mid + '"  tempname="' + mattername + '"> ' + mattername + '</option>';
+                                $("#MatterName").append(option);
+                                $('#MatterName option[value="' + matteridnew + '"]').prop("selected", true);
+                            }
+                        });
+                    },
+                    failure: function (response) {
+                        alert(data.responseText);
+                    },
+                    error: function (response) {
+                        alert(data.responseText);
+                    }
+                });
+            }
+        });
+</script>
+<style>
+
+    /*Adding some css for looks good*/
+    span.error {
+        display: block;
+        visibility: hidden;
+        color: red;
+        font-size: 90%;
+    }
+
+    span.error1 {
+        display: none;
+        clear: both;
+        color: red;
+        font-size: 90%;
+    }
+    /*css for table*/
+    .container td {
+        vertical-align: top;
+    }
+
+    .tablecontainer table {
+        width: 100%;
+        border-collapse: collapse;
+        border-top: 1px solid #BFAEAE;
+        border-right: 1px solid #BFAEAE;
+    }
+
+    .tablecontainer th {
+        border-bottom: 2px solid #BFAEAE !important;
+        font-size: 13px;
+    }
+
+    .tablecontainer th, .tablecontainer td {
+        text-align: left;
+        border-left: 1px solid #BFAEAE;
+        padding: 5px;
+        border-bottom: 1px solid #BFAEAE;
+    }
+
+    .ui-widget {
+        font-size: 12px !important;
+    }
+
+    input[type=radio]:hover {
+        cursor: pointer;
+    }
+
+    input#withtax {
+        cursor: pointer !IMPORTANT;
+    }
+
+    input#withouttax {
+        cursor: pointer !IMPORTANT;
+    }
+
+    hr {
+        margin: 10px 0;
+    }
+
+    .cke_chrome {
+        visibility: inherit;
+        width: 100% !important;
+        height: 160px !important;
+        border-radius: 7px;
+    }
+
+    .cke_top {
+        border-bottom: none;
+        background: transparent;
+        padding: 6px 8px 2px;
+    }
+
+    .table-panel {
+        border: none;
+    }
+
+        .table-panel td {
+            background-color: #ffffff;
+            border-bottom: none;
+            box-sizing: border-box;
+            padding: 5px 15px;
+            font-size: 13px;
+            color: #1F2937;
+            font-weight: 500;
+            text-align: revert-layer;
+        }
+
+    .switch {
+        margin: 0px 0 0 0;
+    }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Amend Invoice</p>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <form id="savedata" enctype="multipart/form-data" name="savedata">
+        <input type="hidden" id="hclientids" value="@ViewBag.client" />
+        <input type="hidden" id="clientstate" value="@ViewBag.clientstate" />
+        <input type="hidden" id="sclientstate" value="@ViewBag.sclientstate" />
+        <div class="container-main">
+            <div class="table" style="padding:15px;">
+                <div class="row" id="taxtype">
+                    <div class="col-md-4">
+                        <label class="control-label">Tax<span aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-12 form-group table-header">
+                                <div class="actions3" style="display: grid;gap: 12px;grid-template-columns: 150px 150px;">
+                                    <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                        <input type="radio" id="withtax" name="tax" class="withtax" value="1" disabled>
+                                        <div class="text-padding">
+                                            <div class="text1" style="line-height:23px;">With Tax</div>
+                                        </div>
+
+                                    </div>
+                                    <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                        <input type="radio" id="withouttax" name="tax" class="withouttax" value="2" checked disabled>
+                                        <div class="text-padding">
+                                            <div class="text1" style="line-height:23px;">Without Tax</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @*<div class="form-group col-md-12">
+                                    <label>Tax Rate</label>
+                                    <select class="form-control selctInputFormat">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>*@
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Client Details<span aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        @*<div class="row">
+                                <div class="col-md-6 form-group">
+                                    <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                        <input type="radio" id="" name="" class="" value="3">
+                                        <div class="text-padding">
+                                            <div class="text1" style="line-height:23px;">Add Details Using Mykase Database</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                        <input type="radio" id="" name="" class="" value="4" checked>
+                                        <div class="text-padding">
+                                            <div class="text1" style="line-height:23px;">Add Details Manually</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>*@
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label>Client Name@*<span aria-required="true">*</span>*@</label>
+                                <select class="form-control selctInputFormat" id="client">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12" style="clear:both;">
+                                <label>Client Address</label>
+                                <select style="background-color: white !important" class="form-control selctInputFormat" id="clientAddress">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        @*<div class="row">
+                                <div class="form-group col-md-12">
+                                    <div style="border: 1px solid #e5e7eb; border-radius:8px; margin:10px 0;">
+                                        <table class="table-panel" cellspacing="0" cellpadding="0" width="100%">
+                                            <tr>
+                                                <td align="left" width="200px">GSTIN Number</td>
+                                                <td align="right"><span>22AAAAA000213345</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td align="left">PAN Number</td>
+                                                <td align="right"><span>22AAAAA000213345</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td align="left">Billing Address</td>
+                                                <td align="right"><span>A wing, XYZ Colony, Gujrat, India</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td align="left">Shipping Address</td>
+                                                <td align="right"><span>A wing, XYZ Colony, Gujrat, India</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td align="left">Phone Number</td>
+                                                <td align="right"><span>+91-8877990078</span></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>*@
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label>Bill to Address<span aria-required="true">*</span></label>
+                                <textarea class="form-control inputFormatTextArea" maxlength="2000" name="mname" rows="5" type="text" id="address" required>@ViewBag.address</textarea>
+                                <div class="grid-container" style="display:none">
+                                    <div id="editor"></div>
+                                    <script>
+                                        CKEDITOR.replace('address', {
+                                            toolbar:
+                                                [
+                                                ],
+                                            alignment: {
+                                                options: ['left', 'right']
+                                            },
+
+                                        });
+                                        CKEDITOR.config.allowedContent = true;
+                                        CKEDITOR.config.resize_enabled = false;
+                                        CKEDITOR.config.removePlugins = 'elementspath';
+                                    </script>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Client Bill State<span aria-required="true">*</span></label>
+                                <select class="form-control selctInputFormat" id="state">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Ship To Address <span aria-required="true">*</span></label>
+                                    <textarea class="form-control inputFormatTextArea" maxlength="2000" name="mname" rows="5" type="text" id="saddress" required>@ViewBag.saddress</textarea>
+                                    <div class="grid-container" style="display:none">
+                                        <div id="seditor">
+                                        </div>
+                                        <script>
+                                            initSample();
+                                            CKEDITOR.replace('saddress', {
+                                                toolbar:
+                                                    [
+                                                    ],
+                                                alignment: {
+                                                    options: ['left', 'right']
+                                                },
+                                                height: 100,
+                                                width: 520
+                                            });
+                                            CKEDITOR.config.allowedContent = true;
+                                            CKEDITOR.config.resize_enabled = false;
+                                            CKEDITOR.config.removePlugins = 'elementspath';
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Client Ship State <span aria-required="true">*</span></label>
+                                    <select class="form-control selctInputFormat" id="sstate">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6" style="clear:both;">
+                                <div class="form-group">
+                                    <label>Mobile</label>
+                                    <input class="form-control inputFormat" value="@ViewBag.mobile" onkeypress="return restrictAlphabets(event)" maxlength="10" name="mname" type="text" id="mobile" onkeypress="" required />
+                                </div>
+                            </div>
+                            @*<div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Aadhar Card No</label>
+                                        <input class="form-control inputFormat" onkeypress="return restrictAlphabets(event)" maxlength="10" name="mname" autocomplete="on" type="text" id="aadharno" onkeypress="" placeholder="Enter 12 digit Number" required />
+                                    </div>
+                                </div>*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>PAN Card No. </label>
+                                    <input style="background-color: white !important" class="form-control inputFormat" value="@ViewBag.ClientPanNo" name="cpan" type="text" id="clientpan" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>GST Number </label>
+                                    <input style="background-color: white !important" class="form-control inputFormat" value="@ViewBag.ClientGSTNo" name="cgst" type="text" id="clientgst" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Biller Details<span aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            @*<div class="col-md-6 form-group">
+                                    <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                        <input type="radio" id="" name="" class="" value="3" checked>
+                                        <div class="text-padding">
+                                            <div class="text1" style="line-height:23px;">Add Details Using Mykase Database</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                        <input type="radio" id="" name="" class="" value="4">
+                                        <div class="text-padding">
+                                            <div class="text1" style="line-height:23px;">Add Details Manually</div>
+                                        </div>
+                                    </div>
+                                </div>*@
+                            <div class="col-md-12 form-group">
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Biller Address <span aria-required="true">*</span></label>
+                                    <select class="form-control selctInputFormat" id="billeraddress"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Biller State <span aria-required="true">*</span></label>
+                                    <input class="form-control inputFormat" name="mname" type="text" id="billerstate" required disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Email </label>
+                                    <input class="form-control inputFormat" name="EmailText" type="text" id="EmailText" value="@ViewBag.InvoiceEmail" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Invoice Details<span aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Matter Name<span aria-required="true">*</span></label>
+                                    <select class="form-control selctInputFormat" id="MatterName">
+                                        <option value=""> Select</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Invoice Name<span aria-required="true">*</span></label>
+                                    <input class="form-control inputFormat" value="@ViewBag.UserNameInvoice" name="UserNameFreeText" type="text" id="UserNameFreeText" required />
+                                </div>
+                            </div>
+                            @*<div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Invoice Number </label>
+                                        <input class="form-control inputFormat" name="" type="text" id="" placeholder="Enter Number" />
+                                    </div>
+                                </div>*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Invoice Date <span aria-required="true">*</span></label>
+                                    <input class="form-control inputFormat" value="@ViewBag.invdate.ToString("yyyy-MM-dd")" name="mname" type="DATE" id="invdate" onkeypress="return false;" required />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Due Date <span aria-required="true">*</span></label>
+                                    <input class="form-control inputFormat" value="@ViewBag.duedate.ToString("yyyy-MM-dd")" name="mname" onkeypress="return false;" type="date" id="duedate" required />
+                                </div>
+                            </div>
+                            @*<div class="col-md-6 form-group">
+                                    <label>Discount<span aria-required="true">*</span></label>
+                                    <select class="form-control selctInputFormat" id="">
+                                        <option value="">Select Amount</option>
+                                    </select>
+                                </div>*@
+                            @*<div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Invoice Date<span aria-required="true">*</span></label>
+                                        <input class="form-control inputFormat" name="mname" type="DATE" onkeydown="return false" id="invdate" required />
+                                    </div>
+                                </div>*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Subject </label>
+                                    <input style="background-color: white !important" maxlength="100" value="@ViewBag.subject" class="form-control inputFormat" name="invsubject" type="text" id="invsubject" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Reference </label>
+                                    <input style="background-color: white !important" maxlength="200" value="@ViewBag.Reference" class="form-control inputFormat" name="invReference" type="text" id="invReference" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Add Services<span aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div style="border:1px solid #e5e7eb; border-radius:12px;">
+                                    <table width="100%" class="table-panel">
+                                        <tr>
+                                            <th width="40%"><div class="thbg">Particular <span  aria-required="true">*</span></div></th>
+                                            <th width="40%"><div class="thbg"> Billed By</div></th>
+                                            <th width="40%"><div class="thbg">Amount <span aria-required="true">*</span></div></th>
+
+                                            <th style="display:none"><div class="thbg">Select Matter</div></th>
+                                            <th><div class="thbg">Billed By</div></th>
+                                            <th><div class="thbg">Amount <span aria-required="true">*</span></div></th>
+                                            @*<th>Hour</th>*@
+                                            <th><div class="thbg">&nbsp;Action</div></th>
+                                        </tr>
+                                        <tr>
+                                            <td valign="top">
+                                                <input type="text" class="form-control inputFormat" id="itemName2" />
+                                                <span class="error">Item Name required</span>
+                                            </td>
+                                            <td valign="top" style="display:none">
+                                                <select style="display:none;" class="form-control selctInputFormat" id="CaseName2">
+                                                    <option value=""> Select</option>
+                                                </select>
+                                                <span class="error">Matter Name required</span>
+                                            </td>
+                                            <td valign="top">
+                                                <select class="form-control selctInputFormat" id="UserName2">
+                                                    <option value=""> Select</option>
+                                                </select>
+                                                <span class="error">Select Billed By required</span>
+                                            </td>
+                                            <td valign="top">
+                                                <input type="text" class="form-control inputFormat" id="price2" onkeypress="return isNumberKey(event)" />
+                                                <span class="error">Amount is required</span>
+                                            </td>
+                                            <td valign="top" align="right"></td>
+                                        </tr>
+                                    </table>
+                                    <div id="orderItems2">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div style="margin:15px 0;"><span style="font-weight:bold">Total Fee:</span> <span id="total2">0</span></div>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <div style="margin:15px 0;"><button type="button" id="add2" value="add" style="border: none;background: transparent; color: #154b6d; padding: 5px 0 0 0;"><img src="~/newassets/img/plus-icon-blue.png" /> Add Services</button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <table width="100%">
+                            <tr>
+                                <td width="112px"><label class="control-label">Payment Mode</label></td>
+                                <td>
+                                    <label class="switch">
+                                        <input class="inputFormat" type="checkbox" id="cport" name="setdefault" value="1">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row" id="paymentdiv" style="display:none;">
+                            <div id="p1" class="col-md-12">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Select Payment Type<span aria-required="true">*</span> </label>
+                                    <select class="form-control selctInputFormat" style="background-color: white !important;" id="ptype">
+                                        <option value="">Select</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="Online">Online</option>
+                                        <option value="Demand Draft">Demand Draft</option>
+                                    </select>
+                                    <span class="error1" id="e1"> Select Payment Type</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p2" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Payment Mode<span aria-required="true">*</span> </label>
+                                    <select class="form-control selctInputFormat" style="background-color: white !important;" id="pmode">
+                                        <option value="">Select</option>
+                                        <option value="NEFT">NEFT</option>
+                                        <option value="IMPS">IMPS</option>
+                                        <option value="RTGS">RTGS</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                    <span class="error1">Select payment mode</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p3" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Amount<span aria-required="true">*</span> </label>
+                                    <input type="text" class="form-control inputFormat" id="pamount" />
+                                    <span class="error1">Enter valid amount</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p4" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Payment Date<span aria-required="true">*</span> </label>
+                                    <input class="form-control inputFormat" name="mname" type="DATE" onkeydown="return false" id="pdate" required />
+                                    @*<input type="date" class="form-control" id="pdate" disabled />*@
+                                    <span class="error1">select payment date</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p5" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Bank Name<span aria-required="true">*</span> </label>
+                                    <input type="text" class="form-control inputFormat" id="pbank" />
+                                    <span class="error1">Enter bank name</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p6" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Demand Draft No<span aria-required="true">*</span> </label>
+                                    <input type="text" class="form-control inputFormat" id="pddno" />
+                                    <span class="error1">Enter Demand draft no</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p7" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Demand Draft Issue Date<span aria-required="true">*</span> </label>
+                                    <input type="date" class="form-control inputFormat" id="pddidate" />
+                                    <span class="error1">Select Demand Draft Issue Date </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p8" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Cheque No<span aria-required="true">*</span> </label>
+                                    <input type="text" class="form-control inputFormat" id="pchequeno" />
+                                    <span class="error1">Enter Cheque no</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p9" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Reference No<span aria-required="true">*</span> </label>
+                                    <input type="text" class="form-control inputFormat" id="preference" />
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p10" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Cheque Issue Date<span aria-required="true">*</span> </label>
+                                    <input type="date" class="form-control inputFormat" id="pchqidate" />
+                                    <span class="error1">Select Cheque issue date</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p11" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Other Details<span aria-required="true">*</span> </label>
+                                    <input type="text" class="form-control inputFormat" id="pdetails" />
+                                </div>
+                            </div>
+                            <div class="col-md-12" id="p12">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary pull-right" id="add4" value="Add Payment" style="margin:10px 0 0 0;">Add Payment </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div id="orderItems4" style="margin:0 0 15px 0;">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+
+
+
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label" id="amteords">Final Amount<span aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <p id="totinwords" style="font-weight: 600;font-size: 13px;"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="">
+                                <table width="100%" border="1px solid" class="dataTable table table-bordered table-striped">
+                                    <tr>
+                                        <td width="50%" align="center">Sub Total:</td>
+                                        <td>&nbsp;&nbsp;&nbsp;<span id="subtotal">0</span></td>
+                                    </tr>
+                                    <tr id="igst">
+                                        <td width="50%" align="center">IGST <span id="igstpername"></span></td>
+                                        <td>&nbsp;&nbsp;&nbsp;<span id="igsttot">0</span></td>
+                                    </tr>
+                                    <tr id="cgst">
+                                        <td width="50%" align="center">CGST <span id="cgstpername"></span></td>
+                                        <td>&nbsp;&nbsp;&nbsp;<span id="cgsttot">0</span></td>
+                                    </tr>
+                                    <tr id="sgst">
+                                        <td width="50%" align="center">SGST <span id="sgstpername"></span></td>
+                                        <td>&nbsp;&nbsp;&nbsp;<span id="sgsttot">0</span></td>
+                                    </tr>
+                                    <tr id="subtotals">
+                                        <td align="center" style="font-weight:bold">Total Amount</td>
+                                        <td>&nbsp;&nbsp;&nbsp;<span id="finaltotal">0</span><span>.00</span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-primary pull-right" id="createinv" value="Create Invoice">Save Invoice</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+@*<section class="wrapper">
+        <input type="hidden" id="hclientids" value="@ViewBag.client" />
+        <input type="hidden" id="clientstate" value="@ViewBag.clientstate" />
+        <input type="hidden" id="sclientstate" value="@ViewBag.sclientstate" />
+        <div class="container-main">
+            <div>
+                <h2 class="title">Amend Invoice</h2>
+                <div class="pull-right" style="margin-right: 17px;margin-top: -34px;" id="taxtype">
+                    Invoice type
+                    <input type="radio" id="withtax" name="tax" class="withtax" value="1" disabled>
+                    <label for="withtax">With Tax</label>
+                    <input type="radio" id="withouttax" name="tax" class="withouttax" value="2" disabled>
+                    <label for="withouttax">Without Tax</label>
+                </div>
+                <section class="content ec_bg">
+                    <form id="savedata" enctype="multipart/form-data" name="savedata">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Invoice No: </label>
+                                            <input class="form-control inputFormat" value="@ViewBag.invno" type="text" id="invno" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Client </label>
+                                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="client">
+                                                <option value="">Select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Name: <span class="required" aria-required="true">*</span></label>
+                                            <input class="form-control inputFormat" value="@ViewBag.UserNameInvoice" name="UserNameFreeText" type="text" id="UserNameFreeText" required />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Matter Name: <span class="required" aria-required="true">*</span></label>
+                                            <select class="form-control selctInputFormat" id="MatterName" style="border-bottom:1px solid #ccc !important; background-color: white !important;">
+                                                <option value=""> Select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Invoice Date: <span class="required" aria-required="true">*</span></label>
+                                            <input class="form-control inputFormat" value="@ViewBag.invdate.ToString("yyyy-MM-dd")" name="mname" type="DATE" id="invdate" onkeypress="return false;" readonly required style="color: #b2bac1!important;cursor:default !IMPORTANT;" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Client Address</label>
+                                            <select style="background-color: white !important" class="form-control selctInputFormat" id="clientAddress">
+                                                <option value="">Select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Client PAN No. </label>
+                                            <input style="background-color: white !important" class="form-control inputFormat" value="@ViewBag.ClientPanNo" name="cpan" type="text" id="clientpan" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Client GST No. </label>
+                                            <input style="background-color: white !important" class="form-control inputFormat" value="@ViewBag.ClientGSTNo" name="cgst" type="text" id="clientgst" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Bill To Address <span class="required" aria-required="true">*</span></label>
+                                            <textarea class="form-control inputFormatTextArea" maxlength="2000" name="mname" rows="5" type="text" id="address" required>@ViewBag.address</textarea>
+                                            <div class="grid-container" style="display:none">
+                                                <div id="editor">
+                                                </div>
+                                                <script>
+                                                    initSample();
+                                                    CKEDITOR.replace('address', {
+                                                        toolbar:
+                                                            [
+                                                            ],
+                                                        alignment: {
+                                                            options: ['left', 'right']
+                                                        },
+                                                        height: 100,
+                                                        width: 520
+                                                    });
+                                                    CKEDITOR.config.allowedContent = true;
+                                                    CKEDITOR.config.resize_enabled = false;
+                                                    CKEDITOR.config.removePlugins = 'elementspath';
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Client Bill State <span class="required" aria-required="true">*</span></label>
+                                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="state">
+                                                <option value="">Select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Due Date <span class="required" aria-required="true">*</span></label>
+                                            <input class="form-control inputFormat" value="@ViewBag.duedate.ToString("yyyy-MM-dd")" name="mname" onkeypress="return false;" type="date" id="duedate" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Ship To Address <span class="required" aria-required="true">*</span></label>
+                                            <textarea class="form-control inputFormatTextArea" maxlength="2000" name="mname" rows="5" type="text" id="saddress" required>@ViewBag.saddress</textarea>
+                                            <div class="grid-container" style="display:none">
+                                                <div id="seditor">
+                                                </div>
+                                                <script>
+                                                    CKEDITOR.replace('saddress', {
+                                                        toolbar:
+                                                            [
+                                                            ],
+                                                        alignment: {
+                                                            options: ['left', 'right']
+                                                        },
+                                                        height: 100,
+                                                        width: 520
+                                                    });
+                                                    CKEDITOR.config.allowedContent = true;
+                                                    CKEDITOR.config.resize_enabled = false;
+                                                    CKEDITOR.config.removePlugins = 'elementspath';
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Client Ship State <span class="required" aria-required="true">*</span></label>
+                                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="sstate">
+                                                <option value="">Select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Mobile:</label>
+                                            <input class="form-control inputFormat" value="@ViewBag.mobile" onkeypress="return restrictAlphabets(event)" maxlength="10" name="mname" type="text" id="mobile" onkeypress="" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Biller Address <span class="required" aria-required="true">*</span></label>
+                                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="billeraddress"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Biller State <span class="required" aria-required="true">*</span></label>
+                                            <input class="form-control inputFormat" name="mname" type="text" id="billerstate" required disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Email</label>
+                                            <input class="form-control inputFormat" name="EmailText" type="text" id="EmailText" value="@ViewBag.InvoiceEmail" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Subject </label>
+                                            <input style="background-color: white !important" maxlength="100" class="form-control inputFormat" value="@ViewBag.subject" name="invsubject" type="text" id="invsubject" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="formLabel colorDark">Reference </label>
+                                            <input style="background-color: white !important" maxlength="200" class="form-control inputFormat" value="@ViewBag.Reference" name="invReference" type="text" id="invReference" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="display:none">
+                                <div class="row">
+                                    <div class="col-md-12" style="margin-top:15px;">
+                                        <h2 class="title" style="padding:0">Flat Fee</h2>
+                                        <div class="table-panel table-responsive">
+                                            <table width="100%" class="table">
+                                                <tr>
+                                                    <th><div class="thbg">Item Name</div></th>
+                                                    <th><div class="thbg">Select Matter</div></th>
+                                                    <th><div class="thbg">Billed By</div></th>
+                                                    <th><div class="thbg">Price</div></th>
+                                                    <th><div class="thbg">Qty</div></th>
+                                                    <th>&nbsp;</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <input type="text" class="form-control inputFormat" id="itemName1" style="border-bottom:1px solid #ccc !important; height:30px !Important " />
+                                                        <span class="error">Item name required</span>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control selctInputFormat" id="CaseName1" style="margin-right: 137px !important; height:30px !Important; background-color: white !important;">
+                                                            <option value=""> Select</option>
+                                                        </select>
+                                                        <span class="error">Matter Name required</span>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control selctInputFormat" id="UserName1" style="margin-right: 137px !important;background-color: white !important; height:30px !Important ">
+                                                            <option value=""> Select</option>
+                                                        </select>
+                                                        <span class="error">Select Billed By required</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control inputFormat" id="price1" onkeypress="return isNumberKey(event)" style="border-bottom:1px solid #ccc !important; height:30px !Important " />
+                                                        <span class="error">Amount is required</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" class="form-control inputFormat" min="0" id="quantity1" style="border-bottom:1px solid #ccc !important; height:30px !Important " />
+                                                        <span class="error"> Valid Quantity required</span>
+                                                    </td>
+                                                    <td align="right">
+                                                        <button type="button" class="sbtbtn" id="add1" value="add">add</button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <div id="orderItems1" class=" table-panel table-responsive">
+                                            </div>
+                                            <div style="background: #e2e2e2; padding: 5px;"><span style="font-weight:bold">Total Flat Fee:</span> <span id="total1">0</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12" style="margin-top:15px;">
+
+                                        <div class="table-panel table-responsive">
+                                            <table width="100%" class="table">
+                                                <tr>
+                                                    <th width="60%"><div class="thbg">Particular <span class="required" aria-required="true">*</span></div></th>
+                                                    <th style="display:none"><div class="thbg">Select Matter</div></th>
+                                                    <th width="28%"><div class="thbg">Billed By</div></th>
+                                                    <th width="12%"><div class="thbg">Amount <span class="required" aria-required="true">*</span></div></th>
+                                                    <th><div class="thbg">&nbsp;action</div></th>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <input type="text" class="form-control inputFormat" id="itemName2" />
+                                                        <span class="error">Item Name required</span>
+                                                    </td>
+                                                    <td style="display:none">
+                                                        <select class="form-control selctInputFormat" style="background-color: white !important;" id="CaseName2">
+                                                            <option value=""> Select</option>
+                                                        </select>
+                                                        <span class="error">Matter Name required</span>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control selctInputFormat" style="background-color: white !important;
+        padding-right: 20px !important;
+        border-radius: 20px !important;
+        height: 30px !important;
+        margin-top: -5px !important;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        padding-left: 15px !important;
+        background: #ebebeb url(/newassets/images/selectbox_arrow.png) no-repeat right !important;
+        -webkit-appearance: none;
+        background-position-x: 99%;
+        margin-top: 4px !important;" id="UserName2">
+                                                            <option value=""> Select</option>
+                                                        </select>
+                                                        <span class="error">Select Billed By required</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control inputFormat" id="price2" onkeypress="return isNumberKey(event)" />
+                                                        <span class="error">Amount is required</span>
+                                                    </td>
+
+                                                    <td align="right">
+                                                        <button type="button" class="sbtbtn" id="add2" value="add">add</button>
+                                                        <button type="button" class="sbtbtn" id="edit2" value="update" style="display:none">update</button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <div id="orderItems2" class=" table-panel table-responsive">
+                                            </div>
+                                            <div style="background: #e2e2e2; padding: 5px;"><span style="font-weight:bold">Total Fee:</span> <span id="total2">0</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="display:none">
+                                <div class="row">
+                                    <div class="col-md-12" style="margin-top:15px;">
+                                        <h2 class="title" style="padding:0">Expenses</h2>
+                                        <div class="table-panel table-responsive">
+                                            <table width="100%" class="table">
+                                                <tr>
+                                                    <th><div class="thbg">Item Name</div></th>
+                                                    <th><div class="thbg">Select Matter</div></th>
+                                                    <th><div class="thbg">Billed By</div></th>
+                                                    <th><div class="thbg">Price</div></th>
+                                                    <th><div class="thbg">Qty</div></th>
+                                                    <th>&nbsp;</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <input type="text" class="form-control inputFormat" id="itemName3" />
+                                                        <span class="error">Item name required</span>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control selctInputFormat" style="background-color: white !important;" id="CaseName3">
+                                                            <option value=""> Select</option>
+                                                        </select>
+                                                        <span class="error">Matter Name required</span>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control selctInputFormat" style="background-color: white !important;" id="UserName3">
+                                                            <option value=""> Select</option>
+                                                        </select>
+                                                        <span class="error">Select Billed By required</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control inputFormat" id="price3" onkeypress="return isNumberKey(event)" />
+                                                        <span class="error">Valid quantity required</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" class="form-control inputFormat" min="0" id="quantity3" />
+                                                        <span class="error">Valid quantity required</span>
+                                                    </td>
+                                                    <td align="right">
+                                                        <button type="button" class="sbtbtn" id="add3" value="add">add</button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <div id="orderItems3" class=" table-panel table-responsive">
+                                            </div>
+                                            <div style="background: #e2e2e2; padding: 5px;"><span style="font-weight:bold">Total Expenses Fee:</span> <span id="total3">0</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12" style="margin-top:15px;">
+                                        <h2 class="title" style="padding:0">Payment Mode</h2>
+                                        <div class="form-group" style="border: 1px solid #e2e2e2;overflow: hidden;margin: 8px 0px 0px 0px; padding: 5px 6px 9px 6px;">
+                                            <div style="float:left;width: 65px; padding: 8px 0 0 0;">
+                                                <label class="formLabel colorDark">Payment </label>
+                                            </div>
+                                            <div style="float:left">
+                                                <label class="switch">
+                                                    <input type="checkbox" id="cport" name="setdefault" value="1">
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </div>
+                                            <div class="col-md-7" id="paymentdiv" style="display:none">
+                                                <table width="600%" border="1px solid" class="dataTable table table-bordered">
+                                                    <tr id="p1">
+                                                        <td width="40%">Payment Type <span class="required" aria-required="true" style="color:red"><b>*</b> </span></td>
+                                                        <td>
+                                                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="ptype">
+                                                                <option value="">Select</option>
+                                                                <option value="Cash">Cash</option>
+                                                                <option value="Cheque">Cheque</option>
+                                                                <option value="Online">Online</option>
+                                                                <option value="Demand Draft">Demand Draft</option>
+                                                            </select>
+                                                            <span class="error1" id="e1"> Select Payment Type</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p2" style="display:none">
+                                                        <td>Payment Mode</td>
+                                                        <td>
+                                                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="pmode">
+                                                                <option value="">Select</option>
+                                                                <option value="NEFT">NEFT</option>
+                                                                <option value="IMPS">IMPS</option>
+                                                                <option value="RTGS">RTGS</option>
+                                                                <option value="Others">Others</option>
+                                                            </select>
+                                                            <span class="error1">Select payment mode</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p3" style="display:none">
+                                                        <td>Amount <span class="required" aria-required="true" style="color:red"><b>*</b> </span></td>
+                                                        <td>
+                                                            <input type="text" class="form-control inputFormat" id="pamount" />
+                                                            <span class="error1">Enter valid amount</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p4" style="display:none">
+                                                        <td>Payment Date <span class="required" aria-required="true" style="color:red"><b>*</b> </span></td>
+                                                        <td>
+                                                            <input type="date" class="form-control inputFormat" id="pdate" onkeypress="return false;" />
+                                                            <span class="error1">select payment date</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p5" style="display:none">
+                                                        <td>Bank Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></td>
+                                                        <td>
+                                                            <input type="text" class="form-control inputFormat" id="pbank" />
+                                                            <span class="error1">Enter bank name</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p6" style="display:none">
+                                                        <td>Demand Draft No <span class="required" aria-required="true" style="color:red"><b>*</b> </span></td>
+                                                        <td>
+                                                            <input type="text" class="form-control inputFormat" id="pddno" />
+                                                            <span class="error1">Enter Demand draft no</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p7" style="display:none">
+                                                        <td>Demand Draft Issue Date  <span class="required" aria-required="true" style="color:red"><b>*</b> </span></td>
+                                                        <td>
+                                                            <input type="date" class="form-control inputFormat" id="pddidate" onkeypress="return false;" />
+                                                            <span class="error1">Select Demand Draft Issue Date </span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p8" style="display:none">
+                                                        <td>Cheque No <span class="required" aria-required="true" style="color:red"><b>*</b> </span></td>
+                                                        <td>
+                                                            <input type="text" class="form-control inputFormat" id="pchequeno" />
+                                                            <span class="error1">Enter Cheque no</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p9" style="display:none">
+                                                        <td>Reference No</td>
+                                                        <td>
+                                                            <input type="text" class="form-control inputFormat" id="preference" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p10" style="display:none">
+                                                        <td>Cheque Issue Date <span class="required" aria-required="true" style="color:red"><b>*</b> </span></td>
+                                                        <td>
+                                                            <input type="date" class="form-control inputFormat" id="pchqidate" onkeypress="return false;" />
+                                                            <span class="error1">Select Cheque issue date</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p11" style="display:none">
+                                                        <td>Other Details</td>
+                                                        <td>
+                                                            <input type="text" class="form-control inputFormat" id="pdetails" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="p12">
+                                                        <td> </td>
+                                                        <td>
+                                                            <button type="button" class="sbtbtn" id="add4" value="Add Payment">Add Payment</button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div class="col-lg-12">
+                                                <div id="orderItems4" class=" table-panel table-responsive">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12" style="margin-top:15px;">
+                                        <div class="settingpanel">
+                                        </div>
+                                        <h2 class="title" style="padding:0">Amount In Words</h2>
+                                        <div class="col-md-6">
+                                            <div class="row">
+                                                <p id="totinwords" style="font-weight: 400; margin: 20px 0 0 0;font-size: 15px;"></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" id="">
+                                            <table width="100%" border="1px solid" class="dataTable table table-bordered table-striped">
+                                                <tr>
+                                                    <td width="50%" align="center">Sub Total:</td>
+                                                    <td>&nbsp;&nbsp;&nbsp;<span id="subtotal">0</span></td>
+                                                </tr>
+                                                <tr id="igst">
+                                                    <td width="50%" align="center">IGST <span id="igstpername"></span></td>
+                                                    <td>&nbsp;&nbsp;&nbsp;<span id="igsttot">0</span></td>
+                                                </tr>
+                                                <tr id="cgst">
+                                                    <td width="50%" align="center">CGST <span id="cgstpername"></span></td>
+                                                    <td>&nbsp;&nbsp;&nbsp;<span id="cgsttot">0</span></td>
+                                                </tr>
+                                                <tr id="sgst">
+                                                    <td width="50%" align="center">SGST <span id="sgstpername"></span></td>
+                                                    <td>&nbsp;&nbsp;&nbsp;<span id="sgsttot">0</span></td>
+                                                </tr>
+                                                <tr id="subtotals">
+                                                    <td width="50%" align="center" style="font-weight:bold">Total Amount</td>
+                                                    <td>&nbsp;&nbsp;&nbsp;<span id="finaltotal">0</span><span>.00</span></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <button type="button" class="sbtbtn" id="createinv" value="Create Invoice">Save Invoice</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </section>*@
+<div id="myOverlay" class="overlay" style="display:block !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<input type="hidden" id="igsttemp">
+<input type="hidden" id="cgsttemp">
+<input type="hidden" id="sgsttemp">
+<input type="hidden" id="igsttempval">
+<input type="hidden" id="cgsttempval">
+<input type="hidden" id="sgsttempval">
+<input type="hidden" id="subtotaltemp">
+<input type="hidden" id="finaltotaltemp">
+<input type="hidden" id="invcid">

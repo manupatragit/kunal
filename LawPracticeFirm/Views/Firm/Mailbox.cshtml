@@ -1,0 +1,723 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<script src="~/Scripts/Firm/Pages/MailBox.js?1.3" type="text/javascript"></script>
+@*<script src="~/CssJsfiles/js/2.1.3/jquery.min.js"></script>*@
+<script src="~/CssJsfiles/js/3.5.0/jquery-3.5.0.min.js"></script>
+<script>
+    function activetab(href) {
+        try {
+            $('[data-toggle="tab"][href="#' + href + '"]').trigger('click');
+        }
+        catch (ex) {
+            //alert(ex.message);
+        }
+    }
+</script>
+<style>
+    input {
+        cursor: text !important;
+        background-color: #fff !important;
+    }
+
+    .collapsible1, .collapsible2, .collapsible3 {
+        color: black;
+        cursor: pointer;
+        width: 100%;
+        border: none;
+        text-align: left;
+        font-size: 12px;
+    }
+
+    .content1 {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+    }
+
+    #inboxtable, #senttable, #drafttable {
+        background: white !important;
+        width: 100% !important;
+    }
+
+    table {
+        background: white !important;
+    }
+
+    a {
+        text-decoration: none !important;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+        font-size: 13px;
+    }
+
+    .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+        color: #020201;
+        cursor: default;
+        background-color: #ebebeb;
+        border: none;
+        border-bottom-color: transparent;
+        border-radius: 8px 8px 0 0;
+        font-weight: bold;
+    }
+
+    .nav-tabs {
+        border-bottom: none;
+    }
+
+    .tab-content {
+        background: #ebebeb;
+        overflow: hidden;
+        border-radius: 0 8px 8px 8px;
+    }
+
+    .nav-tabs > li > a {
+        border-radius: 8px 8px 0 0;
+        color: #020202;
+    }
+
+    fieldset {
+        border: none !important;
+        margin-top: 10px;
+        background-color: white;
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    legend {
+        display: block;
+        width: auto;
+        padding: 2px 20px !important;
+        margin: 0;
+        font-size: 15px;
+        color: #020202 !important;
+        border: 0;
+        background: #fff;
+        border-radius: 50px;
+        border: 1px solid #ccc;
+    }
+
+    .cke_chrome {
+        display: block;
+        border: none;
+        /* padding: 0; */
+        background: #ebebeb;
+        padding: 15px;
+        border-radius: 8px;
+    }
+</style>
+<script>
+      var filesize =@ViewBag.filesize;
+    var roleid = "@role";
+</script>
+<section class="wrapper">
+    <div class="container-main">
+        <div>
+            <h2 class="title">Mail Box <sup>new</sup></h2>
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div style="padding-top:5px; padding-bottom:5px;" class="box-header">
+                        <i class="glyphicon glyphicon-cog pull-right" style="font-size:16px; color:#4D95DD; padding:20px 0 0 0; cursor:pointer;" title="settings" id="reditecttomailboxsetting"></i>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <!-- tabs -->
+                        <div class="tabbable tabs-left">
+                            <ul id="sentnav" class="nav nav-tabs">
+                                <li class="active"><a href="#compose" data-toggle="tab">Compose</a></li>
+                                <li><a href="#inbox" data-toggle="tab" id="inboxlink">Mail Box</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active " id="compose">
+                                    <form id="sendmailform">
+                                        <div>
+                                            <div>
+                                                <div class="col-md-12">
+                                                    <fieldset>
+                                                        <legend>Mail Server Authentication</legend>
+                                                        <div class="row">
+                                                            <div class="form-group form-horizontal">
+                                                                <div class="col-md-2 text-right">
+                                                                    <label class="control-label">Mail Server <span class="required" aria-required="true">*</span></label>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <select id="sendmailserver" class="form-control selctInputFormatg" style="background-color: #ebebeb !important;">
+                                                                        <option value="">Select</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <button type="button" style="margin-top:3px;" class="sbtbtn" id="sentotheraccount"><i class="glyphicon glyphicon-log-in"></i> Use Another Account</button>
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                    &nbsp;
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-2">
+                                                                &nbsp;
+                                                            </div>
+                                                            <div class="col-md-10">
+                                                                <span class="mailsuccess" style="color:green;display:none;" id="success"> <i class="glyphicon glyphicon-ok"> </i> Authentication successful</span>
+                                                                <span class="mailfail" style="color:red;display:none;" id="error"> <i class="glyphicon glyphicon-remove"> </i> Authentication failed.</span>
+                                                            </div>
+                                                        </div>
+                                                        <div id="sendcheckserverlogin" style="display:none">
+                                                            <div class="row">
+                                                                <div class="form-group form-horizontal">
+                                                                    <div class="col-md-2 text-right">
+                                                                        <label class="control-label">Email<span class="required" aria-required="true">*</span></label>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <input class="form-control inputbg  " maxlength="50" placeholder="Enter Email" type="email" id="sendservereamil" onfocus="$(this).removeAttr('readonly');" readonly />
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        &nbsp;
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        &nbsp;
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group form-horizontal">
+                                                                    <div class="col-md-2 text-right">
+                                                                        <label class="control-label">Password <span class="required" aria-required="true">*</span></label>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <input class="form-control inputbg" maxlength="50" placeholder="Enter password" type="password" id="sendserverpassword" onfocus="$(this).removeAttr('readonly');" readonly />
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        &nbsp;
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        &nbsp;
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group form-horizontal">
+                                                                    <div class="col-md-2">&nbsp;</div>
+                                                                    <div class="col-md-4">
+                                                                        <label class="control-label ">Are you sure to save credential for future use?</label>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <label class="switch">
+                                                                            <input type="checkbox" id="cportcom" name="cportcom" value="1">
+                                                                            <span class="slider round"></span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group form-horizontal">
+                                                                    <div class="col-md-2">&nbsp;</div>
+                                                                    <div class="col-md-10">
+                                                                        We don’t store any of these credentials unless you enable to save it. (In case if you save it gets stored with AES256 entryption).
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </fieldset>
+                                                    <fieldset>
+                                                        <legend>Mail Details</legend>
+                                                        <div style="margin-bottom: 40px !important;" class="form-group form-horizontal">
+                                                            <label class="control-label col-md-2">To <span class="required" aria-required="true">*</span></label>
+                                                            <div class="col-md-10">
+                                                                <input class="form-control inputbg" name="mname" placeholder="Enter Emails separated by  (,)" type="text" id="emailto" title="To : Enter Emails separated by  (,)" required />
+                                                            </div>
+                                                        </div>
+                                                        <div style="margin-bottom: 80px !important;" class="form-group form-horizontal">
+                                                            <label class="control-label col-md-2">Cc </label>
+                                                            <div class="col-md-10">
+                                                                <input class="form-control inputbg" name="mname" type="text" id="emailcc" title="Cc : Enter Emails separated by  (,)" required />
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group form-horizontal">
+                                                            <label class="control-label col-md-2">Subject </label>
+                                                            <div class="col-md-10">
+                                                                <input class="form-control inputbg" name="cnrno" type="text" id="emailsub" required />
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group form-horizontal" style="padding: 5px 0 0 0; clear: both;">
+                                                            <label class="control-label col-md-2">Body</label>
+                                                            <div class="col-md-10">
+                                                                <textarea ID="emailbody" value="sdsdfd" style="margin: 0px; height: 105px; width: 457px;"></textarea>
+                                                                <div class="grid-container" style="display:none">
+                                                                    <div id="editor">
+                                                                    </div>
+                                                                    <script>
+                                                                        initSample();
+                                                                        CKEDITOR.replace('emailbody', {
+                                                                            toolbar:
+                                                                                [
+                                                                                    { name: 'document', groups: ['mode', 'document', 'doctools'], items: ['Source', '-', 'Print', '-', 'Templates'] },
+                                                                                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'justify', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'] },
+                                                                                    { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                                                    { name: 'tools', items: ['Maximize', '-'] },
+                                                                                    { name: 'styles', items: ['Styles', 'format', 'Font', 'FontSize'] },
+                                                                                    { name: 'colors', items: ['TextColor', 'BGColor'] },
+                                                                                    { name: 'editing', items: ['Scayt'] }
+                                                                                ],
+                                                                            height: 100,
+                                                                            width: 750
+                                                                        });
+                                                                    </script>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group form-horizontal" style="clear:both">
+                                                            <label class="control-label col-md-2">Attachment</label>
+                                                            <div class="col-md-10">
+                                                                <div class="btn-group dropup " style="margin-top:5px;">
+                                                                    <span style="cursor:pointer;padding:0 5px 0 0" id="taskattachtitle" title="upload Attachment" class="form-control inputbg" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                        attachments
+                                                                    </span>
+                                                                    <ul class="dropdown-menu settingaction" style="width:247px">
+                                                                        <li style="margin-left:7px;font-size: 11px;">Choose From <b>Local Drive</b></li>
+                                                                        <li style="padding-top: 5px !IMPORTANT;padding-bottom: 25px !IMPORTANT;margin-left:5px !important;"><input type="file" id="postedFile" name="postedFile" style="width:90%;font-size: 12px !important;padding: 4px 0 0 8px !important;" multiple class="form-control inputbg" /></li>
+                                                                        <li style="margin-left: 7px;font-size: 11px;">Choose From <b>mykase Drive</b></li>
+                                                                        <li style="margin: 5px;margin-top: 5px;padding: 4px 0 0 10px !important;width: 221px;" class="form-control inputbg" title="No file chosen" id="browsefileemailsynccompose" module="emailsynccompose"><button type="button" style="font-size: 8.6pt;color: #080000; font-weight: 500;">Choose Files</button>   <span style="font-size: 12px;" id="browsefilelblemailsynccompose">No file chosen</span></li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group form-horizontal">
+                                                            <label class="control-label col-md-2"> </label>
+                                                            <div class="col-md-7">
+                                                                <button type="button" style="margin-top:10px;float:left" class="sbtbtn" id="sendmail"><span class="glyphicon glyphicon-envelope"></span> Send Mail</button>
+                                                                <button type="button" style="margin-top:10px;margin-left:15px;" class="sbtbtn" id="Savedraft"><span class="glyphicon glyphicon-envelope"></span> Save As Draft</button>
+                                                            </div>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="tab-pane  " id="inbox">
+                                    <div id="mainserverblock">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="form-group form-horizontal" style="padding:5px 0 0 0;">
+                                                        <div class="col-md-2 text-right">
+                                                            <label class="control-label">Mail Server <span class="required" aria-required="true">*</span></label>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <select id="mailserver" class="form-control selctInputFormat" style="background-color: white !important;">
+                                                                <option value="">Select</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <button type="button" style="margin-top:3px;" class="sbtbtn" id="otheraccount"><i class="glyphicon glyphicon-log-in"></i> Use Another Account</button>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            &nbsp;
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="checkserverlogin" style="display:none">
+                                        <div class="row">
+                                            <div class="form-group form-horizontal">
+                                                <div class="col-md-2 text-right">
+                                                    <label class="control-label">Email<span class="required" aria-required="true">*</span></label>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <input class="form-control selctInputFormat" maxlength="50" placeholder="Enter Email" type="email" id="servereamil" onfocus="$(this).removeAttr('readonly');" readonly />
+                                                </div>
+                                                <div class="col-md-4">
+                                                    &nbsp;
+                                                </div>
+                                                <div class="col-md-2">
+                                                    &nbsp;
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group form-horizontal">
+                                                <div class="col-md-2 text-right">
+                                                    <label class="control-label">Password <span class="required" aria-required="true">*</span></label>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <input class="form-control selctInputFormat" maxlength="50" placeholder="Enter password" type="password" id="serverpassword" onfocus="$(this).removeAttr('readonly');" readonly />
+                                                </div>
+                                                <div class="col-md-4">
+                                                    &nbsp;
+                                                </div>
+                                                <div class="col-md-2">
+                                                    &nbsp;
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group form-horizontal">
+                                                <div class="col-md-2">&nbsp;</div>
+                                                <div class="col-md-4">
+                                                    <label class="control-label ">Are you sure to save credential for future use?</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="switch">
+                                                        <input type="checkbox" id="cport" name="cport" value="1">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group form-horizontal">
+                                                <div class="col-md-2">&nbsp;</div>
+                                                <div class="col-md-10">
+                                                    We don’t store any of these credentials unless you enable to save it. (In case if you save it gets stored with AES256 entryption).
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group form-horizontal">
+                                                <div class="col-md-2">&nbsp;</div>
+                                                <div class="col-md-10">
+                                                    <button type="button" style="margin-top:10px;" class="btn btn-sm btn-success" id="savelogin"><span class="glyphicon glyphicon-arrow-right"></span> Verify</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="chkfolderlist" style="display:none;">
+                                        <div class="col-md-12">
+                                            <div class="row">
+                                                <!-- tabs -->
+                                                <div class="tabbable tabs-left">
+                                                    <ul id="sentnav" class="nav nav-tabs">
+                                                        <li class="active"><a href="#inboxtablink" id="inboxtab" data-toggle="tab">Inbox</a></li>
+                                                        <li><a href="#Sentablink" data-toggle="tab" id="senttab">Sent</a></li>
+                                                        <li><a href="#Drafttablink" data-toggle="tab" id="drafttab">Draft</a></li>
+                                                    </ul>
+                                                    <div class="tab-content">
+                                                        <div class="tab-pane active " id="inboxtablink">
+                                                            <div id="inboxcontent" style="display:none;overflow-x:auto">
+                                                                <table border="1" id="inboxtable" style="margin-top:10px;">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th style="color:white !important;background-color:#5c5c5c !important;font-size:12px; padding-bottom: 10px;">
+                                                                                <div style="padding:8px;"><p style="float:left;width:50%">Subject</p><p style="float:left;width:30%">From</p><p style="float:left;width:18%">&nbsp;&nbsp;&nbsp;&nbsp;Received Date</p></div>
+                                                                            </th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="loadinboxcontent"></tbody>
+                                                                </table>
+                                                                <div style="margin-top:10px;"><center><button type="button" dataval="0" id="loadmore" style="display:none;" class="btn  btn-default">Load more...</button></center></div>
+                                                                <br><br>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane  " id="Sentablink">
+                                                            <div id="sentcontent" style="display:none;overflow-x:auto">
+                                                                <table border="1" id="senttable" style="margin-top:10px;">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th style="color:white !important;background-color:#5c5c5c !important;font-size:12px; padding-bottom: 10px;">
+                                                                                <div style="padding:8px;"><p style="float:left;width:50%">Subject</p><p style="float:left;width:30%">To</p><p style="float:left;width:18%">&nbsp;&nbsp;&nbsp;&nbsp;Sent Date</p></div>
+                                                                            </th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="loadsentcontent"></tbody>
+                                                                </table>
+                                                                <div style="margin-top:10px;"><center><button type="button" dataval="0" id="loadmoresent" style="display:none;" class="btn  btn-default">Load more...</button></center></div>
+                                                                <br><br>
+                                                            </div>
+                                                        </div>
+                                                        <div class="tab-pane  " id="Drafttablink">
+                                                            <div id="draftcontent" style="display:none;overflow-x:auto">
+                                                                <table border="1" id="drafttable" style="margin-top:10px;">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th style="color:white !important;background-color:#5c5c5c !important;font-size:12px; padding-bottom: 10px;">
+                                                                                <div style="padding:8px;"><p style="float:left;width:50%">Subject</p><p style="float:left;width:30%">&nbsp;</p><p style="float:left;width:18%">&nbsp;&nbsp;&nbsp;&nbsp; Date</p></div>
+                                                                            </th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="loaddraftcontent"></tbody>
+                                                                </table>
+                                                                <div style="margin-top:10px;"><center><button type="button" dataval="0" id="loadmoredraft" style="display:none;" class="btn  btn-default">Load more...</button></center></div>
+                                                                <br><br>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /tabs -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /tabs -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="myOverlay" class="overlay" style="display:block !important;">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+@*modal for reply and reply all *@
+<div id="myModal1" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:700px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="replytitle"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form id="replyform" name="replyform">
+                            <div>
+                                <input type="hidden" id="replymsgid">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-2">To <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-10">
+                                                <input class="form-control" name="mname" type="text" id="replyemailto" placeholder="To : Enter Emails separated by  (,)" required />
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-2">Cc </label>
+                                            <div class="col-md-10">
+                                                <input class="form-control" name="mname" type="text" id="replyemailcc" placeholder="Cc : Enter Emails separated by  (,)" required />
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-2">Subject </label>
+                                            <div class="col-md-10">
+                                                <input class="form-control" name="cnrno" type="text" id="replyemailsub" placeholder="Enter Subject" required />
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-2">Body</label>
+                                            <div class="col-md-4">
+                                                <textarea ID="replyemailbody" value="" style="margin: 0px; height: 105px; width: 457px;"></textarea>
+                                                <div class="grid-container" style="display:none">
+                                                    <div id="editor">
+                                                    </div>
+                                                    <script>
+                                                        CKEDITOR.replace('replyemailbody', {
+                                                            toolbar:
+                                                                [
+                                                                    { name: 'document', groups: ['mode', 'document', 'doctools'], items: ['Source', '-', 'Print', '-', 'Templates'] },
+                                                                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'justify', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'] },
+                                                                    { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                                    { name: 'tools', items: ['Maximize', '-'] },
+                                                                    { name: 'insert', items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe'] },
+                                                                    { name: 'styles', items: ['Styles', 'format', 'Font', 'FontSize'] },
+                                                                    { name: 'colors', items: ['TextColor', 'BGColor'] },
+                                                                    { name: 'editing', items: ['Scayt'] }
+                                                                ],
+                                                            height: 100,
+                                                            width: 515
+                                                        });
+                                                    </script>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal" style="clear:both">
+                                            <label class="control-label col-md-2">Attachment</label>
+                                            <div class="col-md-10">
+                                                <div class="btn-group dropdown " style="margin-top:5px;">
+                                                    <span style="cursor:pointer;padding:0 5px 0 0" id="taskattachtitle" title="upload Attachment" class="dropdown-toggle s_btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        attachments <span class="glyphicon glyphicon-chevron-down" style="font-size: 8px;padding:0 0 0 5px;"></span>
+                                                    </span>
+                                                    <ul class="dropdown-menu settingaction" style="width:247px">
+                                                        <li style="margin-left:5px;font-size: 11px;">Choose From <b>Local Drive</b></li>
+                                                        <li style="padding-top: 5px !IMPORTANT;padding-bottom: 40px !IMPORTANT;margin-left:5px !important;"><input type="file" id="replypostedFile" name="replypostedFile" style="width:90%" multiple class="form-control" /></li>
+                                                        <li style="margin-left: 5px;font-size: 11px;">Choose From <b>mykase Drive</b></li>
+                                                        <li style="cursor: pointer;border-bottom: 1px solid #d4cfcf;text-align: left;margin-left: 5px;margin-top: 5px;padding-bottom: 3px !important;width: 235px;" title="No file chosen" class="browsetaskfile" id="browsefileEmailsyncreply" module="Emailsyncreply"><button type="button" style="font-size: 8.6pt;color: #080000; font-weight: 500;">Choose Files</button>   <span style="font-size: 12px;" id="browsefilelblEmailsyncreply">No file chosen</span></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-2"> </label>
+                                            <div class="col-md-10">
+                                                <button type="button" style="margin-top:10px;" class="sbtbtn pull-right" id="replysendmail"><span class="glyphicon glyphicon-envelope"></span> Send </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*modal for forward  *@
+<div id="myModal2" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:700px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="forwordtitle">Forward Mail</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form id="forwardform" name="forwardform">
+                            <div>
+                                <input type="hidden" id="forwardmsgid">
+                                <input type="hidden" id="forwardmsgtype">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-2">To <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-10">
+                                                <input class="form-control" name="mname" type="text" id="forwardemailto" placeholder="To : Enter Emails separated by  (,)" required />
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-2">Cc </label>
+                                            <div class="col-md-10">
+                                                <input class="form-control" name="mname" type="text" id="forwardemailcc" placeholder="Cc : Enter Emails separated by  (,)" required />
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-2">Subject </label>
+                                            <div class="col-md-10">
+                                                <input class="form-control" name="cnrno" type="text" id="forwardemailsub" placeholder="Enter Subject" required />
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-2">Body</label>
+                                            <div class="col-md-4">
+                                                <textarea ID="forwardemailbody" value="" style="margin: 0px; height: 105px; width: 457px;"></textarea>
+                                                <div class="grid-container" style="display:none">
+                                                    <div id="editor">
+                                                    </div>
+                                                    <script>
+                                                        CKEDITOR.replace('forwardemailbody', {
+                                                            toolbar:
+                                                                [
+                                                                    { name: 'document', groups: ['mode', 'document', 'doctools'], items: ['Source', '-', 'Print', '-', 'Templates'] },
+                                                                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'justify', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'] },
+                                                                    { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                                    { name: 'tools', items: ['Maximize', '-'] },
+                                                                    { name: 'insert', items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe'] },
+                                                                    { name: 'styles', items: ['Styles', 'format', 'Font', 'FontSize'] },
+                                                                    { name: 'colors', items: ['TextColor', 'BGColor'] },
+                                                                    { name: 'editing', items: ['Scayt'] }
+                                                                ],
+                                                            height: 100,
+                                                            width: 515
+                                                        });
+                                                    </script>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal" style="clear:both">
+                                            <label class="control-label col-md-2">Attachment</label>
+                                            <div class="col-md-10">
+                                                <div class="btn-group dropdown" style="margin-top:5px;">
+                                                    <span style="cursor:pointer;padding:0 5px 0 0" id="taskattachtitle" title="upload Attachment" class="dropdown-toggle s_btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        attachments <span class="glyphicon glyphicon-chevron-down" style="font-size: 8px;padding:0 0 0 5px;"></span>
+                                                    </span>
+                                                    <ul class="dropdown-menu settingaction" style="width:247px">
+                                                        <li style="margin-left:5px;font-size: 11px;">Choose From <b>Local Drive</b></li>
+                                                        <li style="padding-top: 5px !IMPORTANT;padding-bottom: 40px !IMPORTANT;margin-left:5px !important;"><input type="file" id="forwardpostedFile" name="forwardpostedFile" style="width:90%" multiple class="form-control" /></li>
+                                                        <li style="margin-left: 5px;font-size: 11px;">Choose From <b>mykase Drive</b></li>
+                                                        <li style="cursor: pointer;border-bottom: 1px solid #d4cfcf;text-align: left;margin-left: 5px;margin-top: 5px;padding-bottom: 3px !important;width: 235px;" title="No file chosen" class="browsetaskfile" id="browsefileEmailsyncforword" module="Emailsyncforword"><button type="button" style="font-size: 8.6pt;color: #080000; font-weight: 500;">Choose Files</button>   <span style="font-size: 12px;" id="browsefilelblEmailsyncforword">No file chosen</span></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-2"> </label>
+                                            <div class="col-md-10">
+                                                <button type="button" style="margin-top:10px;" class="sbtbtn pull-right" id="forwardsendmail"><span class="glyphicon glyphicon-envelope"></span> Send </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#sendservereamil,#sendserverpassword,#servereamil,#serverpassword").autocomplete({
+            disabled: true
+        });
+    });
+</script>

@@ -1,0 +1,149 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+@{
+    var startDate = DateTime.Now.Date;
+    var day = startDate.Day;
+    var day1 = "";
+    if (day.ToString().Length < 2)
+    {
+        day1 = "0" + day;
+    }
+    else
+    {
+        day1 = day.ToString();
+    }
+    var month = startDate.Month;
+    var monthnew = startDate.Date.AddDays(30);
+    var month1 = "";
+    var month2 = "";
+    if (month.ToString().Length < 2)
+    {
+        month1 = "0" + month;
+    }
+    else
+    {
+        month1 = month.ToString();
+    }
+    if (monthnew.ToString().Length < 2)
+    {
+        month2 = "0" + monthnew;
+    }
+    else
+    {
+        month2 = monthnew.ToString();
+    }
+    var year = startDate.Year;
+    var todayddate = year + "-" + month1 + "-" + day1;
+    var todate = year + "-" + month2 + "-" + day1;
+}
+<style>
+    ul li {
+        display: inline;
+    }
+</style>
+<head>
+    <script src="~/Scripts/Firm/Pages/CaseTrackingFilter.js?1.1"></script>
+</head>
+<section class="wrapper">
+    <div class="container-main">
+        <div>
+            <div class="col-md-12">
+                <h2 class="title" id="iot">Next Hearing Filter</h2>
+            </div>
+            <div class="ec_bg">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="col-md-3">
+                            Next Hearing From
+                        </div>
+                        <div class="col-md-3" style="margin-left:-50px;">
+                            <input type="date" id="hearingfrom" name="hearingfrom" class="form-control inputFormat">
+                        </div>
+                        <div class="col-md-1">
+                            To
+                        </div>
+                        <div class="col-md-3" style="margin-left:-20px;">
+                            <input type="date" id="hearingto" name="hearingto" class="form-control inputFormat">
+                        </div>
+                        <div class="col-md-1" style="margin-left:-20px;">
+                            <button type="button" id="searchhearingforcasefilter" class="sbtbtn">Search</button>
+                        </div>
+                        <div class="col-md-1" style="margin-left:5px;margin-top:2px;">
+                            <button type="button" id="clearhearing" class="sbtbtn" style="display:none;"><span class="fa fa-close"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-panel table-responsive" style="overflow-x:scroll; margin-top:5px;" id="allcasediv">
+                    <table id="allcaselisttable" class="table dataTable" cellspacing="0" width="100%" role="grid" aria-describedby="example_info">
+                        <thead width="100%">
+                            <tr role="row">
+                                <th class="Case10 sorting" width="12%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Case / Diary</div></th>
+                                <th class="Court10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Court</div></th>
+                                <th class="CaseName10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Case Name</div></th>
+                                <th class="NextHearing10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Next Hearing</div></th>
+                                <th class="Status10 sorting" width="8%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Status</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="alldatabindhearing"></tbody>
+                    </table>
+                </div>
+                <div class="settingpanel">
+                    <ul>
+                        <li>
+                            <div class="col-md-6">
+                                <div id="ptfooter" style="float:left;margin-top:5px;margin-left:5px;"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="pull-right">
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Action Selected
+                                            </a>
+                                            <ul class="dropdown-menu settingaction">
+                                                <li><a href="javascript:void()" id="exporttoexcel" title="Export to Excel">Export to Excel</a></li>
+                                                <li><a href="javascript:void()" id="exporttopdf" title="Export to PDF">Export to PDF &nbsp;&nbsp;&nbsp;</a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <input type="hidden" id="exportrecords">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">
+                Export Hearing Date
+            </h4>
+        </div>
+        <div class="modal-body  partynamebody " id="" style="height:505px; overflow-y:scroll;background:white;">
+            <table class="table " style="font-size:12px;">
+                <thead>
+                    <tr style="font-size: 12px;">
+                        <th><div class="thbg">Page No.</div></th>
+                        <th><div class="thbg">FileName</div></th>
+                    </tr>
+                </thead>
+                <tbody id="printexport"></tbody>
+                <tr></tr>
+            </table>
+        </div>
+    </div>
+</div>

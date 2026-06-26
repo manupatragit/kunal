@@ -1,0 +1,71 @@
+﻿@{
+    Layout = null;
+    //var id = Request.Url.Segments[3];
+}
+
+<script>
+    var str = "@ViewBag.id";
+    loaddata();
+    function loaddata() {
+        var strheader1 = '';
+        var stritem1 = '';
+        var strtable1 = '';
+        var strid = str;
+        strtable1 = $('<table style="overflow-x:auto;width:95%;" align="center" /><tr><th>').addClass('dataTable table table-bordered table-striped');
+        $.ajax(
+            {
+                async: true,
+                url: "/Client/CaseDetailsfirm/" + strid, // Controller/View
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    var datas = JSON.stringify(data);
+                //  alert(datas);
+                    var obj = JSON.parse(datas);
+                    strheader1 = $('<thead><tr><th class="name" bgcolor="DIMGRAY">Case Name</th><th class="name" bgcolor="DIMGRAY">Party Name</th><th class="desc">Advocate Name</th><th class="task">Court</th><th class="desc">Order Date</th><th class="desc">Order</th></tr></thead>');
+                    strtable1.append(strheader1);
+                    stritem1 = "<tbody>";
+                    $.each(obj, function (i, val) {
+                        var strcasename = val.Casetype + " " + val.CaseNo + "/" + val.Caseyear;
+                       if (val.Showstatus == "none") {
+                        stritem1 += '<tr><td>' + strcasename +'</td><td>' + val.Casename + "" + '</td><td>' + val.Advname + '</td><td>' + val.Court + '</td><td>' + val.Disposeddt + '</td><td></td></tr>';
+                        }
+                        else {
+                            var strfile = "";
+                            if (val.Localfile.indexOf("delhihi", 1) > 0) {
+                                strfile = val.Localfile;
+                            }
+                            else {
+                                 var filepath = "@System.Configuration.ConfigurationManager.AppSettings["Casedetailspath"]";
+                                strfile = filepath + val.Localfile;
+                           }
+                           stritem1 += '<tr><td>' + strcasename + '</td><td>' + val.Casename + '</td><td>' + val.Advname + '</td><td>' + val.Court + '</td><td>' + val.Disposeddt + '</td><td><a href='+strfile + '  target="_blank">Order</a></td></tr>';
+                        }
+                    });
+                    stritem1 += "</tbody>";
+                    strtable1.append(stritem1);
+                    $(".divdata").html(strtable1);
+                },
+                failure: function (data) {
+                    //alert(data.responseText);
+                },
+                error: function (data) {
+                   // alert(data.responseText);
+                }
+            });
+    }
+</script>
+<div class="modal-header btn-primary">
+    <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Case Detail
+    </h4>
+</div>
+<div class="modal-body ">
+    <!-- Main content -->
+    <div id="content">
+        <div class="row">
+            <div id="divdata" class="divdata row col-md-12"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,399 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    var userid = Session["sessionuserid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    #searchnoticeTile {
+        border-box: box-sizing !important;
+        background-repeat: no-repeat !important;
+        font-size: 11px !important;
+        padding: 14px 15px 15px 11px !important;
+        /* border: none !important; */
+        border-bottom: 1px solid #ddd !important;
+        width: 100%;
+    }
+
+    .settingshowhide li {
+        margin-left: 10px !important;
+    }
+
+    .pipesapcls {
+        margin: 0;
+        padding: 0 5px;
+        color: #0059c1;
+        font-weight: 500;
+    }
+</style>
+<div class="container-main">
+    <h2 class="title">Rejoinders Received</h2>
+    <div class="table-panel">
+        <div style="overflow-x:scroll;">
+            <label id="NotExist" style="display:none"></label>
+            <table id="example" class="table">
+                <thead>
+                    <tr id="newnoticeheadrow">
+                        <th>S.No</th>
+                        <th class="rejoinderaddressedto" data-column="RejoinderAddressedto">Addressed to/Receiver's Name </th>
+                        <th class="noticeby">
+                            <div class="thbg">
+                                <div style="float:left;width:80%">
+                                    <input type="text" id="noticebyIds" placeholder="sender's name" class="form-control pull-left" style="width:100px;">
+                                </div>
+                                <div style="float:left;width:20%">
+                                    <span class="glyphicon glyphicon-search" id="searchdatas"></span>
+                                    <span class="glyphicon glyphicon-remove" id="clearnewsearchforsender" title="Click here to reset search" style="display:none;"></span>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="noticetitle" data-column="NoticeTitle" data-order="desc">
+                            <div class="thbg">
+                                <div style="float:left;width:80%">
+                                    <input type="text" id="noticeTitless" placeholder="title" class="form-control pull-left" style="width:100px;">
+                                </div>
+                                <div style="float:left;width:20%">
+                                    <span class="glyphicon glyphicon-search" id="searchdatatitl"></span>
+                                    <span class="glyphicon glyphicon-remove" id="clearnewsearchforsendertitl" title="Click here to reset search" style="display:none;"></span>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="noticesubject" data-column="RejoinderSubject">
+                            <div class="thbg">
+                                <div style="float:left;width:80%">
+                                    <input type="text" id="noticeSubjects" placeholder="subject" class="form-control pull-left" style="width:100px;">
+                                </div>
+                                <div style="float:left;width:20%">
+                                    <span class="glyphicon glyphicon-search" id="searchdatassub"></span>
+                                    <span class="glyphicon glyphicon-remove" id="clearnewsearchforsendersub" title="Click here to reset search" style="display:none;"></span>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="dateofrejoinder" data-column="DateofCreatingRejoinder">Date Of Rejoinder</th>
+                        <th class="Duedate" data-column="Duedate">Due Date</th>
+                        <th class="remark" data-column="CreateRejoinder">Notice Text </th>
+                        <th class="managerapprove">
+                            <div class="form-group">
+                                <select class="form-control form-control-sm" name="notistatustype" id="notistatustype">
+                                    <option value="" selected>User Approval Status </option>
+                                    <option value="Draft">Draft</option>
+                                    <option value="Sent">Pending</option>
+                                    <option value="FinalApproved">Final Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                        </th>
+                        <th class="clientapprovestatus">
+                            Client Approval Status
+                        </th>
+                        <th class="dateofcreatingrejoinder" data-column="DateofCreatingRejoinder">Date of Creation of Notice  </th>
+                        <th class="noticeTrackingId">Consignment No.</th>
+                        <th class="dispatched" data-column="DateofDelivery">Date of Delivery</th>
+                        <th class="CreatedByName" data-column="CreatedByName">Created By </th>
+                        <th class="modeofreceipt" data-column="ModeofReceipt"> Mode of Delivery </th>
+                        <th class="rejoinderthrough" data-column="RejoinderThrough">Notice Through/To </th>
+                        <th class="addresseeaddress" data-column="AddresseeAddress">Receiver's Address </th>
+                        <th class="otherdetailsofaddressee" data-column="OtherDetailsofAddressee">Other Details of Addressee </th>
+                        <th class="senderaddress">Sender's Address </th>
+                        <th class="dateofreceivingreply" data-column="DateofReceivingReply" data-order="desc">Date Reply Sent  </th>
+                        <th class="pending" data-column="CaseStatus" data-order="desc">
+                            <div class="form-group">
+                                <select id="ddlnoticestatus" class="form-control form-control-sm"></select>
+                            </div>
+                        </th>
+                        <th class="OtherdetailsofReceiver">Other details of Receiver </th>
+                        <th class="criticality">Priority </th>
+                        <th class="resonforhighpriority">Reason For High Priority </th>
+                        <th class="amountclaimed">Amount Claimed </th>
+                        <th class="tags">Tags </th>
+                        <th class="attachment">Attachment</th>
+                    </tr>
+                </thead>
+                <tbody id="Rejoindertablevalue"></tbody>
+            </table>
+            <center> <div id="rejoindernonotice"> </div></center>
+        </div>
+        <div class="table-panel">
+            <div class="settingpanel">
+                <div class="col-md-6" id="footer-data">
+                    <div style="float: left;padding: 0 10px 0 0;">
+                        <ul>
+                            <li>
+                                <div class="btn-group dropup">
+                                    <a href="javascript:void()" class="dropdown-toggle selctInputFormat" style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                        Customize Fields
+                                    </a>
+                                    <ul class="dropdown-menu settingshowhide" id="od" style="width:270px">
+                                        <li data-subject="Sender's Name"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticeby" checked><a href="#">Sender's Name</a></li>
+                                        <li data-subject="Subject"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticesubject" checked><a href="#">Subject</a></li>
+                                        <li data-subject="Title"><input type="checkbox" class="shcheckbox1 chkdhide" name="noticetitle" checked><a href="#">Title</a></li>
+                                        <li data-subject="Notice Status"><input type="checkbox" class="shcheckbox1 chkdhide" name="pending" checked><a href="#">Notice Status</a></li>
+                                        <li data-subject="Date Of Delivery"><input type="checkbox" class="shcheckbox1 chkdhide" name="dispatched"><a href="#">Date of Delivery </a></li>
+                                        <li data-subject="Notice Text"><input type="checkbox" class="shcheckbox1 chkdhide" name="remark" checked><a href="#">Notice Text</a></li>
+                                        <li data-subject="User Approval Status"><input type="checkbox" class="shcheckbox1 chkdhide" name="managerapprove"><a>User Approval Status</a></li>
+                                        <li data-subject="Client Approval Status"><input type="checkbox" class="shcheckbox1 chkdhide" name="clientapprovestatus"><a>Client Approval Status</a></li>
+                                        <li data-subject="Date Reply Sent"><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofreceivingreply"><a href="#">Date Reply Sent </a></li>
+                                        <li data-subject="Mode Of Delivery"><input type="checkbox" class="shcheckbox1 chkdhide" name="modeofreceipt"><a href="#">Mode of Delivery</a></li>
+                                        <li data-subject="Date Of Rejoinder"><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofrejoinder" checked><a href="#">Date of Rejoinder</a></li>
+                                        <li data-subject="Addressed To/Receiver Name"><input type="checkbox" class="shcheckbox1 chkdhide" name="rejoinderaddressedto" checked><a href="#" class="dropdown-item">Addressed to/Receiver Name</a></li>
+                                        <li data-subject="Receiver's Address"><input type="checkbox" class="shcheckbox1 chkdhide" name="addresseeaddress"><a href="#">Receiver's Address</a></li>
+                                        <li data-subject="Other Details Of Addressee"><input type="checkbox" class="shcheckbox1 chkdhide" name="otherdetailsofaddressee"><a href="#">Other Details Of Addressee</a></li>
+                                        <li data-subject="Notice Through/To"><input type="checkbox" class="shcheckbox1 chkdhide" name="rejoinderthrough"><a href="#">Notice Through/To </a></li>
+                                        <li data-subject="Created By"><input type="checkbox" class="shcheckbox1 chkdhide" name="CreatedByName"><a>Created By</a></li>
+                                        <li data-subject="Date Of Creation Of Notice"><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofcreatingrejoinder"><a href="#">Date of Creation of Notice</a></li>
+                                        <li data-subject="Sender's Address"><input type="checkbox" class="shcheckbox1 chkdhide" name="senderaddress"><a>Sender's Address</a></li>
+                                        <li data-subject="Attachments"><input type="checkbox" class="shcheckbox1 chkdhide" name="attachment"><a>Attachments</a></li>
+                                        <li data-subject="Consignment No."><input type="checkbox" class="shcheckbox1 chkdhide" name="noticeTrackingId"><a>Consignment No.</a></li>
+                                        <li data-subject="Other Details Of Receiver"><input type="checkbox" class="shcheckbox1 chkdhide" name="OtherdetailsofReceiver"><a>Other details of Receiver</a></li>
+                                        <li data-subject="Due Date"><input type="checkbox" class="shcheckbox1 chkdhide" name="Duedate"><a>Due Date</a></li>
+                                        <li data-subject="Priority"><input type="checkbox" class="shcheckbox1 chkdhide" name="criticality"><a>Priority</a></li>
+                                        <li data-subject="Reason For High Priority"><input type="checkbox" class="shcheckbox1 chkdhide" name="resonforhighpriority"><a>Reason For High Priority</a></li>
+                                        <li data-subject="Amount Claimed"><input type="checkbox" class="shcheckbox1 chkdhide" name="amountclaimed"><a>Amount Claimed</a></li>
+                                        <li data-subject="Tags"><input type="checkbox" class="shcheckbox1 chkdhide" name="tags"><a>Tags</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="listingTablefooter"></div>
+                </div>
+                <div class="col-md-6" style="padding-right:20px">
+                    <ul class="pull-right">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="myModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <a href="#" class="close" data-dismiss="modal">&times;</a>
+                        <h3 class="modal-title">Delete Rejoinder Notice</h3>
+                    </div>
+                    <div class="modal-body">
+                        <h4>Are you sure you want to Remove this Rejoinder Notice?</h4>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        <a href="#" class="btn btn-success" onclick="DeleteRejoinder()">Confirm</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="AssignModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Send For Approval</h3>
+            </div>
+            <div class="modal-body">
+                <div class="ec_bg">
+                    <div>
+                        <label>Send to Approval Authority</label>
+                        <input type="radio" name="assignee" value="manager" class="assignto" />
+                        <label>Send to Client</label>
+                        <input type="radio" name="assignee" value="client" class="assignto" />
+                    </div>
+                    <div>
+                        <select id="bindusr" class="form-control selctInputFormat" style="background-color: white !important; margin-top: 10px !important;"></select>
+                    </div>
+                    <br />
+                    <button type="button" id="assignnoticebtn" class="sbtbtn  pull-right" value="Save">save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ViewMoreModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#fff !important">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+            </div>
+            <div class="modal-body">
+                <span id="viewmorecontent"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myDocumentModal" class="modal fade myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ViewLogModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice Logs</h3>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sender Name</th>
+                            <th>Receiver Name</th>
+                            <th>Type</th>
+                            <th>Notice Sent On</th>
+                            <th>Status</th>
+                            <th>Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modlbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="FinalStatusModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Final Status</h3>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <form>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <span style="color:red">*</span><label>Date of Delivery</label>
+                                <input type="date" class="form-control" id="dateofddel" />
+                            </div>
+                            <div class="col-sm-3">
+                                <span style="color:red">*</span><label>Date of Receipt (Proof)</label>
+                                <input type="date" class="form-control" id="txtdateofreceipt" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <span style="color:red">*</span><label>Current Status</label>
+                                <textarea type="text" id="currentstatus" class="form-control"></textarea>
+                            </div>
+                            <div class="col-sm-3">
+                                <label>Upload Files</label>
+                                <input type="file" class="form-control" id="postedFile" multiple />
+                            </div>
+                        </div>
+                        <br />
+                        <button type="button" id="savefinalstatus" class="sbtbtn">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="NoticeDraftModal">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 780px !important">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="height:40vh;overflow-y:scroll">
+                    <div class="col-md-12">
+                        <div class="ec_bg">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Sr no.</th>
+                                        <th>File</th>
+                                        <th>Created By</th>
+                                        <th>Created Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="draftnoticemodlbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="height:40vh; overflow-y:scroll;padding-left:15px;">
+                    <h4 style="text-align:center">Send notice on email</h4>
+                    <div class="row" style="margin-top:30px">
+                        <div class="col-sm-10" style="padding-bottom:10px;margin:0px">
+                            <span style="color:red">*</span><label>Receiver Email</label>
+                            <input type="email" id="receiverEmailidd" class="inputFormat" style="background-color: #ebebeb !important;" />
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="button" id="sendmailbtn" class="sbtbtn" value="Save" style="margin: 25px 0 0 0;">Send</button>
+                        </div>
+                        <div class="col-sm-6">
+                        </div>
+                        <br />
+                        <span style="color:red;display:none" id="spanEmailId">Alert ! please enter valid email address.</span>
+                    </div>
+                    <div class="ec_bg">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>File</th>
+                                    <th>Sender</th>
+                                    <th>Receiver</th>
+                                    <th>Status</th>
+                                    <th>Sent Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="noticemailaudit"></tbody>
+                        </table>
+                        <center> <div id="nonoticemailaudit"> </div></center>
+                    </div>
+                </div>
+                <center> <div id="nodraftnotice"> </div></center>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="dateOfDeliveryModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="javascript:void(0)" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Save date of delivery of Notice</h3>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <form>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <span style="color:red">*</span><label>Date of Delivered</label>
+                                <input type="date" class="form-control" id="dateofdelivered" />
+                            </div>
+                        </div>
+                        <br />
+                        <button type="button" id="btnsavedod" class="sbtbtn">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*Customize field load*@
+<script src="~/Scripts/Notice/CustomizeFormField.js?1.2"></script>
+@*end*@
+<script src="~/dist/multipleSelect/jquery.multiselect.js"></script>
+<link href="~/dist/multipleSelect/jquery.multiselect.css" rel="stylesheet" />
+<script src="~/Scripts/Notice/RejoinderReceived.js?2.4"></script>
+<script src="~/Scripts/Notice/commonviewmore.js?2.3"></script>
+<script src="~/Scripts/Notice/Tracking.js?1.6"></script>
+<script>
+    jQuery('#Modesofdeleverypost').multiselect({
+        columns: 1,
+        search: true,
+        selectAll: true
+    });
+</script>

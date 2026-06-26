@@ -1,0 +1,411 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/Scripts/CW/LiveCaselist.js?4.9" type="text/javascript" language="javascript"></script>
+<style>
+    ul li {
+        display: inline;
+    }
+</style>
+<section class="wrapper">
+    <div class="container-main">
+        <div>
+            <div class="col-md-12">
+                <h2 class="title">List of matter for live update</h2>
+            </div>
+            <div class="ec_bg">
+                <div class="row">
+                    <div class="col-md-12" style="margin-left:-15px">
+                        <div class="col-md-2">
+                            <select name="divSCHCDistrict" id="divSCHCDistrict" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                        </div>
+                        <div class="col-md-2" id="HighCourt" style="display:none;">
+                            <select name="drpcourtname" id="drpcourtname" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                        </div>
+                        <div class="col-md-2" id="divCFBench" style="display: none;">
+                            <select name="drpCfBench" id="drpCfBench" class="form-control selctInputFormat"></select>
+                        </div>
+                        <div class="col-md-2" id="DistrictCourt" style="display:none;">
+                            <select name="drpcourtnameDC" id="drpcourtnameDC" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divdrpcourtnameDC();"></select>
+                        </div>
+                        <div class="col-md-2" id="divDistrict">
+                            <select name="drpdistrictcourtname" id="drpdistrictcourtname" class="form-control selctInputFormat" style="background-color: white !important; display:none;" onchange="divdistrictchange();"></select>
+                        </div>
+                        <div class="col-md-2" id="divcourtcomplexestb">
+                            <select name="drpcourtcomplexestb" id="drpcourtcomplexestb" class="form-control selctInputFormat" style="background-color: white !important; display:none;" onchange="drpcourtcompestbchange();"></select>
+                        </div>
+                        <div class="col-md-2" id="divcompestbcourt">
+                            <select name="drpcompestbcourt" id="drpcompestbcourt" class="form-control selctInputFormat" style="background-color: white !important; display:none;"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <select name="searchany" id="searchany" class="form-control inputFormat">
+                            <option selected="selected" value="1">All Words</option>
+                            <option value="2">Any Word</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" id="casename" name="casename" placeholder="case name" class="form-control inputFormat">
+                    </div>
+                    <div class="col-md-1" style="margin-left:-18px;">
+                        <button type="button" id="searchcase" class="sbtbtn">Search</button>
+                    </div>
+                    <div class="col-md-1" style="margin-left:-28px;margin-top:2px;">
+                        <button type="button" id="clearsearch" class="sbtbtn" style="display:none;"><span class="fa fa-close"></span></button>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="sortdate" id="sortdate" class="form-control selctInputFormat" style="background-color: white !important;">
+                            <option value="">Sort Hearing date</option>
+                            <option value="desc">Descending</option>
+                            <option value="asc">Ascending</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="CaseStatus" id="CaseStatus" class="form-control selctInputFormat" style="background-color: white !important;">
+                            <option value="">Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Disposed">Disposed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="TagList" id="TagList" class="form-control selctInputFormat" style="background-color: white !important;">
+                            <option value="">Select Tagged Case</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="col-md-3">
+                            Next Hearing From
+                        </div>
+                        <div class="col-md-3" style="margin-left:-50px;">
+                            <input type="date" id="hearingfrom" name="hearingfrom" class="form-control inputFormat">
+                        </div>
+                        <div class="col-md-1">
+                            To
+                        </div>
+                        <div class="col-md-3" style="margin-left:-20px;">
+                            <input type="date" id="hearingto" name="hearingto" class="form-control inputFormat">
+                        </div>
+                        <div class="col-md-1" style="margin-left:-20px;">
+                            <button type="button" id="searchhearing" class="sbtbtn">Search</button>
+                        </div>
+                        <div class="col-md-1" style="margin-left:5px;margin-top:2px;">
+                            <button type="button" id="clearhearing" class="sbtbtn" style="display:none;"><span class="fa fa-close"></span></button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 pull-right">
+                        <button type="button" class="sbtbtn" id="showremovetag" style="margin-left:-120px;"><span class="glyphicon glyphicon-remove-sign"></span> Remove Tag</button>
+                        <button type="button" class="sbtbtn" id="showtag"><span class="glyphicon glyphicon-tag"></span>Tag Case</button>
+                    </div>
+                </div>
+                <div class="row" id="createtagdiv" style="display:none">
+                    <div class="col-md-12">
+                        <div class="col-md-2"> Create Tag</div>
+                        <div class="col-md-2" style="margin-left:-53px">
+                            <select name="TagListSave" id="TagListSave" class="form-control selctInputFormat" style="background-color: white !important;">
+                                <option value="">Select Tagged Case</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Disposed">Disposed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1"> or</div>
+                        <div class="col-md-2" style="margin-left:-55px;"><input type="text" placeholder="Tag Name" class="form-control inputFormat" id="tagname"></div>
+                        <div class="col-md-4">
+                            <button type="button" class="sbtbtn" id="savetag">Save</button>
+                            <button type="button" class="sbtbtn" id="hidetag">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="removetagdiv" style="display:none">
+                    <div class="col-md-9" style="margin-left:0px;">
+                        <div class="col-md-2"> Remove Tag</div>
+                        <div class="col-md-3">
+                            <select name="TagListRemove" id="TagListRemove" class="form-control selctInputFormat" style="background-color: white !important;">
+                                <option value="">Select Tagged Case</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="sbtbtn" id="removetag">Save</button>
+                            <button type="button" class="sbtbtn" id="hideremovetag">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-panel table-responsive" style="overflow-x:scroll; margin-top:5px;" id="allcasediv">
+                    <table id="allcaselisttable" class="table dataTable" cellspacing="0" width="100%" role="grid" aria-describedby="example_info">
+                        <thead width="100%">
+                            <tr role="row">
+                                <th width="5%" style="font-size:12px;" class="sorting_disabled">
+                                    <div class="thbg">
+                                        <input type="checkbox" id="select_all">Archive
+                                    </div>
+                                </th>
+                                <th class="Case10 sorting " width="12%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Case / Diary</div></th>
+                                <th class="Court10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Court / District</div></th>
+                                <th class="CaseName10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Case Name</div></th>
+                                <th class="BenchName10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Bench Name</div></th>
+                                <th class="AdvName10 sorting" width="10%" style="font-size:10px;" tabindex="0" aria-controls="example"><div class="thbg"> Advocate</div></th>
+                                <th class="NextHearing10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Next Hearing</div></th>
+                                @*<th class="NextHearing10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"> Manual NextHearing</th>*@
+                                <th class="Disposed10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"> <div class="thbg">Disposed Date</div></th>
+                                <th class="Status10 sorting" width="8%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> Status</div></th>
+                                @*<th class="Notes10 sorting" width="5%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> TimeLine </div></th>*@
+                                <th class="Notes10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg">&nbsp;&nbsp;Action   &nbsp;&nbsp;&nbsp;&nbsp;    </div>    </th>
+                            </tr>
+                        </thead>
+                        <tbody id="alldatabind"></tbody>
+                    </table>
+                </div>
+                <div class="table-panel table-responsive" style="overflow-x:scroll;display:none" id="casediv">
+                    <table id="tblDistrictCourt" class="table  dataTable" cellspacing="0" width="100%" role="grid" aria-describedby="tblDistrictCourt_info" style="width: 100%;">
+                        <thead>
+                            <tr role="row">
+                                <th width="5%" style="font-size: 12px; width: 55px;" class="sorting_disabled" rowspan="1" colspan="1" aria-label="
+                                     Re-run / Archive / Delete / TagCase">
+                                    <div class="thbg">
+                                        <input type="checkbox" id="select_all">  Archive
+                                    </div>
+                                </th>
+                                <th class="CaseDC10 sorting" width="12%" style="font-size: 12px; width: 104px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Case: activate to sort column ascending"><div class="thbg"> Case</div></th>
+                                <th class="State10 sorting" width="10%" style="font-size: 12px; width: 81px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" State: activate to sort column ascending"> <div class="thbg">State</div></th>
+                                <th class="District10 sorting" width="10%" style="font-size: 12px; width: 86px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" District: activate to sort column ascending"><div class="thbg"> District</div></th>
+                                <th class="Courttype10 sorting" width="10%" style="font-size: 12px; width: 100px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Court Complex / Court Establishment Type: activate to sort column ascending"> <div class="thbg">Court Complex / Court Establishment Type</div></th>
+                                <th class="Courttypecode10 sorting" width="10%" style="font-size: 12px; width: 100px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Court Complex / Court Establishment: activate to sort column ascending"> <div class="thbg">Court Complex / Court Establishment</div></th>
+                                <th class="CaseName10 sorting" width="10%" style="font-size: 12px; width: 83px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Case Name: activate to sort column ascending"><div class="thbg"> Case Name</div></th>
+                                <th class="AdvName10 sorting" width="10%" style="font-size: 12px; width: 90px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Advocate: activate to sort column ascending"> <div class="thbg">Advocate</div></th>
+                                <th class="NextHearing10 sorting" width="10%" style="font-size: 12px; width: 87px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Next Hearing: activate to sort column ascending"><div class="thbg"> Next Hearing</div></th>
+                                @*<th class="NextHearing10 sorting" width="10%" style="font-size: 12px; width: 96px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Manual NextHearing: activate to sort column ascending"> Manual NextHearing</th>*@
+                                <th class="Disposed10 sorting" width="10%" style="font-size: 12px; width: 55px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Disposed Date: activate to sort column ascending"><div class="thbg"> Disposed Date</div></th>
+                                <th class="Status10 sorting" width="8%" style="font-size: 12px; width: 37px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Status: activate to sort column ascending"> <div class="thbg">Status</div></th>
+                                @*<th class="Notes10 sorting" width="10%" style="font-size: 12px; width: 34px;" tabindex="0" aria-controls="tblDistrictCourt" rowspan="1" colspan="1" aria-label=" Notes: activate to sort column ascending"> Notes</th>*@
+                                @*<th class="Notes10 sorting" width="5%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg"> TimeLine</div></th>*@
+                                <th class="Notes10 sorting" width="10%" style="font-size:12px;" tabindex="0" aria-controls="example"><div class="thbg">&nbsp;&nbsp;Action   &nbsp;&nbsp;&nbsp;&nbsp; </div>     </th>
+                            </tr>
+                        </thead>
+                        <tbody id="districtdatabind"></tbody>
+                    </table>
+                </div>
+                <div class="settingpanel">
+                    <ul>
+                        <li>
+                            <div class="col-md-6">
+                                <div id="ptfooter" style="float:left;margin-top:5px;margin-left:5px;"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="pull-right">
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Action Selected
+                                            </a>
+                                            <ul class="dropdown-menu settingaction">
+                                                <li><a href="javascript:void()" id="exporttoexcel" title="Export to Excel">Export to Excel</a></li>
+                                                <li><a href="javascript:void()" id="exporttopdf" title="Export to PDF">Export to PDF &nbsp;&nbsp;&nbsp;</a></li>
+                                                @*<li><a href="javascript:void()" id="archivecase" title="Archive case">Archive case</a></li>
+                                                    <li><a href="/@Session["FirmCode"]/CW/ArchiveLiveCaseList" style="clear:both !important" title="caselist"> Archive case list</a></li>*@
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div id="myModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog " style="width:60%">
+                    <div class="modal-content">
+                        <div class="modal-header btn-success">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">
+                                Details by Appeal No
+                            </h4>
+                        </div>
+                        <!-- Modal content-->
+                        <div class="modal-content mymodels" id="mymodels" style="margin-top:10px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="myModaltimeline" class="modal fade myModal" role="dialog" data-backdrop="static">
+                <div class="modal-dialog" style="width:60%">
+                    <!-- Modal content-->
+                    <div class="modal-content ">
+                        <div class="modal-header btn-success">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">
+                                Case Order TimeLine
+                            </h4>
+                        </div>
+                        <div class="mymodelstime" id="mymodelstime" style="margin-top:10px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="myModallinkcase" class="modal fade myModal" role="dialog" data-backdrop="static">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content ">
+                        <div class="modal-header btn-success">
+                            <button type="button" class="close" id="closelinkmatter" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">
+                                Link case
+                            </h4>
+                        </div>
+                        <div class="myModallinkcase1" id="myModallinkcase1" style="margin-top:10px;">
+                            <div class="modal-body">
+                                <div class="ec_bg" style="height: 150px !important;overflow:unset !important">
+                                    <div class="col-md-8">
+                                        <input id="livecaseidhide" class="form-control inputFormat" type="hidden" />
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" id="mattersforlink2" class="form-control inputFormat" placeholder="Enter Matter Name" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button class="sbtbtn" id="savelinkmatter">Save</button>
+                                    </div>
+                                </div>
+                                <br><br><br><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="myModalexport" class="modal fade myModal " role="dialog" data-backdrop="static">
+                <div class="modal-dialog">
+                    <input type="hidden" id="exportrecords">
+                    <div class="modal-header btn-primary">
+                        <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            Export Cases
+                        </h4>
+                    </div>
+                    <div class="modal-body  partynamebody " id="" style="height:505px; overflow-y:scroll;background:white;">
+                        <table class="table " style="font-size:12px;">
+                            <thead>
+                                <tr style="font-size: 12px;">
+                                    <th><div class="thbg">Page No.</div></th>
+                                    <th><div class="thbg">FileName</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="printexport"></tbody>
+                            <tr></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="myModalCaseNotes" class="modal fade myModal" role="dialog" data-backdrop="static">
+                <div class="modal-dialog" style="width:50%;height: 500px;">
+                    <!-- Modal content-->
+                    <div class="modal-content" style="height: 500px;overflow-y: scroll;">
+                        <div class="modal-header btn-success">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">
+                                Case Notes
+                            </h4>
+                        </div>
+                        <div class="ec_bg" style="margin-top:10px;">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Other Details</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <textarea id="OtherDetailstxt" class="inputFormatTextArea" value="" style="margin: 0px; width: 357px; height: 40px;" maxlength="10000"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="margin-top:-30px;"><button class="sbtbtn pull-right" id="UpdateOtherDetails">Save</button></div>
+                        </div>
+                        <div class="row" style="margin-top:20px">
+                            <div class="col-md-12">
+                                <div class="col-md-12">
+                                    <div class="table-panel table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td width="80%"><div class="thbg">Details</div></td>
+                                                    <td width="20%"><div class="thbg">Acion</div></td>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="otherdetailsContent">
+                                            </tbody>
+                                        </table>
+                                        <p id="otherdetailsContentNA" style="text-align:center">No result found...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#mattersforlink2").autocomplete({
+            disabled: true
+        });
+    });
+    $('#mattersforlink2').on('keyup', function () {
+        /* your code here */
+        var txtlength = $("#mattersforlink2").val().length;
+        if (txtlength > 0) {
+        }
+        else {
+            $("#livecaseidhide,#mattersforlink2").val("");
+        }
+    });
+    $(function () {
+        $("#mattersforlink2").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/MatterFilterAutoComplete',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            map[name] = { id: id, name: name };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#livecaseidhide").val(map[item].id);
+                return map[item].name;
+            }
+        });
+    });
+</script>

@@ -1,0 +1,403 @@
+﻿
+@{
+    Layout = null;
+    var role = Session["sessionroleid"];
+}
+
+<script src="~/Scripts/Firm/Pages/UserReport.js?1.1"></script>
+<script>
+    var roleids = "@Session["sessionroleid"]";
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<section class="wrapper">
+
+    <div class="row">
+        <div class="col-md-3">
+            <label>User Type</label>
+            <select id="rptusertype" class="form-control">
+                <option value="" selected>Select</option>
+                <option value="3" selected>User</option>
+                <option value="2" selected>Partner</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label>Designation</label>
+            <select id="userdesignation" class="form-control" required autocomplete="new-text">
+                <option value="" selected="">Select</option>
+            </select>
+
+        </div>
+        <div class="col-md-3">
+            <label>Branch</label>
+            <select id="userbranch" class="form-control">
+                <option value="" selected="">Select</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Department</label>
+            <select id="userdepartment" class="form-control">
+                <option value="" selected="">Select</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <label>Status</label>
+            <select id="userfilterStatus" class="form-control">
+                <option value="" selected="">Select</option>
+                <option value="0">Enable</option>
+                <option value="1">Disable</option>
+
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Start</label>
+            <input class="form-control" id="searchfrom" onkeypress="return false;" type="date">
+        </div>
+        <div class="col-md-3">
+            <label>End</label>
+            <input class="form-control" id="searchto" onkeypress="return false;" type="date">
+        </div>
+        <div class="col-md-3">
+            <button type="button" id="searchdatas" class="sbtbtn" style="margin:7px 0 0 0;">Search</button>
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+<div class="table-panel table-responsive" style="padding:10px 0 0 0; clear:both;" data-example-id="hoverable-table" id="home">
+
+    <table class="table table-striped table-bordered" id="schedulertable">
+
+        <thead>
+            <tr>
+               
+                <th class="cname" onclick="sortTable(1)">User Name <span class="fa fa-sort pull-right"/></th>
+                <th class="username" onclick="sortTable(2)">Login UserName <span class="fa fa-sort pull-right"/></th>
+                <th class="email" onclick="sortTable(3)">Email <span class="fa fa-sort pull-right"/></th>
+                <th class="mobile" onclick="sortTable(4)">Mobile <span class="fa fa-sort pull-right"/></th>
+                <th class="date_time" onclick="sortTable(5)" width="10%">Date <span class="fa fa-sort pull-right"/></th>
+                <th class="odetails" onclick="sortTable(6)">Other Details<span class="fa fa-sort pull-right"/></th>
+                <th class="status1" onclick="sortTable(7)">Status <span class="fa fa-sort pull-right"/></th>
+                <th class="address" onclick="sortTable(8)">Address <span class="fa fa-sort pull-right"/></th>
+                <th class="city" onclick="sortTable(9)">City <span class="fa fa-sort pull-right"/></th>
+                <th class="state" onclick="sortTable(10)">State <span class="fa fa-sort pull-right"/></th>
+                <th class="country" onclick="sortTable(11)">Country <span class="fa fa-sort pull-right"/></th>
+                <th class="landline" onclick="sortTable(12)">Landline <span class="fa fa-sort pull-right"/></th>
+                <th class="barno" onclick="sortTable(13)">Bar No <span class="fa fa-sort pull-right"/></th>
+                <th class="CreatedBy" onclick="sortTable(14)">Created by <span class="fa fa-sort pull-right"/></th>
+                <th class="designation" onclick="sortTable(13)">Designation<span class="fa fa-sort pull-right"/></th>
+                <th class="department" onclick="sortTable(14)">Department<span class="fa fa-sort pull-right"/></th>
+                <th class="branch" onclick="sortTable(15)">Branch<span class="fa fa-sort pull-right"/></th>
+                <th class="utype" onclick="sortTable(16)">User Type<span class="fa fa-sort pull-right"/></th>
+                <th class="rmanager" onclick="sortTable(17)">Reporting Manager<span class="fa fa-sort pull-right"/></th>
+                <th class="qualification" onclick="sortTable(19)"> Qualification <span class="fa fa-sort pull-right"/></th>
+                <th class="pqe" onclick="sortTable(20)"> PQE <span class="fa fa-sort pull-right"/></th>
+                <th class="firmexperience" onclick="sortTable(21)"> Firm Experience <span class="fa fa-sort pull-right"/></th>
+                <th class="areaofexpertise" onclick="sortTable(22)"> Area of Expertise <span class="fa fa-sort pull-right"/></th>
+                <th class="ppartner" onclick="sortTable(23)"> Parent Partner <span class="fa fa-sort pull-right"/></th>
+                <th class="hrate" onclick="sortTable(24)">Rate/hour<span class="fa fa-sort pull-right"/></th>
+                <th class="empcode" onclick="sortTable(25)">Employee Code<span class="fa fa-sort pull-right"/></th>
+                <th class="extention" onclick="sortTable(26)">Extension<span class="fa fa-sort pull-right"/></th>
+            
+
+            </tr>
+        </thead>
+        <tbody id="loadactivitydatas"></tbody>
+    </table>
+    <div><center><span id="datastatus"></span></center></div>
+    <div class="table-panel">
+        <div class="row settingpanel">
+            <div class="col-md-6">
+
+                <div style="float: left;padding: 0 10px 0 0;">
+                    <ul>
+                        <li>
+                            <div class="btn-group dropup">
+                                <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                    customize field <span class="glyphicon glyphicon-chevron-down"></span>
+                                </a>
+                                <ul class="dropdown-menu settingshowhide" id="userrpt">
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="cname" checked><a href="#">User Name</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="username" checked><a href="#">Login UserName</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="email" checked><a href="#">Email</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="mobile" checked><a href="#">Mobile</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="date_time" checked><a href="#">Date</a></li>
+
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="status1" checked><a href="#">Status</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="barno"><a href="#">Bar Registration No.</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="address"><a href="#">Address</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="city"><a href="#">City</a></li>
+
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="state"><a href="#">State</a></li>
+
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="country"><a href="#">Country</a></li>
+
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="landline"><a href="#">Landline</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="CreatedBy"><a href="#">Created by</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="designation"><a href="#">Designation</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="department"><a href="#">Department</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="branch"><a href="#">Branch</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="utype" checked><a href="#">User Type</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="rmanager"><a href="#">Reporting Manager</a></li>
+
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="qualification"><a href="#">Qualification</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="pqe"><a href="#">PQE</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="firmexperience"><a href="#">Firm Experience</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="areaofexpertise"><a href="#">Areas of Expertise</a></li>
+
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ppartner" checked><a href="#">Parent Partner</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="hrate"><a href="#">Rate/Hr</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="empcode"><a href="#">Employee Code</a></li>
+
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="extention"><a href="#">Extension</a></li>
+                                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="odetails"><a href="#">OtherDetails</a></li>
+
+
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div id="utfooter">
+
+                </div>
+            </div>
+            <div class="col-md-6" style="display:none;">
+                <ul class="pull-right">
+                    @if (role.ToString() == "1")
+                    {
+
+
+                        <li>
+                            <a href="javascript:void()" id="linkuser" title="Create New User">
+                                New User
+                            </a>
+                        </li>
+
+                    }
+                    else
+                    {
+                        if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+
+                        {
+
+
+
+                            <li>
+                                <a href="javascript:void()" id="linkuser" title="Create New User">
+                                    New User
+                                </a>
+                            </li>
+
+
+                        }
+                    }
+
+
+                    <li><span>|</span></li>
+                    <li>
+                        <div class="btn-group dropup" style="display:none">
+                            <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action Selected <span class="glyphicon glyphicon-chevron-down"></span>
+                            </a>
+
+
+                            <ul class="dropdown-menu settingaction">
+
+                                <input type="text" placeholder="Search.." id="searchdata">
+                                <button type="button" class="form-control" id="searchdatas" />Search</button>
+
+                                <p>
+                                    <label>Status</label>
+                                    <select id="le" class="form-control" onchange="filterFunctionstatus()">
+                                        <option value="" selected>Select All</option>
+
+                                        <option value="Enabled">Enabled</option>
+                                        <option value="Disabled">Disabled</option>
+
+                                    </select>
+                                </p>
+
+
+                                <p>
+                                    <label style="color:white">...</label>
+                                </p>
+
+
+
+                            </ul>
+                        </div>
+
+
+
+                    </li>
+
+
+                    <li>
+                        <div class="btn-group dropup">
+                            <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action Selected <span class="glyphicon glyphicon-chevron-down"></span>
+                            </a>
+
+
+                            <ul class="dropdown-menu settingaction">
+
+
+                                @if (role.ToString() == "1")
+                                {
+
+
+                                    <li>
+                                        <a href="javascript:void()" id="excel" title="Export to Excel">Export to Excel</a>
+
+                                    </li>
+
+                                    <li>
+                                        <a href="javascript:void()" id="pdf" title="Export data to PDF">Export to PDF</a>
+
+                                    </li>
+
+
+                                }
+                                else
+                                {
+                                    if (Convert.ToInt32(ViewBag.export) == 1)
+
+                                    {
+
+
+
+                                        <li>
+                                            <a href="javascript:void()" id="excel" title="Export to Excel">Export to Excel</a>
+
+                                        </li>
+
+                                        <li>
+                                            <a href="javascript:void()" id="pdf" title="Export data to PDF">Export to PDF</a>
+
+                                        </li>
+
+                                    }
+                                }
+
+
+                            </ul>
+                        </div>
+
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("example");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<div id="myOverlay" class="overlay">
+    @*//<span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>*@
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

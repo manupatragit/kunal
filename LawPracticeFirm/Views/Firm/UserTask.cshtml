@@ -1,0 +1,2458 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    var userid = Session["sessionuserid"];
+}
+<script>
+    var userid = "@userid";
+    var roleids = "@Session["sessionroleid"]";
+    var isPartner = "@Session["IsPartner"]";
+    var filesize =@ViewBag.filesize;
+    var isglobalsearch ="@ViewBag.token";
+    var isFilterdateGlobal = "@ViewBag.tdate";
+    var isFiltermoduleGlobal ="@ViewBag.modulename";
+</script>
+<script src="~/Scripts/Firm/Pages/PersonalDashboard.js?4.7" type="text/javascript" language="javascript"></script>
+<script src="~/Scripts/Firm/Pages/CreateActivityReminders.js"></script>
+<style>
+    .freeze-text {
+        max-width: 200px; /* Set desired max width */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+    }
+
+    .status_badge {
+        max-width: fit-content;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        /* border: 1px solid #ccc; */
+        padding: 3px 8px;
+        border-radius: 7px;
+        background: #f5f5f5d4;
+        box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    }
+
+        .status_badge span {
+            display: block;
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+        }
+
+    .in-process {
+        background: #0BA5EC;
+    }
+
+    .medium {
+        background: #17B26A;
+    }
+
+    .high {
+        background: #F04438;
+    }
+
+
+    .glyphicon-book, .glyphicon-ok, .glyphicon-share, .glyphicon-paperclip, .glyphicon-pencil, .glyphicon-trash {
+        color: black !important;
+    }
+
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+
+    #parentnbox {
+        border-bottom: 0px !important;
+    }
+
+        #parentnbox > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+            border: 0px;
+        }
+
+        #parentnbox > li > a:hover, .nav > li > a:focus {
+            background-color: white !important;
+        }
+
+        #parentnbox > li > a:hover {
+            border-color: white !important;
+        }
+
+
+
+
+    #filterbox li.active > a {
+        color: #555;
+        cursor: default;
+        border: transparent;
+    }
+
+        #filterbox li.active > a:hover {
+            color: #555;
+            cursor: default;
+            border: transparent;
+        }
+
+        #filterbox li.active > a:focus {
+            color: #555;
+            cursor: default;
+            border: transparent;
+        }
+
+    .rangediv {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+        .rangediv li {
+            margin: 0;
+            padding: 6px 10px 0 0;
+            float: left;
+        }
+
+    .alertbox li > a {
+        color: #555 !important;
+        cursor: default;
+    }
+
+    .alertbox li.active > a {
+        color: #555;
+        cursor: default;
+        background-color: #ccc !important;
+        border: transparent;
+    }
+
+        .alertbox li.active > a:hover {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+        .alertbox li.active > a:focus {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+    .tabstyle {
+        color: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: capitalize;
+        margin-right: 0;
+    }
+
+    .nav > li > a {
+        position: relative;
+        display: block;
+        padding: 10px 0px 10px 0px;
+        margin: 0 30px 0 0px !important;
+    }
+
+    .nav-tabs > li > a:hover {
+        border-color: transparent;
+        border-bottom: 2px solid #0369a1;
+    }
+
+    .nav > li > a:hover, .nav > li > a:focus {
+        text-decoration: none;
+        background-color: transparent;
+    }
+
+    .nav-tabs li.active a {
+        color: #0369A1 !important;
+        cursor: default !important;
+        background-color: #fff !important;
+        border: 2px solid #fff !important;
+        border-bottom-color: #0369a1 !important;
+    }
+
+        .nav-tabs li.active a span.badge {
+            background-color: #F0F9FF;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: normal;
+            border: 1px solid #BAE6FD;
+            color: #0369A1;
+        }
+
+    .nav-tabs {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .badge {
+        background-color: #FAFAFA;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: normal;
+        border: 1px solid #E9EAEB;
+        color: #1f2937;
+    }
+
+    .inassignto {
+        font-size: 14px !important;
+    }
+    /*.induedate {
+       font-size:14px !important;
+    }*/
+    .dropdown-menu.action-more {
+        min-width: 268px;
+        padding: 9px 6px !important;
+    }
+        .dropdown-menu.action-more
+        .taskoutboxbtnicon {
+            display: flex;
+            justify-content: start;
+            gap: 10px;
+            align-items: center;
+            font-size: 14px;
+            width: 100%;
+            height: 33px;
+            padding: 0 7px
+        }
+            .dropdown-menu.action-more
+            .taskoutboxbtnicon:hover {
+                background-color: #f3f3f3 !important;
+            }
+</style>
+
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> <span>Task</span></p>
+        </div>
+    </div>
+</section>
+<section class="wrapper">
+    <div class="container-main showcontent" id="showcontent">
+
+        <div>
+
+            <ul class="nav nav-tabs" id="usertask">
+
+                <li class="active"><a id="a_taskinbox" data-toggle="tab" href="#inboxtab" class="tabstyle">New Task Request <span class="badge badge-light" style=" display:unset;" id="taskrequesttabevt">0</span></a></li>
+                <li><a id="a_taskrequest" data-toggle="tab" href="#taskrequesttab" class="tabstyle">My Task <span class="badge badge-light" style="display: unset" id="inboxevt">0</span></a></li>
+                <li><a id="a_taskoverdue" data-toggle="tab" href="#overduetab" class="tabstyle">Overdue <span class="badge badge-light" id="overdueevt" style="display: unset">0</span></a></li>
+                <li><a id="a_taskoutbox" data-toggle="tab" href="#outboxtab" class="tabstyle"> Outgoing Tasks <span class="badge badge-light" id="outboxevt" style="display: unset">0</span></a></li>
+                <li><a id="a_taskarchive" data-toggle="tab" href="#archivetab" class="tabstyle"> Archived <span class="badge badge-light" id="archiveboxevt" style="display: unset">0</span></a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="taskrequesttab" class="tab-pane ">
+                    <section id="table">
+                        <div class="container-main">
+                            <div class="table">
+                                <div class="card-header">
+                                    <div class="content1" style="justify-content: flex-end;">
+                                        <div class="table-header">
+                                            <div class="actions3">
+                                                <div class="button13">
+                                                    <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                                                    <div class="text-padding">
+                                                        <div class="text1"><a href="javascript:void()" id="cusnewtaskreq" title="Column Selection"> Customize</a></div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tablearea">
+                                    <div class="tablecontainer" id="home">
+                                        <table class="table-panel" id="schedulertable">
+                                            <thead>
+                                                <tr>
+                                                    <th class="scttime" title="Task Creation Date" style="min-width:110px;">
+                                                        <div class="thbg">
+                                                            Date  <span class="fa fa-fw fa-sort pull-right" id="sortscheduler" sortvalue=""></span>
+                                                            <input type="date" style="display:none; float:left;width:100%" title="Date" id="filterscttime" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="scttimecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th class="scttype" title="Task Type">
+                                                        <div class="thbg" style="width: 110px;">
+                                                            <select id="filtertask" class="form-control ">
+                                                                <option value="" selected>Task Type</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="sctclient" title="Client Name">
+                                                        <div class="thbg">
+                                                            <select id="filterclient" class="form-control ">
+                                                                <option value="" selected>Client</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th width="200px" class="sctcase" title="Matter Name">
+                                                        <div class="thbg">
+                                                            <div style="float:left;width:80%">
+                                                                <input type="text" id="filtercasescheduler" placeholder="Matter Name" class="form-control pull-left" style="width:120px;">
+                                                            </div>
+                                                            <div style="float:left;width:20%">
+                                                                <span class="glyphicon glyphicon-search" id="searchdatassch" style="margin:0 0 0 -14px;float:right"></span>
+                                                                <span class="glyphicon glyphicon-remove" id="clearnewsearchcasesch" title="Click here to reset search" style="display:none;"></span>
+                                                            </div>
+                                                        </div>
+                                                    </th>
+                                                    <th width="150px" class="sctbrief" title="Quick Notes"><div class="thbg">Note</th>
+                                                    <th class="sctassigntoby" title="Task Assigned BY">
+                                                        <div class="thbg" style="width:120px;">
+                                                            <select id="filteruserscheduleby" class="form-control">
+                                                                <option value="" selected>assign by </option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th title="Task Assigned TO" class="sctassigntoto">
+                                                        <div class="thbg" style="width: 120px;">
+                                                            <select id="filteruserscheduleto" class="form-control">
+                                                                <option value="" selected>assign to </option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+
+                                                    <th class="sctassigneeduedate" title="Date of completion of task indicated by assignee">
+                                                        <div class="thbg">
+                                                            Assignee Due Dt
+                                                            <input type="date" style="display:none; float:left;" title="Accept/Reject by" id="filterAcceptRejectBy" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="AcceptRejectBycleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th class="sctduedate" title="Due date of task assigned by the assignor of the task">
+                                                        <div class="thbg">
+                                                            Assigner Due Dt
+                                                            <input type="date" style="display:none; float:left;width:90%" title="Due Date" id="filterduedatescheduler" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="duecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th title="Status of the task" class="scstatus">
+                                                        <div class="thbg" style="width: 110px;">
+                                                            <select id="filterStatus" class="form-control ">
+                                                                <option value="" selected="">Status</option>
+                                                                <option value="Completed">Completed</option>
+                                                                <option value="In Process">In Process</option>
+                                                                <option value="Overdue">Overdue</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+
+                                                    <th class="ssubject"><div class="thbg"> Subject</div></th>
+                                                    <th class="saction"><div class="thbg"> Action</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="bindcasetask"></tbody>
+                                        </table>
+                                        @*<center><div id="dataescstatus"></div></center>*@
+                                        <center>
+                                            <div class="notfound" id="dataescstatus" style="display:none;">
+                                                <img src="~/newassets/img/not-found.png" />
+                                                <h4><span id="dtNotFound1"></span></h4>
+                                            </div>
+                                        </center>
+                                    </div>
+                                </div>
+                                <div class="pagination" style="display:none" id="scstPagination">
+                                    <div class="pagination-button-group">
+                                        <div id="prev" class="pagination-button-group-base">
+                                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                        </div>
+                                        <div id="pageNumbers" class="pagination-button-group-base1">
+                                        </div>
+
+                                        <div id="next" class="pagination-button-group-base8">
+                                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-parent">
+                                        <div class="input">
+                                            <div class="content">
+                                                <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                            </div>
+                                            <div class="help-icon">
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-group">
+                                            <div class="text-and-supporting-text">
+                                                <div id="divGo" class="text9">Go</div>
+                                            </div>
+                                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    @*<div class="table-panel table-responsive" style="padding:10px 10px 0 10px; clear:both;overflow-x:auto;" data-example-id="hoverable-table" id="home">
+                            <div style="overflow-x:scroll">
+
+                            </div>
+                            <div class="table-panel">
+                                <div class="settingpanel">
+                                    <div class="col-md-6">
+                                        <div style="float: left;padding: 0 10px 0 0;">
+                                            <ul>
+                                                <li>
+                                                    <div class="btn-group dropup">
+                                                        <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <span class="glyphicon glyphicon-cog" style="margin-right:5px !important;  background-color: #ebebeb !important;"></span>
+                                                            customize field
+                                                        </a>
+
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div id="tfooter">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+                </div>
+                <div id="inboxtab" class="tab-pane fade in Active">
+                    @*<table width="100%" >
+                            <thead>
+                                <tr>
+                                    <th width="80px" align="left">
+                                        <input type="date" id="ifilterdate" placeholder="Select Date" onkeypress="return false;" class="form-control" style="width:150px;border-bottom: 1px solid #ccc !important;">
+                                    </th>
+                                    <th align="left">
+                                        <span class="glyphicon glyphicon-remove" id="icleardate" title="Click here to clear date" style="display:none;width: 7%;cursor:pointer;"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>*@
+                    <section id="table">
+                        <div class="container-main">
+                            <div class="table">
+                                <div class="card-header">
+                                    <div class="content1" style="justify-content: flex-end;">
+                                        <div class="table-header">
+                                            <div class="actions3">
+                                                <div class="button13">
+                                                    <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                                                    <div class="text-padding">
+                                                        <div class="text1"><a href="javascript:void()" id="custasklist" title="Column Selection"> Customize</a></div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tablearea">
+                                    <div class="tablecontainer">
+                                        <table class="table-panel" id="inboxtables">
+                                            <thead>
+                                                <tr>
+                                                    <th width="126px" class="indate">
+                                                        <div class="thbg">
+
+                                                            Date
+                                                            <input type="date" style="display:none; float:left;width:90%" title="Date" id="ifiltertdate" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="idatecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th class="intask">
+                                                        <div class="thbg">
+                                                            <select id="ifiltertask" class="form-control ">
+                                                                <option value="" selected>Task</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="inclient">
+                                                        <div class="thbg">
+                                                            <select id="ifilterclient" class="form-control ">
+                                                                <option value="" selected>Client</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="isctcase inmatters">
+                                                        <div class="thbg">
+                                                            <div style="float:left;width:80%">
+                                                                <input type="text" id="ifiltercasescheduler" placeholder="Matter Name" class="form-control pull-left" style="width:120px;">
+                                                            </div>
+                                                            <div style="float:left;width:20%">
+                                                                <span class="glyphicon glyphicon-search" id="searchdatasibn" style="margin:0 0 0 -14px;float:right"></span>
+                                                                <span class="glyphicon glyphicon-remove" id="clearnewsearchcaseibn" title="Click here to reset search" style="display:none;"></span>
+                                                            </div>
+                                                        </div>
+                                                    </th>
+                                                    <th class="innote"><div class="thbg"><span>Note</span></div></th>
+
+                                                    <th class="itime inassignby"><div class="thbg">Assign By</div></th>
+                                                    <th class="inassignto">
+                                                        <div class="thbg">
+                                                            <select id="ifilteruserto" class="form-control" style="width:100px !important;">
+                                                                <option value="" selected>Assign To </option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="inacptrject ">
+                                                        <div class="thbg">
+                                                            Accept/Reject by Date
+                                                            <input type="date" style="display:none; float:left;width:100%" title="Accept/Reject by" id="ifilterAcceptRejectBy" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="iAcceptRejectBycleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+
+                                                    <th class="induedate">
+                                                        <div class="thbg">
+                                                            Due Date
+                                                            <input type="date" style="display:none; float:left;width:60%" title="Due Date" id="ifilterduedate" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="iduecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th width="170px" class="taskstatus"><div class="thbg">Status</div></th>
+
+                                                    <th width="170px"><div class="thbg">Take Action</div></th>
+                                                    <th class="isubject"><div class="thbg">Subject</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="ibindcasetask"></tbody>
+                                        </table>
+                                    </div>
+                                    @*<center><div id="idataescstatus"></div></center>*@
+                                    <center>
+                                        <div class="notfound" id="pdatastatus" style="display:none;">
+                                            <img src="~/newassets/img/not-found.png" />
+                                            <h4><span id="dtNotFound"></span></h4>
+                                        </div>
+                                    </center>
+
+                                    <div class="pagination" style="display:none" id="tskPagination">
+                                        <div class="pagination-button-group">
+                                            <div id="prev_mytask" class="pagination-button-group-base">
+                                                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                            </div>
+                                            <div id="pageNumbers_mytask" class="pagination-button-group-base1">
+                                            </div>
+
+                                            <div id="next_mytask" class="pagination-button-group-base8">
+                                                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-parent">
+                                            <div class="input">
+                                                <div class="content">
+                                                    <input type="text" id="txtgopage_mytask" name="query" placeholder="Page No.">
+                                                </div>
+                                                <div class="help-icon">
+                                                </div>
+                                            </div>
+                                            <div class="text-and-supporting-text-group">
+                                                <div class="text-and-supporting-text">
+                                                    <div id="divGo_mytask" class="text9">Go</div>
+                                                </div>
+                                                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="overduetab" class="tab-pane fade">
+                    <table width="100%" style="display:none">
+                        <thead>
+                            <tr>
+                                <th width="15%" align="left">
+                                    <input type="date" id="dfilterdate" placeholder="Select Date" onkeypress="return false;" class="form-control" style="width:150px;border-bottom: 1px solid #ccc !important;">
+                                </th>
+                                <th align="left">
+                                    <span class="glyphicon glyphicon-remove" id="dcleardate" title="Click here to clear date" style="display:none;width: 7%;cursor:pointer;"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <section id="table">
+                        <div class="container-main">
+                            <div class="table">
+                                <div class="card-header">
+                                    <div class="content1" style="justify-content: flex-end;">
+                                        <div class="table-header">
+                                            <div class="actions3">
+                                                <div class="button13">
+                                                    <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                                                    <div class="text-padding">
+                                                        <div class="text1"><a href="javascript:void()" id="cusoverdue" title="Column Selection"> Customize</a></div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tablearea">
+                                    <div class="tablecontainer">
+                                        <table class="table-panel" id="overduelists">
+                                            <thead>
+                                                <tr>
+                                                    <th width="110px" class="overddate">
+                                                        <div class="thbg">
+                                                            Date
+                                                            <input type="date" style="display:none; float:left;width:90%" title="Date" id="dfiltertdate" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="ddatecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th class="overdtask">
+                                                        <div class="thbg">
+                                                            <select id="dfiltertask" class="form-control ">
+                                                                <option value="" selected>Task</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="overdclient" style="min-width:100px;">
+                                                        <div class="thbg">
+                                                            <select id="dfilterclient" class="form-control ">
+                                                                <option value="" selected>Client</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="sctcase overdmatters">
+                                                        <div class="thbg">
+                                                            <div style="float:left;width:80%">
+                                                                <input type="text" id="dfiltercasescheduler" placeholder="Matter Name" class="form-control pull-left" style="width:120px;">
+                                                            </div>
+                                                            <div style="float:left;width:20%">
+                                                                <span class="glyphicon glyphicon-search" id="searchdatasdf" style="margin:0 0 0 -14px;float:right"></span>
+                                                                <span class="glyphicon glyphicon-remove" id="clearnewsearchcasedf" title="Click here to reset search" style="display:none;"></span>
+                                                            </div>
+                                                        </div>
+                                                    </th>
+                                                    <th class="overdnote"> <div class="thbg">Note</div></th>
+                                                    <th class="overdassignby"> <div class="thbg">Assign By</div></th>
+                                                    <th class="overdassignto" style="min-width:100px;">
+                                                        <div class="thbg">
+                                                            <select id="dfilteruserto" class="form-control">
+                                                                <option value="" selected>Assign To </option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="overdassigee ">
+                                                        <div class="thbg">
+                                                            Assignee Due Dt
+                                                            <input type="date" style="display:none; float:left;width:100%" title="Accept/Reject by" id="dfilterAcceptRejectBy" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="dAcceptRejectBycleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th class="overdassignoer">
+                                                        <div class="thbg">
+                                                            Assignor Due Dt
+                                                            <input type="date" style="display:none; float:left;width:90%" title="Due Date" id="dfilterduedate" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="dduecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th width="12%"> <div class="thbg" style="justify-content:center;">Action</div></th>
+                                                    @*<th class="overdattach"> <div class="thbg">Attach</div></th>
+                                                        <th class="overdfattach"> <div class="thbg">Final Attachments</div></th>*@
+                                                    <th class="osubject"><div class="thbg">Subject</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dbindcasetask"></tbody>
+                                        </table>
+                                        <center>
+                                            <div class="notfound" id="ddataescstatus" style="display:none;">
+                                                <img src="~/newassets/img/not-found.png" />
+                                                <h4><span id="dtNotFound2"></span></h4>
+                                            </div>
+                                        </center>
+                                    </div>
+                                    @*<center><div id="ddataescstatus"></div></center>*@
+                                </div>
+                                <div class="pagination" id="escPagination" style="display:none">
+                                    <div class="pagination-button-group">
+                                        <div id="prev_Over" class="pagination-button-group-base">
+                                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                        </div>
+                                        <div id="pageNumbers_Over" class="pagination-button-group-base1">
+                                        </div>
+
+                                        <div id="next_Over" class="pagination-button-group-base8">
+                                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-parent">
+                                        <div class="input">
+                                            <div class="content">
+                                                <input type="text" id="txtgopage_Over" name="query" placeholder="Page No.">
+                                            </div>
+                                            <div class="help-icon">
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-group">
+                                            <div class="text-and-supporting-text">
+                                                <div id="divGo_Over" class="text9">Go</div>
+                                            </div>
+                                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+
+                <div id="outboxtab" class="tab-pane fade">
+                    <table width="100%" style="display:none">
+                        <thead>
+                            <tr>
+                                <th width="15%" align="left">
+                                    <input type="date" id="ofilterdate" placeholder="Select Date" onkeypress="return false;" class="form-control" style="width:150px;border-bottom: 1px solid #ccc !important;">
+                                </th>
+                                <th align="left">
+                                    <span class="glyphicon glyphicon-remove" id="ocleardate" title="Click here to clear date" style="display:none;width: 7%;cursor:pointer;"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <section id="table">
+                        <div class="container-main">
+                            <div class="table">
+                                <div class="card-header">
+                                    <div class="content1" style="justify-content: flex-end;">
+                                        <div class="table-header">
+                                            <div class="actions3">
+                                                <div class="button13">
+                                                    <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                                                    <div class="text-padding">
+                                                        <div class="text1"><a href="javascript:void()" id="cusoutgoingtask" title="Column Selection"> Customize</a></div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tablearea">
+                                    <div class="tablecontainer">
+                                        <table class="table-panel" id="bigTable">
+                                            <thead>
+                                                <tr>
+                                                    <th width="110px" class="tdate">
+                                                        <div class="thbg">
+                                                            Date <span class="fa fa-fw fa-sort" id="sortoutbox" sortvalue="asc"></span>
+                                                            <input type="date" style="display:none; float:left; width:90%" title="Date" id="ofiltertdate" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="tdatecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th class="ottaskoutbox">
+                                                        <div class="thbg">
+                                                            <select id="ofiltertask" class="form-control ">
+                                                                <option value="" selected>Task</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="tclientoutbox" style="min-width:100px;">
+                                                        <div class="thbg">
+                                                            <select id="ofilterclient" class="form-control ">
+                                                                <option value="" selected>Client</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="tcaseoutbox">
+                                                        <div class="thbg">
+                                                            <div style="float:left;width:80%">
+                                                                <input type="text" id="ofiltercasescheduler" placeholder="Matter Name" class="form-control pull-left" style="width:120px;">
+                                                            </div>
+                                                            <div style="float:left;width:20%">
+                                                                <span class="glyphicon glyphicon-search" id="searchdatasof" style="margin:0 0 0 -14px;float:right"></span>
+                                                                <span class="glyphicon glyphicon-remove" id="clearnewsearchcaseof" title="Click here to reset search" style="display:none;"></span>
+                                                            </div>
+                                                        </div>
+                                                    </th>
+                                                    <th class="tbriefoutbox"><div class="thbg">Note</div></th>
+                                                    <th class="tassignbybyoutbox"><div class="thbg">Assigned By</div></th>
+                                                    <th class="tassigntobyoutbox" width="13%">
+                                                        <div class="thbg">
+                                                            <select id="ofilteruserscheduleto" class="form-control" style="width:100px !important;">
+                                                                <option value="" selected>Assigned To </option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="ttimeoutbox">
+                                                        <div class="thbg">
+                                                            Accept/Reject by Date
+                                                            <input type="date" style="display:none; float:left;width:100%" title="Accept/Reject by" id="ofilterAcceptRejectBy" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="oAcceptRejectBycleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th class="tduedateoutbox">
+                                                        <div class="thbg">
+                                                            Due Date
+                                                            <input type="date" style="display:none; float:left;width:90%" title="Due Date" id="ofilterttduedate" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="tduedatecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th width="16%" style="min-width:140px;"><div class="thbg" style="justify-content:center;">Take Action</div></th>
+                                                    <th style="min-width:130px;">
+                                                        <div class="thbg">
+                                                            <select id="ofilterStatus" class="form-control ">
+                                                                <option value="" selected>Status</option>
+                                                                <option value="0">In Process</option>
+                                                                <option value="2">Rejected</option>
+                                                                <option value="3">Overdue Rejected</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="otsubject"><div class="thbg">Subject</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="obindcasetask"></tbody>
+                                        </table>
+                                        <center>
+                                            <div class="notfound" id="odataescstatus" style="display:none;">
+                                                <img src="~/newassets/img/not-found.png" />
+                                                <h4><span id="odtNotFound"></span></h4>
+                                            </div>
+                                        </center>
+                                    </div>
+                                    @*<center><div id="odataescstatus"></div></center>*@
+                                </div>
+                                <div class="pagination" style="display:none" id="outTskPagination">
+                                    <div class="pagination-button-group">
+                                        <div id="prev_Out" class="pagination-button-group-base">
+                                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                        </div>
+                                        <div id="pageNumbers_Out" class="pagination-button-group-base1">
+                                        </div>
+
+                                        <div id="next_Out" class="pagination-button-group-base8">
+                                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-parent">
+                                        <div class="input">
+                                            <div class="content">
+                                                <input type="text" id="txtgopage_Out" name="query" placeholder="Page No.">
+                                            </div>
+                                            <div class="help-icon">
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-group">
+                                            <div class="text-and-supporting-text">
+                                                <div id="divGo_Out" class="text9">Go</div>
+                                            </div>
+                                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="archivetab" class="tab-pane fade">
+                    <table width="100%" style="display:none">
+                        <thead>
+                            <tr>
+                                <th width="15%" align="left">
+                                    <input type="date" id="ofilterdatearchive" placeholder="Select Date" onkeypress="return false;" class="form-control" style="width:150px;border-bottom: 1px solid #ccc !important;">
+                                </th>
+                                <th align="left">
+                                    <span class="glyphicon glyphicon-remove" id="dcleardatearchive" title="Click here to clear date" style="display:none;width: 7%;cursor:pointer;"></span>
+                                </th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <section id="table">
+                        <div class="container-main">
+                            <div class="table">
+                                <div class="card-header">
+                                    <div class="content1" style="justify-content: flex-end;">
+                                        <div class="table-header">
+                                            <div class="actions3">
+                                                <div class="button13">
+                                                    <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+
+                                                    <div class="text-padding">
+                                                        <div class="text1"><a href="javascript:void()" id="cusarchived" title="Column Selection"> Customize</a></div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tablearea">
+                                    <div class="tablecontainer">
+                                        <table class="table-panel" id="archiTable">
+                                            <thead>
+                                                <tr>
+                                                    <th width="80px" class="tdatearchive">
+                                                        <div class="thbg">
+                                                            Task Creation Date
+                                                            <input type="date" style="display:none; float:left;width:90%" title="Date" id="afiltertdate" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="adatecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th class="ttask">
+                                                        <div class="thbg">
+                                                            <select id="ofiltertaskarchive" class="form-control ">
+                                                                <option value="" selected>Task</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="oclient">
+                                                        <div class="thbg">
+                                                            <select id="afilterclient" class="form-control ">
+                                                                <option value="" selected>Client</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="tcase">
+                                                        <div class="thbg">
+                                                            <div style="float:left;width:80%">
+                                                                <input type="text" id="afiltercasescheduler" placeholder="Matter Name" class="form-control pull-left" style="width:120px;">
+                                                            </div>
+                                                            <div style="float:left;width:20%">
+                                                                <span class="glyphicon glyphicon-search" id="searchdatasaf" style="margin:0 0 0 -14px;float:right"></span>
+                                                                <span class="glyphicon glyphicon-remove" id="clearnewsearchcaseaf" title="Click here to reset search" style="display:none;"></span>
+                                                            </div>
+                                                        </div>
+                                                    </th>
+                                                    <th class="tbrief"><div class="thbg">Note</div></th>
+                                                    <th class="tassigntoby">
+                                                        <div class="thbg">
+                                                            Assign By
+                                                        </div>
+                                                    </th>
+                                                    <th class="tassigntoby">
+                                                        <div class="thbg">
+                                                            <select id="afilteruserto" class="form-control" style="width:100px !important;">
+                                                                <option value="" selected>Assign To </option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th class="ttimearchive">
+                                                        <div class="thbg">
+                                                            Accept/Reject by Date
+                                                            <input type="date" style="display:none; float:left;width:100%" title="Accept/Reject by" id="afilterAcceptRejectBy" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="aAcceptRejectBycleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th class="tduedate">
+                                                        <div class="thbg">
+                                                            Due Date
+                                                            <input type="date" style="display:none; float:left;width:90%" title="Due Date" id="afilterduedate" onkeypress="return false;">
+                                                            <span class="glyphicon glyphicon-remove" id="aduecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer;padding: 2px 0 0 0;"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th class="archivedate"><div class="thbg">Archive Date</div></th>
+                                                    <th style="min-width:145px;">
+                                                        <div class="thbg">
+                                                            <select id="afilterStatus" class="form-control ">
+                                                                <option value="" selected>Status</option>
+                                                                <option value="0">In Process</option>
+                                                                <option value="2">Rejected</option>
+                                                            </select>
+                                                        </div>
+                                                    </th>
+                                                    <th width="6%"><div class="thbg">Action</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="obindarchive"></tbody>
+                                        </table>
+                                        <center>
+                                            <div class="notfound" id="archivedataescstatus" style="display:none;">
+                                                <img src="~/newassets/img/not-found.png" />
+                                                <h4><span id="archivedtNotFound">Data not found</span></h4>
+                                            </div>
+                                        </center>
+                                    </div>
+                                    @*<center><div id="oarchivedatastatus"></div></center>*@
+                                </div>
+                                <div class="pagination" style="display:none" id="archivePagination">
+                                    <div class="pagination-button-group">
+                                        <div id="prev_Arch" class="pagination-button-group-base">
+                                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                        </div>
+                                        <div id="pageNumbers_Arch" class="pagination-button-group-base1">
+                                        </div>
+
+                                        <div id="next_Arch" class="pagination-button-group-base8">
+                                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-parent">
+                                        <div class="input">
+                                            <div class="content">
+                                                <input type="text" id="txtgopage_Arch" name="query" placeholder="Page No.">
+                                            </div>
+                                            <div class="help-icon">
+                                            </div>
+                                        </div>
+                                        <div class="text-and-supporting-text-group">
+                                            <div class="text-and-supporting-text">
+                                                <div id="divGo_Arch" class="text9">Go</div>
+                                            </div>
+                                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <div><center><span id="datastatus"></span></center></div>
+        <div class="box-footer clearfix">
+            <ul class="pagination pagination-sm no-margin pull-right"></ul>
+        </div>
+        <div class="row" style="display:none;">
+            <h2 class="title" style="margin-left:13px;">Scheduler</h2>
+            <div>
+                <table width="100%" style="display:none">
+                    <thead>
+                        <tr>
+                            <th width="15%">
+                            </th>
+                            <th width="2%">&nbsp;</th>
+                            <th width="15%;" align="left">
+                                <input type="date" id="filterdate" placeholder="Select Date" onkeypress="return false;" class="form-control" style="width:150px;border-bottom: 1px solid #ccc !important; ">
+                            </th>
+                            <th align="left">
+                                <span class="glyphicon glyphicon-remove" id="cleardate" onkeypress="return false;" title="Click here to clear date" style="display:none;width: 7%;cursor:pointer;"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+                <div class="col-md-12">
+                    <div class="row">
+                        <ul class="nav nav-tabs" id="filterbox" style="border-bottom:transparent !important;">
+                            <li><a data-toggle="tab" href="#ftoday" id="ftoday" class="dtitle">today </a></li>
+                            <li><a data-toggle="tab" href="#ftomorrow" id="ftomorrow" class="dtitle">tomorrow</a></li>
+                            <li class="active"><a data-toggle="tab" href="#fweek" id="fweek" class="dtitle">week </a></li>
+                            <li>
+                                <a data-toggle="tab" href="#frange" id="frange" class="dtitle">
+                                    <p style="float:left">range</p>
+                                </a>
+                                <ul class="rangediv" id="prangediv" style="margin: -40px 0px 0px 70px; position: relative; z-index: 999; border-bottom: transparent !important;  display: none;">
+                                    <li style="padding:1px 9px 0px 20px">
+                                        From
+                                    </li>
+                                    <li style="padding: 0px 9px 0 0 !IMPORTANT;">
+                                        <input class="inputbg" type="date" placeholder="dd/mm/yyyy" pattern="(^(((0[1-9]|1[0-9]|2[0-8])[\/](0[1-9]|1[012]))|((29|30|31)[\/](0[13578]|1[02]))|((29|30)[\/](0[4,6,9]|11)))[\/](19|[2-9][0-9])\d\d$)|(^29[\/]02[\/](19|[2-9][0-9])(00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)$)" id="rangesearchfrom" onkeypress="return false;" class="form-control">
+                                    </li>
+                                    <li style="padding:1px 9px 0px 20px">
+                                        To
+                                    </li>
+                                    <li style="padding: 0px 9px 0 0 !IMPORTANT;">
+                                        <input class="inputbg" type="date" id="rangesearchto" onkeypress="return false;" class="form-control">
+                                    </li>
+                                    <li style="padding:0px 9px 0px 0px">
+                                        <button class="sbtbtn" type="button" id="rangebtn" value="Go">Go</button>
+                                    </li>
+                                </ul>
+                            </li>
+                            @if (Convert.ToString(Session["IsPartner"]) == "1" || Convert.ToString(Session["sessionroleid"]) == "1")
+                            {
+                                <p id="fuser" class="pull-right" style="color:gray;font-size:12px;font-weight: 400; padding:4px 16px 4px 0 !important;">
+                                    <select id="filteruserschedule" class="form-control selctInputFormat " style="width:150px !important;background-color: #ebebeb !important;">
+                                        <option value="" selected>Select User </option>
+                                    </select>
+                                </p>
+                            }
+                            else
+                            {
+                                <input type="text" id="filteruserschedule" onkeypress="return false;" class="form-control" style="display:none">
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<div class="modal fade" id="rmyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog manuModal1" role="document">
+        <div class="modal-content" style="width: 471px !important;">
+
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closeassign" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <div class="modal-title">
+                    <div class="icon_header_pulse">
+                        <span class="pulse_div">
+                            <img src="/newassets/img/re-assignPopup.svg" alt="refresh">
+                        </span>
+                    </div>
+                    <h4 class="modal-ctitle" id="myModalLabel" style="margin-top: 28px !important;">
+                        Re-assign Task
+                    </h4>
+                </div>
+            </div>
+            <!-- Main content -->
+            <form class="ec_bg" id="resavetaskform" enctype="multipart/form-data" novalidate="novalidate">
+                <div class="modal-body ">
+                    <!-- Start About boxes -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Due Date</label>
+                                <input type="date" name="rduedate " onkeypress="return false;" class="form-control inputFormat" id="rduedate" required="">
+                            </div>
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Accept/Reject by</label>
+                                <input type="date" name="actiondate" onkeypress="return false;" class="form-control inputFormat" id="actiondate" required="">
+                            </div>
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Team Member<span class="required" aria-required="true">*</span></label>
+
+                                <select name="rmember" class="form-control selctInputFormat" style="background-color: white !important;" id="rmember" required="">
+                                    <option value="" selected="selected">Select</option>
+                                </select>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.content -->
+
+                </div>
+                <input type="hidden" id="hidratoken">
+                <div class="modal-footer" style="border-top: none !important;">
+                    <div class="row">
+                        <div class="col-md-12"></div>
+                        <div class="col-md-12" style="text-align:center">
+                            <button class="btn btn-secondary" style=" width: 180px">Cancel</button>
+                            <button type="button" class="btn btn-primary" style=" width: 180px" id="rSaveCaseTask">Re-Assign Task</button>
+                        </div>
+                        </div>
+                    </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+@* reject task pop up start*@
+<div class="modal fade" id="rjctmyModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog manuModal1" role="document">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modal-title">
+                    <div class="icon_header_pulse">
+                        <span class="pulse_div">
+                            <img src="/newassets/img/reject.svg" alt="reject">
+                        </span>
+                    </div>
+                    <h4 class="modal-ctitle">
+                        Reject Task
+                    </h4>
+                </div>
+            </div>
+            <!-- Main content -->
+            <form class="ec_bg" id="rejectsavetaskform" enctype="multipart/form-data" novalidate="novalidate" style="margin-top:5px;">
+                <div class="modal-body ">
+                    <!-- Start About boxes -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group" style="margin-top:0px;">
+                                <label class="formLabel colorDark">Reject Reason:<span class="required" aria-required="true">*</span></label>
+                                <textarea class="form-control" rows="5" cols="14" maxlength="2000" id="rdetails" style="height: 70px !important;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.content -->
+
+                </div>
+                <input type="hidden" id="hidrjctatoken">
+                <div class="modal-footer" style="border-top: none !important;">
+                    <button type="button" class="btn btn-primary" id="rinbox">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+@* reject task pop up end *@
+
+<div class="modal fade" id="edittmyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog manuModal1" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="editclose"> <span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <div class="modal-title">
+                    <div class="icon_header_pulse">
+                        <span class="pulse_div">
+                            <img src="~/newassets/img/acceptTaskPopup.svg" alt="reject">
+                        </span>
+                    </div>
+                    <h4 class="modal-ctitle" id="myModalLabel">
+                        Edit Task
+                    </h4>
+
+                </div>
+            </div>
+
+            <form class="ec_bg" id="esavetaskform" enctype="multipart/form-data" novalidate="novalidate">
+                <input type="hidden" id="thideditatoken">
+                <div class="modal-body ">
+                    <!-- Main content -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Client</label>
+                                <select class="form-control selctInputFormat" id="econtact" name="econtact">
+                                    <option value="" selected="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Matter Name</label>
+                                <select style="background-color: white !important;" class="form-control selctInputFormat" id="ematter" name="ematter">
+                                    <option value="" selected="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark">
+                                    Team Member<span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                </label>
+                                <select style="background-color: white !important;" class="form-control selctInputFormat" id="emember" name="emember">
+                                    <option value="" selected="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark">
+                                    Task Type <span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                </label>
+                                <select style="background-color: white !important;" class="form-control selctInputFormat" id="etasktype" name="etasktype">
+                                    <option value="" selected="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Subject</label>
+                                <input type="text" autocomplete="off" id="etasksubject" class="form-control inputFormat">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Due date <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <input type="date" id="etaskduedate" class="form-control inputFormat">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="formLabel colorDark">Accept/Reject by <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                <input type="date" autocomplete="off" id="eactionbydate" class="form-control inputFormat">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label style="margin-top: 10px" class="formLabel colorDark">Note:</label>
+                                <textarea cols="25" id="etaskdetails" class="form-control inputFormatTextArea" style="background-color:white !important; min-height:100px;" maxlength="2000"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    @* old code start *@
+                    @*<div>
+                            <table cellpadding="0" cellspacing="0" width="100%">
+                                <tbody>
+                                    <tr>
+                                        <td align="left">
+                                            <label class="formLabel colorDark">Client</label>
+                                            <select class="form-control selctInputFormat" id="econtact" name="econtact">
+                                                <option value="" selected="">Select</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left">
+                                            <table align="center" width="100%" cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" width="42%">
+                                                            <label class="formLabel colorDark">Matter Name</label>
+                                                            <select style="background-color: white !important;" class="form-control selctInputFormat" id="ematter" name="ematter">
+                                                                <option value="" selected="">Select</option>
+                                                            </select>
+                                                        </td>
+                                                        <td align="center" width="6%">&nbsp;</td>
+                                                        <td align="left" width="42%">
+                                                            <label class="formLabel colorDark">
+                                                                Team Member<span class="required" aria-required="true"
+                                                                                 style="color:red"><b>*</b></span>
+                                                            </label>
+                                                            <select style="background-color: white !important;" class="form-control selctInputFormat" id="emember" name="emember">
+                                                                <option value="" selected="">Select</option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left">
+                                            <table align="center" width="100%" cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" width="42%">
+                                                            <label class="formLabel colorDark">
+                                                                Task Type <span class="required" aria-required="true"
+                                                                                style="color:red"><b>*</b></span>
+                                                            </label>
+                                                            <select style="background-color: white !important;" class="form-control selctInputFormat" id="etasktype" name="etasktype">
+                                                                <option value="" selected="">Select</option>
+                                                            </select>
+                                                        </td>
+                                                        <td align="center" width="6%">&nbsp;</td>
+                                                        <td align="left" width="42%">
+                                                            <label class="formLabel colorDark">Subject</label>
+                                                            <input type="text" autocomplete="off" id="etasksubject" class="form-control inputFormat">
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left">
+                                            <table align="center" width="100%" cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" width="40%">
+                                                            <label class="formLabel colorDark">DUE DATE <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                            <input type="date" id="etaskduedate" class="form-control inputFormat">
+                                                        </td>
+                                                        <td align="center" width="6%">&nbsp;</td>
+                                                        <td align="left" width="40%">
+                                                            <label class="formLabel colorDark">Accept/Reject by <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                            <input type="date" autocomplete="off" id="eactionbydate" class="form-control inputFormat">
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left">
+                                            <label style="margin-top: 10px" class="formLabel colorDark">NOTE</label>
+                                            <textarea cols="25" id="etaskdetails" class="form-control inputFormatTextArea" style="background-color: white !important; min-height:100px;"
+                                                      maxlength="2000"></textarea>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table align="center" width="100%" cellspacing="0" cellpadding="0" style="margin-top:20px;">
+                                <tbody>
+                                    <tr>
+                                        <td align="left" width="42%">
+                                            <div class="btn-group dropup open">
+                                                <span style="cursor:pointer;padding:5px 5px 5px 5px" title="upload Attachment"
+                                                      class="dropdown-toggle selctInputFormat" data-toggle="dropdown" aria-haspopup="true"
+                                                      aria-expanded="false">
+                                                    attachments
+                                                </span>
+                                                <ul class="dropdown-menu settingaction" style="width:247px">
+                                                    <li style="margin-left:7px;font-size: 11px;">Choose From Local Drive</li>
+                                                    <li style="padding-top: 5px !IMPORTANT;padding-bottom: 40px !IMPORTANT;margin-left:5px !important;">
+                                                        <input type="file" id="attachmenttask" name="fileupload" style="width:90%; padding: 0px 20px 30px 0px !important;" multiple
+                                                               class="form-control" />
+                                                    </li>
+                                                    <li style="margin-left:7px;font-size: 11px;">Choose From Mykase Drive</li>
+                                                    <li style="cursor: pointer;border-bottom: 1px solid #d4cfcf;text-align: left;margin-left: 5px;margin-top: 5px;padding-bottom: 3px !important;width: 235px;"
+                                                        title="No file chosen" class="browsetaskfile" id="browsefileedittask" module="edittask">
+                                                        <button type="button" style="font-size: 8.6pt;color: #080000; font-weight: 500;">
+                                                            Choose
+                                                            Files
+                                                        </button> <span style="font-size: 12px;" id="browsefilelbledittask">
+                                                            No file
+                                                            chosen
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td align="center" width="6%"></td>
+                                        <td align="left" width="12%">
+                                            <button style="margin-top: 20px" type="button" id="EditCaseTask"
+                                                    class="sbtbtn">
+                                                save task
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>*@
+
+                    @* old code end *@
+                </div>
+            </form>
+            <div class="modal-footer">
+                <div class="btn-group dropup open">
+                    <button title="upload Attachment" class="btn btn-secondary dropdown-toggle selctInputFormat" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Attachments
+                    </button>
+                    <ul class="dropdown-menu settingaction" style="width:247px">
+                        <li style="margin-left:7px;font-size: 11px;">Choose From Local Drive</li>
+                        <li style="padding-top: 5px !IMPORTANT;padding-bottom: 40px !IMPORTANT;margin-left:5px !important;">
+                            <input type="file" id="attachmenttask" name="fileupload" style="width:90%; padding: 0px 20px 30px 0px !important;" multiple
+                                   class="form-control" />
+                        </li>
+                        <li style="margin-left:7px;font-size: 11px;">Choose From Mykase Drive</li>
+                        <li style="cursor: pointer;border-bottom: 1px solid #d4cfcf;text-align: left;margin-left: 5px;margin-top: 5px;padding-bottom: 3px !important;width: 235px;"
+                            title="No file chosen" class="browsetaskfile" id="browsefileedittask" module="edittask">
+                            <button type="button" style="font-size: 8.6pt;color: #080000; font-weight: 500;">
+                                Choose
+                                Files
+                            </button> <span style="font-size: 12px;" id="browsefilelbledittask">
+                                No file
+                                chosen
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary" type="button" id="EditCaseTask">
+                    save task
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="overduereminderModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog manuModal1" role="document">
+        <div class="modal-content" style="width:400px !important;margin:auto">
+
+            @*<div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="editclose"> <span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                    <div class="modal-title">
+                        <div class="icon_header_pulse">
+                            <span class="pulse_div">
+                                <img src="/newassets/img/reject.svg" alt="reject">
+                            </span>
+                        </div>
+                        <h4 class="modal-ctitle" id="myModalLabel">
+                            Send Reminder for overdue task
+                        </h4>
+                    </div>
+                </div>*@
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="editclose" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/set-aleart.png" style="margin:-24px 0px 0 -28px">
+                </h4>
+                <h4 class="fstitle1" id="myModalLabel" style="border-bottom: none; margin: -23px 0 0 0;color:black">
+                    Send Reminder for overdue task
+                </h4>
+            </div>
+            <div class="modal-body ">
+                <!-- Main content -->
+                <input type="hidden" id="thideditatoken">
+                <form class="ec_bg" id="esavetaskform" enctype="multipart/form-data" novalidate="novalidate" style="margin-top:5px;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group" style="margin-top:0px;">
+                                <label class="formLabel colorDark">Remarks:<span class="required" aria-required="true">*</span></label>
+                                <textarea cols="25" id="overdueremarks" class="form-control" style="height: 70px !important; background-color: white !important;" maxlength="2000"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: none !important;">
+                @*<button type="button" class="btn btn-primary" id="rinbox">Save</button>*@
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="setremindoverduesend">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*Start Set reminder over due confirmation popup*@
+<div id="overDueConfirmationModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/delete-notice.png" style="margin:-10px 0px 0 -13px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_OverDueTitle"></h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgRUSure">Are you sure you want to send overdue task reminder?</p>
+            </div>
+            <div class="footer_buttons modal-footer">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnoverDueConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*End Set reminder over due confirmation popup*@
+
+<div class="modal fade" id="editnoteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="editclose"> <span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Note</h4>
+            </div>
+            <div class="modal-body ">
+                <!-- Main content -->
+                <input type="hidden" id="thideditatoken">
+                <form class="ec_bg" id="esavetaskform" enctype="multipart/form-data" novalidate="novalidate">
+                    <div>
+                        <table cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                                <td align="left">
+                                    @*<label>NOTE</label>*@
+                                    <textarea cols="25" id="etasknotedetails" class="textAreaInputFormat " style="width: 400px;height: 70px !important; background-color: white !important; border-radius: 20px !important; margin-left: 60px !important" maxlength="2000"></textarea>
+                                </td>
+                            </tr>
+                        </table>
+                        <table align="center" width="100%" cellspacing="0" cellpadding="0" style="margin-top:5px;">
+                            <tbody>
+                                <tr>
+                                    <td align="center" width="70%"></td>
+                                    <td align="center" width="6%"></td>
+                                    <td align="left" width="15%"><button type="button" id="EditTaskNote" class="btn btn-primary">Save</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="sendbackmyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog manuModal1" style="width:528px!important;" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closereject" data-dismiss="modal">×</button>
+                <div class="modal-title">
+                    <div class="icon_header_pulse">
+                        <span class="pulse_div">
+                            <img src="/newassets/img/reject.svg" alt="reject">
+                        </span>
+                    </div>
+                    <h4 class="modal-ctitle" id="myModalLabel">
+                        Reject Overdue Task
+                    </h4>
+
+                </div>
+            </div>
+
+            <!-- Main content -->
+            <form id="sendbackduetaskform" enctype="multipart/form-data" novalidate="novalidate" class="ec_bg" style="margin-top:5px;">
+                <div class="modal-body ">
+
+                    <!-- Start About boxes -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group" style="margin-top:0px;">
+                                <label class="formLabel colorDark">Reject Reason:<span class="required" aria-required="true">*</span></label>
+                                <textarea class="form-control" rows="5" cols="14" maxlength="2000" id="sendbackreason"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.content -->
+                    <input type="hidden" id="hidrjctatoken">
+                    <div class="modal-footer" style="border-top: none !important;">
+                        <button type="button" class="btn btn-primary" id="btnsendback">Send</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="closereject" aria-label="Close"><span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Overdue Rejected </h4>
+            </div>
+            <div class="modal-body ">
+                <!-- Main content -->
+                <form id="sendbackduetaskform" enctype="multipart/form-data" novalidate="novalidate">
+                    <!-- Start About boxes -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Reason:</label>
+                                <div class="col-md-9">
+                                    <textarea rows="5" cols="14" maxlength="2000" id="sendbackreason" style="width: 389px;height: 70px !important;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.content -->
+                    <input type="hidden" id="hidrjctatoken">
+                    <div class="modal-footer">
+                        <button type="button" class="sbtbtn" id="btnsendback">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        Modal content
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="myModalreminder" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:750px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            @*<div class="modal-header btn-primary">
+                    <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        <img src="/newassets/img/set-aleart.png" style="margin:-15px 0px 0 -15px">
+                        <span>
+                        </span>
+
+                    </h4>
+                </div>
+                <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                    <h4> <span id="eventtext" href="#2a111" data-toggle="tab">Set Alert</span><span>  <a href="#1a111" id="showPreDetail" data-toggle="tab" style="float: right; font-size: 15px;color: #6B7280;text-decoration: underline; margin: 0px 0 0 0; position:relative;"><u>Previous</u></a></span></h4>
+                </div>*@
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/set-aleart.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                <h4>Set Alert</h4>
+                <a href="#2a111" data-toggle="tab" class="back-link" id="gopreviuspage" style="display:none"><span>&larr;</span> Go Back</a>
+                @*<h4 href="#1a111" id="fstitle1" style="font-weight:500; color:#4e4e4e;">Previous Alerts List</h4>*@
+                <span><a href="#1a111" id="showPreDetail" data-toggle="tab" style="float: right; font-size: 15px;color: #6B7280;text-decoration: underline; margin: 0px 0 0 0; position:relative;"><u>Previous Alerts</u></a></span>
+            </div>
+            <div class="modal-body">
+                <div class="">
+
+                    <div id="exTab1" style="padding-top:6px;">
+                        <div style="padding-bottom:13px;"><b>Task Type</b> <span id="duedatestxt"></span></div>
+                        <div class="tab-content clearfix">
+                            @*Start Alert Detail*@
+                            <div class="tab-pane " id="1a111">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="table-panel table-responsive" id="casetime" style="overflow-x:auto;height:370px;">
+                                            <table id="Casetimetable" class=" table " style="overflow-x:auto">
+                                                <tr>
+                                                    <th width="5%;"><div class="thbg">Sl.No</div></th>
+                                                    <th width="10%;"><div class="thbg">Activity Name</div></th>
+                                                    <th width="10%;"><div class="thbg">Alert Days</div></th>
+                                                    <th width="10%;"><div class="thbg">Alert</div></th>
+                                                    <th width="5%;"><div class="thbg">Due Date</div></th>
+                                                    <th width="10%;"><div class="thbg">Alert Date</th>
+                                                    <th width="10%;"><div class="thbg">Created By</div></th>
+                                                    <th width="10%;"><div class="thbg">Date</div></th>
+                                                    <th width="10%;"><div class="thbg">Action</div></th>
+                                                    <th width="5%;"><div class="thbg">Remark</div></th>
+                                                    <th width="5%;"><div class="thbg">Alert For</div></th>
+                                                </tr>
+                                                <tbody id="bindatareminder"></tbody>
+                                            </table>
+                                            <center>
+                                                <div class="notfound" id="textcaseidcallremind" style="display:none;">
+                                                    <img src="~/newassets/img/not-found.png" />
+                                                    <h4><span id="dtNotFound"></span></h4>
+                                                </div>
+                                            </center>
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<span id="textcaseidcallremind" style="display:none"></span>*@
+                            </div>
+                            @*End Alert Detail*@
+                            @*<center>  <div id="dataremindstatus"></div></center>*@
+                            <div class="tab-pane active" id="2a111">
+
+                                <div class="row">
+                                    <div style="margin-left:-25px;margin-top:10px;">
+                                        <div class="col-lg-12">
+                                            <div id="loaddatareminders">
+                                                <form id="saveactivityalert" enctype="multipart/form-data">
+                                                    <!-- Start About boxes -->
+                                                    <div class="">
+                                                        <div class="col-md-12">
+                                                            <input type="hidden" id="edittoken">
+
+                                                            <div class="col-md-12">
+                                                                <label class="col-md-4">
+                                                                    Due Date<span class="required" aria-required="true">*</span>
+                                                                </label>
+                                                                <div class="col-md-8">
+                                                                    <input type="date" class="form-control inputFormat" id="alertduedate" readonly />
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12" style=" padding: 15px;">
+                                                                <label class=" col-md-4">
+                                                                    Set Alert Date: <span class="required" aria-required="true">*</span>
+                                                                </label>
+                                                                <div class="col-md-8">
+                                                                    <input type="date" class="form-control inputFormat" id="callfromdate" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12" style="padding: 15px;">
+                                                                <div class=" col-md-4">
+                                                                </div>
+                                                                <div class="col-md-8">
+                                                                    Or
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <label class=" col-md-4" style="padding: 15px;">
+                                                                    Alert Details
+                                                                </label>
+                                                                <div class="col-md-4">
+                                                                    <label>
+                                                                        Frequency <span class="required" aria-required="true"></span>
+                                                                    </label>
+                                                                    <select name="ddlday1s" id="ddldays" class="txtbox-setting form-control inputFormat">
+                                                                        <option selected="selected" value="">Select number of Days</option>
+                                                                        <option value="0">0</option>
+                                                                        <option value="1">1</option>
+                                                                        <option value="2">2</option>
+                                                                        <option value="3">3</option>
+                                                                        <option value="4">4</option>
+                                                                        <option value="5">5</option>
+                                                                        <option value="6">6</option>
+                                                                        <option value="7">7</option>
+                                                                        <option value="8">8</option>
+                                                                        <option value="9">9</option>
+                                                                        <option value="10">10</option>
+                                                                        <option value="11">11</option>
+                                                                        <option value="12">12</option>
+                                                                        <option value="13">13</option>
+                                                                        <option value="14">14</option>
+                                                                        <option value="15">15</option>
+                                                                        <option value="16">16</option>
+                                                                        <option value="17">17</option>
+                                                                        <option value="18">18</option>
+                                                                        <option value="19">19</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <label>
+                                                                        <span aria-required="true" style=" padding: 8px;"></span>
+                                                                    </label>
+                                                                    <select name="ddlHearing1" id="ddlHearing" class="txtbox-setting1 form-control inputFormat">
+                                                                        <option selected="selected" value="0">Select</option>
+                                                                        <option value="3">On Same Day</option>
+                                                                        <option value="1">Days Before Due date</option>
+
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <label class=" col-md-4">
+                                                                </label>
+                                                                <div class="col-md-8">
+                                                                    <label>
+                                                                        Reminder For <span class="required" aria-required="true">*</span>
+                                                                    </label>
+                                                                    <select id="reminderfor" class="txtbox-setting1 form-control inputFormat"></select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12" style="padding: 15px;">
+                                                                <label class=" col-md-4">
+                                                                </label>
+                                                                <div class="col-md-8">
+                                                                    <label>
+                                                                        Description
+                                                                    </label>
+                                                                    <textarea class="inputFormat" id="alertremark" cols="12" rows="5" maxlength="5000" style=" font-size: 14px !important; font-family: Inter; font-weight: 400 !important; border: 1px solid #D5D7DA !important; border-radius: 10px !important;  padding: 0px !important; background: #fff !important; height: auto !important;"></textarea>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        @*<div class="col-md-10">
+                                                                <button type="button" id="createalert" class="btn btn-secondary" value="save" style="margin-left:180px;margin-top:5px;">save</button>
+                                                            </div>*@
+                                                        <div class="col-md-12">
+                                                            <div class="col-md-6"></div>
+                                                            <div class="col-md-3">
+                                                                <button type="button" id="clrFormDetails" class="btn btn-secondary" style="width:100%" value="clear">Cancel</button>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <button type="button" id="createalert" class="btn btn-primary" style="width:100%" value="save">Set Alert</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- /.content -->
+                                                </form>
+                                            </div>
+                                            <!-- /.row (nested) -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <span id="textcaseidcallremind" style="display:none"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.row (nested) -->
+                    <!-- /.panel-body -->
+                    <!-- /.panel -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Start New Task Request -->
+<div id="modaltaskrequestcus" class="modal right fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px !important;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body scrollh">
+                <ul class="customisemodal" id="schduleolli">
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="scttime" checked> Date</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="scttype" checked> Task Type</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctclient"> Client</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctcase" checked> Matter</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctbrief"> Note</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctassigntoby" checked> Assign By</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctassigntoto" checked> Assign To</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctassigneeduedate"> Assignee Due Dt</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="sctduedate"> Assignor Due Dt</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="scstatus" checked> Status</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ssubject"> Subject</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- End New Task Request -->
+<!-- Start My Task -->
+<div id="modalmytask" class="modal right fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px !important;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body scrollh">
+                <ul class="customisemodal" id="inlist">
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="indate" checked> Date</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="intask" checked> Task</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="inclient"> Client</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="inmatters" checked> Matters</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="innote" checked> Note</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="inassignby" checked> Assign By</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="inassignto" checked> Assign To</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="inacptrject" checked> Accept/Reject by Date</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="induedate" checked> Due Date</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="taskstatus"> Status</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="isubject" checked> Subject</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- End My Task -->
+<!-- Start Overdue -->
+<div id="modaloverdue" class="modal right fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px !important;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body scrollh">
+                <ul class="customisemodal" id="overduelist">
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="overddate" checked> Date</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="overdtask" checked> Task</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="overdclient"> Client</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="overdmatters" checked> Matters</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="overdnote" checked> Note</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="overdassignby" checked> Assign By</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="overdassignto" checked> Assign To</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="overdassigee" checked> Assignee Due Date</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="overdassignoer" checked> Assignor Due Date</li>
+                    @*<li><input type="checkbox" class="shcheckbox1 chkdhide" name="overdattach"> Attach</li>
+                        <li><input type="checkbox" class="shcheckbox1 chkdhide" name="overdfattach"> Final Attachments</li>*@
+                    @*<li><input type="checkbox" class="shcheckbox1 chkdhide" name="Action"> Action</li>*@
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="osubject" checked> Subject</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- End Overdue -->
+<!-- Start Outgoingtask -->
+<div id="modaloutgoingtask" class="modal right fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px !important;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body scrollh">
+                <ul class="customisemodal" id="od">
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ttimeoutbox" checked> Accept/Reject by</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ottaskoutbox" checked> Task Type</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tclientoutbox"> Client</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tcaseoutbox" checked> Matter</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tbriefoutbox" checked> Note</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tassignbybyoutbox" checked> Assigned By</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tassigntobyoutbox" checked> Assigned To</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tduedateoutbox" checked> Due Date</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="otsubject" checked> Subject</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="modalArchivetask" class="modal right fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px !important;height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body scrollh">
+                <ul class="customisemodal" id="od">
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ttime" checked>Accept/Reject by</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ttask" checked>Task Type</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="oclient">Client</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tcase" checked>Matter</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tbrief">Note</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tassigntoby" checked>Assign By/To</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="tduedate" checked>Due Date</li>
+                    <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ttimearchive">Accept/Reject by Date</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="ActualclosurModal">
+    <div class="modal-dialog" style="width:400px !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modal-ctitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                <h4 id="textLabel"></h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <form class="" id="markstatusreset">
+                        <div class="row" id="acceptSection" style="display:none;">
+                            <div class="form-group col-sm-12">
+                                <label id="">Add Your Deadline<span><sup style="color:red">*</sup></span></label>
+                                <input type="date" class="inputFormat" id="inboxacceptdate" />
+                            </div>
+
+                        </div>
+                        <div class="row" id="RejectSection" style="display:none;">
+                            <div class="form-group col-sm-12">
+                                <label id="">Reason<span><sup style="color:red">*</sup></span></label>
+                                <textarea rows="5" cols="14" maxlength="2000" id="rdetailsval" style="width: 389px;height: 70px !important;"></textarea>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-md-6 text-left">
+                                <button style="width:100%" type="button" class="btn btn-secondary">Cancel</button>
+                            </div>
+                            <div class="form-group col-sm-6 text-right">
+                                <button style="width:100%" type="button" id="saveclosuedate" onclick="AcceptandRejectRequestTask()" class="btn btn-primary">Confirm</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalUoploadDocument" class="modal fade in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px !important;">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="closemodel" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <span>Choose File</span>
+                </h4>
+            </div>
+
+            <div class="modal-body" style="text-align: center; text-align: center; border: 1px solid; border: 1px solid #d7cbcb !important; border-radius: 8px !important; padding: 6px 4px 3px 5px; box-shadow: -2px 1px 3px 1px #d7cbcb;">
+                <!-- Upload Options -->
+                @*<p>Choose a file or drag and drop <br>pdf(max 5 mb)</p>*@
+                <div style="margin-top:10px;" class="upload-icon"> <img src="/newassets/img/upload-cloud.svg"> </div>
+                <p class="upload-text">Choose a file or drag and drop</p>
+                <p class="upload-subtext">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                <input type="file" id="attachmenttask4" multiple="" class="form-control" value="AA" style="width:90%;height:unset !Important;border-bottom: 1px solid #ccc !important; display:none;">
+                <div class="row" style="margin: 30px 0;">
+
+                    <div class="col-md-6">
+                        <button type="button" class="upload-btn browsetaskfiledynamic" id="browsefilecompletetask2" style="width: 100%;" module="completetask4">
+                            MyKase Drive
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="upload-btn" style="width: 100%;" onclick="triggerFileInput()">
+                            Local Drive
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Action Button -->
+                <div class="row">
+                    <div id="fileNameDisplay" style="font-size: 12px; color: gray; margin-bottom: 20px;">
+                    </div>
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4" style="margin-bottom:8px;">
+                        <button type="button" class="btn btn-primary" style="width: 100%;" id="CompleteTaskattachment">Save</button>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="modalShowDocumentFileDocument" class="modal fade in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px !important;">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="closemodeld" data-dismiss="modal">×</button>
+                @*<h4 class="modal-title">
+                        <span>Choose File</span>
+                    </h4>*@
+            </div>
+
+            <div class="modal-body" style="text-align: center; text-align: center; border: 1px solid; border: 1px solid #d7cbcb !important; border-radius: 8px !important; padding: 6px 4px 3px 5px; box-shadow: -2px 1px 3px 1px #d7cbcb;">
+                <!-- Upload Options -->
+                <div class="row" style="margin: 30px 0;">
+
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-secondary" style="width: 100%;" onclick="FinalAttachFile()">
+                            @*Final Document*@
+                            Attached Doc
+                        </button>
+
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-secondary" style="width: 100%;" onclick="OpenAttachFile()">
+                            @*Attach Document*@
+                            Assigned Doc
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Action Button -->
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Start Archieve Modal*@
+<div id="myModalmarkArchiveconfirmation" class="modal fade in" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog" style="width:350px !important;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_archivematterrequesr">Unarchive Task</h4>
+            </div>
+            <div class="modal-body" style="padding-bottom: 15px">
+                <p id="msgRUSure"> Are you sure you want to unarchive?</p>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%" id="" data-dismiss="modal">Cancel</button>
+                    </div>
+                    @*<div class="col-md-2"></div>*@
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary" style="width:100%" id="archivesingle_final">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*End Archieve Modal*@
+
+@*Start Accept/Reject Confirmation popup*@
+@*<div id="myModalAcceptRejectConfirmation" class="modal fade in" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog" style="width:350px !important;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_AcceptRejectCnf">Accept/Reject</h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgRUAcceptReject">Are you sure you want to send accept/reject task reminder?</p>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%" id="" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary" style="width:100%" id="AcceptReject_Cfinal">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+<div class="modal fade" id="myModalAcceptRejectConfirmation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog manuModal1" role="document">
+        <div class="modal-content" style="width:400px !important;margin: auto;">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="editclose" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/set-aleart.png" style="margin:-24px 0px 0 -28px">
+                </h4>
+                <h4 class="fstitle1" id="myModalLabel" style="border-bottom: none; margin: -23px 0 0 0;color:black">
+                    Send Reminder for accept/reject task
+                </h4>
+            </div>
+            <div class="modal-body ">
+                <!-- Main content -->
+                <input type="hidden" id="thideditatoken">
+                <form class="ec_bg" id="esavetaskform" enctype="multipart/form-data" novalidate="novalidate" style="margin-top:5px;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group" style="margin-top:0px;">
+                                <label class="formLabel colorDark">Remarks:<span class="required" aria-required="true">*</span></label>
+                                <textarea cols="25" id="remarkForAcceptRejectTask" class="form-control" style="height: 70px !important; background-color: white !important;" maxlength="2000"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: none !important;">
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="AcceptReject_Cfinal">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*End Accept/Reject Confirmation popup*@
+
+
+@*Start Archieve Modal*@
+<div id="myModalmarkDelete" class="modal fade in" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog" style="width:350px !important;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_archivematterrequesr">Delete Task</h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgRUSure">Are you sure you want to delete task?</p>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%" id="" data-dismiss="modal">Cancel</button>
+                    </div>
+                    @*<div class="col-md-2"></div>*@
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary" style="width:100%" id="Deletesingle_final">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalmarkArchiveconfirmationOutgoing" class="modal fade in" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog" style="width:350px !important;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -20px; border-bottom: none;">
+                <h4 id="ids_archivematterrequesr" style="margin-left:20px;">Archive Task</h4>
+            </div>
+            <div class="modal-body" style="padding-top:15px;padding-bottom:15px;">
+                <p id="msgRUSure"> Are you sure you want to archive?</p>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-secondary" style="width:100%" id="" data-dismiss="modal">Cancel</button>
+                    </div>
+                    @*<div class="col-md-2"></div>*@
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary" style="width:100%" id="archivesingle_finalOutgoing">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalUploadDocumentDue" class="modal fade in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width: 400px !important;">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="closemodel" data-dismiss="modal" style="">×</button>
+                <h4 class="modal-title" style="">
+                    <span style="">Choose File</span>
+                </h4>
+            </div>
+
+            <div class="modal-body" style="text-align: center; border: 1px solid #d7cbcb; border-radius: 8px; padding: 6px 4px 3px 5px; box-shadow: -2px 1px 3px 1px #d7cbcb;">
+                @*<p style="">Choose a file or drag and drop <br>PDF (max 5 MB)</p>*@
+
+                <div style="margin-top:10px;" class="upload-icon"> <img src="/newassets/img/upload-cloud.svg"> </div>
+                <p class="upload-text">Choose a file or drag and drop</p>
+                <p class="upload-subtext">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                <ul style="display: flex; justify-content: space-between; padding: 16px; list-style: none; width: 100%;">
+
+                    <!-- First Option -->
+                    <li style="flex: 1; text-align: center;" id="li1">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnLocal" style="width: 90%;" onclick="triggerFileInput1()">Local Drive</button>
+                        <input type="file" id="dueattachmenttask2" multiple class="form-control" style="display: none;">
+                    </li>
+
+                    <!-- Second Option -->
+                    <li style="flex: 1; text-align: center;" id="browsefileduecompletetask" class="browsetaskfiledynamic" module="duecompletetask" title="No file chosen">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnDrive" style="width: 90%;">Mykase Drive</button>
+                    </li>
+                </ul>
+                <div class="row" style="margin:4px;">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4 "><button type="button" class="btn btn-primary" id="dueCompleteTaskattachment">Save</button></div>
+                    <div class="col-md-4 "></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="ActualclosurModalCurrenttask">
+    <div class="modal-dialog" style="width:400px !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modal-ctitle" style="border-bottom: none; margin: -45px 0 0 0;">
+                <h4>Complete Task</h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgRUSureCTask">Are you sure you want to mark the task as completed?</p>
+            </div>
+                @*<div class="row" id="acceptSection" style="display:none;">
+                        <div class="form-group col-sm-12">
+                            <label id="">Add Your Deadline<span><sup style="color:red">*</sup></span></label>
+                            <input type="date" class="inputFormat" id="inboxacceptdate" />
+                        </div>
+
+                    </div>
+                    <div class="row" id="RejectSection" style="display:none;">
+                        <div class="form-group col-sm-12">
+                            <label id="">Reason<span><sup style="color:red">*</sup></span></label>
+                            <textarea rows="5" cols="14" maxlength="2000" id="rdetailsval" style="width: 389px;height: 70px !important;"></textarea>
+                        </div>
+
+                    </div>*@
+
+                <div class="row">
+                    <div class="form-group col-md-6 text-left">
+                        <button style="width:100%" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="form-group col-sm-6 text-right">
+                        <button style="width:100%" type="button" id="submitAcceptFinalTask" class="btn btn-primary">Complete Task</button>
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+</div>
+<div id="modalShowDocumentFileDocumentOverDue" class="modal fade in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px !important;">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="closemodel" data-dismiss="modal">×</button>
+
+            </div>
+
+            <div class="modal-body" style="text-align: center; text-align: center; border: 1px solid; border: 1px solid #d7cbcb !important; border-radius: 8px !important; padding: 6px 4px 3px 5px; box-shadow: -2px 1px 3px 1px #d7cbcb;">
+                <!-- Upload Options -->
+                <div class="row" style="margin: 30px 0;">
+
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-secondary" style="width: 100%;" id="completetaskfilelink">
+                            @*Final Document*@
+                            Attached Doc
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-secondary" style="width: 100%;" id="filelinkdue">
+                            @*Attach Document*@
+                            Assigned Doc
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Action Button -->
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Outgoingtask -->

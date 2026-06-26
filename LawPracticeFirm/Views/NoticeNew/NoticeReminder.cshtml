@@ -1,0 +1,331 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    var userid = Session["sessionuserid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    .status_badge {
+        max-width: fit-content;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        /* border: 1px solid #ccc; */
+        padding: 3px 8px;
+        border-radius: 7px;
+        background: #f5f5f5d4;
+        box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    }
+
+        .status_badge span {
+            display: block;
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+        }
+
+    .sent {
+        background: green;
+    }
+
+    .received {
+        background: red;
+    }
+
+
+    .select2-container {
+        box-sizing: border-box;
+        display: inline-block;
+        margin: 0;
+        position: relative;
+        vertical-align: middle;
+        width: 100% !important;
+    }
+
+    #myInput {
+        border-box: box-sizing !important;
+        background-repeat: no-repeat !important;
+        font-size: 11px !important;
+        padding: 14px 15px 15px 11px !important;
+        /* border: none !important; */
+        border-bottom: 1px solid #ddd !important;
+        width: 100%;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        background-color: white;
+        border: 1px solid #ccc !important;
+        cursor: text;
+        border-radius: 20px;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        background-color: white;
+        border: 1px solid #aaa;
+        border-radius: 20px !important;
+        cursor: text;
+    }
+
+    fieldset {
+        background-color: transparent;
+    }
+
+    .modal-body fieldset {
+        border: 1px solid #ccc !important;
+        border-radius: 5px;
+    }
+
+
+    .modal-content .form-group {
+        margin: 1px 0 5px 0;
+        height: 60px;
+    }
+</style>
+<link href="~/dist/select2/css/select2.min.css" rel="stylesheet" />
+<link href="~/dist/jqueryUI/css/daterangepicker.css" rel="stylesheet" />
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle">Reminders List</p>
+        </div>
+        <div style="margin: 10px 0 5px 0; overflow:hidden;">
+            <ul class="snav">
+                <li id="" class=""><a href="/@Session["firmcode"]/NoticeNew/NewNoticeList"> Send Notices</a></li>
+                <li id="" class=""><a href="/@Session["firmcode"]/NoticeReceived/ReceivedNoticeList">Received Notices</a></li>
+                <li id="" class="active"><a href="/@Session["firmcode"]/NoticeNew/NoticeReminder">Reminders <span id="RemNoticeCount"></span></a></li>
+            </ul>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="tablearea" style="margin:0;">
+                <table id="example" class="table-panel">
+                    <thead>
+                        <tr>
+                            <th><div class="thbg">S.No</div></th>
+                            <th class="dateofnotice" data-column="dateofnotice"><div class="thbg">Date of Notice</div></th>
+                            <th class="noticetitle" data-column="NoticeTitle">
+                                <div class="thbg">
+                                    <div style="float:left;width:80%">
+                                        <input type="text" id="Noticetitsrch" placeholder="Title" class="form-control pull-left" style="width:100px;">
+                                    </div>
+                                    <div style="float:left;width:20%">
+                                        <span class="glyphicon glyphicon-search" id="searchNoticetit"></span>
+                                        <span class="glyphicon glyphicon-remove" id="clearnewsearchNoticetit" title="Click here to reset search" style="display:none;"></span>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="noticeType" data-column="noticeType"><div class="thbg">Notice Type</div></th>
+                            <th class="noticeto" data-column="AddressedTo"><div class="thbg">Receiver's Name</div></th>
+                            <th class="noticeby" data-column="customDueDate"><div class="thbg">Sender's Name</div></th>
+                            <th class="customDueDate" data-column="customDueDate"><div class="thbg">Custom Date</div></th>
+                            <th class="reminderDate" data-column="reminderDate">
+                                <div class="thbg">
+                                    Reminder Date <span class="fa fa-fw fa-sort" id="sortoutbox" sortvalue="asc"></span>
+                                </div>
+                            </th>
+                            <th class="remark" data-column="remark"><div class="thbg">Remarks</div></th>
+                            <th><div class="thbg">Action</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablevalue"></tbody>
+                </table>
+                <center> <div id="nonotice"> </div></center>
+            </div>
+            <div class="pagination" id="pagenatedArea">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="myDocumentModal" class="modal fade myModal" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ViewMoreModal" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content viewmore">
+            <div class="modal-header" style="background-color:#fff !important">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+            </div>
+            <div class="modal-body" style="height:350px;overflow-y: scroll;">
+                <span id="viewmorecontent"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ViewLogModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice Logs</h3>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sender Name</th>
+                            <th>Receiver Name</th>
+                            <th>Notice Sent On</th>
+                            <th>Status</th>
+                            <th>Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modlbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalNotificationsetting" class="modal fade in" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog" style="width:70%;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <span id="fstitle">Set Alert</span>
+                </h4>
+            </div>
+            <div class="modal-body" style="height: 380px;overflow-y: auto;overflow-x: hidden; padding:10px;">
+                <input type="hidden" value="" id="rowcounterdata" />
+                <div class="row">
+                    <div class="col-md-12">
+                        <form id="fileupload" name="fileupload">
+                            <fieldset class="ec_bgAlert">
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <label>Notice<span class="required" aria-required="true"><b>*</b> </span></label>
+                                        <select class="selctInputFormat" id="ddlnoticelist" onchange="Getdateforalertbynoticeid()"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label>Custom Date</label><span class="required" aria-required="true">*</span><br />
+                                        <input type="date" class="inputFormat setValue" id="txtdateofnotice_0" onchange="ResetField();" />
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Alert Condition</label><span class="required" aria-required="true">*</span>
+                                        <select class="dropdown-toggle inputFormat setValue" onchange="ResetByAlert()" id="txtalertcondition_0">
+                                            <option value="beforeduedate">Before</option>
+                                            <option value="afterreceivedate">After</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Set Days</label><span class="required" aria-required="true">*</span>
+                                        <select class="dropdown-toggle inputFormat setValue" id="alertbeforeincaseallddl1_0" onchange='fndisplayreminder()'>
+                                            <option value="">Please select days</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                            <option value="7">7</option>
+                                            <option value="8">8</option>
+                                            <option value="9">9</option>
+                                            <option value="10">10</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Reminder Date</label>
+                                        <div id="multiplereminderdiv_0" class="inputFormat setValue" style="background:#fff; overflow:hidden;height:35px !important;"></div>
+                                    </div>
+                                    <div class="form-group col-md-8">
+                                        <label>Remarks</label>
+                                        <textarea id="txtRemark_0" class="inputFormat setValue" style="width: 100%; height: 35px !important; border-radius:7px;"></textarea>
+                                    </div>
+
+                                </div>
+                            </fieldset>
+                            <div id="dvadd_noticepostdetils"></div>
+
+                        </form>
+                    </div>
+                    <!-- /.row (nested) -->
+                </div>
+            </div>
+            <div class="modal-footer text-right">
+                <button type="button" class="btn btn-primary" id="savenotificationsettings" data-type="">Save</button>
+                <button type="button" class="btn btn-secondary" id="btn_addpostaldetails" title="add more alerts"><img src="/newassets/img/plus-icon-black.png"> Add More Alerts</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalDeleteconfirmation" class="modal fade in" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog" style="width:350px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/icon1.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_archivematterrequesr">Delete Reminder </h4>
+            </div>
+            <div class="modal-body" style="padding:10px 0;">
+                <p><strong id="id_Deletematternames"></strong></p>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-5">
+                        <button class="btn btn-secondary" style="width:100%" id="" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="col-md-2"></div>
+                    <div class="col-md-5">
+                        <button type="submit" class="btn btn-primary" style="width:100%" id="Delete_final">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/dist/select2/js/select2.min.js"></script>
+<script src="~/dist/jqueryUI/js/moment.min.js"></script>
+<script src="~/dist/jqueryUI/js/daterangepicker.min.js"></script>
+<script src="~/Scripts/Notice/NoticeReminder.js?2.2"></script>

@@ -1,0 +1,190 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    @using (Html.BeginForm("CField", "Home", FormMethod.Post))
+    {
+        <select name="selecttype" id="selecttype">
+            <option value="1">Textbox</option>
+            <option value="2">Date</option>
+            <option value="3">Select</option>
+        </select>
+        <input id="btnAdd" type="button" value="Add" onclick="AddTextBox()" />
+        <br />
+        <br />
+        <div id="TextBoxContainer">
+            <!--Textboxes will be added here -->
+        </div>
+        <br />
+        <input type="text" name="fname">
+        <input type="submit" value="Submit" />
+    }
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        var json = [
+            { "value": "pune", "text": "Pune" },
+            { "value": "mumbai", "text": "Mumbai" },
+            { "value": "nashik", "text": "Nashik" }
+        ];
+        function GetDynamicTextBox(value,type) {
+            var div = $("<div />");
+            if (type == 1) {
+                var textBox = $("<input />").attr("type", "textbox").attr("name", "DynamicTextBox");
+                textBox.val(value);
+                div.append(textBox);
+            }
+            else if (type == 2) {
+                var textdate = $("<input />").attr("type", "date").attr("name", "DynamicTextDate");
+                textdate.val(value);
+                div.append(textdate);
+            }
+            else if (type==3) {
+              var select=  $("<select></select>").attr("id", "cities").attr("name", "cities");
+                $.each(json, function (index, json) {
+                    select.append($("<option></option>").attr("value", json.value).text(json.text));
+                });
+                div.append(select);
+            }
+            var button = $("<input />").attr("type", "button").attr("value", "Remove");
+            button.attr("onclick", "RemoveTextBox(this)");
+            div.append(button);
+            return div;
+        }
+        function AddTextBox() {
+            var ftype = document.getElementById("selecttype").value;
+            alert(ftype);
+            var div = GetDynamicTextBox("",ftype);
+            $("#TextBoxContainer").append(div);
+        }
+        function RemoveTextBox(button) {
+            $(button).parent().remove();
+        }
+        $(function () {
+            var values = eval('@Html.Raw(ViewBag.Values)');
+            if (values != null) {
+                $("#TextBoxContainer").html("");
+                $(values).each(function () {
+                    $("#TextBoxContainer").append(GetDynamicTextBox(this));
+                });
+            }
+        });
+    </script>
+    @if (ViewBag.Message != null)
+    {
+        <script type="text/javascript">
+            $(function () {
+                alert("@ViewBag.Message")
+            });
+        </script>
+    }
+</body>
+</html>
+<br>
+<br>
+----------------------------///////////////json////////////////////------------------------------------
+<body>
+    @*<form id="myform" type="post">
+                <select name="selecttype" id="selecttype1">
+                    <option value="1">Textbox</option>
+                    <option value="2">Date</option>
+                    <option value="3">Select</option>
+                </select>
+                <input id="btnAdd" type="button" value="Add" onclick="AddTextBox1()" />
+                <br />
+                <br />
+                <div id="TextBoxContainer1">
+                    Textboxes will be added here
+                </div>
+                <br />
+                <input type="text" name="firstname">
+                <button type="button" value="submit json" id="btn" />submit json</button>
+            </form>
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    alert("hi");
+                    $("#btn").click(function (e) {
+                        var jsonData = {};
+                        alert("hi");
+                        var formData = $("#myform").serializeArray();
+                        // console.log(formData);
+                        $.each(formData, function () {
+                            if (jsonData[this.name]) {
+                                if (!jsonData[this.name].push) {
+                                    jsonData[this.name] = [jsonData[this.name]];
+                                }
+                                jsonData[this.name].push(this.value || '');
+                            } else {
+                                jsonData[this.name] = this.value || '';
+                            }
+                        });
+                        alert(JSON.stringify(jsonData));
+                        //console.log(jsonData);
+                        e.preventDefault();
+                    });
+                });
+            </script>
+                <script type="text/javascript">
+                var json = [
+                    { "value": "pune", "text": "Pune" },
+                    { "value": "mumbai", "text": "Mumbai" },
+                    { "value": "nashik", "text": "Nashik" }
+                ];
+                function GetDynamicTextBox1(value,type) {
+                    var div = $("<div />");
+                    if (type == 1) {
+                        var textBox = $("<input />").attr("type", "textbox").attr("name", "lastname");
+                        textBox.val(value);
+                        div.append(textBox);
+                    }
+                    else if (type == 2) {
+                        var textdate = $("<input />").attr("type", "date").attr("name", "date");
+                        textdate.val(value);
+                        div.append(textdate);
+                    }
+                    else if (type==3) {
+                      var select=  $("<select></select>").attr("id", "cities").attr("name", "city");
+                        $.each(json, function (index, json) {
+                            select.append($("<option></option>").attr("value", json.value).text(json.text));
+                        });
+                        div.append(select);
+                    }
+                    var button = $("<input />").attr("type", "button").attr("value", "Remove");
+                    button.attr("onclick", "RemoveTextBox1(this)");
+                    div.append(button);
+                    return div;
+                }
+                function AddTextBox1() {
+                    var ftype = document.getElementById("selecttype1").value;
+                    alert(ftype);
+                    var div = GetDynamicTextBox1("",ftype);
+                    $("#TextBoxContainer1").append(div);
+                }
+                function RemoveTextBox1(button) {
+                    $(button).parent().remove();
+                }
+                $(function () {
+                    var values = eval('@Html.Raw(ViewBag.Values)');
+                    if (values != null) {
+                        $("#TextBoxContainer1").html("");
+                        $(values).each(function () {
+                            $("#TextBoxContainer1").append(GetDynamicTextBox1(this));
+                        });
+                    }
+                });
+                </script>
+                @if (ViewBag.Message != null)
+                {
+                    <script type="text/javascript">
+                    $(function () {
+                        alert("@ViewBag.Message")
+                    });
+                    </script>
+                }
+        </body>
+        </html>*@

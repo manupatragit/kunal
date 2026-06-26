@@ -1,0 +1,2500 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    .courtlabel {
+        font-size: 12px !important;
+        font-weight: 500;
+        border: 1px solid #D1D5DB;
+        border-radius: 6px;
+        padding: 1px;
+        color: #4B5563;
+        width: max-content;
+        display: inline-block;
+    }
+
+    ul li {
+        display: inline;
+    }
+
+    .action-btn {
+        background-color: #fff;
+        border: 1px solid #D1D5DB;
+        padding: 5px 8px;
+        cursor: pointer;
+        font-weight: normal;
+        font-size: 19px;
+        line-height: 1;
+        border-radius: 8px;
+        color: #9CA3AF;
+    }
+        /* Optional hover effect for button */
+        .action-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+    .ms-options-wrap button {
+        width: 100% !important;
+        padding:7px 3px !important;
+        border: none !important;
+        border-radius: 4px !important;
+        font-size: 16px !important;
+    }
+
+    .search-button {
+        border: 0;
+        padding: 0;
+        margin-right: 9px;
+        background: none;
+        margin-top: -28px;
+        float: right;
+    }
+    .modal-content .form-group {
+        height: 65px;
+    }
+    #info-wrapper-1 {
+        position: relative;
+        display: inline-block;
+    }
+
+    #info-icon-1 {
+        cursor: pointer;
+        margin-left: 5px;
+    }
+
+    #info-text-1 {
+        display: none;
+        position: absolute;
+        top: 26px;
+        left: 0;
+        width: 360px;
+        background: white;
+        border: 1px solid rgb(143, 213, 0);
+        padding: 4px;
+        z-index: 1000;
+    }
+
+    /* Show text on hover of the wrapper */
+    #info-wrapper-1:hover #info-text-1 {
+        display: block;
+    }
+
+</style>
+<script src="~/Scripts/CW/SearchByPartyName.js?8.2" type="text/javascript" language="javascript"></script>
+<script>
+    var stfUser =   @ViewBag.stfUser
+
+</script>
+<script>
+    var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter ="@Session["dashmatter"]";
+</script>
+<script type="text/javascript">
+    FillCourtType();
+    function FillCourtType() {
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/Firm/FillCourt",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                $('#myOverlaySearchByPartyName').hide();
+                var option = '<option value="">--Select Court--</option>';
+                $.each(response, function (i, a) {
+                    option += '<option value="' + a["id"] + '" >  ' + a["courtname"] + '</option>';
+                });
+                //if (hsmklitigation == "display:unset" && dashmatter == "display:unset") {
+                //    option += '<option value="6" >Revenue Court</option>';
+                //    option += '<option value="7" >RERA Court</option>';
+                //}
+                //else if (hsmklitigation == "display:unset" && dashmatter == "display:none") {
+                //}
+                //else {
+                //    option += '<option value="6" >Revenue Court</option>';
+                //    option += '<option value="7" >RERA Court</option>';
+                //}
+                option += '<option value="6" >Revenue Court</option>';
+                option += '<option value="7" >RERA Court</option>';
+                $("#divSCHCDistrict").append(option);//End of foreach Loop
+            }, //End of AJAX Success function
+            failure: function (response) {
+                alert(data.responseText);
+            }, //End of AJAX failure function
+            error: function (response) {
+                alert(data.responseText);
+            } //End of AJAX error function
+        });
+    }
+
+    $("#rdCriminal").click(function () {
+        $("#divmatteroption").show();
+    });
+    $("#rdCivil").click(function () {
+        $("#divmatteroption").hide();
+        $("#matterpolicstation").val("");
+        $("#matterfirno").val("");
+    });
+    $("#rdTaxation").click(function () {
+        $("#divmatteroption").hide();
+        $("#matterpolicstation").val("");
+        $("#matterfirno").val("");
+    });
+    $("#rdAppeal").click(function () {
+        $("#divcasetypeoption").show();
+    });
+    $("#rdApplication").click(function () {
+        $("#divcasetypeoption").show();
+    });
+    $("#rdOriginal").click(function () {
+        $("#divcasetypeoption").hide();
+        $("#CertifiedCopyAppliedon").val("");
+        $("#CertifiedCopyReceivedon").val("");
+    });
+    function FillCourtnamebyCourttype() {
+    }
+    function FillCasetypeDiary() {
+        $('#divSCDECD').find('option').remove();
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/Firm/FillCasetypeDiary",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            // data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                var option = '';
+                $.each(response, function (i, a) {
+                    option = '<option value="' + a["id"] + '" >  ' + a["name"] + '</option>';
+                    $("#divSCDECD").append(option);
+                }); //End of foreach Loop
+            }, //End of AJAX Success function
+            failure: function (response) {
+                alert(data.responseText);
+            }, //End of AJAX failure function
+            error: function (response) {
+                alert(data.responseText);
+            } //End of AJAX error function
+        });
+    }
+    function FillCasetype() {
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/Firm/FillCaseType",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                var option = '';
+                $.each(response, function (i, a) {
+                    option = '<option value="' + a["casetype"] + '" >  ' + a["casename"] + '</option>';
+                    $("#drptype").append(option);
+                }); //End of foreach Loop
+            }, //End of AJAX Success function
+            failure: function (response) {
+                alert(data.responseText);
+            }, //End of AJAX failure function
+            error: function (response) {
+                alert(data.responseText);
+            } //End of AJAX error function
+        });
+    }
+    function FillBenchType(strdivid) {
+        var courtid = document.getElementById('drpcourtname').value;
+        $.ajax({
+            type: "POST",
+            url: "/Firm/FillBenchType?crtid=" + courtid,
+            dataType: "json",
+            success: function (data) {
+                $("#divUPBench").empty();
+                $("#divUPBench").append("<option value=''>Select Bench / Type</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#divUPBench").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+    function FillStampRegister() {
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/FillStampRegister",
+            dataType: "json",
+            success: function (data) {
+                $("#drpstampregister").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $("#drpstampregister").append("<option value='" + data[i].value + "'>" + data[i].Name + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+    function validationcourt() {
+        if (document.getElementById("drpcourtname").value == "0") {
+            alert("please select court");
+            return false;
+        }
+    }
+    function hiddivSCDE() {
+        document.getElementById('drptype').value = "0";
+        document.getElementById('txtno').value = "";
+        document.getElementById('drpYear').value = "0";
+        $("#divcaseno").toggle();
+        $("#divcasetype").toggle();
+        $("#divdiaryno").hide();
+        if (document.getElementById('divSCDECD').value == "1") {
+            $("#divcaseno").hide();
+            $("#divcasetype").hide();
+            $("#divdiaryno").toggle();
+        }
+    }
+    function divdisplay() {
+        if (document.getElementById("drpcourtname").value == "CF") {
+            document.getElementById('divsuffix').style.display = "none";
+        }
+        else {
+            document.getElementById('txtsuffix').value = "";
+            document.getElementById('divsuffix').style.display = "none";
+        }
+        $("#drpYear").empty();
+        $("#drpbench").empty();
+        $("#drptype").empty();
+        $("#drpNCBench").empty();
+        $("#divdiaryno").hide();
+        $("#divSCDE").hide();
+        if (document.getElementById("drpcourtname").value == "DT") {
+            $("#divTCCD").show();
+        }
+        else {
+            $("#divdiaryno").hide();
+            $("#divTCCD").hide();
+        }
+        document.getElementById('drpGoa').value = "";
+        document.getElementById('divSCDECD').value = "0";
+        document.getElementById('txtDiaryNo').value = "";
+        // document.getElementById('divcasetype').style.display = "block";
+        //For hide OERC Case
+        if (document.getElementById("drpcourtname").value == "OERC") {
+            document.getElementById('divcasetype').style.display = "none";
+            document.getElementById('divsuffix').style.display = "none";
+        } else {
+            document.getElementById('divcasetype').style.display = "block";
+        }
+        document.getElementById('divcaseno').style.display = "block";
+        document.getElementById('divRH').style.display = "none";
+        document.getElementById('divJK').style.display = "none";
+        document.getElementById('divNC').style.display = "none";
+        document.getElementById('savebtn').style.display = "none";
+        document.getElementById("divKA").style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById('divTN').style.display = "none";
+        document.getElementById('divBH').style.display = "none";
+        document.getElementById('divMP').style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById("divMH").style.display = "none";
+        document.getElementById('divUP').style.display = "none";
+        document.getElementById('divGH').style.display = "none";
+        document.getElementById('lblcourtname').innerHTML = "";
+        document.getElementById('Court').style.display = "none";
+        document.getElementById("divWB").style.display = "none";
+        document.getElementById("divWBBench").style.display = "none";
+        $("#divWBBench").val("");
+        document.getElementById('lbldistrictname').style.display = "none";
+        var crtid = document.getElementById('drpcourtname').value;
+        var courtname = document.getElementById('drpcourtname').value;
+        var x = document.getElementById("drpcourtname");
+        //added by umesh on 28 jan 20
+        FillStampRegister();
+        if (crtid != "0") {
+            $.ajax({
+                type: "POST",
+                url: "/firm/Addcaseyear?crtid=" + crtid,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpYear").append("<option value='0'>Select Matter Year</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        var caseyearlength = data[i].caseyear;
+                    }
+                    startYear = new Date().getFullYear()
+                    for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                        $("#drpYear").append("<option value='" + i + "'>" + i + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            document.getElementById('lbldistrictname').innerHTML = "";
+            var selectedText = $("#drpcourtname").find("option:selected").text();
+            document.getElementById('lbldistrictname').style.display = "block";
+            document.getElementById('Court').style.display = "block";
+            document.getElementById('savebtn').style.display = "block";
+            document.getElementById('lbldistrictname').innerHTML = "<center><h4>Selected: <span>" + selectedText + "</span> </h4></center><hr style='border:1px solid #e6cfcf;margin-top:10px; margin-bottom:0px;'>"
+            if (document.getElementById("divSCHCDistrict").value == "5") {
+                document.getElementById('divcasetype').style.display = "none";
+                document.getElementById('divcustomcourtsection').style.display = "block";
+                if (document.getElementById("drpcourtname").value == "newcustomcourt") {
+                }
+                else {
+                    document.getElementById("txtnewcustomcourt").value = "";
+                }
+            }
+            else {
+                document.getElementById('divcustomcourtsection').style.display = "none";
+            }
+            if (crtid == 'SC') {
+                $("#divSCDE").toggle();
+                document.getElementById('divcasetype').style.display = "block";
+                document.getElementById('divcaseno').style.display = "block";
+            }
+            if (crtid == 'MH') {
+                document.getElementById("divMHGoa").style.display = "block";
+                document.getElementById("divMH").style.display = "block";
+            }
+            if (crtid == 'KA') {
+                document.getElementById('divKA').style.display = "block";
+            }
+            if (crtid == 'NC' || crtid == 'NL' || crtid == 'IT' || crtid == 'CE' || crtid == 'DT' || crtid == 'CF' || crtid == 'CT' || crtid == 'CI' || crtid == 'RC' || crtid == 'NGT') {
+                document.getElementById('divNC').style.display = "block";
+                getbench(crtid);
+            }
+            if (crtid != 'CF') {
+                document.getElementById('divncdrcstate').style.display = "none";
+                document.getElementById('divncdrcDistrict').style.display = "none";
+            } hiddivNC();
+            if (crtid == 'TN') {
+                document.getElementById("divTN").style.display = "block";
+                document.getElementById("divTNBench").style.display = "block";
+            }
+            if (crtid == 'RH') {
+                document.getElementById('divRH').style.display = "block";
+                document.getElementById('divRHBench').style.display = "block";
+            }
+            if (crtid == 'JK') {
+                document.getElementById('divJK').style.display = "block";
+                document.getElementById('divJKBench').style.display = "block";
+            }
+            if (crtid == 'BH') {
+                document.getElementById("divBH").style.display = "block";
+                document.getElementById("divBHBench").style.display = "block";
+            }
+            if (crtid == 'MP') {
+                document.getElementById("divMP").style.display = "block";
+                document.getElementById("divMPBench").style.display = "block";
+            }
+            if (crtid == 'UP') {
+                document.getElementById('divUP').style.display = "block";
+                document.getElementById('divUPBench').style.display = "block";
+                FillBenchType();
+            }
+            if (crtid == 'GH') {
+                document.getElementById('divGH').style.display = "block";
+                document.getElementById('divGHBench').style.display = "block";
+            }
+            if (crtid == 'WB') {
+                document.getElementById("divWB").style.display = "block";
+                document.getElementById("divWBBench").style.display = "block";
+            }
+            if (crtid != 'IT') {
+                getCasetype(crtid, '', '', '');
+            }
+            else {
+                $("#drptype option").remove();
+                $.ajax({
+                    type: "POST",
+                    url: "/AddCase/AddcasetypeITCE?crtid=" + crtid + "&courttitle=&side=",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#drptype").append("<option value='0'>Select Matter Type</option>");
+                        for (var i = 0; i < data.length; i++) {
+                            $("#drptype").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                        }
+                    },
+                    error: function (data) {
+                    }
+                });
+            }
+        }
+    }
+    @*Adding case type details*@
+    function showaddingcasetype() {
+        $("#drpYear").empty();
+        $("#drpbench").empty();
+        $("#drptype").empty();
+        $("#drpNCBench").empty();
+        $("#divdiaryno").hide();
+        $("#divSCDE").hide();
+        document.getElementById('drpGoa').value = "";
+        document.getElementById('divSCDECD').value = "0";
+        document.getElementById('txtDiaryNo').value = "";
+        document.getElementById('divcasetype').style.display = "block";
+        document.getElementById('divcaseno').style.display = "block";
+        document.getElementById('divRH').style.display = "none";
+        document.getElementById('divJK').style.display = "none";
+        document.getElementById('divNC').style.display = "none";
+        document.getElementById('savebtn').style.display = "none";
+        document.getElementById("divKA").style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById('divTN').style.display = "none";
+        document.getElementById('divBH').style.display = "none";
+        document.getElementById('divMP').style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById("divMH").style.display = "none";
+        document.getElementById('divUP').style.display = "none";
+        document.getElementById('lblcourtname').innerHTML = "";
+        document.getElementById('Court').style.display = "none";
+        document.getElementById('lbldistrictname').style.display = "none";
+        document.getElementById('drpcourtname').value = 'SC';
+        var crtid = document.getElementById('drpcourtname').value;
+        var courtname = document.getElementById('drpcourtname').value;
+        var x = document.getElementById("drpcourtname");
+        crtid = "SC";
+        if (crtid != "0") {
+            $.ajax({
+                type: "POST",
+                url: "/firm/Addcaseyear?crtid=" + crtid,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpYear").append("<option value='0'>Select Matter Year</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        var caseyearlength = data[i].caseyear;
+                    }
+                    startYear = new Date().getFullYear()
+                    for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                        $("#drpYear").append("<option value='" + i + "'>" + i + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            document.getElementById('lbldistrictname').innerHTML = "";
+            var selectedText = $("#drpcourtname").find("option:selected").text();
+            document.getElementById('lbldistrictname').style.display = "block";
+            document.getElementById('Court').style.display = "block";
+            document.getElementById('savebtn').style.display = "block";
+            document.getElementById('lbldistrictname').innerHTML = "<center><h4>Selected: <span>" + "SUPREME COURT" + "</span> </h4></center><hr style='border:1px solid #e6cfcf;margin-top:10px; margin-bottom:0px;'>"
+            if (crtid == 'SC') {
+                $("#divSCDE").toggle();
+                document.getElementById('divcasetype').style.display = "block";
+                document.getElementById('divcaseno').style.display = "block";
+                $.ajax({
+                    type: "POST",
+                    url: "/AddCase/AddcasetypeITCE?crtid=" + crtid + "&courttitle=&side=",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#drptype").append("<option value='0'>Select Matter Type</option>");
+                        for (var i = 0; i < data.length; i++) {
+                            $("#drptype").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                        }
+                    },
+                    error: function (data) {
+                    }
+                });
+            }
+        }
+    }
+@*Add bench details*@
+    function benchadd(crtid) {
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/AddBenchtype?bench=" + crtid,
+            dataType: "json",
+            success: function (data) {
+                $("#drpNCBench").append("<option value='0'>Select Bench / Type</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#drpNCBench").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Get bench by id*@
+    function getbench(crtid) {
+        var str = "";
+        benchadd(crtid);
+    }
+@*Hide NCDRC district*@
+    function hiddivNCDRCDistrict() {
+        if (document.getElementById('drpNCBench').value == "E") {
+            var stateid = document.getElementById("drpncdrcstate").value;
+            fillNCDRCDistrict(stateid);
+            document.getElementById("divncdrcDistrict").style.display = "block";
+        }
+        else {
+            document.getElementById('divncdrcDistrict').style.display = "none";
+        }
+    }
+@*Fill NCDRC state by crt id and bench id*@
+    function fillNCDRCState(crtid, benchid) {
+        var idist = 0;
+        if (benchid == "E") {
+            $("#drpncdrcstate").html("");
+            document.getElementById('divncdrcDistrict').style.display = "block";
+            idist = 1;
+        }
+        else {
+            document.getElementById('divncdrcDistrict').style.display = "none";
+        }
+        $("#drpncdrcstate").html("");
+        $("#drpncdrcstate").empty;
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/AddFillTriDistrictState?courtid=" + crtid + "&courttype=" + document.getElementById("divSCHCDistrict").value + "&iDistrict=" + idist,
+            dataType: "json",
+            success: function (data) {
+                $("#drpncdrcstate").append("<option value='0'>-Select the state.-</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#drpncdrcstate").append("<option value='" + data[i].Stateid + "'>" + data[i].Statename + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Bind NCDRC district by state id*@
+    function fillNCDRCDistrict(stateid) {
+        $("#drpncdrcDistrict").html("");
+        $("#drpncdrcDistrict").empty;
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/AddFillTriDistrictStatebyStateid?stateid=" + stateid,
+            dataType: "json",
+            success: function (data) {
+                $("#drpncdrcDistrict").append("<option value='0'>-Select District Forum-</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#drpncdrcDistrict").append("<option value='" + data[i].DistrictId + "'>" + data[i].District + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Get case type details*@
+    function getCasetype(crtid, bench, side, vcourttitle) {
+        if (crtid == 'TN' && bench == '') {
+            document.getElementById('divTNBench').value = '';
+            return;
+        }
+        if (crtid == 'RH' && bench == '') {
+            document.getElementById('divRHBench').value = '';
+            return;
+        }
+        if (crtid == 'JK' && bench == '') {
+            document.getElementById('divJKBench').value = '';
+            return;
+        }
+        if (crtid == 'NC' && bench == '') {
+            document.getElementById('drpNCBench').value = '';
+            return;
+        }
+        if (crtid == 'UP' && bench == '') {
+            document.getElementById('divUPBench').value = '';
+            return;
+        }
+        if (crtid == 'GH' && bench == '') {
+            document.getElementById('divGHBench').value = '';
+            return;
+        }
+        if (crtid == 'WB' && bench == '') {
+            document.getElementById('divWBBench').value = '';
+            return;
+        }
+        if (crtid == "NL") {
+            setTimeout(function () {
+                var benchs = document.getElementById("drpNCBench").value;
+                GetNCCaseTyep(crtid, "", benchs)
+            }, 3000);
+
+        }
+        if (crtid != "MH" && crtid != "TN" && crtid != "RH" && crtid != "UP" && crtid != "GH" && crtid != "JK" && crtid != "BH" && crtid != "MP" && crtid != "NC" && crtid != "CE" && crtid != "IT" && crtid != "DT"
+            && crtid != "CT" && crtid != "CI" && crtid != "RC" && crtid != "WB" && crtid != "NL") {
+            $("#drptype").empty();
+            $.ajax({
+                type: "POST",
+                url: "/AddCase/Addcasetype?crtid=" + crtid + "&courttitle=" + vcourttitle + "&side=" + side,
+                dataType: "json",
+                success: function (data) {
+                    $("#drptype").append("<option value='0'>Select Matter Type</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        $("#drptype").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+        else {
+            if (vcourttitle != 'Goa' && bench == '') {
+                document.getElementById('drpbench').innerHtml = "";
+                $("#drpbench").empty;
+                $.ajax({
+                    type: "POST",
+                    url: "/AddCase/GetBenchName?crtid=" + crtid,
+                    dataType: "json",
+                    success: function (data) {
+                        $("#drpbench").empty;
+                        $("#drpbench").append("<option value='0'>-Select Bench / Type-</option>");
+                        for (var i = 0; i < data.length; i++) {
+                            $("#drpbench").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                        }
+                    },
+                    error: function (data) {
+                    }
+                });
+            }
+            else {
+              //  $("#drpbench").empty;
+                if (bench == "Goa") {
+                    vcourttitle = bench;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "/AddCase/Addcasetype?crtid=" + crtid + "&courttitle=" + vcourttitle + "&bench=" + bench + "&side=" + side,
+                    dataType: "json",
+                    success: function (data) {
+                        $("#drptype").append("<option value='0'>Select Matter Type</option>");
+                        for (var i = 0; i < data.length; i++) {
+                            $("#drptype").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                        }
+                    },
+                    error: function (data) {
+                    }
+                });
+            }
+        }
+    }
+    function GetNCCaseTyep(crtid, vcourttitle,bench) {
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/Addcasetype?crtid=" + crtid + "&courttitle=" + vcourttitle + "&bench=" + bench,
+            dataType: "json",
+            success: function (data) {
+                $("#drptype").append("<option value='0'>Select Matter Type</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#drptype").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+</script>
+<script type="text/javascript">
+@*Reset casewatch *@
+    function resetcasewatch() {
+        ResetRevenue();
+        ResetReracourt();
+        document.getElementById("divSCHCDistrict").selectedIndex = "0";
+        document.getElementById('HighCourt').style.display = 'none';
+        document.getElementById('DistrictCourt').style.display = 'none';
+        document.getElementById('drpcourtcomplexestb').style.display = 'none';
+        document.getElementById('drpdistrictcourtname').style.display = 'none';
+        document.getElementById('drpcompestbcourt').style.display = 'none';
+        document.getElementById('lbldistrictname').innerHTML = "";
+        document.getElementById('divncdrcstate').style.display = 'none';
+        document.getElementById('divncdrcDistrict').style.display = 'none';
+        document.getElementById("divWB").style.display = "none";
+        document.getElementById("divWBBench").style.display = "none";
+        $("#livecaseidhide").val("");
+        $("#divWBBench").val("");
+        $("#mattersforlink2").val("");
+        $("#drpdistrictcourtname").val("");
+        $('#drpcourtname').empty();
+        $('#drpcourtnameDC').empty();
+        $("#drpYear").empty();
+        $("#drptype").empty();
+        $("#drpNCBench").empty();
+        $("#divdiaryno").hide();
+        $("#divSCDE").hide();
+        $("#drpGoa").val = "";
+        //$('#casedetails').val('');
+        $('#txtno').val('');
+        $('#drpncdrcstate').empty();
+        $('#drpncdrcDistrict').empty();
+        $('#drpdcourtcnr').val("");
+        //document.getElementById('drpbench').style.border = "unset";
+        //document.getElementById('drpside').style.border = "unset";
+        //document.getElementById('divTNBench').style.border = "unset";
+        //document.getElementById('divJKBench').style.border = "unset";
+        //document.getElementById('divRHBench').style.border = "unset";
+        //document.getElementById('divBHBench').style.border = "unset";
+        //document.getElementById('divMPBench').style.border = "unset";
+        //document.getElementById('divUPBench').style.border = "unset";
+        //document.getElementById('divGHBench').style.border = "unset";
+        //document.getElementById('drpNCBench').style.border = "unset";
+        //document.getElementById('drpNCBench').style.border = "unset";
+        //document.getElementById('drptype')/*.style.border = "unset"*/;
+        //document.getElementById('drptype')/*.style.border = "unset"*/;
+        //document.getElementById('drpYear').style.border = "unset";
+        //document.getElementById('drpcourtnameDC').style.border = "unset";
+        //document.getElementById('drpcourtcomplexestb').style.border = "unset";
+        //document.getElementById('drpcompestbcourt').style.border = "unset";
+        //document.getElementById('drptype')/*.style.border = "unset"*/;
+        //document.getElementById('drpYear').style.border = "unset";
+        document.getElementById('divSCDECD').value = "0";
+        document.getElementById('txtDiaryNo').value = "";
+        document.getElementById('divcasetype').style.display = "block";
+        document.getElementById('divcaseno').style.display = "block";
+        document.getElementById('divRH').style.display = "none";
+        document.getElementById('divJK').style.display = "none";
+        document.getElementById('divNC').style.display = "none";
+        document.getElementById('savebtn').style.display = "none";
+        document.getElementById("divKA").style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById('divTN').style.display = "none";
+        document.getElementById('divBH').style.display = "none";
+        document.getElementById('divMP').style.display = "none";
+        document.getElementById('divMHGoa').style.display = "none";
+        document.getElementById("divMH").style.display = "none";
+        document.getElementById('divUP').style.display = "none";
+        document.getElementById('divGH').style.display = "none";
+        document.getElementById('lblcourtname').innerHTML = "";
+        document.getElementById('Court').style.display = "none";
+        //for reseting the team member and matter name
+        $("#mattersforlink212").val('');
+        $("#LtCaseName").val('');
+        addtaskmember5();
+    }
+@*Fill case type details*@
+    function fillCasetype() {
+        var bench = document.getElementById('drpbench').value;
+        var side = document.getElementById('drpside').value;
+        var crtid = document.getElementById('drpcourtname').value;
+        document.getElementById("drptype").innerHTML = '';
+        getCasetype(crtid, bench, side, '');
+    }
+@*Hide div*@
+    function hiddiv() {
+        $("#drpYear").empty();
+        document.getElementById("drpbench").innerHTML = "";
+        document.getElementById("drpside").innerHTML = "";
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('drpGoa').value == 'Goa') {
+            $.ajax({
+                type: "POST",
+                url: "/firm/Addcaseyear?crtid=" + document.getElementById('drpGoa').value,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpYear").append("<option value='0'>Select Matter Year</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        var caseyearlength = data[i].caseyear;
+                    }
+                    startYear = new Date().getFullYear()
+                    for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                        $("#drpYear").append("<option value='" + i + "'>" + i + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            document.getElementById('divMH').style.display = "none";
+            getCasetype('MH', '', '', 'Goa');
+        }
+        else {
+            $.ajax({
+                type: "POST",
+                url: "/firm/Addcaseyear?crtid=" + document.getElementById('drpcourtname').value,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpYear").append("<option value='0'>Select Matter Year</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        var caseyearlength = data[i].caseyear;
+                    }
+                    startYear = new Date().getFullYear()
+                    for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                        $("#drpYear").append("<option value='" + i + "'>" + i + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            document.getElementById('divMH').style.display = "block";
+            getCasetype('MH', '', '', '');
+        }
+    }
+@*Fill side*@
+    function fillside() {
+        $("#drptype").empty();
+        var bench = document.getElementById('drpbench').value;
+        document.getElementById("drpside").innerHTML = '';
+        GetSide(bench);
+    }
+@*Get side*@
+    function GetSide(benchid) {
+        document.getElementById('drpside').innerHtml = "";
+        $("#drpside").empty;
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/GetSide?benchid=" + benchid + "&court=" + document.getElementById("drpcourtname").value,
+            dataType: "json",
+            success: function (data) {
+                $("#drpside").append("<option value='0'>-Select Side-</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#drpside").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Hide TN div*@
+    function hiddivTN() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divTNBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divTNBench').value == "1") {
+            getCasetype('TN', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divTNBench').value == "0") {
+            getCasetype('TN', '0', '', '');
+            return;
+        }
+    }
+@*Hide RH div*@
+    function hiddivRH() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divRHBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divRHBench').value == '1') {
+            getCasetype('RH', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divRHBench').value == '0') {
+            getCasetype('RH', '0', '', '');
+            return;
+        }
+    }
+@*Hide NC div*@
+    function hiddivNC() {
+        if (document.getElementById('drpcourtname').value == "NC" || document.getElementById('drpcourtname').value == "CE" || document.getElementById('drpcourtname').value == "IT"
+            || document.getElementById('drpcourtname').value == "DT" || document.getElementById('drpcourtname').value == "CT" || document.getElementById('drpcourtname').value == "CI" || document.getElementById('drpcourtname').value == "AFT" || document.getElementById('drpcourtname').value == "RC") {
+            document.getElementById("drptype").innerHTML = "";
+            if (document.getElementById('drpNCBench').value == '') {
+                document.getElementById("drptype").innerHTML = "";
+            }
+            getCasetype(document.getElementById('drpcourtname').value, document.getElementById('drpNCBench').value, '', '');
+        }
+        if (document.getElementById('drpcourtname').value == "CF") {
+            //alert("CF1-" + document.getElementById('drpNCBench').value);
+            if (document.getElementById('drpNCBench').value == "B") {
+                document.getElementById('divncdrcstate').style.display = "none";
+                document.getElementById('divncdrcDistrict').style.display = "none";
+            }
+            else if (document.getElementById('drpNCBench').value == "C" || document.getElementById('drpNCBench').value == "E") {
+                fillNCDRCState("CF", document.getElementById('drpNCBench').value);
+                document.getElementById('divncdrcstate').style.display = "block";
+            }
+            else {
+                document.getElementById('divncdrcstate').style.display = "none";
+            }
+        }
+        return;
+    }
+@*Hide JK div*@
+    function hiddivJK() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divJKBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divJKBench').value == '1') {
+            getCasetype('JK', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divJKBench').value == '0') {
+            getCasetype('JK', '0', '', '');
+            return;
+        }
+    }
+@*Hide BH div*@
+    function hiddivBH() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divBHBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divBHBench').value == "1") {
+            getCasetype('BH', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divBHBench').value == "0") {
+            getCasetype('BH', '0', '', '');
+            return;
+        }
+    }
+@*Hide MP div*@
+    function hiddivMP() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divMPBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divMPBench').value == "01") {
+            getCasetype('MP', '01', '', '');
+            return;
+        }
+        if (document.getElementById('divMPBench').value == "02") {
+            getCasetype('MP', '02', '', '');
+            return;
+        }
+        if (document.getElementById('divMPBench').value == "03") {
+            getCasetype('MP', '03', '', '');
+            return;
+        }
+    }
+@*Hide UP div*@
+    function hiddivUP() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divUPBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divUPBench').value == '1') {
+            getCasetype('UP', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divUPBench').value == '0') {
+            getCasetype('UP', '0', '', '');
+            return;
+        }
+    }
+@*Hide GH div*@
+    function hiddivGH() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divGHBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divGHBench').value == '1') {
+            getCasetype('GH', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divGHBench').value == '0') {
+            getCasetype('GH', '0', '', '');
+            return;
+        }
+        if (document.getElementById('divGHBench').value == '2') {
+            getCasetype('GH', '2', '', '');
+            return;
+        }
+        if (document.getElementById('divGHBench').value == '3') {
+            getCasetype('GH', '3', '', '');
+            return;
+        }
+    }
+@*Hide WB div*@
+    function hiddivWB() {
+        document.getElementById("drptype").innerHTML = "";
+        if (document.getElementById('divWBBench').value == '') {
+            document.getElementById("drptype").innerHTML = "";
+        }
+        if (document.getElementById('divWBBench').value == '1') {
+            getCasetype('WB', '1', '', '');
+            return;
+        }
+        if (document.getElementById('divWBBench').value == '0') {
+            getCasetype('WB', '0', '', '');
+            return;
+        }
+        if (document.getElementById('divWBBench').value == '2') {
+            getCasetype('WB', '2', '', '');
+            return;
+        }
+        if (document.getElementById('divWBBench').value == '3') {
+            getCasetype('WB', '3', '', '');
+            return;
+        }
+    }
+@*Validation*@
+    function validation() {
+        if (document.getElementById('divSCHCDistrict').value == '1') {
+            document.getElementById('drpcourtname').value = "SC";
+        }
+        if (document.getElementById('divSCHCDistrict').value == '1' || document.getElementById('divSCHCDistrict').value == '2' || document.getElementById('divSCHCDistrict').value == '4') {
+            if (document.getElementById('drpcourtname').value != "0") {
+                if (document.getElementById('drpcourtname').value == "MH") {
+                    if (document.getElementById('drpGoa').value != "Goa") {
+                        if (document.getElementById('drpbench').value == "Select Bench" || document.getElementById('drpbench').value == "" || document.getElementById('drpbench').value == "0") {
+                            alert("please select bench");
+                            document.getElementById('drpbench').focus();
+                            return false;
+                        }
+                        if (document.getElementById('drpside').value == "" || document.getElementById('drpside').value == "Select Side" || document.getElementById('drpside').value == "0") {
+                            alert("please select side");
+                            document.getElementById('drpside').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "TN") {
+                    if (document.getElementById('divTNBench').value == "") {
+                        if (document.getElementById('divTNBench').value == "Select Bench" || document.getElementById('divTNBench').value == "" || document.getElementById('divTNBench').value == "0") {
+                            alert("please select bench");
+                            document.getElementById('divTNBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "JK") {
+                    if (document.getElementById('divJKBench').value == "Select Bench" || document.getElementById('divJKBench').value == "") {
+                        alert("please select bench");
+                        document.getElementById('divJKBench').focus();
+                        return false;
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "RH") {
+                    if (document.getElementById('divRHBench').value == "") {
+                        if (document.getElementById('divRHBench').value == "Select Bench" || document.getElementById('divRHBench').value == "") {
+                            alert("please select bench");
+                            document.getElementById('divRHBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "BH") {
+                    if (document.getElementById('divBHBench').value == "") {
+                        if (document.getElementById('divBHBench').value == "Select Bench" || document.getElementById('divBHBench').value == "" || document.getElementById('divBHBench').value == "0") {
+                            alert("please select type");
+                            document.getElementById('divBHBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "MP") {
+                    if (document.getElementById('divMPBench').value == "") {
+                        if (document.getElementById('divMPBench').value == "Select Bench" || document.getElementById('divMPBench').value == "" || document.getElementById('divMPBench').value == "0") {
+                            alert("please select type");
+                            document.getElementById('divMPBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "UP") {
+                    if (document.getElementById('divUPBench').value == "") {
+                        if (document.getElementById('divUPBench').value == "Select Bench" || document.getElementById('divUPBench').value == "") {
+                            alert("please select bench");
+                            document.getElementById('divUPBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value == "GH") {
+                    if (document.getElementById('divGHBench').value == "") {
+                        if (document.getElementById('divGHBench').value == "Select Bench" || document.getElementById('divGHBench').value == "") {
+                            alert("please select bench");
+                            document.getElementById('divGHBench').focus();
+                            return false;
+                        }
+                    }
+                }
+                if (document.getElementById('drpcourtname').value != "") {
+                    if (document.getElementById('drpcourtname').value == "NC" || document.getElementById('drpcourtname').value == "NL" || document.getElementById('drpcourtname').value == "DT" || document.getElementById('drpcourtname').value == "CI") {
+                        if (document.getElementById('drpNCBench').value == "Select Bench" || document.getElementById('drpNCBench').value == "0") {
+                            alert("please select bench");
+                            document.getElementById('drpNCBench').focus();
+                            return false;
+                        }
+                    }
+                    if (document.getElementById('drpcourtname').value == "IT" || document.getElementById('drpcourtname').value == "CE") {
+                        if (document.getElementById('drpNCBench').value == "Select Bench" || document.getElementById('drpNCBench').value == "0") {
+                            alert("please select bench");
+                            document.getElementById('drpNCBench').focus();
+                            return false;
+                        }
+                    }
+                    if (document.getElementById('drpcourtname').value != "NC" && document.getElementById('drpcourtname').value != "NL" || document.getElementById('drpcourtname').value == "DT" || document.getElementById('drpcourtname').value == "CI") {
+                        //if (document.getElementById('drpcourtname').value != "SC" && document.getElementById('drpcourtname').value != "DE")
+                        if (document.getElementById('drpcourtname').value != "SC") {
+                            if (document.getElementById('drptype').value == "Select Matter Type" || document.getElementById('drptype').value == "0") {
+                                alert("please select matter type");
+                                document.getElementById('drptype').focus();
+                                return false;
+                            }
+                        }
+                        else if (document.getElementById('drpcourtname').value == "OERC") {
+                        }
+                        else {
+                            if (document.getElementById('divSCDECD').value == "0") {
+                                if (document.getElementById('drptype').value == "Select Matter Type" || document.getElementById('drptype').value == "0") {
+                                    alert("please select matter type");
+                                    document.getElementById('drptype').focus();
+                                    return false;
+                                }
+                                if (document.getElementById('txtno').value == "") {
+                                    alert("please enter matter no.");
+                                    document.getElementById('txtno').focus();
+                                    return false;
+                                }
+                                if (document.getElementById('drpcourtname').value != "NC" && document.getElementById('drpcourtname').value != "NL") {
+                                    if (document.getElementById('txtno').value != "") {
+                                        if (/\//.test(document.getElementById('txtno').value)) {
+                                            alert("/ not allowed in caseno");
+                                            document.getElementById('txtno').focus();
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                if (document.getElementById('txtDiaryNo').value == "") {
+                                    alert("please enter diary no.");
+                                    document.getElementById('txtDiaryNo').focus();
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    //if (document.getElementById('drpcourtname').value != "SC" && document.getElementById('drpcourtname').value != "DE")
+                    if (document.getElementById('drpcourtname').value != "SC") {
+                        if (document.getElementById('txtno').value == "") {
+                            alert("please enter matter no.");
+                            document.getElementById('txtno').focus();
+                            return false;
+                        }
+                        if (document.getElementById('drpcourtname').value != "NC" && document.getElementById('drpcourtname').value != "NL") {
+                            if (document.getElementById('txtno').value != "") {
+                                if (/\//.test(document.getElementById('txtno').value)) {
+                                    alert("/ not allowed in caseno");
+                                    document.getElementById('txtno').focus();
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    if (document.getElementById('drpYear').value == "" || document.getElementById('drpYear').value == "0") {
+                        alert("please select matter year");
+                        document.getElementById('drpYear').focus();
+                        return false;
+                    }
+                }
+            }
+        }
+        else {
+            if (document.getElementById('drpcourtnameDC').value == "") {
+                alert("please Select the state.");
+                document.getElementById('drpcourtnameDC').focus();
+                return false;
+            }
+            if (document.getElementById('drpdistrictcourtname').value == "0") {
+                alert("please select district");
+                document.getElementById('drpdistrictcourtname').focus();
+                return false;
+            }
+            if (document.getElementById('drpcourtcomplexestb').value == "") {
+                alert("please select court complex / court establishment");
+                document.getElementById('drpcourtcomplexestb').focus();
+                return false;
+            }
+            if (document.getElementById('drpcompestbcourt').value == "") {
+                alert("please select district court");
+                document.getElementById('drpcompestbcourt').focus();
+                return false;
+            }
+            if (document.getElementById('drptype').value == "") {
+                alert("please select matter type");
+                document.getElementById('drptype').focus();
+                return false;
+            }
+            if (document.getElementById('txtno').value == "") {
+                alert("please enter matter no.");
+                document.getElementById('txtno').focus();
+                return false;
+            }
+            if (document.getElementById('drpcourtname').value != "NC" && document.getElementById('drpcourtname').value != "NL") {
+                if (document.getElementById('txtno').value != "") {
+                    if (/\//.test(document.getElementById('txtno').value)) {
+                        alert("/ not allowed in caseno");
+                        document.getElementById('txtno').focus();
+                        return false;
+                    }
+                }
+            }
+            if (document.getElementById('drpYear').value == "0") {
+                alert("please select matter year");
+                document.getElementById('drpYear').focus();
+                return false;
+            }
+        }
+    }
+@*Validate dairy number*@
+    function validatediaryno() {
+        alert(document.getElementById('txtDiaryNo').value);
+    }
+@*Hide SCDE*@
+    function hiddivSCDE() {
+        document.getElementById('drptype').value = "0";
+        document.getElementById('txtno').value = "";
+        document.getElementById('drpYear').value = "0";
+        $("#divcaseno").toggle();
+        $("#divcasetype").toggle();
+        $("#divdiaryno").hide();
+        if (document.getElementById('divSCDECD').value == "1") {
+            $("#divcaseno").hide();
+            $("#divcasetype").hide();
+            $("#divdiaryno").toggle();
+        }
+    }
+@*Reset revenue*@
+    //function ResetRevenue() {
+    //    $("#RevenueCourt,#RevenueMandal,#RevenueJanpad,#RevenueTahsil,#RevenueCourtName,#RevenueYear,#RevenueRefNo").empty();
+    //    $("#Revenuetxtno").val("");
+    //}
+    function ResetRevenue() {
+        $("#RevenueCourt,#RevenueMandal,#RevenueJanpad,#RevenueTahsil,#RevenueCourtName,#RevenueYear").empty();
+
+        $("#Revenuetxtno").val("");
+        $("#RevenueRefNo").val("");
+        $("#RevenueDistrictName").val("");
+        $("#RevenueCourtTypeText").val("");
+        $("#RevenueCourtNameText").val("");
+        $("#RevenuePurpose").val("");
+        $("#txtcustomstatus").val("");
+    }
+@*Bind revenue year*@
+    function BindRevenueYear(crtid) {
+        $("#RevenueYear").empty();
+        $.ajax({
+            type: "POST",
+            url: "/firm/Addcaseyear?crtid=" + crtid,
+            dataType: "json",
+            success: function (data) {
+                $("#RevenueYear").append("<option value='0'>Select Matter Year</option>");
+                for (var i = 0; i < data.length; i++) {
+                    var caseyearlength = data[i].caseyear;
+                }
+                startYear = new Date().getFullYear()
+                for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                    $("#RevenueYear").append("<option value='" + i + "'>" + i + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Bind revenue court*@
+    function BindRevenueCourt() {
+        var option = "";
+        $.ajax({
+            type: "POST",
+            url: "/Revenue/FillRevenueVCourt",
+            dataType: "json",
+            success: function (data) {
+                var response = JSON.parse(data);
+                var obj = response.data;
+                option += "<option value=''>Select Court</option>";
+                $.each(obj, function (i, a) {
+                    option += '<option value="' + a["vCourtVal"] + '" >  ' + a["vCourtName"] + '</option>';
+                });
+                $("#RevenueCourt").empty().html(option);
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Bind revenue mandal*@
+    function BindRevenueMandal(RevCourt) {
+        $("#RevenueMandal option:not(:first)").remove();
+        $("#RevenueJanpad option:not(:first)").remove();
+        $("#RevenueTahsil option:not(:first)").remove();
+        $("#RevenueCourtName option:not(:first)").remove();
+        var option = "";
+        $.ajax({
+            type: "POST",
+            url: "/Revenue/FillMandal?RevCourt=" + RevCourt,
+            dataType: "json",
+            success: function (data) {
+                var response = JSON.parse(data);
+                var obj = response.data;
+                option += "<option value=''>Select Mandal</option>";
+                $.each(obj, function (i, a) {
+                    option += '<option value="' + a["MandalValue"] + '" >  ' + a["MandalName"] + '</option>';
+                });
+                $("#RevenueMandal").empty().html(option);
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Bind revenue janpad*@
+    function BindRevenueJanpad(MandalValue) {
+        $("#RevenueJanpad option:not(:first)").remove();
+        $("#RevenueTahsil option:not(:first)").remove();
+        $("#RevenueCourtName option:not(:first)").remove();
+        var option = "";
+        $.ajax({
+            type: "POST",
+            url: "/Revenue/FillJanpadByMandal?MandalValue=" + MandalValue,
+            dataType: "json",
+            success: function (data) {
+                var response = JSON.parse(data);
+                var obj = response.data;
+                option += "<option value=''>Select Janpad</option>";
+                $.each(obj, function (i, a) {
+                    option += '<option value="' + a["JanpadValue"] + '" >  ' + a["JanpadName"] + '</option>';
+                });
+                $("#RevenueJanpad").empty().html(option);
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Bind revenue tehsil*@
+    function BindRevenueTehsil(JanPadValue) {
+        $("#RevenueTahsil option:not(:first)").remove();
+        $("#RevenueCourtName option:not(:first)").remove();
+        var option = "";
+        $.ajax({
+            type: "POST",
+            url: "/Revenue/FillTahsilByJanpad?JanPadValue=" + JanPadValue,
+            dataType: "json",
+            success: function (data) {
+                var response = JSON.parse(data);
+                var obj = response.data;
+                option += "<option value=''>Select Tahsil</option>";
+                $.each(obj, function (i, a) {
+                    option += '<option value="' + a["TahsilValue"] + '" >  ' + a["TahsilName"] + '</option>';
+                });
+                $("#RevenueTahsil").empty().html(option);
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Bind revenue court nameby tehsil*@
+    function BindRevenueCourtnameByTahsil(TahsilValue) {
+        $("#RevenueCourtName option:not(:first)").remove();
+        var option = "";
+        $.ajax({
+            type: "POST",
+            url: "/Revenue/FillRevenueCourtByTahsil?TahsilValue=" + TahsilValue,
+            dataType: "json",
+            success: function (data) {
+                var response = JSON.parse(data);
+                var obj = response.data;
+                option += "<option value=''>Select Court Name</option>";
+                $.each(obj, function (i, a) {
+                    option += '<option value="' + a["RevenueCourtValue"] + '" >  ' + a["RevenueCourtName"] + '</option>';
+                });
+                $("#RevenueCourtName").empty().html(option);
+            },
+            error: function (data) {
+            }
+        });
+    }
+    //End revenue Court
+    //Rerea court start
+    function ResetReracourt() {
+        $("#reracasetype,#reracaseyear,#divReraCourt").empty();
+        $("#reracasno").val("");
+        $("#reraRefNo").val("");
+    }
+    //End
+    //Rera court implemnetations
+    function fn_ReracaseType(val) {
+        if (val == "HRRA") {
+            document.getElementById("divreracasetype").style.display = "block";
+            document.getElementById("divRefNo").style.display = "block";
+            document.getElementById("divRefNo").style.display = "none";
+            document.getElementById("divreracaseyear").style.display = "block";
+            fillReraCaseType();
+            fillYear();
+            document.getElementById("reraRefNo").value = "";
+        }
+        else {
+            document.getElementById("reracasetype").value = "0";
+            document.getElementById("reracaseyear").value = "0";
+            document.getElementById("divreracasetype").style.display = "none";
+            document.getElementById("reracasno").value = "";
+            document.getElementById("divRefNo").style.display = "block";
+            document.getElementById("divreracaseyear").style.display = "none";
+        }
+    }
+    //bind rera court start
+    function fillReraCourt() {
+        var reracourt = "";
+        $("#divReraCourt option").remove();
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/BindReraCourtType?reracourt=" + reracourt,
+            dataType: "json",
+            success: function (data) {
+                $("#divReraCourt").append("<option value='0'>Case/Appeal Authority</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#divReraCourt").append("<option value='" + data[i].casetype + "'>" + data[i].casetypename + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+    //end
+    //bind case type
+    function fillReraCaseType() {
+        var reracourt = document.getElementById("divReraCourt").value;
+        $("#reracasetype option").remove();
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/GetReraCourtCaseType?reracourt=" + reracourt,
+            dataType: "json",
+            success: function (data) {
+                $("#reracasetype").append("<option value='0'>Case/Appeal Authority</option>");
+                for (var i = 0; i < data.length; i++) {
+                    $("#reracasetype").append("<option value='" + data[i].casetypename + "'>" + data[i].casetypename + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+    //bind case year
+    function fillYear() {
+        var ctyear = "SC";
+        $("#reracaseyear option").remove();
+        $.ajax({
+            type: "POST",
+            url: "/firm/Addcaseyear?crtid=" + ctyear,
+            dataType: "json",
+            success: function (data) {
+                $("#reracaseyear").append("<option value='0'>Case Year</option>");
+                for (var i = 0; i < data.length; i++) {
+                    var caseyearlength = data[i].caseyear;
+                }
+                startYear = new Date().getFullYear()
+                for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                    $("#reracaseyear").append("<option value='" + i + "'>" + i + "</option>");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Disple SC HC district Section*@
+    function divSCHCDistrictdisplay() {
+        try {
+            $("#txtsuffix").val("");
+            $("#divsuffix").hide();
+            ResetRevenue();
+            ResetReracourt();
+            document.getElementById('ReraCourtDiv').style.display = 'none';
+            document.getElementById('RevenueCourtDiv').style.display = 'none';
+            document.getElementById('HighCourt').style.display = 'none';
+            document.getElementById('DistrictCourt').style.display = 'none';
+            document.getElementById('drpcourtcomplexestb').style.display = 'none';
+            document.getElementById('drpdistrictcourtname').style.display = 'none';
+            document.getElementById('drpcompestbcourt').style.display = 'none';
+            document.getElementById('lbldistrictname').innerHTML = "";
+            $("#drpdcourtcnr").val("");
+            $("#drpdistrictcourtname").val("");
+            $('#drpcourtname').empty();
+            $('#drpcourtnameDC').empty();
+            $("#drpYear").empty();
+            $("#drptype").empty();
+            $("#drpNCBench").empty();
+            $("#divdiaryno").hide();
+            $("#divSCDE").hide();
+            $("#drpGoa").val = "";
+            //document.getElementById('drpbench').style.border = "unset";
+            //document.getElementById('drpside').style.border = "unset";
+            //document.getElementById('divTNBench').style.border = "unset";
+            //document.getElementById('divJKBench').style.border = "unset";
+            //document.getElementById('divRHBench').style.border = "unset";
+            //document.getElementById('divBHBench').style.border = "unset";
+            //document.getElementById('divMPBench').style.border = "unset";
+            //document.getElementById('divUPBench').style.border = "unset";
+            //document.getElementById('divGHBench').style.border = "unset";
+            //document.getElementById('drpNCBench').style.border = "unset";
+            //document.getElementById('drpNCBench').style.border = "unset";
+            //document.getElementById('drptype').style.border = "unset";
+            //document.getElementById('drptype').style.border = "unset";
+            //document.getElementById('drpYear').style.border = "unset";
+            //document.getElementById('drpcourtnameDC').style.border = "unset";
+            //document.getElementById('drpcourtcomplexestb').style.border = "unset";
+            //document.getElementById('drpcompestbcourt').style.border = "unset";
+           // document.getElementById('drptype').style.border = "unset";
+            /*document.getElementById('drpYear').style.border = "unset";*/
+            document.getElementById('divSCDECD').value = "0";
+            document.getElementById('txtDiaryNo').value = "";
+            document.getElementById('divcasetype').style.display = "block";
+            document.getElementById('divcaseno').style.display = "block";
+            document.getElementById('divRH').style.display = "none";
+            document.getElementById('divJK').style.display = "none";
+            document.getElementById('divNC').style.display = "none";
+            document.getElementById('savebtn').style.display = "none";
+            document.getElementById("divKA").style.display = "none";
+            document.getElementById('divMHGoa').style.display = "none";
+            document.getElementById('divTN').style.display = "none";
+            document.getElementById('divBH').style.display = "none";
+            document.getElementById('divMP').style.display = "none";
+            document.getElementById('divMHGoa').style.display = "none";
+            document.getElementById("divMH").style.display = "none";
+            document.getElementById('divUP').style.display = "none";
+            document.getElementById('divGH').style.display = "none";
+            document.getElementById('lblcourtname').innerHTML = "";
+            document.getElementById('Court').style.display = "none";
+            //for Rera court
+            if (document.getElementById('divSCHCDistrict').value == "2" || document.getElementById('divSCHCDistrict').value == "3") {
+                /*document.getElementById('cnrdivdata').style.display = 'block';*/
+                if (document.getElementById('divSCHCDistrict').value == "2") {
+                    document.getElementById('cnrdivdata').style.display = 'none';
+                    $("#lbllinkedcase").text("Link Cases for High Court to District Court");
+                }
+                if (document.getElementById('divSCHCDistrict').value == "3") {
+                    document.getElementById('cnrdivdata').style.display = 'block';
+                    $("#lbllinkedcase").text("Update District Court by CNR Number");
+                }
+            }
+            else {
+                document.getElementById('cnrdivdata').style.display = 'none';
+            }
+            if (document.getElementById('divSCHCDistrict').value == "1") {
+                //document.getElementById('HighCourt').style.display = 'block';
+                AddCourtName(document.getElementById('divSCHCDistrict').value);
+                showaddingcasetype();
+                //added bym umesh on 28 jan 20
+                FillCasetypeDiary();
+                // FillCasetype();
+            }
+            else if (document.getElementById('divSCHCDistrict').value == "2" || document.getElementById('divSCHCDistrict').value == "4" || document.getElementById('divSCHCDistrict').value == "5") {
+                document.getElementById('HighCourt').style.display = 'block';
+                AddCourtName(document.getElementById('divSCHCDistrict').value);
+            }
+            else if (document.getElementById('divSCHCDistrict').value == "3") {
+                document.getElementById('DistrictCourt').style.display = 'block';
+                AddCourtName('3');
+            }
+            else if (document.getElementById('divSCHCDistrict').value == "6") {
+                document.getElementById('RevenueCourtDiv').style.display = 'block';
+                BindRevenueYear('6');
+                BindRevenueCourt();
+            }
+            //for Rera court
+            else if (document.getElementById('divSCHCDistrict').value == "7") {
+                document.getElementById('ReraCourtDiv').style.display = 'block';
+                fillReraCourt();
+            }
+        }
+        catch (ex) {
+            alert(ex.message);
+        }
+    }
+    @*Display court name*@
+    function AddCourtName(strcourttype) {
+        $.ajax({
+            type: "POST",
+            url: "/AddCase/AddCourtNameByCourtType?courttype=" + strcourttype,
+            dataType: "json",
+            success: function (data) {
+                $("#drpcourtname").append("<option value='0'>-Select Court Name-</option>");
+                $("#drpcourtnameDC").append("<option value='0'>Select Your State / UT</option>");
+                for (var i = 0; i < data.length; i++) {
+                    if (strcourttype != "3") {
+                        $("#drpcourtname").append("<option value='" + data[i].courtid + "'>" + data[i].courtname + "</option>");
+                    }
+                    else {
+                        $("#drpcourtnameDC").append("<option value='" + data[i].courtid + "'>" + data[i].courtname + "</option>");
+                    }
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+@*Div DV court name*@
+    function divdrpcourtnameDC() {
+        $("#drpdistrictcourtname").empty();
+        var selectedText = "";
+        document.getElementById('Court').style.display = 'none';
+        document.getElementById('drpcourtcomplexestb').style.display = 'none';
+        document.getElementById('drpdistrictcourtname').style.display = 'none';
+        document.getElementById('drpcompestbcourt').style.display = 'none';
+        document.getElementById('lbldistrictname').style.display = 'none';
+        document.getElementById("savebtn").style.display = "none";
+        if (document.getElementById('drpcourtnameDC').value != "0") {
+            document.getElementById('drpdistrictcourtname').style.display = 'block';
+            document.getElementById('lbldistrictname').style.display = 'block';
+            var skillsSelect = document.getElementById("drpcourtnameDC");
+            var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+            document.getElementById('lbldistrictname').innerHTML = "<center><h4>Selected: <span>" + selectedText + "</span> </h4></center><hr style='border:1px solid #e6cfcf;margin-top:10px; margin-bottom:0px;'>"
+            $.ajax({
+                type: "POST",
+                url: "/AddCase/AddDistrictByCourt?courttype=" + document.getElementById('drpcourtnameDC').value,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpdistrictcourtname").append("<option value='0'>Please Select District</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        $("#drpdistrictcourtname").append("<option value='" + data[i].courtid + "'>" + data[i].courtname + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+    }
+@*District change*@
+    function divdistrictchange() {
+        document.getElementById('drpcourtcomplexestb').style.display = 'none';
+        document.getElementById('drpcompestbcourt').style.display = 'none';
+        document.getElementById("savebtn").style.display = "none";
+        if (document.getElementById('drpdistrictcourtname').value != "0") {
+            document.getElementById('drpcourtcomplexestb').style.display = 'block';
+            document.getElementById('drpcourtcomplexestb').value = '';
+            $.ajax({
+                type: "POST",
+                url: "/Firm/FillCourtComplexSTB",
+                dataType: "json",
+                success: function (data) {
+                    $("#drpcourtcomplexestb").empty();
+                    $("#drpcourtcomplexestb").append("<option value=''>Please Select</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        $("#drpcourtcomplexestb").append("<option value='" + data[i].id + "'>" + data[i].name + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+    }
+@*Drp court change*@
+    function drpcourtcompestbchange() {
+        var courtype = "";
+        var districttype = "";
+        var compesttype = "";
+        $('#drpcompestbcourt').empty();
+        document.getElementById("savebtn").style.display = "none";
+        document.getElementById('drpcompestbcourt').style.display = 'none';
+        if (document.getElementById('drpcourtcomplexestb').value != "") {
+            document.getElementById('drpcompestbcourt').style.display = 'block';
+            document.getElementById('drpcompestbcourt').value = '';
+            courtype = document.getElementById('drpcourtnameDC').value;
+            districttype = document.getElementById('drpdistrictcourtname').value;
+            compesttype = document.getElementById('drpcourtcomplexestb').value;
+            $.ajax({
+                type: "POST",
+                url: "/AddCase/AddCourtComplexEstType?crttype=" + courtype + "&dsttype=" + districttype + "&compesttype=" + compesttype,
+                dataType: "json",
+                success: function (data) {
+                    $("#drpcompestbcourt").append("<option value=''>Please Select District Court</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        $("#drpcompestbcourt").append("<option value='" + data[i].courtid + "'>" + data[i].courtname + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+    }
+    function drpcompestbcourtchange() {
+        //password = encodeURIComponent(password);
+        var courtype = "";
+        var districttype = "";
+        var compesttype = "";
+        var compestcourt = "";
+        $('#drptype').empty();
+        document.getElementById("savebtn").style.display = "none";
+        if (document.getElementById('drpcompestbcourt').value != "") {
+            document.getElementById("savebtn").style.display = "block";
+            courtype = encodeURIComponent(document.getElementById('drpcourtnameDC').value);
+            districttype = encodeURIComponent(document.getElementById('drpdistrictcourtname').value);
+            compesttype = encodeURIComponent(document.getElementById('drpcourtcomplexestb').value);
+            compestcourt = encodeURIComponent(document.getElementById('drpcompestbcourt').value);
+            $.ajax({
+                type: "POST",
+                url: "/AddCase/AddDistrictCaseType?crttype=" + courtype + "&dsttype=" + districttype + "&compesttype=" + compesttype + "&compestcourt=" + compestcourt,
+                dataType: "json",
+                success: function (data) {
+                    $("#drptype").append("<option value=''>Please Select Matter Type</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        $("#drptype").append("<option value='" + data[i].courtid + "' data-type='" + data[i].DistrictCaseType + "'>" + data[i].courtname + "</option>");
+                       // $("#drptype").append("<option value='" + data[i].DistrictCaseType + "' data-type='" + data[i].DistrictCaseType + "'>" + data[i].courtname + "</option>");
+
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            $.ajax({
+                type: "POST",
+                url: "/firm/Addcaseyear?crtid=",
+                dataType: "json",
+                success: function (data) {
+                    $("#drpYear").append("<option value='0'>Select Matter Year</option>");
+                    for (var i = 0; i < data.length; i++) {
+                        var caseyearlength = data[i].caseyear;
+                    }
+                    startYear = new Date().getFullYear()
+                    for (var i = parseInt(startYear); i >= parseInt(caseyearlength); i--) {
+                        $("#drpYear").append("<option value='" + i + "'>" + i + "</option>");
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+    }
+</script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left" style="display: flex; align-items: center;">
+            <p class="ctitle" style="margin: 0;">Search by Party Name</p>
+            @*<div id="info-wrapper-1" style="margin-left: 6px; position: relative;">
+                <img src="~/newassets/img/info-circle.png" id="info-icon-1" alt="info" style="cursor: pointer;">
+                <div id="info-text-1">
+                    <p>Search by Party Name feature is currently not available for Andhra Pradesh High Court.</p>
+                </div>
+            </div>*@
+        </div>
+        <div class="supporting-text"></div>
+    </div>
+</section>
+<section class="wrapper" style="margin:15px 0;">
+    <div class="container-main">
+        <div>
+
+            <div class="row form-group">
+
+                <div id="" class="col-md-6" style="display:block;">
+                    <label class="control-label">Select Court Type<span class="required " aria-required="true"><b> *</b> </span></label>
+
+
+                    <select name="courtType1" id="courtTypes" class="form-control selctInputFormat" style="background-color: white !important;" onchange="CheckCourtType()">
+                        <option value="0">Select Court</option>
+                        <option value="1" selected="selected"> Supreme Court</option>
+                        <option value="2"> High Court</option>
+                        <option value="3">Tribunal</option>
+                        <option value="4"> District Court</option>
+                        <option value="5"> Revenue Court</option>
+                    </select>
+
+                </div>
+                @*<div class="col-md-1">
+            <span data-toggle="collapse" data-target="#demo" class="collapsed" style="padding: 10px 8px 17px 3px;">
+                <img src="/newassets/images/info_icon.png" style="cursor:pointer;/* margin-left: 5px; */padding: 28px 6px 7px 2px;/* font-size: 32px; */height: 56px;">
+            </span>
+            <div id="demo" class="collapse" style="border: 1px solid rgb(143, 213, 0); background: white; padding: 4px; width: 360px; top: 52px; z-index: 1000; position: absolute; height: 10px;">
+                <p>Search by Party Name feature is currently not available for Telangana High Court.</p>
+            </div>
+        </div>*@
+                <div class="col-md-6" id="div_SCHC" style="display:block;">
+                    <label class="control-label">Search Court Name<span class="required " aria-required="true"><b> *</b> </span></label>
+
+                    <select name="divSCHC" id="divSCHC" class="form-control selctInputFormat" style="background-color: white !important;"><option value="0" selected="selected">All</option></select>
+
+                </div>
+
+                <div id="div_State" class="col-md-6" align="left" style="display:none;">
+                    <label class="control-label">State </label>
+                    <select name="divState" id="divState" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                </div>
+
+            </div>
+            <div class="row form-group" id="div_District" style="display:none;">
+                <div class="col-md-12">
+                    <label class="control-label">District </label>
+                    <select name="districtid" id="districtid" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-md-6">
+                    <label class="control-label">Party Name<span class="required " aria-required="true"><b> *</b> </span> </label>
+                    <input id="txtApplent" name="txtApplent" type="text" class="form-control inputFormat" placeholder="Search Party Name " value="">
+                    <button type="submit" class="search-button" title="Search"><img src="/newassets/img/search-lg.png" alt=""></button>
+                </div>
+                @*<div class="col-md-6">
+            <label class="control-label">
+                Search By
+                <span class="required" aria-required="true"><b> *</b></span>
+            </label>
+
+            <select id="searchType" class="form-control inputFormat mb-2">
+                <option value="Applicant">Applicant</option>
+                <option value="Respondent">Respondent</option>
+                <option value="vCnrNo">CNR No.</option>
+            </select>
+
+            <label class="control-label">
+                Value
+                <span class="required" aria-required="true"><b> *</b></span>
+            </label>
+            <input id="txtApplent"
+                   name="txtApplent"
+                   type="text"
+                   class="form-control inputFormat"
+                   placeholder="Search"
+                   value="">
+
+            <button type="submit" class="search-button" title="Search">
+                <img src="/newassets/img/search-lg.png" alt="">
+            </button>
+        </div>*@
+                <div class="col-md-2" id="searchByPartyNameCaseYearDiv">
+                    <label class="control-label">
+                        Select Case Year<span class="required " aria-required="true"><b> *</b> </span>
+                    </label>
+
+                    <select id="searchByPartyNameCaseYear"
+                            name="searchByPartyNameCaseYear"
+                            class="form-control inputFormat" required>
+
+                        <option value="">Select Case Year</option>
+                        <option value="2025Above">2025 & Above</option>
+                        <option value="Below2025">Before 2025</option>
+
+                    </select>
+                </div>
+                <div class="col-md-2" id="divSearch" style="display:block;">
+                    <label class="control-label"> </label>
+                    <button class="btn btn-primary" id="btnSearch" name="btnSearch" value="Search" type="button" style="width: 100%; margin: 18px 6px 5px 0px;">Search</button>
+                </div>
+                <div class="col-md-2" style="padding-top: 32px;">
+                    <input type="checkbox" id="removecasefiler" /> remove already added
+                </div>
+                <input type="hidden" value="" id="caseinfo">
+                <input type="hidden" value="2" id="hdnRadioType">
+                <input type="hidden" value="1" id="Courttype">
+            </div>
+        </div>
+        <!--<div class="ec_bg" style="overflow:visible;">
+            <div class="row">
+                <div class="col-md-12" style="text-align:left; height:40px;">
+                    <span><input checked="checked" id="rdSC" name="rdcourt" type="radio"> Supreme Court</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span>
+                        <input id="rdhigh" name="rdcourt" type="radio">High Court
+                    </span>
+                    <span data-toggle="collapse" data-target="#demo">
+                        <img src="~/newassets/images/info_icon.png" style="cursor:pointer;margin-left: 5px;" />
+                    </span>
+                    <div id="demo" class="collapse"
+                         style="border: 1px solid rgb(143, 213, 0); background:white; padding: 4px; width: 360px;top:26px;z-index:1000;position: absolute">
+                        <p>Search by Party Name feature is currently not available for Dharwad Bench and Kalaburagi Bench of Karnataka High Court and Telangana High Court.</p>
+                    </div>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span>
+                        <input id="rdTC" name="rdcourt" type="radio"> Tribunal
+                    </span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span><input id="rdDC" name="rdcourt" type="radio"> District Court </span>
+                </div>
+            </div>
+            <div class="row">-->
+        @*<div id="divSearchCriteria" style="display:block; margin:0; text-align:left;">
+                <div id="div_SCHC" class="col-md-2" align="left" style="display:block;">
+                    <select name="divSCHC" id="divSCHC" class="form-control selctInputFormat" style="background-color: white !important;"><option value="0" selected="selected">ALL</option></select>
+                </div>
+                <div id="div_State" class="col-md-2" align="left" style="display:none;">
+                    <select name="divState" id="divState" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                </div>
+                <div id="div_District" class="col-md-2" align="left" style="display:none;">
+                    <select name="districtid" id="districtid" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                </div>
+                <div class="col-md-2"><input id="txtApplent" name="txtApplent" type="text" class="form-control inputFormat" value="" placeholder="Search Party name..."></div>
+                <div class="col-md-2" align="center" id="divSearch" style="display:block;"><button class="sbtbtn" id="btnSearch" name="btnSearch" value="Search" type="button">Search</button></div>
+                <div class="col-md-3" style="display:block;margin-left:-60px;"><input type="checkbox" id="removecasefiler" /> remove already added</div>
+            </div>*@
+        <!--<input type="hidden" value="" id="caseinfo">
+                <input type="hidden" value="2" id="hdnRadioType">
+                <input type="hidden" value="1" id="Courttype">
+            </div>
+        </div>-->
+
+    </div>
+</section>
+<section>
+    <div class="container-main">
+        <div class="table">
+            <div class="tablearea" style="margin:0;">
+                <div id="divsearchbypartyname" class="tablecontainer">
+                   
+                </div>
+                <div class="pagination"></div>
+            </div>
+                </div>
+                <div>
+                    <ul>
+                        <li>
+                            <div id="ptfooter" style="float:left;margin-top:5px;margin-left:5px;"></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+</section>
+<div id="myModal23" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    case details
+                </h4>
+            </div>
+            <!-- Modal content-->
+            <div class="modal-body" id="mymodels">
+                <div class="table" style="overflow-y:auto;height:475px; margin:20px 0 0 0;">
+                    <table class="table-panel">
+                        <tbody id="bindappeal"></tbody>
+                    </table>
+                    <center id="pdatastatus" style="display:none;">
+
+                        <div class="notfound"  >
+                            <img src="/newassets/img/not-found.png">
+                            <h4>No Data found</h4>
+                            <p>We found no data list.</p>
+                        </div>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="casewatchmodel" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:600px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closecasemodal" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Add Matter for Live Update
+                </h4>
+            </div>
+            <div class="modal-body" style="height:425px; overflow-y:auto;">
+                <div class="col-md-6 form-group">
+                    <label>Court</label>
+                    <select name="divSCHCDistrict" id="divSCHCDistrict" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divSCHCDistrictdisplay();">
+                    </select>
+                </div>
+                <div class="col-md-6 form-group" id="HighCourt" style="display:none;">
+                    <label>Select Court Name </label>
+                    <select name="drpcourtname" id="drpcourtname" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divdisplay();"></select>
+                </div>
+                <div id="DistrictCourt" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>State </label>
+                        <select name="drpcourtnameDC" id="drpcourtnameDC" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divdrpcourtnameDC();"></select>
+                    </div>
+                    <div id="divDistrict" class="col-md-6 form-group">
+                        <label>District </label>
+                        <select name="drpdistrictcourtname" id="drpdistrictcourtname" class="form-control selctInputFormat" style="background-color: white !important; display:none;" onchange="divdistrictchange();"></select>
+                    </div>
+                    <div id="divcourtcomplexestb" class="col-md-6 form-group">
+                        <label>Establishment</label>
+                        <select name="drpcourtcomplexestb" id="drpcourtcomplexestb" class="form-control selctInputFormat" style="background-color: white !important; display:none;" onchange="drpcourtcompestbchange();">
+                        </select>
+                    </div>
+                    <div id="divcompestbcourt" class="col-md-6 form-group">
+                        <label>Court Name</label>
+                        <select name="drpcompestbcourt" id="drpcompestbcourt" class="form-control selctInputFormat" style="background-color: white !important; display: none;" onchange="drpcompestbcourtchange();"></select>
+                    </div>
+                </div>
+                <div class="form-group" style="display:none;">
+                    <div class="col-md-12" id="lbldistrictname" style="display:none;"></div>
+                    <div class="col-md-12" id="lblcourtname" style="display:none;"></div>
+                    <div id="Court" style="display:none;margin: -5px 22px 13px 0;"></div>
+                </div>
+                <div id="divMP" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Select Bench <span class="required" aria-required="true">*</span></label>
+                        <select name="divMPBench" id="divMPBench" class=" form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivMP();">
+                            <option value="">Select Bench / Type</option>
+                            <option value="01">Jabalpur</option>
+                            <option value="02">Indore</option>
+                            <option value="03">Gwalior</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="divMHGoa" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Select Court</label>
+                        <select name="drpGoa" id="drpGoa" class=" form-control selctInputFormat" style="background-color: white !important;" onchange="hiddiv();">
+                            <option selected="selected" value="0">Select</option>
+                            <option value="">Bombay High Court</option>
+                            <option value="Goa">Goa</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="divMH" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Bench<span class="required" aria-required="true">*</span></label>
+                        <select name="drpbench" id="drpbench" class=" form-control selctInputFormat" style="background-color: white !important;" onchange="fillside();"></select>
+                    </div>
+                    <div id="divMHGoaBench">
+                        <div class="col-md-6 form-group">
+                            <label>Side <span class="required" aria-required="true">*</span></label>
+
+                            <select name="drpside" id="drpside" class=" form-control selctInputFormat" style="background-color: white !important;" onchange="fillCasetype();"></select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Stamp/Register <span class="required" aria-required="true">*</span></label>
+
+                            <select name="drpstampregister" id="drpstampregister" class=" form-control selctInputFormat" style="background-color: white !important;"></select>
+                        </div>
+                    </div>
+                </div>
+                <div id="divTN" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Select Bench <span class="required" aria-required="true">*</span></label>
+
+                        <select name="divTNBench" id="divTNBench" class=" form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivTN();">
+                            <option value="">Select Bench</option>
+                            <option value="0">Madras</option>
+                            <option value="1">Madurai</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="divKA" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Bench <span class="required" aria-required="true">*</span></label>
+                        <select name="drpKAbench" id="drpKAbench" class="form-control selctInputFormat" style="background-color: white !important;">
+                            <option value="B">Bengaluru Bench</option>
+                            <option value="D">Dharwad Bench</option>
+                            <option value="K">Kalaburagi Bench</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="divNC" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Bench <span class="required" aria-required="true">*</span></label>
+                        <select name="drpNCBench" id="drpNCBench" class="form-control selctInputFormat" onchange="hiddivNC();"></select>
+                    </div>
+                </div>
+                <div id="divncdrcstate" style=" display:none;">
+                    <div class="col-md-6 form-group">
+                        <label> State <span class="required" aria-required="true">*</span></label>
+                        <select name="drpncdrcstate" id="drpncdrcstate" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivNCDRCDistrict();"></select>
+                    </div>
+                </div>
+                <div id="divncdrcDistrict" style=" display:none;">
+                    <div class="col-md-6 form-group">
+                        <label> District Forum <span class="required" aria-required="true">*</span></label>
+                        <select name="drpncdrcDistrict" id="drpncdrcDistrict" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                </div>
+                <div id="divRH" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Select Bench <span class="required" aria-required="true">*</span></label>
+                        <select name="divRHBench" id="divRHBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivRH();">
+                            <option value="">Select Bench</option>
+                            <option value="0">Jaipur</option>
+                            <option value="1">Jodhpur</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="divJK" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Select Bench <span class="required" aria-required="true">*</span></label>
+                        <select name="divJKBench" id="divJKBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivJK();">
+                            <option value="">Select Bench</option>
+                            <option value="0">Jammu</option>
+                            <option value="1">Srinagar</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="divBH" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Select Bench <span class="required" aria-required="true">*</span></label>
+                        <select name="divBHBench" id="divBHBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivBH();">
+                            <option value="">Select Type</option>
+                            <option value="0">Civil</option>
+                            <option value="1">Criminal</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="divMP" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Select Bench <span class="required" aria-required="true">*</span></label>
+                        <select name="divMPBench" id="divMPBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivMP();">
+                            <option value="">Select Bench / Type</option>
+                            <option value="01">Jabalpur</option>
+                            <option value="02">Indore</option>
+                            <option value="03">Gwalior</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="divSCDE" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>CaseType / Diary</label>
+                        <select name="divSCDECD" id="divSCDECD" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivSCDE();">
+                        </select>
+                    </div>
+                </div>
+                <div id="divUP" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Select Bench</label>
+                        <select name="divUPBench" id="divUPBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivUP();">
+                        </select>
+                    </div>
+                </div>
+                <div id="divGH" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <label>Select Bench</label>
+                        <select name="divGHBench" id="divGHBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivGH();">
+                            <option value="">Select Bench / Type</option>
+                            <option value="0">Gauhati</option>
+                            <option value="1">Kohima</option>
+                            <option value="2">Aizawl</option>
+                            <option value="3">Itanagar</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="divWB" style="display:none">
+                    <div class="col-md-6 form-group">
+                        <label>Select Bench <span class="required" aria-required="true">*</span> </label>
+                        <select name="divWBBench" id="divWBBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivWB();">
+                            <option value="">Select Bench / Type</option>
+                            <option value="0">Original Side</option>
+                            <option value="1">Appellate Side</option>
+                            <option value="2">Circuit Bench At Port Blair</option>
+                            <option value="3">Circuit Bench At Jalpaiguri</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="savebtn" style="display:none;">
+                    <div class="col-md-6 form-group" id="divcasetype">
+                        <label>Matter Type</label>
+                        <div id="divcasetype_DT">
+                            <select name="drptype" id="drptype" class="form-control selctInputFormat"></select>
+                        </div>
+                        <!--Add For DRT Diary Case Number-->
+                        <div id="divDTcasetypeDiary" style="display:none;">
+                            <select name="drptype_DN" id="drptype_DN" class="form-control selctInputFormat">
+                                <option value="0">Select Matter Type</option>
+                                <option value="DN">Diary</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-group" id="divcaseno">
+                        <label id="labelcaseNo">Matter Number</label>
+                        <div id="divcaseno">
+                            <input type="text" class="form-control inputFormat" autocomplete="off" name="txtno" id="txtno" maxlength="500" />
+                        </div>
+                    </div>
+                    <div id="divdiaryno" style="display:none;">
+                        <div class="col-md-6 form-group">
+                            <label>Diary Number</label>
+                            <input type="text" class="form-control inputFormat" name="txtDiaryNo" id="txtDiaryNo" maxlength="500" />
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-group" id="drpyearShow">
+                        <label>Matter Year</label>
+                        <select name="drpYear" id="drpYear" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                    <div class="col-md-6 form-group" id="divsuffix" style="display:none;">
+                        <label>Suffix </label>
+                        <input type="text" class="form-control InputFormat" placeholder="Add Suffix" name="txtsuffix" id="txtsuffix" maxlength="10">
+                    </div>
+                </div>
+                <div id="cnrdivdata" style="display:none;">
+                    <div class="col-md-6 form-group">
+                        <center><label id="lbllinkedcase" style="font-weight:bold;"><b>LINK CASES FOR HIGH COURT TO DISTRICT COURT</b></label></center>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>CNR No.</label>
+                        <div id="divdcourtcnr">
+                            <input type="text" name="drpdcourtcnr" maxlength="16" id="drpdcourtcnr" class="form-control inputFormat" />
+                        </div>
+                    </div>
+                </div>
+                @*//using for custome court*@
+                <div id=divcustomcourtsection style="display:none;">
+
+                    <div id="divcasename" class="col-md-6 form-group">
+                        <label id="lblCasename"> Case Name <span class="required" aria-required="true">*</span> </label>
+                        <input type="text" class="form-control inputFormat" name="txtcasename" id="txtcasename" maxlength="1000" />
+                    </div>
+
+                    <div id="divcustomadvocate" class="col-md-6 form-group">
+                        <label id="Label2"> Advocate</label>
+                        <input type="text" class="form-control InputFormat" name="txtcustomadvocate" id="txtcustomadvocate" maxlength="200" />
+                    </div>
+                    <div id="divnexthearingdate" class="col-md-6 form-group">
+                        <label id="Label1">Next Hearing / Disposed Date <span class="required" aria-required="true">*</span> </label>
+                        <input placeholder="Select Date" class="form-control InputFormat" name="dtnhearingdate" id="dtnhearingdate" type="date" value="" />
+                    </div>
+                    <div id="divcustomstatus" class="col-md-6 form-group">
+                        <label id="lblcustomstatus"> Status</label>
+                        <input type="text" class="form-control InputFormat" name="txtcustomstatus" id="txtcustomstatus" maxlength="200" />
+                    </div>
+                </div>
+                @*<%--end custome court section--%>*@
+                <div id="cnrdivdata" style="display:none;">
+                    <div style="text-align:center">
+                        OR
+                    </div>
+                    <div class="form-group form-horizontal">
+                        <center><label id="lbllinkedcase" style="font-weight:bold;">Link Cases for High Court to District Court</label></center>
+                    </div>
+                    <div class="col-md-6 form-group" id="divdcourtcnr">
+                        <label class="control-label">CNR No.</label>
+                        <input type="text" name="drpdcourtcnr" maxlength="16" id="drpdcourtcnr" class="form-control inputFormat" />
+                    </div>
+                </div>
+                <div id="RevenueCourtDiv" style="display:none;">
+
+                    <div class="col-md-6 form-group">
+                        <label>Select Court Name <span class="required" aria-required="true">*</span> </label>
+
+                        <select name="RevenueCourt" id="RevenueCourt" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueMandal(this.value);"></select>
+                    </div>
+                    @*<div class="col-md-6 form-group">
+            <label>Select Mandal <span class="required" aria-required="true">*</span> </label>
+            <select name="RevenueMandal" id="RevenueMandal" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueJanpad(this.value);"></select>
+        </div>*@
+                    @*<div class="col-md-6 form-group">
+            <label>Select Janpad <span class="required" aria-required="true">*</span></label>
+            <select name="RevenueJanpad" id="RevenueJanpad" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueTehsil(this.value);"></select>
+        </div>*@
+                    @*<div class="col-md-6 form-group">
+            <label>Select Tahsil <span class="required" aria-required="true">*</span> </label>
+
+            <select name="RevenueTahsil" id="RevenueTahsil" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueCourtnameByTahsil(this.value);"></select>
+        </div>*@
+                    @*<div class="col-md-6 form-group">
+            <label>Select Revenue Court <span class="required" aria-required="true">*</span> </label>
+            <select name="RevenueCourtName" id="RevenueCourtName" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+        </div>*@
+                    @*<div class="col-md-6 form-group">
+            <label class="control-label">Matter Number <span class="required" aria-required="true">*</span> </label>
+
+            <input type="text" class="inputFormat form-control" autocomplete="off" name="Revenuetxtno" id="Revenuetxtno" maxlength="500" style="margin-bottom:10px !important">
+        </div>*@
+                    @*<div class="col-md-6 form-group">
+            <label class="control-label">Case Year <span class="required" aria-required="true">*</span> </label>
+
+            <input type="text" class="inputFormat form-control" autocomplete="off" name="Revenuetxtno" id="Revenuetxtno" maxlength="500" style="margin-bottom:10px !important">
+        </div>*@
+                    <div class="col-md-6 form-group">
+                        <label class="control-label">Appeal No.(Computer Id) </label>
+                        <input type="text" name="RevenueRefNo" maxlength="16" id="RevenueRefNo" class="form-control inputFormat" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label class="control-label">District </label>
+                        <input type="text" name="RevenueDistrictName" maxlength="16" id="RevenueDistrictName" class="form-control inputFormat" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label class="control-label">Court Type </label>
+                        <input type="text" name="RevenueCourtTypeText" maxlength="16" id="RevenueCourtTypeText" class="form-control inputFormat" />
+                    </div>
+                    <div class="col-md-6 form-group" style="display:none;">
+                        <label class="control-label">Court Name </label>
+                        <input type="text" name="RevenueCourtNameText" maxlength="16" id="RevenueCourtNameText" class="form-control inputFormat" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label class="control-label">Status </label>
+                        <input type="text" name="RevenuePurpose" maxlength="16" id="RevenuePurpose" class="form-control inputFormat" />
+                    </div>
+                    @*<div class="col-md-6 form-group">
+            <label class="control-label">Matter Year <span class="required" aria-required="true">*</span> </label>
+            <select name="RevenueYear" id="RevenueYear" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+        </div>*@
+                    @*<div class="col-md-12 form-group" style="text-align:center"> Or </div>*@
+
+
+                </div>
+                @*<--->for rera court start</--->*@
+                <div id="ReraCourtDiv" style="display:none;">
+
+                    <div class="col-md-6 form-group">
+                        <label>Select Court Name <span class="required" aria-required="true">*</span> </label>
+                        <select name="divReraCourt" id="divReraCourt" class="form-control selctInputFormat" style="background-color: white !important;" onchange="fn_ReracaseType(this.value);">
+                        </select>
+                    </div>
+                    <div id="divreracasetype" style="display:none;">
+
+                        <div class="col-md-6 form-group">
+                            <label>Case/Appeal Authority <span class="required" aria-required="true">*</span> </label>
+                            <select name="reracasetype" id="reracasetype" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                        </div>
+
+                        <div id="divReraCaseno" class="col-md-6 form-group">
+                            <label>Case/Appeal No <span class="required" aria-required="true">*</span> </label>
+                            <input type="number" name="reracasno" id="reracasno" maxlength="50" size="10" class="form-control InputFormat" placeholder="Case/Appeal No" />
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-group" id="divRefNo" style="display:none;">
+                        <label>Case/Appeal No <span class="required" aria-required="true">*</span> </label>
+                        <input type="text" name="reraRefNo" id="reraRefNo" maxlength="50" class="form-control InputFormat" placeholder="Case/Appeal No" />
+                    </div>
+                    <div class="col-md-6 form-group" id="divreracaseyear" style="display:none;">
+                        <label>Case Year <span class="required" aria-required="true">*</span> </label>
+                        <select name="reracaseyear" id="reracaseyear" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+
+                </div>
+                @*<-->END</-->*@
+                <div class="col-md-6 form-group">
+                    <label>Case Name </label>
+                    <input type="text" name="Case Name" id="LtCaseName" class="form-control InputFormat" placeholder="Case Name" />
+                </div>
+                @*<div class="row">
+
+                    </div>*@
+                @*<div class="form-group form-horizontal">
+                        <label class="formLabel colorDark col-md-4">Notes</label>
+                        <div class="col-md-8">
+                            <textarea id="casedetails" value="" style="margin: 0px; width: 327px; height: 40px;" class="inputFormatTextArea" maxlength="2000"></textarea>
+                        </div>
+                    </div>*@
+
+                <div class="col-md-6 form-group">
+                    <label>Add Matter Name<span aria-required="true">*</span></label>
+                    <input type="text" id="mattersforlink212" class="form-control inputFormat" placeholder="Enter Matter Name" />
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label>Team Member</label>
+                    <select class="form-control InputFormat" name="languageSelect[]" id="addtaskmember5" multiple></select>
+                </div>
+            </div>
+
+
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-secondary" id="resetcasewatch" onclick="resetcasewatch()" style="width:100%">Reset</button>
+
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-primary" id="savecase" style="width:100%"><span><img src="~/newassets/img/plus-icon.png" /></span> Add Matter</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-12 form-group">
+    <input id="livecaseidhide" class="form-control inputFormat" type="hidden" />
+</div>
+<div class="col-md-12 form-group">
+    <input id="livecaseidhide" class="form-control inputFormat" type="hidden" />
+</div>
+<div id="myOverlaySearchByPartyName" class="overlay" style="z-index: 10005; display: none;">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+
+<script>
+    $("#txtApplent").on("keypress", function (e) {
+
+        var charCode = e.which;
+
+        // Allow: A-Z, a-z, 0-9, space
+        if (
+            !(charCode >= 48 && charCode <= 57) && // 0-9
+            !(charCode >= 65 && charCode <= 90) && // A-Z
+            !(charCode >= 97 && charCode <= 122) && // a-z
+            charCode !== 32 // space
+        ) {
+            e.preventDefault();
+        }
+    });
+    $(document).ready(function () {
+        addtaskmember5();
+        $("#mattersforlink2").autocomplete({
+            disabled: true
+        });
+    });
+    $('#mattersforlink2').on('keyup', function () {
+        /* your code here */
+        var txtlength = $("#mattersforlink2").val().length;
+        if (txtlength > 0) {
+        }
+        else {
+            $("#livecaseidhide,#mattersforlink2").val("");
+        }
+    });
+    $(function () {
+        $("#mattersforlink2").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/MatterFilterAutoComplete',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            map[name] = { id: id, name: name };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#livecaseidhide").val(map[item].id);
+                return map[item].name;
+            }
+        });
+    });
+    function addtaskmember5() {
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/MatterApi/TeamMemberbyFirmId",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    var obj = JSON.parse(response.Data);
+                }
+                else {
+                    //alert("not found");
+                }
+                var html3 = '';
+                $("#addtaskmember5").html("");
+                if (response != null) {
+                    $(".ms-selectall").show();
+                    $.each(obj, function (key, value) {
+                        if (value.roleid != 1) {
+                            $("#addtaskmember5").append($("<option></option>").val(value.id).text(value.UserName));
+                        }
+                    });
+                }
+                else {
+                    //  $(".ms-selectall").hide();
+                    //  $("#addtaskmember5").append($("<option></option>").val("Other").text('Others'));
+                }
+                $("#addtaskmember5").multiselect('reload');
+            },
+            failure: function (response) {
+                //alert(response.responseText);
+            }, //End of AJAX failure function
+            error: function (response) {
+                //alert(response.responseText);
+            } //End of AJAX error function
+        });
+    }
+</script>

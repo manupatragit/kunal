@@ -1,0 +1,335 @@
+﻿@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_NewHomePartialFirm.cshtml";
+}
+<script>
+    var Url = '@ViewBag.Url';
+    localStorage.setItem("sesalertflag", "true");
+    localStorage.setItem("usersidemenu", "");
+    localStorage.setItem("userprofile", "");
+</script>
+<script>
+    function CheckUser() {
+        try {
+            var struser = $("#rusername").val();
+            if (struser == "") {
+                alert("Please enter username");
+                return false;
+            }
+            else {
+                $.ajax({
+                    async: true,
+                    url: '/api/WorkFlowNewApi/CheckUser',
+                    type: 'POST',
+                    headers: {
+                        'username': struser
+                    },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.Status == true) {
+                            if (response.Data == "0") {
+                                $("#lblmsg").val("Available");
+                            }
+                            else {
+                                $("#lblmsg").val("Not Available");
+                            }
+                        }
+                    },
+                    error: function () {
+                        alert('Error!');
+                    }
+                });
+            }
+        }
+        catch (err) {
+            alert(err.message);
+        }
+    }
+</script>
+@Scripts.Render("~/bundles/Security")
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<SCRIPT>
+    $(document).ready(function () {
+        try {
+            var ddlCountry = $('#country');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    $.each(d.Data, function (i, country) {
+                        ddlCountry.append($("<option></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                    ddlCountry.append($("<option value='' selected></option>").val('').html('Please Select Country'));
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        //State details by country id
+        $("#country").change(function () {
+            var CountryId = $(this).val();
+            var ddlState = $('#state');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    if (d.Data != "") {
+                        ddlState.append($("<option value='' selected></option>").val('').html('Select the state.'));
+                        $.each(d.Data, function (i, states) {
+                            ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                        });
+                        $('#state').show();
+                        $('#city').show();
+                        $('#txtstate').hide();
+                        $('#txtcity').hide();
+                    }
+                    else {
+                        $('#txtstate').show();
+                        $('#state').hide();
+                        $('#txtcity').show();
+                        $('#city').hide();
+                    }
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#state").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#city');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            debugger;
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select City Name'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+    });
+</SCRIPT>
+<script>
+    $(document).ready(function () {
+        //get the IP addresses associated with an account
+        HomePageData();
+    });
+    function HomePageData() {
+        var pageURL = $(location).attr("href");
+        var pathArray = window.location.pathname.split('/');
+        var firmcode = pathArray[1];
+        $.ajax({
+            async: true,
+            type: 'POST',
+            dataType: 'json',
+            headers: { 'firmcode': firmcode },
+            url: '/api/WorkFlowNewApi/HomePageData',
+            contentType: "application/json; charset=utf-8",
+            processData: false,
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    var obj = JSON.parse(response.Data);
+                    $.each(obj, function (i, val) {
+                        $("#heading").html(val.LogoHeading);
+                        $("#subheading").html(val.Logotext);
+                        $("#aboutus").html(val.Aboutus);
+                        $("#services").html(val.Services);
+                        $("#lbladdress").text(val.Address);
+                        $("#lblphone").text(val.ContactNo);
+                        $("#lblemail").text(val.email);
+                        $("#website").html(val.website);
+                        var imglogopath = "../.." + val.LogoPath;
+                        var imglogopath = val.LogoPath;
+                        var mykaselogo = "/Manupanel/img/mykase.png";
+                        var LogoPosition = val.LogoPosition;
+                        if (imglogopath == "") {
+                            $("#logo_menu_mobile").hide();
+                        }
+                        else {
+                            $("#logo_menu_mobile").show();
+                        }
+                        if (String(LogoPosition) == "left") {
+                            $("#mykaselogo").attr("src", imglogopath);
+                            $("#imglogo").attr("src", mykaselogo);
+                            $("#imglogo1").attr("src", mykaselogo);
+                        }
+                        else {
+                            $("#imglogo1").attr("src", imglogopath);
+                        }
+                        if (val.BackgroundImg == "") { val.BackgroundImg = 1; }
+                        var strclass = "/assets/img/c_banner_home" + val.BackgroundImg + ".jpg";
+                        document.getElementById("banner").style.backgroundImage = "url(" + strclass + ")";
+                    });
+                }
+                else {
+                    alert("not found");
+                }
+            },
+            failure: function (data) {
+                alert(data.responseText);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+        });
+    }
+</script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NFX573FMY3"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-NFX573FMY3');
+</script>
+<section id="banner" class="c-banner" style="background:url(/assets/img/c_banner_home.jpg) no-repeat bottom center;background-size:cover;">
+    <div class="container">
+        <div class="banner-img">
+            <div class="welcome">
+                <h3>Welcome to</h3>
+                <h4 id="heading"></h4>
+                <h5 id="subheading"></h5>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="features">
+    <div class="features-head">
+        <div class="container">
+            <h2>about</h2>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <p id="aboutus"></p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="solution">
+    <div class="solution-head">
+        <div class="container">
+            <h2>services</h2>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <p id="services"></p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="demorequest" id="contact">
+    <div class="demorequest-head">
+        <div class="container">
+            <h2>contact us</h2>
+        </div>
+    </div>
+    <div class="container">
+        <div class="demorequestform">
+            <form name="sentMessage">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="">your name*</label>
+                            <input type="text" class="form-control" id="conname" required="" data-validation-required-message="Please enter your name." maxlength="30">
+                            <p class="help-block text-danger"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="">your email*</label>
+                            <input type="email" class="form-control" id="conemail" required="" data-validation-required-message="Please enter your email address." maxlength="50">
+                            <p class="help-block text-danger"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="">your phone*</label>
+                            <input type="tel" class="form-control" id="conphone" required="" data-validation-required-message="Please enter your phone number." maxlength="10">
+                            <p class="help-block text-danger"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="form-group">
+                            <label for="">your message</label>
+                            <textarea class="form-control" id="conmessage" required="" data-validation-required-message="Please enter a message."></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <div id="success"></div>
+                            <button type="button" class="verifybtn" style="margin:20px 0 0 0; width:160px;" onclick="fn_SaveContact()">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<script>
+    function fnIPRedirect() {
+        document.getElementById("_hidIP").value = "10.60.1.169";
+        var pageURL = $(location).attr("href");
+        var firmcode = pageURL.substring(pageURL.lastIndexOf("/") + 1);
+        $.ajax({
+            async: true,
+            type: 'POST',
+            dataType: 'json',
+            headers: { 'firmcode': firmcode },
+            url: '/api/WorkFlowNewApi/AuthenticateIP',
+            contentType: "application/json; charset=utf-8",
+            processData: false,
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    // alert(datas);
+                    var obj = JSON.parse(response.Data);
+                    $.each(obj, function (i, val) {
+                        alert(val.LogoPath);
+                    });
+                }
+                else {
+                    alert("not found");
+                }
+            },
+            failure: function (data) {
+                alert(data.responseText);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+        });
+    }
+</script>

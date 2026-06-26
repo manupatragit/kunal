@@ -1,0 +1,326 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+@{
+    var firmcode = Session["FirmCode"];
+}
+<script src="~/Scripts/Firm/Pages/CaseRoleAccess.js?2.5" type="text/javascript" language="javascript"></script>
+<script>
+   var roleids = "@Session["sessionroleid"]";
+    var isDelete = "@ViewBag.IsDelete";
+    var IsCreate = "@ViewBag.IsCreate";
+    var IsViewAll = "@Session["IsViewAll"]";
+    var userid = "@Session["sessionuserid"]";
+</script>
+<style>
+    .glyphicon-pencil, .glyphicon-trash {
+        color: black !important;
+    }
+    .assign_wrapper_right {
+        display: flex;
+        justify-content: space-between;
+    }
+    .box-title{
+        display:grid;
+        grid-template-columns:20% 25% 5% !important;
+    }
+    .button-group-label a {
+        flex: 1;
+        text-align: center;
+        text-decoration: none;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 10px;
+        color: #808080;
+        padding: 0px 6px;
+    }
+</style>
+
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"><h2 id="dynamiciprheader"></h2></p>
+        </div>
+        <div class="assign_wrapper_right">
+            @*<ul class="nav nav-tabs">
+                <li><a href="/@firmcode/Role/RoleAccess" title="Assign Rights" id="assignRights" style="padding: 5px 40px;">Assign Rights</a></li>
+                <li class="active"><a href="/@firmcode/Role/CaseRoleAccess" title="Matter Rights" class="tabstyle" id="assignMatterRights">Matter Rights</a></li>
+
+            </ul>*@
+            <div class="button-group-label">
+                <a href="/@firmcode/Role/RoleAccess" title="Assign Rights" id="assignRights">Assigned Rights</a>
+                <a class="active" href="/@firmcode/Role/CaseRoleAccess" title="Matter Rights" id="assignMatterRights">Matter Rights</a>
+            </div>
+            <div>
+                @if (role.ToString() == "1")
+                {
+                    <a data-toggle="tab" href="#" id="addNewRole" class="btn btn-primary" title="Create New Rights For a Matter">New Matter Rights </a>
+                }
+                else
+                {
+                    if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                    {
+                        <a class="btn btn-primary" data-toggle="tab" href="#" id="addNewRole" title="Create New Rights For a Matter">New Matter Rights </a>
+                    }
+                }
+            </div>
+        </div>
+
+    </div>
+</section>
+<section class="wrapper">
+    <div class="container-main showcontent" id="showcontent">
+        <div>
+            @*<h2 class="title">Matter Rights </h2>*@
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header">
+                        <div class="box-title">
+                            <select id="ddlUsers" class="selctInputFormat"  name="ddlUsers"></select>
+                            <select id="ddlCases" class="selctInputFormat" name="ddlCases" style="display:none;"></select>
+                            @*<button class="btn btn-primary" id="searchrights" style="display:none;">Search</button>*@
+                        </div>
+                        <div class="box-tools">
+                        </div>
+                        <ul class="pagination-sm no-margin pull-right"></ul>
+                    </div>
+                </div><!-- /.box-header -->
+                <!-- /.panel-heading -->
+            </div>
+            <div data-example-id="hoverable-table" id="home">
+                <table class="table-panel" style="overflow-x:auto;" id="example">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)"><div class="thbg">User<span class="fa fa-sort pull-right"></span></div></th>
+                            <th><div class="thbg">Rights</div></th>
+                            <th onclick="sortTable(2)"><div class="thbg">Matter Name<span class="fa fa-sort pull-right"></span></div></th>
+                            <th><div class="thbg">Created On</div></th>
+                            <th><div class="thbg">Last Modified On</div></th>
+                            <th><div class="thbg">Action</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="bindroleaccess"></tbody>
+                </table>
+                @*<center><div id="dataescstatus"></div></center>*@
+                <center>
+                    <div class="notfound" id="pdatastatus" style="display:none;">
+                        <img src="~/newassets/img/not-found.png" />
+                        <h4><span id="dtNotFound">No data found</span></h4>
+
+                    </div>
+                </center>
+                <div class="table-panel">
+                    <div class="pagination" id="tradePagination">
+                        <div class="pagination-button-group">
+                            <div id="prev" class="pagination-button-group-base">
+                                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                            </div>
+                            <div id="pageNumbers" class="pagination-button-group-base1">
+                            </div>
+                            <div id="next" class="pagination-button-group-base8">
+                                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-parent">
+                            <div class="input">
+                                <div class="content">
+                                    <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                </div>
+                                <div class="help-icon">
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-group">
+                                <div class="text-and-supporting-text">
+                                    <div id="divGo" class="text9">Go</div>
+                                </div>
+                                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="settingpanel">
+                <div class="col-md-6">
+                    <div style="float: left;padding: 0 10px 0 0;">
+                        <ul>
+                            <li>
+                                <div class="btn-group dropup">
+                                    <ul class="dropdown-menu settingshowhide" id="od"></ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="tfooter">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <ul class="pull-right">
+                        @if (role.ToString() == "1")
+                        {
+                            <li>
+                                <a data-toggle="tab" href="#" id="addNewRole" class="sbtbtn" title="Create New Rights For a Matter">new matter rights </a>
+                            </li>
+                        }
+                        else
+                        {
+                            if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                            {
+                                <li>
+                                    <a class="sbtbtn" data-toggle="tab" href="#" id="addNewRole" title="Create New Rights For a Matter">new matter rights </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@*End Modal for Show User details on UserCount*@
+<div class="modal fade" id="modalUserCountView" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                <div id="divuserLabel"><h4 class="modal-title" id="myModalUserLabel">User Matters</h4></div>
+            </div>
+            <div class="modal-body ">
+                <!-- Main content -->
+                <form id="resavetaskform" enctype="multipart/form-data" novalidate="novalidate">
+                    <!-- Start About boxes -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Matter Name</th>
+                                        <th>IsRole</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bindUsercountdetails"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- /.content -->
+                    <input type="hidden" id="hidgroupid">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@*End Modal for Show User details on UserCount*@
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("example");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 1; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>

@@ -1,0 +1,126 @@
+﻿@{
+    ViewBag.Title = "multiplefilelist";
+    Layout = null;
+}
+<!-- Page Content -->
+@{
+    var filetype = @ViewBag.type;
+    var Invoicefid = @ViewBag.data;
+    var mode = @ViewBag.mode;
+    var role = @ViewBag.RoleId;
+    var currentloginuser = @ViewBag.loginuserid;
+}
+<div class="modal-header btn-primary">
+    <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Document List
+    </h4>
+</div>
+<div class="modal-body" style="height:500px; overflow-y:scroll;">
+    <aside class="">
+        <!-- /.box-header -->
+        <!-- /.panel-heading -->
+        <!-- Main content -->
+        <!-- Main content -->
+        <section>
+            <div id="contentdata" class="table-panel table-responsive" style="height:450px; overflow-x:auto">
+                <table id="example123" class="table dataTable" style="overflow-x:auto;">
+                    <thead>
+                        <tr>
+                            <th width="15%" class="Activity" style="text-align: left; "><div class="thbg">Sl. No.</div></th>
+                            <th class="Status" style="text-align: center; "><div class="thbg">File Name</div></th>
+                            <th class="Status" style="text-align: center; "><div class="thbg">Upload Date</div></th>
+                            <th style="text-align: center; padding-top: 12px;" class="Date"><div class="thbg">Download</div></th>
+                            <th style="text-align: center; padding-top: 12px;" class="action actiondelete"><div class="thbg">Action </div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="savefildedata">
+                        @{
+                            int qty = 0;
+                            string string1 = "";
+                            string string2 = "";
+                        }
+                        @foreach (var item in ViewBag.filedata)
+                        {
+                            qty = qty + 1;
+                            var outputpath = "/Documents/" + filetype + "/" + @ViewBag.FirmId + "/" + @ViewBag.loginuserid + "/" + item.filedocs;
+                            var ftoken = "/DownloadFile.ashx?module=multiple&ftype=" + filetype + "&fid=" + Invoicefid + "&ftoken=" + item.filedocs + "&FirmId=" + @ViewBag.FirmId + "&LoginUserId=" + @ViewBag.loginuserid;
+                            <tr>
+                                <td>@qty</td>
+                                <td>@item.filedocs</td>
+                                <td>@item.uploaddate</td>
+                                <td style="text-align: center;"><a href="@outputpath" download><span class="glyphicon glyphicon-download-alt" title="Download File"></span></a></td>
+                                @{
+                                    if (role.ToString() == "1")
+                                    {
+                                        <td style="text-align: center;" class="action "><span class="glyphicon glyphicon-trash" style="cursor:pointer" title="Remove file" onclick='removefiledata("@item.fid",this)' id="removefile" data-val="@item.fid"></span></td>
+                                    }
+                                    else if (currentloginuser.Equals(item.userid.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        <td style="text-align: center;" class="action "><span class="glyphicon glyphicon-trash" style="cursor:pointer" title="Remove file" onclick='removefiledata("@item.fid",this)' id="removefile" data-val="@item.fid"></span></td>
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: center;" class="action ">&nbsp;</td>
+                                    }
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <span class="filefound124"><center>No Document Found !</center></span>
+            </div>
+        </section>
+    </aside>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="modal-footer">
+                <button type="button" id="closemodels" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("a").bind("click", function () {
+        validnavigation = true;
+        window.onbeforeunload = null;
+    })
+          function removefiledata(fid) {
+              if (confirm("Are you sure you want to remove this file?")) {
+                  var formData = new FormData();
+                  formData.append("fid", fid);
+                  $.ajax({
+                      type: "POST",
+                      url: '/api/NoticeNew/RemoveFileById',
+                      contentType: false,
+                      processData: false,
+                      data: formData,
+                      success: function (response) {
+                          if (response) {
+                              alert("File deleted successfully.");
+                              $('#myDocumentModal').modal('hide');
+                              window.location.reload();
+                          }
+                          else {
+                              alert("Something went wrong.")
+                          }
+                      },
+                      error: function (response) {
+                          alert("Something went wrong.")
+                      }
+                  })
+              }
+          }
+    $(document).ready(function () {
+        var modes = "@mode";
+        if (modes == "view") {
+        }
+        var rowCount1 = $('#example123 >tbody>tr').length;
+        if (String(rowCount1)>0) {
+            $(".filefound124").css("display", "none");
+        }
+        else {
+            $(".filefound124").css("display", "block");
+        }
+    });
+</script>

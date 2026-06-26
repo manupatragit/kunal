@@ -1,0 +1,410 @@
+﻿@{
+    ViewBag.Title = "InvoiceSetting";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+</style>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+    var type = '@ViewBag.type'
+</script>
+<script>
+    var statesvalues = "@ViewBag.state";
+    $(document).ready(function () {
+        function openload() {
+            $('#myOverlay').css("display", "block");
+        }
+        function closeload() {
+            $('#myOverlay').css("display", "none");
+        }
+        openload();
+        setTimeout(function () {
+            var notesdata = $("#tempnotes").val();
+            var termsdata = $("#tempterms").val();
+            CKEDITOR.instances['notes'].setData(notesdata);
+            CKEDITOR.instances['terms'].setData(termsdata);
+            var templatedata = "@ViewBag.template";
+            if (templatedata == "1") {
+                $("#radio1").prop("checked", true);
+            }
+            else if (templatedata == "2") {
+                $("#radio2").prop("checked", true);
+            }
+            else if (templatedata == "3") {
+                $("#radio3").prop("checked", true);
+            }
+            else if (templatedata == "4") {
+                $("#radio4").prop("checked", true);
+            }
+            else if (templatedata == "5") {
+                $("#radio5").prop("checked", true);
+            }
+            $("#hidimgval").val(templatedata);
+            var logodata = "@ViewBag.logo";
+             var logodatasign = "@ViewBag.InSignature";
+            if (logodata != "") {
+                $("#output_image").attr("src", logodata);
+                $("#output_image1").attr("src", logodatasign);
+            }
+            var statevalue = "@ViewBag.state";
+            $('#state').val(statevalue);
+              var isdefault = "@ViewBag.isdefault";
+            if (isdefault == "1") {
+                $("#cport").prop("checked", true);
+            }
+            else {
+                $("#cport").prop("checked", false);
+            }
+            closeload();
+        }, 6000);
+    });
+</script>
+<script src="~/Scripts/Firm/Pages/InvoiceSettings.js?1.8"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+@*<script>
+    function GetRbtVal() {
+        var selected = $("input[type='radio'][name='rbt']:checked");
+        if (selected.length > 0) {
+            $("#hidimgval").val(selected.val());
+        }
+    }
+</script>*@
+<style>
+    ul.home_bg {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+        ul.home_bg li {
+            margin: 0 5px 0 0;
+            padding: 0 0 0 7px;
+            float: left;
+            border: 1px solid #cccccc;
+            border-radius: 2px;
+        }
+
+            ul.home_bg li input {
+                margin: 0;
+                padding: 0 0 0 0;
+            }
+
+    #cke_notes, #cke_terms {
+        width: 100% !important;
+    }
+</style>
+<input type="hidden" id="tempnotes" value="@ViewBag.notes">
+<input type="hidden" id="tempterms" value="@ViewBag.terms">
+<input type="hidden" id="templogo" value="@ViewBag.logo">
+<input type="hidden" id="templogo1" value="@ViewBag.InSignature">
+<form id="savedata" enctype="multipart/form-data">
+    <section id="header">
+        <div class="container-main">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="text-left">
+                        <p class="ctitle"> Invoice Settings</p>
+                        <a class="goback" id="goBack" href="/@Session["firmcode"]/Bill/ViewInvoice"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="table-header" style="justify-content: flex-end;">
+                        <div class="actions3">
+                            <div class="button13" title="Add Tax">
+
+                                <div class="text-padding">
+                                    <div class="text1">
+                                        <a href="/@Session["firmcode"]/Bill/CreateTax"><img class="" alt="" src="~/newassets/img/plus-icon-black.png" /> Tax</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="button13" title="Invoice Series">
+
+                                <div class="text-padding">
+                                    <div class="text1">
+                                        <a href="/@Session["firmcode"]/Bill/CreateInvoiceSeries"><img class="plus-icon" alt="" src="/newassets/img/document-icon.png" /> Invoice Series</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="button13" title="Biller Address List">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()" id="multipleaddress"><img class="plus-icon" alt="" src="/newassets/img/mail-02.png" /> Biller Address List</a></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="table">
+        <input type="hidden" id="hidimgval" value="1" />
+        <div class="container-main">
+            <div class="table" style="padding:15px;">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Invoice Template<span aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-12 form-group">
+                            <label>Select Template</label>
+                            <select class="form-control selctInputFormat" id="selectinvtemplate">
+                                <option value="" selected>Please select template</option>
+                                <option value="1">Template 1</option>
+                                <option value="2">Template 2</option>
+                                <option value="3">Template 3</option>
+                                <option value="4">Template 4</option>
+                                <option value="5">Template 5</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <a href="#" style="color: inherit; text-decoration: underline;" id="invtemplatepreview">Check Preview</a>
+                        </div>
+                        @*<div class="col-md-12 form-group">
+
+                    <ul style="margin:0;padding:0;list-style-type:none">
+                        <li style="float:left"><input id="radio1" type="radio" value="1" checked name="rbt" onclick="GetRbtVal()" /><a href="javascript:void()" id="viewtemplate" value="1">Template 1</a></li>
+                        <li style="float:left;padding:0 0 0 5px;"><input id="radio2" type="radio" value="2" name="rbt" onclick="GetRbtVal()" /><a href="javascript:void()" id="viewtemplate" value="2">Template 2</a></li>
+                        <li style="float:left;padding:0 0 0 5px;"><input id="radio3" type="radio" value="3" name="rbt" onclick="GetRbtVal()" /><a href="javascript:void()" id="viewtemplate" value="3">Template 3</a></li>
+                        <li style="float:left;padding:0 0 0 5px;"><input id="radio4" type="radio" value="4" name="rbt" onclick="GetRbtVal()" /><a href="javascript:void()" id="viewtemplate" value="4">Template 4</a></li>
+                        <li style="float:left;padding:0 0 0 5px;"><input id="radio5" type="radio" value="5" name="rbt" onclick="GetRbtVal()" /><a href="javascript:void()" id="viewtemplate" value="4">Template 5</a></li>
+                    </ul>
+                </div>*@
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label style="font-weight: 600; font-size: 14px; color: #374151;">Documents<span aria-required="true" style="color: #374151;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <!-- Upload Logo -->
+                        <div class="col-md-12 form-group" style=" padding: 16px; margin-bottom: 16px;">
+                            <label style="font-weight: 600; font-size: 14px; color: #374151;">Upload Logo</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                @*<span style="font-size: 13px; color: #6b7280;">Add File (Only jpg file format allowed)</span>*@
+                                <span style="font-size: 13px; color: #6b7280;">                                               </span>
+                                <label for="attachment" style="margin: 0;">
+                                    <span style=" border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 8px; font-weight: 500; font-size: 14px; color: #374151; cursor: pointer;">
+                                        <img src="/newassets/img/upload-cloud.svg" style="width: 16px; margin-right: 8px; vertical-align: middle;"> Upload Document
+                                    </span>
+                                </label>
+                                <input type="file" class="default photo-attachment form-control inputFormat" name="attachment" id="attachment" onchange="preview_image(event)" accept="image/*" style="display: none;">
+                            </div>
+                            <input type="hidden" id="hidlogopath" />
+                            <div id="divlogoimg" style="display:none"><img id="imglogo" /></div>
+                            <div id="fileListUploadLogo" style="margin-top:10px;"></div>
+                        </div>
+
+                        <!-- Upload Signature -->
+                        <div class="col-md-12 form-group" style=" padding: 16px;">
+                            <label style="font-weight: 600; font-size: 14px; color: #374151;">Upload Signature</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 13px; color: #6b7280;">@*Add File (Only jpg pdf file format allowed)*@</span>
+                                <span style="font-size: 13px; color: #6b7280;">                                               </span>
+                                <label for="attachment1" style="margin: 0;">
+                                    <span style=" border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 8px; font-weight: 500; font-size: 14px; color: #374151; cursor: pointer;">
+                                        <img src="/newassets/img/upload-cloud.svg" style="width: 16px; margin-right: 8px; vertical-align: middle;"> Upload Document
+                                    </span>
+                                </label>
+                                <input type="file" class="default photo-attachment form-control inputFormat" name="attachment1" id="attachment1" onchange="preview_image1(event)" accept="image/*" style="display: none;">
+                            </div>
+                            <input type="hidden" id="hidlogopath1" />
+                            <div id="divlogoimg1" style="display:none"><img id="imglogo1" /></div>
+                            <div id="fileListUploadSignature" style="margin-top:10px;"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Company Details<span aria-required="true">*</span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Company Name</label><span class="required " aria-required="true"><b> *</b> </span>
+                                <input type="" value="@ViewBag.cname" class="form-control inputFormat" name="heading" id="cname" required size="100" placeholder="Enter Company Name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Address</label><span class="required " aria-required="true"><b> *</b> </span>
+                                <input type="text" value="@ViewBag.address" class="form-control inputFormat" name="address" id="address" required size="500">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>State</label><span class="required " aria-required="true"><b> *</b> </span>
+                                <select id="state" class="form-control selctInputFormat">
+                                    <option selected value="">Select State</option>
+                                    
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Email</label><span class="required " aria-required="true"><b> *</b> </span>
+                                <input type="email" value="@ViewBag.email" class="form-control inputFormat" name="emailid" id="emailid" size="100">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Phone Number</label><span class="required " aria-required="true"><b> *</b> </span>
+                                <input type="text" value="@ViewBag.phone" maxlength="16" onkeypress="return restrictAlphabetsfax(event)" class="form-control inputFormat" name="phonenumber" id="phonenumber" size="50">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Website</label>
+                                <input type="text" value="@ViewBag.website" class="form-control inputFormat" name="website" id="website" size="100">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>GST Registration </label>
+                                <input type="text" value="@ViewBag.gstno" class="form-control inputFormat" name="gstno" id="gstno" size="100" placeholder="Type Here">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>PAN</label>
+                                <input type="text" value="@ViewBag.pan" class="form-control inputFormat" name="pan" id="pan" size="100" min-length="10" maxlength="10" placeholder="Type Here" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>SAC Code </label>
+                                <input type="text" value="@ViewBag.sac" class="form-control inputFormat" name="sac" id="sac" size="100" placeholder="Type Here">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group" style="overflow: hidden;">
+                                <div style="float:left;">
+                                    <label class="switch">
+                                        <input type="checkbox" id="cport" name="setdefault" value="1">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="float: left; padding: 13px 0 0 5px;">
+                                    <label><span class="required " aria-required="true"><b> *</b> </span>Set as default </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Invoice Notes</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <textarea ID="notes" value=""></textarea>
+                                <div class="grid-container" style="display:none">
+                                    <div id="editor">
+                                    </div>
+                                    <script>
+                                        initSample();
+                                        CKEDITOR.replace('notes', {
+                                            toolbar:
+                                                [
+                                                    { name: 'document', groups: ['mode', 'document', 'doctools'], items: ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates'] },
+                                                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'justify', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'TextColor', 'BGColor'] },
+                                                    { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                    { name: 'tools', items: ['Maximize'] },
+                                                    { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] }
+                                                ],
+                                            alignment: {
+                                                options: ['left', 'right']
+                                            },
+                                            height: 100
+                                        });
+                                        CKEDITOR.config.allowedContent = true;
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding:10px 0 0 0;">
+                    <div class="col-md-4">
+                        <label>Terms & Conditions</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <textarea ID="terms" maxlength="2000" value=""></textarea>
+                                <div class="grid-container" style="display:none">
+                                    <div id="editor">
+                                    </div>
+                                    <script>
+                                        //initSample();
+                                        CKEDITOR.replace('terms', {
+                                            toolbar:
+                                                [
+                                                    { name: 'document', groups: ['mode', 'document', 'doctools'], items: ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates'] },
+                                                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'justify', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'TextColor', 'BGColor'] },
+                                                    { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                    { name: 'tools', items: ['Maximize'] },
+                                                    { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] }
+                                                ],
+                                            height: 100,
+                                        });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group pull-right" style="margin:20px 13px 20px 0px;">
+                            <button class="btn btn-secondary" id="clearInvoice">Clear All</button>
+                            <button type="button" id="btnsubmit" class="btn btn-primary" value="Save">Save</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+<div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog  modal-lg" style="width:1000px;">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,491 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/Scripts/Firm/Pages/MatterReport.js?11.3"></script>
+<script>
+    var roleids = "@Session["sessionroleid"]";
+</script>
+<style>
+    a.morelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span {
+        display: none;
+    }
+
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+</style>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+
+
+<main class="wrapper report_wrapper">
+
+    <section id="header">
+        <div class="container-main">
+            <div class="text-left">
+                <p class="ctitle"> Matters Report</p>
+            </div>
+        </div>
+    </section>
+    <section class="main-content">
+        <div class="mid-section ec_bg">
+            <div class="row report_row">
+                <form id="idreportformat">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">User</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpUser" name="ddlExpUser">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Matter Name</label>
+                            <input type="text" id="casefiltercasename" placeholder="Matter Name" class="form-control inputFormat">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Court</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="rptmcasefiltercourt" name="rptmcasefiltercourt">
+                                <option value="" selected="">Select Court</option>
+                                <option value="Supreme Court">Supreme Court</option>
+                                <option value="High Court">High Court</option>
+                                <option value="District Court">District Court</option>
+                                <option value="Tribunals">Tribunals</option>
+                                <option value="Add a Court">Add a Court</option>
+                                <option value="Revenue Court">Revenue Court</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Status</label>
+                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="rptmfcasestatus">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="formLabel colorDark">Creation Date</label>
+                            <div class="row gy-sm-4">
+                                <div class="col-md-6">
+                                    <input class="form-control inputFormat" id="datefrom" onkeypress="return false;" type="date">
+                                </div>
+                                <div class="col-md-6">
+                                    <input class="form-control inputFormat" id="dateto" onkeypress="return false;" type="date">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="from-group">
+                            <label class="formLabel colorDark">&nbsp;</label>
+                            <div class="row gy-sm-4">
+                                <div class="col-md-6">
+                                    <div class="radio radiobtn form-control inputFormat">
+                                        <label>
+                                            <input checked type="radio" id="rdadded" name="rdadded" onclick="fn_IsAddedMatter(1);">
+                                            Added
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="radio radiobtn form-control inputFormat">
+                                        <label>
+                                            <input type="radio" id="rdassigned" name="rdadded" onclick="fn_IsAddedMatter(0);"> &nbsp;&nbsp;Assigned
+                                            
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+                <div class="col-md-4">
+                    <div class="from-group">
+                        <label class="formLabel colorDark">&nbsp;&nbsp;</label>
+
+                        <div class="row gy-sm-4">
+                            <div class="col-md-8">
+                                <button class="btn btn-primary" style="width:100%;" id="searchdatas">Generate Report</button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-secondary" style="width:100%;" id="MtrClearReport">Clear All</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="tabuler_section">
+            <input type="hidden" id="hdnisaddedval" value="1" />
+            <section id="table">
+                <div class="container-main">
+                    <div class="table">
+                        <div class="card-header">
+                            <div class="content1" style="padding-bottom: 20px; justify-content: flex-end !important;">
+                                @*<div class="text-and-supporting-text1">
+            <span>12 Matter List Found</span>
+        </div>*@
+                                <div class="table-header">
+                                    <div class="actions3">
+
+                                        <div class="button13" id="ColumnSelectionopen" title="Column Selection" >
+                                            <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png" >
+
+                                            <div class="text-padding">
+                                                <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="dropdown">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                                <div class="button13 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    @*<img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">*@
+                                                    <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png" style="rotate: 180deg;">
+                                                    <div class="text-padding">
+                                                        <div class="text1"><a href="javascript:void()" id="download" title="Column Selection">Download Report </a></div>
+                                                    </div>
+                                                </div>
+                                            </a>
+
+                                            <ul class="dropdown-menu settingaction">
+                                                <li><a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a></li>
+                                                <li><a href="javascript:void()" id="opdf" title="export to pdf"> export to pdf</a></li>
+                                            </ul>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-panel table-responsive">
+                            <div style="overflow-x:scroll;">
+                                <table id="example" class="table ">
+                                    <thead>
+                                        <tr>
+                                            <th class="casestartdate">
+                                                <div class="thbg">Date</div>
+                                            </th>
+                                            <th class="casecasename">
+                                                <div class="thbg">Matter Name</div>
+                                            </th>
+                                            <th class="caseclientname">
+                                                <div class="thbg">Client Name</div>
+                                            </th>
+                                            <th class="companyname">
+                                                <div class="thbg">Company</div>
+                                            </th>
+                                            <th class="casecourtname">
+                                                <div class="thbg">Court</div>
+                                            </th>
+                                            <th class="casecasedetails">
+                                                <div class="thbg">Court Hearing</div>
+                                            </th>
+                                            <th class="casestatus">
+                                                <div class="thbg">Status</div>
+                                            </th>
+                                            <th class="casecreatedby">
+                                                <div class="thbg">Created By</div>
+                                            </th>
+                                            <th class="caseteammembers">
+                                                <div class="thbg">Team Members</div>
+                                            </th>
+                                            <th class="caseclientcontact">
+                                                <div class="thbg">Client Contact</div>
+                                            </th>
+                                            <th class="MatterType">
+                                                <div class="thbg">Matter Type</div>
+                                            </th>
+                                            <th class="CertifiedCopyAppliedon">
+                                                <div class="thbg">Copy Applied On</div>
+                                            </th>
+                                            <th class="CertifiedCopyReceivedon">
+                                                <div class="thbg">Copy Received On</div>
+                                            </th>
+                                            <th class="ValuationofSuit">
+                                                <div class="thbg">Valuation of Suit</div>
+                                            </th>
+                                            <th class="Courtfee">
+                                                <div class="thbg">Court Fee</div>
+                                            </th>
+                                            <th class="OppositePartyCounselname">
+                                                <div class="thbg">Party Counsel Name</div>
+                                            </th>
+                                            <th class="OppositePartyCounselemail">
+                                                <div class="thbg">Party Counsel Email</div>
+                                            </th>
+                                            <th class="OppositePartyCounselphone">
+                                                <div class="thbg">Party Counsel Phone</div>
+                                            </th>
+                                            <th class="CasenumberInternal">
+                                                <div class="thbg">Matter Number Internal</div>
+                                            </th>
+                                            <th class="caseclosedate">
+                                                <div class="thbg">Close Date</div>
+                                            </th>
+                                            <th class="linkedcase">
+                                                <div class="thbg">Linked Matter</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="bindcasedata"></tbody>
+                                </table>
+                            </div>
+                            <div id="pdatastatus"></div>
+                            <div class="pagination" id="mreportpagination">
+                                <div class="pagination-button-group">
+                                    <div id="prev" class="pagination-button-group-base">
+                                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                    </div>
+                                    <div id="pageNumbers" class="pagination-button-group-base1">
+                                        @*<div class="text">a</div>*@
+                                        @*<span id="pageNumbers" class="pages"></span>*@
+                                    </div>
+
+                                    <div id="next" class="pagination-button-group-base8">
+                                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-parent">
+                                    <div class="input">
+                                        <div class="content">
+                                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                        </div>
+                                        <div class="help-icon">
+                                        </div>
+                                    </div>
+                                    <div class="text-and-supporting-text-group">
+                                        <div class="text-and-supporting-text">
+                                            <div id="divGo" class="text9">Go</div>
+                                        </div>
+                                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            @*<div class="table-panel">
+                                    <div class="settingpanel">
+                                        <div class="col-md-6">
+                                            <div style="float: left;padding: 0 10px 0 0;">
+                                                <ul>
+                                                    <li>
+                                                        <div class="btn-group dropup">
+                                                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                                                customize field
+                                                            </a>
+                                                            <ul class="dropdown-menu settingshowhide" id="od" style="width:275px; height: 220px !important; overflow-y:scroll;"></ul>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div id="casetfooter"></div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="pull-right">
+                                                @if (role.ToString() == "1")
+                                                {
+                                                    <li>
+                                                        <select id="filtercaseuser" class="form-control" style=" display:none; border-bottom: 1px solid #ccc !important;">
+                                                            <option value="" selected>Select User </option>
+                                                        </select>
+                                                    </li>
+                                                }
+                                                else
+                                                {
+                                                    <input type="text" id="filtercaseuser" style="display:none">
+                                                }
+                                                <li>
+                                                    <div class="btn-group dropup">
+                                                        <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            Action Selected
+                                                        </a>
+                                                        <ul class="dropdown-menu settingaction">
+                                                            <li><a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a></li>
+                                                            <li><a href="javascript:void()" id="opdf" title="export to pdf"> export to pdf</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>*@
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+    </section>
+
+</main>
+
+
+<div id="myModalCustomizedcolumn" class="modal right fade myModal in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="margin-top: 15px;margin-left: 5px; ">
+                        <ul id="bindcolumnmaster">
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="casestartdate" checked><a href="#">Start Date</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="casecasename" checked><a href="#">Matter Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="caseclientname" checked><a href="#" class="dropdown-item">Client</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="casecourtname" checked><a href="#" class="dropdown-item">Court</a></li>
+                            <li class="casecasedetails1"><input type="checkbox" class="shcheckbox1 chkdhide" name="casecasedetails" checked><a href="#" class="dropdown-item">Court Hearing</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="casestatus" checked><a href="#" class="dropdown-item">Status</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="casecreatedby"><a href="#" class="dropdown-item">Created By</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="caseteammembers"><a href="#" class="dropdown-item">Team Members</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="caseclientcontact"><a href="#" class="dropdown-item">ClientContact</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="MatterType"><a href="#" class="dropdown-item">Matter Type</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="CertifiedCopyAppliedon"><a href="#" class="dropdown-item">Copy Applied On</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="CertifiedCopyReceivedon"><a href="#" class="dropdown-item">Copy Received On</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ValuationofSuit"><a href="#" class="dropdown-item">Valuation of Suit</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Courtfee"><a href="#" class="dropdown-item">Court Fee</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="OppositePartyCounselname"><a href="#" class="dropdown-item">PartyCounsel Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="OppositePartyCounselemail"><a href="#" class="dropdown-item">PartyCounsel Email</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="OppositePartyCounselphone"><a href="#" class="dropdown-item">PartyCounsel Phone</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="CasenumberInternal"><a href="#" class="dropdown-item">Matter Number Internal</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="caseclosedate"><a href="#" class="dropdown-item">Close Date</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="linkedcase"><a href="#" class="dropdown-item">Linked Matters</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="companyname"><a href="#" class="dropdown-item">Company</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                    <button class="btn btn-secondary" id="ClearCustomSelection">Clear</button>
+                    <button class="btn btn-primary" id="SaveCustomSelection">Confirm</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModalexport" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <input type="hidden" id="exportrecords">
+
+            <div class="modal-header btn-primary">
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" id="closemodels22">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="exportModalLabel">Export Matters</h4>
+            </div>
+
+            <div class="modal-body partynamebody" style="height:505px; overflow-y:auto; background:white;">
+                <table class="table-panel" style="font-size:12px; margin-top:10px;">
+                    <thead>
+                        <tr style="font-size:12px;">
+                            <th><div class="thbg">Page No.</div></th>
+                            <th><div class="thbg text-center">FileName</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="printexport"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        $("#ColumnSelectionopen").click(function () {
+            $("#myModalCustomizedcolumn").modal('show'); // Opens the modal
+        });
+
+        $(document).click(function (event) {
+            if ($(event.target).is(".myModal")) {
+                $("#myModalCustomizedcolumn").modal('hide'); // Closes the modal
+            }
+        });
+    });
+</script>
+

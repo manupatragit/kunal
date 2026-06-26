@@ -1,0 +1,274 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+
+@{
+    var firmcode = Session["FirmCode"];
+}
+
+<script src="~/Scripts/Firm/Pages/RoleAccessLevel.js?1.5" type="text/javascript" language="javascript"></script>
+<script>
+   var roleids = "@Session["sessionroleid"]";
+    var isDelete = "@ViewBag.IsDelete";
+    var IsCreate = "@ViewBag.IsCreate";
+    var IsViewAll = "@Session["IsViewAll"]";
+    var userid = "@Session["sessionuserid"]";
+</script>
+<style>
+    .glyphicon-pencil, .glyphicon-trash {
+        color: black !important;
+    }
+    .button-group-label a {
+        flex: 1;
+        text-align: center;
+        text-decoration: none;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 10px;
+        color: #808080;
+        padding: 0 6px;
+    }
+   
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"><h2 id="dynamiciprheader"style="margin-top: -5px;margin-bottom: 10px;"></h2></p>
+        </div>
+        <div class="assign_wrapper_right">
+            <div class="button-group-label">
+                <a class="active" href="/@firmcode/Role/RoleAccess" title="Assign Rights" id="assignRights">Assigned Rights</a>
+
+                <a href="/@firmcode/Role/CaseRoleAccess" title="Matter Rights" class="tabstyle" id="assignMatterRights">Matter Rights</a>
+            </div>
+            
+            <div>
+                @if (role.ToString() == "1")
+                {
+
+                <a data-toggle="tab" class="btn btn-primary" href="#" id="addNewRole" title="Create New Rights">  Create New Rights</a>
+
+                }
+                else
+                {
+                    if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                    {
+
+            <a data-toggle="tab" class="btn btn-primary" href="#" id="addNewRole" title="Create New Rights">  Create New Rights</a>
+
+                    }
+                }
+            </div>
+        </div>
+            
+    </div>
+</section>
+<section class="wrapper">
+    <div class="container-main showcontent" id="showcontent">
+        <div>
+            @*<h2 class="title">Assign Rights</h2>*@
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header">
+                        <div class="box-title">
+                            <select class="selctInputFormat" id="ddlUsersRights" name="ddlUsersRights"></select>
+                        </div>
+                    </div>
+                </div><!-- /.box-header -->
+                <!-- /.panel-heading -->
+            </div>
+            <table width="100%">
+                <thead>
+                    <tr style="display:none">
+                        <td style="font-size:12px; padding:0 0 5px 0">
+                            Select:&nbsp;&nbsp;
+                            <input checked type="radio" id="rdgroups" name="roleaccess" onclick="fn_SetRoleAccessOption(1);" />&nbsp;&nbsp;Teams
+                            <input type="radio" id="rdusers" name="roleaccess" onclick="fn_SetRoleAccessOption(2);" />&nbsp;&nbsp;Users
+                            <input type="hidden" id="hdnrdaccessval" value="1" />
+                            <button type="button" id="searchdatas" class="sbtbtn" style="font-size:12px;margin-top:-10px;"><i class="glyphicon glyphicon-search"></i></button>
+                        </td>
+                        <td width="10%;" style="float:left;"></td>
+                    </tr>
+                </thead>
+            </table>
+            <div class="table-panel table-responsive" data-example-id="hoverable-table" id="home">
+                <table class="table-panel">
+                    <thead>
+                        <tr>
+                            <th><div class="thbg">Name</div></th>
+                            <th id="thusercol"><div class="thbg">Users</div></th>
+                            <th><div class="thbg">Created On</div></th>
+                            <th><div class="thbg">Last Modified On</div></th>
+                            <th><div class="thbg">Action</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="bindroleaccess"></tbody>
+                </table>
+                @*<center><div id="dataescstatus"></div></center>*@
+                <center>
+                    <div class="notfound" id="pdatastatus" style="display:none;">
+                        <img src="~/newassets/img/not-found.png" />
+                        <h4><span id="dtNotFound">No data found</span></h4>
+
+                    </div>
+                </center>
+                <div class="table-panel">
+                    <div class="pagination" id="tradePagination">
+                        <div class="pagination-button-group">
+                            <div id="prev" class="pagination-button-group-base">
+                                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                            </div>
+                            <div id="pageNumbers" class="pagination-button-group-base1">
+                            </div>
+                            <div id="next" class="pagination-button-group-base8">
+                                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-parent">
+                            <div class="input">
+                                <div class="content">
+                                    <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                </div>
+                                <div class="help-icon">
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-group">
+                                <div class="text-and-supporting-text">
+                                    <div id="divGo" class="text9">Go</div>
+                                </div>
+                                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                            </div>
+                        </div>
+                    </div>
+
+                    @*<div class="settingpanel">
+                        <div class="col-md-6">
+                            <div style="float: left;padding: 0 10px 0 0;">
+                                <ul>
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <ul class="dropdown-menu settingshowhide" id="od"></ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="tfooter">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="pull-right">
+                                @if (role.ToString() == "1")
+                                {
+                                    <li>
+                                        <a data-toggle="tab" class="sbtbtn" href="#" id="addNewRole" title="Create New Rights">  New Rights</a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                                    {
+                                        <li>
+                                            <a data-toggle="tab" class="sbtbtn" href="#" id="addNewRole" title="Create New Rights">  New Rights</a>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+    @*End Modal for Show User details on UserCount*@
+    <div class="modal fade" id="modalUserCountView" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                    <div id="divuserLabel"><h4 class="modal-title" id="myModalUserLabel">User(s) in Group</h4></div>
+                </div>
+                <div class="modal-body ">
+                    <!-- Main content -->
+                    <form id="resavetaskform" enctype="multipart/form-data" novalidate="novalidate">
+                        <!-- Start About boxes -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table " style="font-size:12px;">
+                                    <thead>
+                                        <tr>
+                                            <th><div class="thbg">Name</div></th>
+                                            <th><div class="thbg">Email</div></th>
+                                            <th><div class="thbg"></div></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bindUsercountdetails"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- /.content -->
+                        <input type="hidden" id="hidgroupid">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*End Modal for Show User details on UserCount*@
+</section>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

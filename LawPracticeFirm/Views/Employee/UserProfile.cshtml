@@ -1,0 +1,319 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+}
+<i class="pp-icon-user"></i>
+<style>
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+</style>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+    $(document).ready(function () {
+        openloader();
+        $.ajax({
+            async: true,
+            url: '/api/EmployeeApi/UserDetail',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    var obj = JSON.parse(response.Data);
+                }
+                else {
+                    //alert("not found");
+                }
+                var it = 2;
+                var bclass = '';
+                var bdata = '';
+                $.each(obj, function (i, val) {
+                    $("#name").val(val.cfname);
+                    $("#email").val(val.cemail);
+                    $("#mobile").val(val.cmobile);
+                    $("#landline").val(val.clandline);
+                    $("#address").val(val.caddress);
+                    $('#country').val(val.country);
+                    $('#state').val(val.cstate);
+                    $("#city").val(val.ccity);
+                    $("#hidid").val(val.Id);
+                    $("#barno").val(val.BARNo);
+                    $("#Department").val(val.Department);
+                    if (val.cphoto != null) {
+                        $("#output_image").attr("src", val.cphoto)
+                    }
+                    if (val.IsTwoFactor == "1") {
+                        $("#twostep").prop("checked", true);
+                    }
+                    else {
+                        $("#twostep").prop("checked", false);
+                    }
+                    try {
+                        $("#designation").val(val.Designation);
+                    }
+                    catch (er) {
+                    }
+                    closeloader();
+                });
+            },
+            error: function () {
+                //  alert('Error!');
+            }
+        });
+        $("#twostep").click(function () {
+            if ($("#twostep:checked").prop('checked')) {
+                cp = "1"
+            }
+            else {
+                cp = "0";
+            }
+            var formData = new FormData();
+            formData.append("authenticate", cp);
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/TwoFactorAuthentication",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (String(cp) == "1") {
+                        alert("Two step authentication enabled successfully.");
+                    }
+                    else if (String(cp) == "0") {
+                        alert("Two step authentication disabled successfully.");
+                    }
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        });
+    });</script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/employee/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Dashboard</li>
+        </ol>
+        <h1><span class="fa fa-user"></span> User Profile</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header">
+                        <ul class="btn_panel no-margin " style="padding:0;" id="sectiontemp">
+                            <li style="margin-top:17px; margin-left:15px;">
+                                <span>
+                                    Two Step Authentication:
+                                </span>
+                            </li>
+                            <li style="margin-top:12px;margin-left:10px;">
+                                <label class="switch">
+                                    <input type="checkbox" id="twostep" name="twostep" value="1" onchange="cTrig('check3')">
+                                    <span class="slider round"></span>
+                                </label>
+                            </li>
+                            <li class="pull-right">
+                                <button id="update" class="btn btn-primary save" style="float:right; margin:8px 0 0 0;">Edit</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <form id="saveclient" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <fieldset>
+                        <legend>Personal Details</legend>
+                        <div class="">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        @*//<h4 class="form-section">Contact</h4>*@
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-10 contact-details">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="hidden" id="hidid" />
+                                                <span class="control-label col-md-4"> User Name </span>
+                                                <div class="col-md-8">
+                                                    <input autofocus="" readonly class="form-control" placeholder="Full Name" type="text" value="" name="name" id="name" required="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4"> Email </span>
+                                                <div class="col-md-8">
+                                                    <input autofocus="" readonly class="form-control" placeholder="Email" type="text" value="" name="email" id="email" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4" for="Home"> Mobile </span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" readonly onkeypress="return restrictAlphabets(event)" placeholder="Mobile Number" type="text" name="mobile" value="" id="mobile">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4" for="Mobile"> Land Line </span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" vplaceholder="landline Number" name="landline" type="text" value="" id="landline" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4" for="Office"> Address </span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" placeholder="Address" type="text" value="" id="address" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4"> Country </span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" placeholder="country" name="country" id="country" readonly />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4"> State </span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" placeholder="state" name="state" id="state" readonly />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4"> City </span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" placeholder="City" name="city" id="city" readonly />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4" for="Mobile"> Membership No. </span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" placeholder="Membership No." name="barno" type="text" value="" id="barno" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4" for="Mobile"> Designation</span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" placeholder="Designation" name="barno" type="text" maxlength="48" value="" id="designation" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4" for="Department">Department</span>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" placeholder="Department" name="Department" type="text" maxlength="48" value="" id="Department" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="form-group">
+                                                <div class="col-md-10">
+                                                    <div class="grid-container" style="display:none">
+                                                        @*<textarea name="textarea" cols="5" rows="5" class="jqte-test"></textarea>*@
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6" id="content">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 contact-photo" style="padding-top:8px">
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <div>
+                                                <div class="fileupload-new thumbnail"> <img src="~/PanelDesign/images/Default_User_pic_new.png" alt="" id="output_image"> </div>
+                                                <div>
+                                                    @*<span class="btn btn-default btn-file file-upload-buttons">
+                                                            <span class="fileupload-new"><span class="glyphicon glyphicon-paperclip"></span> Upload Picture</span> <span class="fileupload-exists"><span class="glyphicon glyphicon-repeat"></span> Change</span>
+                                                            <input type="file" onchange="preview_image(event)" class="default photo-attachment" name="attachment" id="attachment" accept="image/*">
+                                                        </span>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </form>
+    </section>
+</aside>
+<div id="myOverlay" class="overlay" style="display:block !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<script>
+    var fcode = localStorage.getItem("FirmCode");
+    jQuery('#update').click(function (e) {
+        validnavigation = true;
+        window.onbeforeunload = null;
+        var url = "/Employee/ProfileUpdate";
+        window.location = encodeURI("/" + fcode + url);
+    });
+</script>

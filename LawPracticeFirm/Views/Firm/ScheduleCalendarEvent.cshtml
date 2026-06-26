@@ -1,0 +1,249 @@
+﻿@using QueryStringEDAES
+@{
+    var role = Session["sessionroleid"];
+    Layout = null;
+    var userid = Session["sessionuserid"];
+    var strtoken = Convert.ToDateTime(QueryAES.UrlDecode(Request.QueryString["token"])).ToString("dd-MMM-yyyy");
+}
+<script>
+    var userid = "@userid";
+    var roleids = "@Session["sessionroleid"]";
+    var isPartner = "@Session["IsPartner"]";
+</script>
+<script src="~/Scripts/AES.js"></script>
+<style>
+    a.morelink, a.imorelink, a.dmorelink, a.omorelink {
+        text-decoration: none;
+        outline: none;
+    }
+
+    .morecontent span, .imorecontent span, .dmorecontent span, .omorecontent span {
+        display: none;
+    }
+
+    #parentnbox {
+        border-bottom: 0px !important;
+    }
+
+        #parentnbox > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+            border: 0px !important
+        }
+
+        #parentnbox > li > a:hover, .nav > li > a:focus {
+            background-color: white !important;
+        }
+
+        #parentnbox > li > a:hover {
+            border-color: white !important;
+        }
+
+    #filterbox li.active > a {
+        color: #555;
+        cursor: default;
+        background-color: #ccc !important;
+        border: transparent;
+    }
+
+        #filterbox li.active > a:hover {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+        #filterbox li.active > a:focus {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+    .rangediv {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+        .rangediv li {
+            margin: 0;
+            padding: 6px 10px 0 0;
+            float: left;
+        }
+
+    .alertbox li > a {
+        color: #555 !important;
+        cursor: default;
+    }
+
+    .alertbox li.active > a {
+        color: #555;
+        cursor: default;
+        background-color: #ccc !important;
+        border: transparent;
+    }
+
+        .alertbox li.active > a:hover {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+
+        .alertbox li.active > a:focus {
+            color: #555;
+            cursor: default;
+            background-color: #ccc !important;
+            border: transparent;
+        }
+</style>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ScheduleTask</title>
+</head>
+<body>
+    <div class="modal-header btn-primary">
+        <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">
+            Event Details
+        </h4>
+    </div>
+    <div>
+        <div class="table-panel table-responsive" style="padding:10px 0 0 0; clear:both;overflow:auto" data-example-id="hoverable-table" id="home">
+            <table class="table-panel" id="schedulertable">
+                <thead>
+                    <tr>
+                        <th width="8%" class="scttime"><div class="thbg">Sl. No.</div></th>
+                        <th width="12%" class="scttype">
+                            <div class="thbg">
+                                Title
+                            </div>
+                        </th>
+                        <th width="14%" class="sctclient">
+                            <div class="thbg">
+                                Description
+                            </div>
+                        </th>
+                        <th width="12%">
+                            <div class="thbg">
+                                Event Date
+                            </div>
+                        </th>
+                        <th width="6%" class="sctassigntoby">
+                            <div class="thbg">
+                                Start Time
+                            </div>
+                        </th>
+                        <th width="6%">
+                            <div class="thbg">
+                                End Time
+                            </div>
+                        </th>
+                        <th width="11%"><div class="thbg">AllDay</div></th>
+                        <th width="8%"><div class="thbg">Location</div></th>
+                        <th width="8%"><div class="thbg">Created By</div></th>
+                        <th width="8%"><div class="thbg">Create Date</div></th>
+                    </tr>
+                </thead>
+                <tbody id="bindcasetask"></tbody>
+            </table>
+            <center><div id="dataescstatus"></div></center>
+        </div>
+    </div>
+    <input type="hidden" id="pagenum" value="1" />
+    <input type="hidden" id="pagesize" value="1000" />
+    <input type="hidden" id="datefrm" value="@strtoken" />
+    <input type="hidden" id="dateto" value="@strtoken" />
+</body>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        var formData = new FormData();
+        formData.append("pagenum", $("#pagenum").val());
+        formData.append("pagesize", $("#pagesize").val());
+        formData.append("datefrm", $("#datefrm").val());
+        formData.append("dateto", $("#dateto").val());
+        var qty = 0;
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/CallApi/CalendarEventList_Calendar",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response1) {
+                if (response1.Data != "") {
+                    $("#dataescstatus").html("");
+                }
+                else {
+                    $("#dataescstatus").html("No result found !");
+                    closeload();
+                }
+                var html3 = '';
+                $.each(response1.Data, function (i, val) {
+                    qty = qty + 1;
+                    html3 += '<tr>'
+                    html3 += '<td class="scttime"><span>' + qty + '</span></td>'
+                    html3 += '<td class="scttype"><span>' + val.ETitle + '</span></td>'
+                    html3 += '<td>'
+                    if (val.EDescription == "" || val.EDescription == null || val.EDescription == "null") {
+                        html3 += '&nbsp;'
+                    }
+                    else {
+                        if (val.EDescription.length > 60) {
+                            html3 += '<span class="comment more" style="color:black;">' + val.EDescription.substring(0, 60) + '</span>'
+                            html3 += '<span data-toggle="collapse" data-target="#dtn' + qty + '" style="color:#069;cursor:pointer"> more</span>'
+                            html3 += ' <div id="dtn' + qty + '" class="collapse caseinfo" style="border: 2px solid rgb(143, 213, 0); padding: 4px; width: 360px;position: absolute;border-radius: 10px;">'
+                            html3 += '<button type ="button" class="close" data-toggle="collapse" data-target="#dtn' + qty + '" style="padding-top:-34px;margin-top:-5px;">×</button>'
+                            html3 += '' + val.EDescription + ''
+                            html3 += '</div>'
+                        }
+                        else {
+                            html3 += '<span class="comment more" style="color:black;">' + val.EDescription + '</span>'
+                        }
+                    }
+                    html3 += '</td>'
+                    html3 += '<td class="scttype"><span>' + formatDatetoIST(val.EDate) + '</span></td>'
+                    html3 += '<td class="scttype"><span>' + val.EStartTime + '</span></td>'
+                    html3 += '<td class="scttype"><span>' + val.EEndTime + '</span></td>'
+                    html3 += '<td class="scttype"><span>' + (val.AllDay == 1 ? 'yes' : 'No') + '</span></td>'
+                    html3 += '<td class="scttype"><span>' + val.Location + '</span></td>'
+                    html3 += '<td class="scttype"><span>' + val.CreatedBy + '</span></td>'
+                    html3 += '<td class="scttype"><span>' + formatDatetoIST(val.date_time) + '</span></td>'
+                });
+                $("#bindcasetask").html("");
+                $("#bindcasetask").append(html3);
+            },
+            failure: function (data) {
+                alert(data.responseText);
+                closeload();
+            },
+            error: function (data) {
+                alert(data.responseText);
+                closeload();
+            }
+        });
+    });
+    $(document).on("click", ".LoginId", function () {
+        var token = $(this).attr("data-id");
+        var fcode = localStorage.getItem("FirmCode");
+        var urls = "/" + fcode + "/Firm/ClientCaseList";
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "clienttoken": token }
+        });
+    });
+    $(document).on("click", "#caseid", function () {
+        var token = $(this).attr("sno");
+        var fcode = localStorage.getItem("FirmCode");
+        var urls = "/" + fcode + "/Firm/NewCaseDashboard";
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": token }
+        });
+    });
+</script>
+</html>

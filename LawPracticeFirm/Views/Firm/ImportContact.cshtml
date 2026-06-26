@@ -1,0 +1,239 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<i class="pp-icon-user"></i>
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script>
+    function preview_image(event) {
+        var validExts = new Array(".xlsx", ".xls");
+        var fileExt = event.value;
+        fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+        if (validExts.indexOf(fileExt) < 0) {
+            alert("Invalid file selected, valid files are of " +
+                validExts.toString() + " types.");
+            event.value = '';
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    $(document).ready(function () {
+        function openload() {
+            $('#myOverlay').css("display", "block");
+        }
+        function closeload() {
+            $('#myOverlay').css("display", "none");
+        }
+        $(document).on("click", "#uploadleaddata", function () {
+            ImportLeaddata();
+        });
+        function ImportLeaddata() {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("postedFile").files.length;
+            if (totalFiles == "0") {
+                alert("Please Select Excel File");
+                return false;
+            }
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("postedFile").files[i];
+                formData.append("FileUpload", file);
+            }
+            openload();
+            $.ajax({
+                async: true,
+                type: 'POST',
+                url: '/firm/ImportContactData',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    document.getElementById("postedFile").value = "";
+                    if (response == "Record imported successfully, please check Contact Details.") {
+                        $("#errorresult").text("");
+                        alert("Record imported successfully, please check Contact Details.");
+                        closeload();
+                    }
+                    else {
+                        $("#errorresult").text(response);
+                        closeload();
+                    }
+                },
+                error: function () {
+                    alert('Please Contact Your Administrator !');
+                    closeload();
+                }
+            });
+        }
+    });
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        @{
+            var firmcode = Request.Url.Segments[1];
+            firmcode = firmcode.Replace("/", "");
+        }
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="/@firmcode/Firm/vcontact/contact/">Contact List</a></li>
+            <li class="active">Import Contact</li>
+        </ol>
+        <h1><span class="fa fa-user"></span> Import Contact</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header" style="padding:5px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <form id="saveclient" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <fieldset>
+                        <legend>Import Contact</legend>
+                        <div class="">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 contact-details">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="hidden" id="hidid" />
+                                                <span class="control-label col-md-4"> Select Excel File : <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                                <div class="col-md-8">
+                                                    <input type="file" onchange="preview_image(this)" name="postedFile" id="postedFile" class="form-control" required style="width:50%; display:inline; height:38px; padding:0 5px;" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-4">  </span>
+                                                <div class="col-md-8">
+                                                    <input type="button" id="uploadleaddata" class="btn btn-primary save" value="Upload File" title="Upload File">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 contact-details">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="hidden" id="hidid" />
+                                                <span class="control-label col-md-8"></span>
+                                                <div class="col-md-8">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 contact-details">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="hidden" id="hidid" />
+                                                <span class="control-label col-md-8"></span>
+                                                <div class="col-md-8">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 contact-details">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="hidden" id="hidid" />
+                                                <span class="control-label col-md-8"> <b>Download Contact template sample: </b> <a title="download Sample Template for Imoprt Contact Data " href="/Documents/ImportTemplate/ImportContactTemplate.xlsx">Click here</a></span>
+                                                <div class="col-md-4">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <br>
+                                <br>
+                                <div class="col-lg-12 contact-details">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <span class="control-label col-md-12" style="color:red;margin-top:30px;" id="errorresult"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                </fieldset>
+            </div>
+            <div class="col-md-12">
+                <div class="">
+                    <div class="form-actions hidden-print">
+                        <div class="btn-group">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </form>
+    </section>
+</aside>
+<script src="~/PanelDesign/vendor/bootstrap/js/bootstrap.min.js"></script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

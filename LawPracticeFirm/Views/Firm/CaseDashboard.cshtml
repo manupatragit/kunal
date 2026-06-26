@@ -1,0 +1,1735 @@
+﻿@{
+    ViewBag.Title = "ClientProfileDashboard";
+    var role = Session["sessionroleid"];
+    var usertype = "";
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+        usertype = "firm";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+        usertype = "employee";
+    }
+}
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script src="/CssJsfiles/js/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0-rc.1/Chart.bundle.js"></script>*@
+<script type='text/javascript'>
+    var roleids ="@role";
+    var clientids = "scGHCAfp9U3X+0Laqs8043O433tSlHpFPFOWcWDWOYFuzCR9SYEPZsaaMoRcMWCuCqI5m3jWlLsNvIb1fR0kelhXTDCKPYiXOic5Xb+1anY=";
+    var usertype = "firm";
+    var fcode = "RSMI";
+    var clientid = "scGHCAfp9U3X+0Laqs8043O433tSlHpFPFOWcWDWOYFuzCR9SYEPZsaaMoRcMWCuCqI5m3jWlLsNvIb1fR0kelhXTDCKPYiXOic5Xb+1anY=";
+    if (String(clientid) != "") {
+        localStorage.setItem("contacttoken", clientid);
+    }
+    if (String(clientid) == "") {
+        var urls = window.location.href;
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": localStorage.getItem("contacttoken") }
+        });
+    }
+    function goodbye(e) {
+        localStorage.setItem("contacttoken", clientid);
+        if (!e) e = window.event;
+        //e.cancelBubble is supported by IE - this will kill the bubbling process.
+        e.cancelBubble = true;
+        //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+        //e.stopPropagation works in Firefox.
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+    window.onbeforeunload = goodbye;
+</script>
+<script>
+</script>
+<script>
+    function openload() {
+        $('#myOverlay').css("display", "block");
+    }
+    function closeload() {
+        $('#myOverlay').css("display", "none");
+    }
+    $(document).on("click", "#timerpdf", function () {
+        window.location = encodeURI("/firm/ExportoPdfClientSummaryTimer?status=true&token=" + clientid);
+    })
+    $(document).ready(function () {
+        $('#loadcauselists').load("/firm/causelist");
+    });
+    var chartarray = new Array();
+    var chartcount = new Array();
+    chartarray = [];
+    chartcount = [];
+    var chartsubject = "";
+    var charttotal = "";
+    var opencasechart = "";
+    var closecasechart = "";
+    var charttotal = "";
+    loadchart();
+    function loadchart() {
+        var d1 = $.ajax({
+            async: true,
+            url: "/api/CallApi/Casegraphbycasesubject",
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                chartarray = [];
+                chartcount = [];
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    try {
+                        var obj = JSON.parse(response.Data);
+                    }
+                    catch (er) {
+                    }
+                }
+                else {
+                    // alert("not found");
+                }
+                var dataT = "";
+                var dataT2 = "";
+                $.when(
+                    $.each(obj, function (i, val) {
+                        chartarray.push(val.SubjectName);
+                        chartcount.push(val.total);
+                        opencasechart = val.opencase;
+                        closecasechart = val.closecase;
+                        try {
+                            $("#totcases").text(parseInt(val.opencase) + parseInt(val.closecase));
+                            $("#totopen").text(val.opencase);
+                            $("#totclose").text(val.closecase);
+                        }
+                        catch (er) {
+                        }
+                    })
+                ).then(function () {
+
+                    dataT2 = {
+                        labels: chartarray,
+                        datasets: [{
+                            label: "Total Case",
+                            data: chartcount,
+                            fill: true,
+                            backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(153, 102, 255)", "rgb(201, 203, 207)", "rgb(181, 203, 207)"],
+                            borderColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(153, 102, 255)", "rgb(201, 203, 207)"],
+                            borderWidth: 1
+                        }]
+                    };
+                    var ctx2 = $("#myChart2").get(0).getContext("2d");
+                    var myNewChart = new Chart(ctx2, {
+                        type: 'doughnut',
+                        data: dataT2,
+                        options: {
+                            responsive: true,
+                            title: { display: true, text: 'MyKase Case Chart' },
+                            legend: { position: 'bottom' },
+                        }
+                    });
+                    dataT = {
+                        labels: ['Pending Case', 'Dispose Case'],
+                        datasets: [{
+                            label: "Total Case",
+                            data: [opencasechart.toString(), closecasechart.toString()],
+                            fill: true,
+                            backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(153, 102, 255)", "rgb(201, 203, 207)", "rgb(181, 203, 207)"],
+                            borderColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(153, 102, 255)", "rgb(201, 203, 207)"],
+                            borderWidth: 1
+                        }]
+                    };
+                    var ctx = $("#myChart").get(0).getContext("2d");
+                    var myNewChart2 = new Chart(ctx, {
+                        type: 'pie',
+                        data: dataT,
+                        options: {
+                            responsive: true,
+                            title: { display: true, text: 'MyKase Case Chart' },
+                            legend: { position: 'bottom' },
+                        }
+                    });
+                });
+            },
+            error: function () {
+                alert('Error!');
+            }
+        });
+    }
+    var chartarray3 = new Array();
+    var chartcount3 = new Array();
+    chartarray3 = [];
+    chartcount3 = [];
+    loadchartdistrict();
+    function loadchartdistrict() {
+        var d1 = $.ajax({
+            async: true,
+            url: "/api/CallApi/Casegraphbycasedistrict",
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                chartarray3 = [];
+                chartcount3 = [];
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    try {
+                        var obj = JSON.parse(response.Data);
+                    }
+                    catch (er) {
+                    }
+                }
+                else {
+                    // alert("not found");
+                }
+                var dataT = "";
+                var dataT2 = "";
+                $.when(
+                    $.each(obj, function (i, val) {
+                        chartarray3.push(val.districtname);
+                        chartcount3.push(val.total);
+                    })
+                ).then(function () {
+                    dataT3 = {
+                        labels: chartarray3,
+                        datasets: [{
+                            label: "Total Case",
+                            data: chartcount3,
+                            fill: false,
+                            backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(153, 102, 255)", "rgb(201, 203, 207)", "rgb(181, 203, 207)"],
+                            borderColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(153, 102, 255)", "rgb(201, 203, 207)"],
+                            borderWidth: 1
+                        }]
+                    };
+                    //$('#myChart').parent().html('<img style="max-height:100%;height:auto;width:100%;max-width:100%;margin:auto;display:inline;" src="' + chart.toBase64Image() + '" />');
+                    var ctx3 = $("#myChart3").get(0).getContext("2d");
+                    var myNewChart = new Chart(ctx3, {
+                        type: 'doughnut',
+                        data: dataT3,
+                        options: {
+                            responsive: true,
+                            title: { display: true, text: 'MyKase Case Chart' },
+                            legend: { position: 'bottom' },
+                        }
+                    });
+                });
+            },
+            error: function () {
+                alert('Error!');
+            }
+        });
+    }
+    var chartarray4 = new Array();
+    var chartcount4 = new Array();
+    chartarray4 = [];
+    chartcount4 = [];
+    loadchartnexthearing();
+    function loadchartnexthearing() {
+        var d1 = $.ajax({
+            async: true,
+            url: "/firm/LoadNextHearingGraph",
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                chartarray4 = [];
+                chartcount4 = [];
+                var dataT = "";
+                var dataT2 = "";
+                var htul = '';
+                response.sort(GetSortOrder("Disposeddt"));
+                $.when(
+                    $.each(response, function (i, val) {
+                        chartarray4.push(val.t);
+                        console.log(val.Disposeddt);
+                        htul += '<li>';
+                        htul += ' <a href="javascript:void()" title="Next Hearing: (' + moment(val.Disposeddt).format("DD-MMM-YYYY") + ') - ' + val.Casetype + ' ' + val.CaseNo + ' / ' + val.Caseyear + ' (' + val.CourseName + ')" ><span class="text" style="color:black;font-weight:normal">' + val.Casetype + '  ' + val.CaseNo + ' /  ' + val.Caseyear + ')</span></a >';
+                        htul += '<small class="label label-info"><i class="fa fa-clock-o"></i>  ' + moment(val.Disposeddt).format("DD-MMM-YYYY") + '</small>';
+                        htul += '</li>';
+                    })
+                ).then(function () {
+                    $("#nexthrlist").append(htul);
+                    var ctx23 = $("#examChart").get(0).getContext("2d");
+                    var myChart = new Chart(ctx23, {
+                        type: 'line',
+                        data: {
+                            labels: chartarray4,
+                            datasets: [{
+                                label: 'Case Next Hearing',
+                                fill: false,
+                                chartArea: {
+                                    backgroundColor: '#069'
+                                },
+                                borderColor: "#80b6f4",
+                                pointBorderColor: "#80b6f4",
+                                pointBackgroundColor: "#80b6f4",
+                                pointHoverBackgroundColor: "#80b6f4",
+                                pointHoverBorderColor: "#80b6f4",
+                                pointBorderWidth: 10,
+                                pointHoverRadius: 10,
+                                pointHoverBorderWidth: 1,
+                                pointRadius: 3,
+                                borderWidth: 4,
+                                data: response,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255,99,132,1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            title: {
+                                display: true,
+                                text: 'Case Next Hearing'
+                            },
+                            tooltips: {
+                                enabled: true,
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function (tooltipItem, data) {
+                                        var item = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                                        return "Next Hearing: " + moment(item.Disposeddt).format("DD MMM YYYY") + " - " + item.Casetype + " " + item.CaseNo + " / " + item.Caseyear + " (" + item.CourseName.replace(/(<([^>]+)>)/ig, " ") + ")";
+                                    }
+                                }
+                            },
+                            hover: {
+                                mode: 'nearest',
+                                intersect: false
+                            },
+                            label: "placeholder",
+                            scales: {
+                                yAxes: [{
+                                    type: 'time',
+                                    displayFormats: {
+                                        'millisecond': 'MMM DD',
+                                        'second': 'MMM DD',
+                                        'minute': 'MMM DD',
+                                        'hour': 'MMM DD',
+                                        'day': 'MMM DD',
+                                        'week': 'MMM DD',
+                                        'month': 'MMM DD',
+                                        'quarter': 'MMM DD',
+                                        'year': 'MMM DD',
+                                    },
+                                    distribution: 'linear',
+                                }],
+                            }
+                        }
+                    });
+                });
+            },
+            error: function () {
+                alert('Error!');
+            }
+        });
+    }
+
+@*Get sort order*@
+    function GetSortOrder(prop) {
+        return function (a, b) {
+            if (a[prop] > b[prop]) {
+                return 1;
+            } else if (a[prop] < b[prop]) {
+                return -1;
+            }
+            return 0;
+        }
+    }
+    function myFunction1() {
+        var x = document.getElementById("bd");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+    $(document).ready(function () {
+        var fcode3 = localStorage.getItem("FirmCode");
+        var pageindex = 1, pagesize = 3, recordcount = 0, totrecord = 0;
+        var pageindex1 = 1, pagesize1 = 10
+        var pageindex2 = 1, pagesize2 = 10;
+        loadclientcasedata(pageindex);
+        $(document).on("click", "#transferpagetask", function () {
+            var serial = $(this).attr("sno");
+            var urls = "/" + fcode + "/Firm/TaskSingleView";
+            url_redirect({
+                url: urls,
+                method: "post",
+                data: { "token": serial }
+            });
+        });
+        $(document).on("click", "#cwcourtsdoc", function () {
+            openload();
+            var ctokenid = $(this).attr("data-val");
+            var ctitle = $(this).attr("data-doc");
+            var url = "/firm/Casewatchdocs/?ftype=viewothers&data=" + ctokenid + "&title=" + ctitle;
+            $('.mymodels').load(url, function (result) {
+                closeload();
+                $('#myModal').modal({ show: true });
+            });
+        });
+        $(document).on("click", "#viewcasedetails", function () {
+            var idstemp = $(this).attr("data-val");
+            if (roleids == 1) {
+                var urls = "/" + fcode3 + "/Firm/MatterSingleView";
+                url_redirect({
+                    url: urls,
+                    method: "post",
+                    data: { "token": idstemp }
+                });
+            }
+            else {
+                var urls = "/" + fcode3 + "/Employee/MatterSingleView";
+                url_redirect({
+                    url: urls,
+                    method: "post",
+                    data: { "token": idstemp }
+                });
+            }
+        });
+        $(document).on("click", "#transferpagecasedetails", function () {
+            var idstemp = $(this).attr("data-val");
+            if (roleids == 1) {
+                var urls = "/" + fcode3 + "/Firm/Casedetails";
+                url_redirect({
+                    url: urls,
+                    method: "post",
+                    data: { "token": idstemp }
+                });
+            }
+            else {
+                var urls = "/" + fcode3 + "/Employee/Casedetails";
+                url_redirect({
+                    url: urls,
+                    method: "post",
+                    data: { "token": idstemp }
+                });
+            }
+        });
+        $(document).on("click", "#cnrcaselink", function () {
+            var idstemp = $(this).attr("data-val");
+            var caseidtemps = $(this).attr("case-val");
+            if (roleids == 1) {
+                var urls = "/" + fcode3 + "/Firm/cnrCasedetails";
+                url_redirect({
+                    url: urls,
+                    method: "post",
+                    data: { "token": caseidtemps, "cnr": idstemp }
+                });
+            }
+            else {
+                var urls = "/" + fcode3 + "/firm/cnrCasedetails";
+                url_redirect({
+                    url: urls,
+                    method: "post",
+                    data: { "token": caseidtemps, "cnr": idstemp }
+                });
+            }
+        });
+        $(document).on("click", "#filelink", function () {
+            openload();
+            var fileid = $(this).attr("id-val");
+            var cwfileid = $(this).attr("id-valcw");
+            var mode = "view";
+            var url = "/firm/multiplefilelist/?ftype=case&data=" + fileid + "&mode=" + mode + "&caseidcw=" + cwfileid;
+            $('.mymodels').load(url, function (result) {
+                closeload();
+                $('#myModal').modal({ show: true });
+            });
+        });
+        $(document).on("click", "#tst", function () {
+            var caseid = $(this).attr("data-val");
+            $("#textcaseid").text(caseid);
+            loadcasetime();
+            $('#myModalleadcall').modal({ show: true });
+        });
+        $(document).on("click", "#loadmorecases", function () {
+            loadclientcasedata();
+            closeload();
+        })
+        $(document).on("click", "#loadlesscases", function () {
+            loadclientcasedata(2);
+            closeload();
+        });
+        $(document).on('click', '#getdatabypagenum', function () {
+            pageindex = $("#pagnumvalue").val();
+            if (pageindex != "undefined") {
+                if (Math.sign(pageindex) == 1) {
+                    var pageindesx = $("#sotopage").text();
+                    if (pageindex <= parseInt(pageindesx)) {
+                        openload();
+                        loadclientcasedata(pageindex);
+                    }
+                    else {
+                        alert("Please enter a valid page number.");
+                        closeload();
+                    }
+                }
+                else {
+                    alert("Please enter a valid page number.");
+                }
+            }
+        });
+        $(document).on('click', '#paginate', function () {
+            /* your code here */
+            pageindex = $(this).attr("index");
+            loadclientcasedata(pageindex);
+        });
+        function loadclientcasedata(pageindex) {
+            openload();
+            $("#casedataforclient").html("");
+            var html231 = '';
+            var formdata = new FormData();
+            formdata.append("param", "");
+            formdata.append("pagenum", pageindex);
+            formdata.append("pagesize", pagesize);
+            //read assign using list
+            var cn = 0;
+            $.ajax({
+                async: true,
+                url: '/api/CallApi/CaseListcasedashboard',
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response1) {
+                    $("#tfooter").html("");
+                    var datas1 = JSON.stringify(response1);
+                    var obj = JSON.parse(response1.Data);
+                    var length = obj.length;
+                    $.when(
+                        $.each(obj, function (i, a) {
+                            if (i === 0) {
+                                firstvalue = a.rownum;
+                            }
+                            if (i === (length - 1)) {
+                                var pnext = pageindex;
+                                var pprev = pageindex;
+                                var pageno = pageindex;
+                                var totdata = a.totRow;
+                                var totpage = 0;
+                                if (a.totRow > 0) {
+                                    pnext = parseInt(pnext) + 1;
+                                    if (pnext == 0) pnext = 1;
+                                    pprev = parseInt(pageno) - 1;
+                                    if (pprev == 0) pprev = 1;
+                                    totpage = parseInt(totdata) / parseInt(pagesize);
+                                    if (parseInt(totdata) % parseInt(pagesize) != 0) {
+                                        totpage = parseInt(totpage) + 1;
+                                    }
+                                    $("#pagnumvalue").attr("max", totpage);
+                                }
+                                var tfot = '';
+                                tfot += '<table style="width:100%;background:white"><tr><td colspan = "12">'
+                                tfot += '<div style="float:left;padding-top:2px;font-size:13px;padding-bottom:5px;">Page Number <b style="font-size:12px;">' + pageindex + '</b>&nbsp;of <b style="font-size:12px;"><span id="sotopage">' + parseInt(totpage) + '</span> Pages</b>'
+                                tfot += '&nbsp;&nbsp;|&nbsp;&nbsp;<b style="font-size:12px;">' + firstvalue + '-' + a.rownum + '</b> of <b style="font-size:12px;">' + a.totRow + ' Entries</b>'
+                                tfot += '&nbsp;&nbsp;|&nbsp;&nbsp;Enter Page No: <input type="number" id="pagnumvalue" min="1"  style="width: 40px;margin-top:5px;"><button type="button" id="getdatabypagenum" style="margin-left:10px;">Go</button>'
+                                tfot += '</div>'
+                                tfot += '<div style="float:right;padding-top:5px;">'
+                                if (a.totRow <= length) {
+                                }
+                                else if (pageno == 1) {
+                                }
+                                else if (pageno == totpage) {
+                                    tfot += '<a id="paginate" class="btn btn-default btn-mail" title="Previous Page" href="javascript:void()" index="' + pprev + '" ><i class="glyphicon glyphicon-chevron-left"></i> Previous </a>'
+                                }
+                                else {
+                                    tfot += '<a id="paginate" class="btn btn-default btn-mail" title="Previous Page" href="javascript:void()" index="' + pprev + '" ><i class="glyphicon glyphicon-chevron-left"></i> Previous </a>'
+                                }
+                                if (pageno < totpage) {
+                                    tfot += '<a id="paginate" class="btn btn-default btn-mail" title="Next Page" href="javascript:void()" index="' + pnext + '" style="margin-left:10px;margin-right:18px;" >Next <i class="glyphicon glyphicon-chevron-right"></i></a></div >'
+                                }
+                                tfot += '</td >'
+                                tfot += '</tr >'
+                                $("#tfooter").append(tfot);
+                            }
+                            cn = cn + 1;
+                            html231 += '<div class="list-group" style="margin-bottom:15px; margin-top:10px; ">'
+                            html231 += '<div class="list-group-item list-group-item-action ">'
+                            html231 += '<div class=" row" style="margin-bottom:5px;">'
+                            html231 += '<div class="col-md-6">'
+                            html231 += 'Case Name: <span  style="font-weight:bold">' + a.mname + '</span>'
+                            html231 += '</div>'
+                            html231 += '<div class="col-md-4">'
+                            html231 += 'Subject: <span id="">' + a.CaseSubject + '</span>'
+                            html231 += '</div>'
+                            html231 += '</div>'
+                            html231 += ' <div class=" row" style="margin-bottom:5px;">'
+                            html231 += '<div class="col-md-6">'
+                            html231 += 'Start Date: <span id="">' + (a.odate != null ? formatDatetoIST(a.odate) : 'NA') + '</span>'
+                            html231 += ' </div>'
+                            html231 += ' <div class="col-md-6">'
+                            html231 += ' End Date: <span id="">' + (a.cdate != null ? formatDatetoIST(a.cdate) : 'NA') + '<a style="display:none" id="transferpagecasedetails" href="javascript:void()" data-val="' + a.UserCaseid + '" title="Click here to view case status details"  class="pull-right"><i class="glyphicon glyphicon-book"></i></a></span></span>'
+                            html231 += ' </div>'
+                            html231 += ' </div>'
+                            html231 += '<div class=" row" style="margin-bottom:5px;">'
+                            html231 += '<div class="col-md-6">'
+                            html231 += ' Status: <b><span id="" style="font-size:12px;;color:' + (a.cstatus == 'Open' ? 'green' : 'red') + '"> ' + a.cstatus + '</span></b>'
+                            html231 += '  </div>'
+                            html231 += ' <div class="col-md-6">'
+                            html231 += 'Documents: <span id=""> <span class="glyphicon glyphicon-folder-open"  id="filelink" id-valcw="' + a.UserCaseid + '"  id-val="' + a.Id + '" style="cursor:pointer" title="Open Case Documents"> </span></span>'
+                            html231 += '</div>'
+                            html231 += '  </div>'
+                            html231 += ' <p class="mb-1">Assigned To: <span id="">' + a.assignuserto + '</span></p >'
+                            html231 += ' <p class="mb-1">'
+                            html231 += ' <div>'
+                            html231 += ' Total Spend Time: <span  class="label ' + (a.TotalCaseTime != null ? 'label-success' : 'label-danger') + '" id="tst" style="cursor:pointer" title="click here to view case time entry" data-val="' + a.Id + '">' + (a.TotalCaseTime != null ? a.TotalCaseTime : 'NA') + '</span>'
+                            if (String(a.UserCaseid) != "") {
+                                html231 += '<button type="button" class="btn  btn-mail" style="margin-left:20px;" id="transferpagecasedetails" data-val="' + a.UserCaseid + '"><i class="glyphicon glyphicon-briefcase" ></i> Case Details</button>'
+                                html231 += '<button type="button" class="btn  btn-mail" style="margin-left:20px;" title="Earlier Court Details"  id="cwcourtsdoc" data-doc="earliercourt" data-val="' + a.UserCaseid + '"><i class="glyphicon glyphicon-th" aria-hidden="true"></i></button>'
+                                html231 += '<button type="button" class="btn  btn-mail" style="margin-left:20px;" title="Notices"  id="cwcourtsdoc" data-doc="notices" data-val="' + a.UserCaseid + '"><i class="fa fa-list-alt" aria-hidden="true"></i></button>'
+                                html231 += '<button type="button" class="btn  btn-mail" style="margin-left:20px;" title="Office Reports"  id="cwcourtsdoc" data-doc="officereports" data-val="' + a.UserCaseid + '"><i class="fa fa-list" aria-hidden="true"></i></button>'
+                                html231 += '<button type="button" class="btn btn-mail" style="margin-left:20px;" title="Caveat"  id="cwcourtsdoc" data-doc="caveat" data-val="' + a.UserCaseid + '"><i class="fa fa-bell" aria-hidden="true"></i></button>'
+                            }
+                            if (String(a.CNRCase) != "") {
+                                html231 += '<button type="button" class="btn btn-mail" style="margin-left:20px;" title="Linked Case"  id="cnrcaselink" case-val="' + a.Id + '"  data-val="' + a.CNRCase + '"><i class="fa fa-briefcase" aria-hidden="true"></i> Linked Case - ' + a.CNRCase + '</button>'
+                            }
+                            html231 += '<button id="viewcasedetails" data-val="' + a.Id + '" type="button" style="float:right;margin-top:5px;" class="btn btn-default btn-mail" > More Details <span class="glyphicon glyphicon-forward" title = "View Case Details" ></span ></button ></p >'
+                            html231 += '</div>'
+                            html231 += '</div>'
+                            html231 += '</div>';
+                        })
+                    ).then(function () {
+                        if (obj.length > 2) {
+                            //$("#loadmorecases").css("display", "block");
+                            //$("#loadlesscases").css("display", "none");
+                        }
+                        else {
+                            //$("#loadmorecases").css("display", "none");
+                            //$("#loadlesscases").css("display", "none");
+                        }
+                        $("#casedataforclient").append(html231).hide().fadeIn(1000);
+                        table();
+                    });
+                },
+                failure: function (data) {
+                    alert(data.responseText);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
+        function loadclientcasenexthearingdata() {
+            var html231 = '';
+            var formData = new FormData();
+            formData.append("token", clientid);
+            //read assign using list
+            var cn = 0;
+            var d5 = $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/CaseNextHearingListbyClientId",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response2) {
+                    try {
+                        $.when(
+                            $.each(response2.Data, function (q, b) {
+                                var tempstrng = "smcase" + b.ID;
+                                var tempstrngcourt = "smcourt" + b.ID;
+                                var tempstrngctype = "smctype" + b.ID;
+                                var tempstrngbench = "smbench" + b.ID;
+                                if (tempstrng == $("#smcase" + b.ID).attr("id")) {
+                                    if (b.Nexthearing == "") {
+                                        $("#smcase" + b.ID).text("NA");
+                                    }
+                                    else {
+                                        $("#smcase" + b.ID).text(b.Nexthearing);
+                                    }
+                                }
+                                if (tempstrngcourt == $("#smcourt" + b.ID).attr("id")) {
+                                    $("#smcourt" + b.ID).text(b.vCourt);
+                                }
+                                if (tempstrngctype == $("#smctype" + b.ID).attr("id")) {
+                                    $("#smctype" + b.ID).text(b.casetype);
+                                }
+                                if (b.benchname != "") {
+                                    if (tempstrngbench == $("#smbench" + b.ID).attr("id")) {
+                                        $("#smbench" + b.ID).text(b.benchname);
+                                    }
+                                }
+                                else {
+                                    $("#smbenchclass" + b.ID).css("display", "none");
+                                }
+                                $("#smbenchclassnull").css("display", "none");
+                            })
+                        ).then(function () {
+                        });
+                    }
+                    catch (er) {
+                        alert(er.message);
+                    }
+                },
+                failure: function (data) {
+                    alert(data.responseText);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+            $.when(d5).then(function (data, textStatus, jqXHR) {
+                closeload();
+            });
+        }
+        var fcode = localStorage.getItem("FirmCode");
+        $(document).on('click', '#getdatabypagenum2', function () {
+            pageindex2 = $("#pagnumvalue2").val();
+            if (pageindex2 != "undefined") {
+                if (Math.sign(pageindex2) == 1) {
+                    var pageindesx2 = $("#sotopage2").text();
+                    if (pageindex2 <= parseInt(pageindesx2)) {
+                        openload();
+                        loadtabledata(pageindex2);
+                        closeload();
+                    }
+                    else {
+                        alert("Please enter a valid page number.");
+                        closeload();
+                    }
+                }
+                else {
+                    alert("Please enter a valid page number.");
+                }
+            }
+        });
+        $(document).on('click', '#paginate2', function () {
+            /* your code here */
+            pageindex2 = $(this).attr("index");
+            loadtabledata(pageindex2);
+        });
+        function table() {
+            $("#updatePanel").html("");
+            $table = $('<table id="example" border = "1px solid" class=""  style="overflow-x:auto;" /><tr><th>').addClass('dataTable table table-bordered table-striped');
+            $header = $('<thead  >').html('');
+            $head1 = $('<th bgcolor="DIMGRAY"  onclick="sortTable(0)" class="Activity">Activity <span class="fa fa-sort "></span></th><th bgcolor="DIMGRAY" onclick="sortTable(1)" class="Status12">Status <span class="fa fa-sort "></span></th><th bgcolor="DIMGRAY" onclick="sortTable(2)" class="Date">Date <span class="fa fa-sort "></span></th><th bgcolor="DIMGRAY" onclick="sortTable(3)" class="Matter">Case <span class="fa fa-sort "></span></th><th bgcolor="DIMGRAY" onclick="sortTable(4)" class="assignto">Assign To <span class="fa fa-sort "></span></th><th bgcolor="DIMGRAY" onclick="sortTable(5)" class="assignby">Assign By <span class="fa fa-sort "></span></th>');
+            $header.append($head1);
+            $table.append($header);
+            $table.append('<tbody style="clear:both" id="loadactivitydatas">');
+            $('#updatePanel').html($table);
+            setTimeout(function () {
+                loadtabledata(pageindex2);
+            }, 500);
+        }
+        function loadtabledata(pageindex2) {
+            var $table = '';
+            var $header = '';
+            var dt = '';
+            var q1 = 2;
+            $('#loadactivitydatas').html("");
+            var fcode = localStorage.getItem("FirmCode");
+            var formdata = new FormData();
+            formdata.append("pagenum", pageindex2);
+            formdata.append("pagesize", pagesize2);
+            formdata.append("search", "");
+            formdata.append("type", "task");
+            $.ajax({
+                async: true,
+                url: '/api/CallApi/LoadAllActivityDatabyrowid',
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    $("#tfooter2").html("");
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        var obj2 = JSON.parse(response.Data);
+                        var length2 = obj2.length;
+                    }
+                    else {
+                        //alert("not found");
+                    }
+                    if (response.Data.length > 0) {
+                        $("#datastatus2").html("");
+                        closeload();
+                    }
+                    else {
+                        $("#datastatus2").html("No result found !");
+                        closeload();
+                    }
+                    var it = 2;
+                    var qty = 0;
+                    var firstvalue2 = 0;
+                    var tempv2 = 0;
+                    $.each(obj2, function (i, val) {
+                        if (i === 0) {
+                            firstvalue2 = val.rownum;
+                            tempv2 = firstvalue2;
+                        }
+                        if (i === (length2 - 1)) {
+                            var pnext2 = pageindex2;
+                            var pprev2 = pageindex2;
+                            var pageno2 = pageindex2;
+                            var totdata2 = val.TotalRows;
+                            var totpage2 = 0;
+                            if (val.TotalRows > 0) {
+                                pnext2 = parseInt(pnext2) + 1;
+                                if (pnext2 == 0) pnext2 = 1;
+                                pprev2 = parseInt(pageno2) - 1;
+                                if (pprev2 == 0) pprev2 = 1;
+                                totpage2 = parseInt(totdata2) / parseInt(pagesize2);
+                                if (parseInt(totdata2) % parseInt(pagesize2) != 0) {
+                                    totpage2 = parseInt(totpage2) + 1;
+                                }
+                                $("#pagnumvalue2").attr("max", totpage2);
+                            }
+                            var tfot = '';
+                            tfot += '<table style="width:100%;background:white"><tr><td colspan = "12">'
+                            tfot += '<div style="float:left;padding-top:2px;font-size:13px;padding-bottom:5px;">Page Number <b style="font-size:12px;">' + pageindex2 + '</b>&nbsp;of <b style="font-size:12px;"><span id="sotopage2">' + parseInt(totpage2) + '</span> Pages</b>'
+                            tfot += '&nbsp;&nbsp;|&nbsp;&nbsp;<b style="font-size:12px;">' + tempv2 + '-' + val.rownum + '</b> of <b style="font-size:12px;">' + val.TotalRows + ' Entries</b>'
+                            tfot += '&nbsp;&nbsp;|&nbsp;&nbsp;Enter Page No: <input type="number" id="pagnumvalue2" min="1"  style="width: 30px;margin-top:5px;"><button type="button" id="getdatabypagenum2" style="margin-left:10px;">Go</button>'
+                            tfot += '</div>'
+                            tfot += '<div style="float:right;padding-top:5px;">'
+                            if (val.totRow <= length2) {
+                            }
+                            else if (pageno2 == 1) {
+                            }
+                            else if (pageno2 == totpage2) {
+                                tfot += '<a id="paginate2" class="btn btn-default btn-mail" title="Previous Page" href="javascript:void()" index="' + pprev2 + '" ><i class="glyphicon glyphicon-chevron-left"></i> Previous </a>'
+                            }
+                            else {
+                                tfot += '<a id="paginate2" class="btn btn-default btn-mail" title="Previous Page" href="javascript:void()" index="' + pprev2 + '" ><i class="glyphicon glyphicon-chevron-left"></i> Previous </a>'
+                            }
+                            if (pageno2 < totpage2) {
+                                tfot += '<a id="paginate2" class="btn btn-default btn-mail" title="Next Page" href="javascript:void()" index="' + pnext2 + '" style="margin-left:10px;margin-right:18px;" >Next <i class="glyphicon glyphicon-chevron-right"></i></a></div >'
+                            }
+                            tfot += '</td >'
+                            tfot += '</tr >'
+                            $("#tfooter2").append(tfot);
+                        }
+                        $("#tokens").append('<input type="hidden" id="hidtask' + it + '" value="' + val.Id + '">')
+                        if (val.status == "Completed") {
+                            bclass = "label label-success";
+                        }
+                        if (val.status == "Not Completed") {
+                            bclass = "label label-danger";
+                        }
+                        if (val.status == "In Progress") {
+                            bclass = "label label-warning";
+                        }
+                        var dat = val.date_time;
+                        var dates1 = formatDatetoIST(dat);
+                        var statusvalue = "";
+                        if (val.status == "Not Completed") {
+                            statusvalue = "Pending";
+                        }
+                        else {
+                            statusvalue = val.status;
+                        }
+                        var duedates = "";
+                        if (String(val.Duedate) != '1900-01-01T00:00:00') {
+                            duedates = formatDatetoIST(val.Duedate);
+                        }
+                        else {
+                            duedates = '';
+                        }
+                        it = it + 1;
+                        if (String(val.IsSync) == "1") {
+                            dsyncicon = "glyphicon glyphicon-retweet";
+                            dsynctitle = "Marked for data synchronization";
+                        }
+                        else {
+                            dsyncicon = "";
+                            dsynctitle = "";
+                        }
+                        var $row = $('<tr />');
+                        if (String(val.TempField) == "task") {
+                            $row.append($('<td class="Activity" />').html("<i name='" + val.subject + "' class='fa fa-file-text-o'></i>&nbsp;&nbsp;<span><a name='" + val.subject + "' id='transferpagetask' href='javascript:void()' sno=" + val.Id + ">" + (val.subject != null ? val.subject : '</a>') + '<i class= "' + dsyncicon + ' pull-right" title = "' + dsynctitle + '" ></i>'));
+                        }
+                        $row.append($('<td class="Status12" />').html("<span class='" + bclass + "'>" + (statusvalue != null ? statusvalue : '')));
+                        $row.append($('<td class="Date" />').html("<span  name='" + val.date_time + "'>" + (dates1 != null ? dates1 : '')));
+                        $row.append($('<td class="Matter" />').html("<span>" + (val.mattername != null ? val.mattername : '')));
+                        $row.append($('<td class="assignto" />').html("<span>" + (val.assignuserto != null ? val.assignuserto : '')));
+                        $row.append($('<td class="assignby" />').html("<span>" + (val.assignuserby != null ? val.assignuserby : '')));
+                        $('#loadactivitydatas').append($row);
+                    });
+                    closeload();
+                },
+                error: function () {
+                    closeload();
+                }
+            });
+        }
+        $(document).on('click', '#getdatabypagenum1', function () {
+            pageindex1 = $("#pagnumvalue1").val();
+            if (pageindex1 != "undefined") {
+                if (Math.sign(pageindex1) == 1) {
+                    var pageindesx1 = $("#sotopage1").text();
+                    if (pageindex1 <= parseInt(pageindesx1)) {
+                        openload();
+                        loadcaselisttabledata(pageindex1);
+                        closeload();
+                    }
+                    else {
+                        alert("Please enter a valid page number.");
+                        closeload();
+                    }
+                }
+                else {
+                    alert("Please enter a valid page number.");
+                }
+            }
+        });
+        $(document).on("click", "#linkcase", function () {
+            if (String(roleids) == "1") {
+                var urls = "/" + fcode + "/Firm/MatterSingleView";
+                url_redirect({
+                    url: urls,
+                    method: "post",
+                    data: { "token": $(this).attr("data-val") }
+                });
+            }
+            else {
+                var urls = "/" + fcode + "/employee/MatterSingleView";
+                url_redirect({
+                    url: urls,
+                    method: "post",
+                    data: { "token": $(this).attr("data-val") }
+                });
+            }
+        });
+        $(document).on('click', '#paginate1', function () {
+            /* your code here */
+            pageindex1 = $(this).attr("index");
+            loadcaselisttabledata(pageindex1);
+        });
+        loadcaselisttabledata(pageindex1);
+        function loadcaselisttabledata(pageindex1) {
+            openload();
+            $("#loadclientcase1").html("");
+            var $table = '';
+            var $header = '';
+            var dt = '';
+            var q1 = 2;
+            $table = $('<table id="example" border = "1px solid" class="" style="overflow-x:auto;" /><tr><th>').addClass('dataTable table table-bordered table-striped');
+            $header = $('<thead  >').html('');
+            $head1 = $('<th bgcolor="DIMGRAY" onclick="sortTable(1)">Sl. No. <span class="fa fa-sort "></span></th><th bgcolor="DIMGRAY" onclick="sortTable(2)" class="matter">Case <span class="fa fa-sort "></span></th><th bgcolor="DIMGRAY"  class="duration">Document </th> ');
+            $header.append($head1);
+            $table.append($header);
+            var fcode = localStorage.getItem("FirmCode");
+            var formdata = new FormData();
+            formdata.append("param", "");
+            formdata.append("pagenum", pageindex1);
+            formdata.append("pagesize", pagesize1);
+            openload();
+            $.ajax({
+                async: true,
+                url: '/api/CallApi/CaseListcasedashboard',
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    $("#tfooter1").html("");
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        var obj = JSON.parse(response.Data);
+                        var length1 = obj.length;
+                    }
+                    else {
+                        closeload();
+                    }
+                    if (response.Data.length > 0) {
+                        $("#datastatus1").html("");
+                        closeload();
+                    }
+                    else {
+                        $("#datastatus1").html("No result found !");
+                        closeload();
+                    }
+                    var it = 2;
+                    var qty = 0;
+                    var firstvalue1 = 0;
+                    var tempv1 = 0;
+                    $.each(obj, function (i, val) {
+                        if (i === 0) {
+                            firstvalue1 = val.rownum;
+                            tempv1 = firstvalue1;
+                        }
+                        if (i === (length1 - 1)) {
+                            var pnext1 = pageindex1;
+                            var pprev1 = pageindex1;
+                            var pageno1 = pageindex1;
+                            var totdata1 = val.totRow;
+                            var totpage1 = 0;
+                            if (val.totRow > 0) {
+                                pnext1 = parseInt(pnext1) + 1;
+                                if (pnext1 == 0) pnext1 = 1;
+                                pprev1 = parseInt(pageno1) - 1;
+                                if (pprev1 == 0) pprev1 = 1;
+                                totpage1 = parseInt(totdata1) / parseInt(pagesize1);
+                                if (parseInt(totdata1) % parseInt(pagesize1) != 0) {
+                                    totpage1 = parseInt(totpage1) + 1;
+                                }
+                                $("#pagnumvalue1").attr("max", totpage1);
+                            }
+                            var tfot = '';
+                            tfot += '<table style="width:100%;background:white"><tr><td colspan = "12">'
+                            tfot += '<div style="float:left;padding-top:2px;font-size:13px;padding-bottom:5px;">Page Number <b style="font-size:12px;">' + pageindex1 + '</b>&nbsp;of <b style="font-size:12px;"><span id="sotopage1">' + parseInt(totpage1) + '</span> Pages</b>'
+                            tfot += '&nbsp;&nbsp;|&nbsp;&nbsp;<b style="font-size:12px;">' + tempv1 + '-' + val.rownum + '</b> of <b style="font-size:12px;">' + val.totRow + ' Entries</b>'
+                            tfot += '&nbsp;&nbsp;|&nbsp;&nbsp;Enter Page No: <input type="number" id="pagnumvalue1" min="1"  style="width: 30px;margin-top:5px;"><button type="button" id="getdatabypagenum1" style="margin-left:10px;">Go</button>'
+                            tfot += '</div>'
+                            tfot += '<div style="float:right;padding-top:5px;">'
+                            if (val.totRow <= length1) {
+                            }
+                            else if (pageno1 == 1) {
+                            }
+                            else if (pageno1 == totpage1) {
+                                tfot += '<a id="paginate1" class="btn btn-default btn-mail" title="Previous Page" href="javascript:void()" index="' + pprev1 + '" ><i class="glyphicon glyphicon-chevron-left"></i> Previous </a>'
+                            }
+                            else {
+                                tfot += '<a id="paginate1" class="btn btn-default btn-mail" title="Previous Page" href="javascript:void()" index="' + pprev1 + '" ><i class="glyphicon glyphicon-chevron-left"></i> Previous </a>'
+                            }
+                            if (pageno1 < totpage1) {
+                                tfot += '<a id="paginate1" class="btn btn-default btn-mail" title="Next Page" href="javascript:void()" index="' + pnext1 + '" style="margin-left:10px;margin-right:18px;" >Next <i class="glyphicon glyphicon-chevron-right"></i></a></div >'
+                            }
+                            tfot += '</td >'
+                            tfot += '</tr >'
+                            $("#tfooter1").append(tfot);
+                        }
+                        firstvalue1 = firstvalue1 + 1;
+                        qty = firstvalue1 - 1;
+                        var hrate = "";
+                        if (val.hrrate == null) {
+                            hrate = "";
+                        }
+                        else {
+                            hrate = val.hrrate;
+                        }
+                        var total = "";
+                        if (val.total == null) {
+                            total = "";
+                        }
+                        else {
+                            total = val.total;
+                        }
+                        it = it + 1;
+                        var $row = $('<tr />');
+                        $row.append($('<td class="s" />').html("<span>" + qty + ""));
+                        $row.append($('<td   id="linkcase" data-val="' + val.Id + '" class="matter" style="color:cornflowerblue;cursor:pointer" />').html("<span>" + (val.mname != null ? val.mname : '<span style="visibility: hidden;">&nbsp;</span></td>')));
+                        $row.append($('<td class="docs" />').html("<span class='glyphicon glyphicon-folder-open'  id='filelink' id-valcw='" + val.UserCaseid + "'   id-val='" + val.Id + "' style='cursor: pointer' title='Open Case Documents'> </span>"));
+                        $table.append($row);
+                    });
+                    $('#loadclientcase1').html($table);
+                    $("input:checkbox:not(:checked)").each(function () {
+                        var column = "table ." + $(this).attr("name");
+                        $(column).hide();
+                    });
+                    $("input:checkbox").click(function () {
+                        var column = "table ." + $(this).attr("name");
+                        $(column).toggle();
+                    });
+                    closeload();
+                },
+                error: function () {
+                    closeload();
+                }
+            });
+        }
+    });
+</script>
+<style>
+    .row {
+        overflow: auto !important;
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+
+    #sectiontemp li {
+        float: left;
+        display: inline;
+    }
+</style>
+<style>
+    .small-box > .small-box-footer {
+        z-index: 0 !important;
+    }
+
+    .dropbtn:hover, .dropbtn:focus {
+        background-color: #3e8e41;
+    }
+
+    #searchdata {
+        border-box: box-sizing;
+        background-image: url('searchicon.png');
+        background-position: 14px 12px;
+        background-repeat: no-repeat;
+        font-size: 16px;
+        padding: 14px 20px 12px 45px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #myInput:focus {
+        outline: 3px solid #ddd;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .show {
+        display: block;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#searchdatainv").on("keyup", function () {
+            var value = $("#searchdatainv").val().toLowerCase();
+            $("#invlist tbody tr ").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
+<script>
+    function searchTablecase() {
+        var input, filter, found, table, tr, td, i, j;
+        input = document.getElementById("searchdata2");
+        filter = input.value.toUpperCase();
+        tr = $("#example1 > tbody > tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    found = true;
+                }
+            }
+            if (found) {
+                tr[i].style.display = "";
+                found = false;
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+    function fsearchTablecase() {
+        try {
+            var input, filter, found, table, tr, td, i, j;
+            input = document.getElementById("fstatus");
+            filter = input.value.toUpperCase();
+            tr = $("#example1 > tbody > tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByClassName("cstatus");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j].textContent.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                    }
+                }
+                if (found) {
+                    tr[i].style.display = "";
+                    found = false;
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+        catch (err) {
+            alert(err.message);
+        }
+    }
+    function eventfsearchTablecase(event) {
+        try {
+            var input, filter, found, table, tr, td, i, j;
+            filter = event.toUpperCase();
+            tr = $("#example1 > tbody > tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByClassName("cstatus");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j].textContent.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                    }
+                }
+                if (found) {
+                    tr[i].style.display = "";
+                    found = false;
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+        catch (err) {
+            alert(err.message);
+        }
+    }
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            @if (role.ToString() == "1")
+            {
+                <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            }
+            else if (role.ToString() == "2")
+            {
+                <li><a href="/@Session["firmcode"]/employee/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            }
+            <li class="active">Case Dashboard</li>
+        </ol>
+    </section>
+    <script>
+        $(document).ready(function () {
+            $("#btnsearch").on("click", function () {
+                var value = $("#searchdata").val().toLowerCase();
+                $("#ocrlist tbody tr ").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="">
+                    <div class="box-header">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <form id="fileupload" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div id="exTab1">
+                        <ul class="nav nav-pills ">
+                            <li class="active">
+                                <a href="#a11" data-toggle="tab">Case Dashboard</a>
+                            </li>
+                            <li>
+                                <a href="#a21" data-toggle="tab">Cause List</a>
+                            </li>
+                            <li>
+                                <a href="#a31" data-toggle="tab">Documents</a>
+                            </li>
+                            <li style="margin-left:9px;">
+                                <a href="#a41" data-toggle="tab">Task</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content clearfix">
+                            <div class="tab-pane active" id="a11">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="col-md-12">
+                                            <div class="row">
+                                                <div class="col-md-4 col-sm-2">
+                                                    <div class="small-box bg-aqua">
+                                                        <div class="inner"><h3> Cases</h3><p><div id="totcases"></div></p></div>
+                                                        <div class="icon"><i class="glyphicon glyphicon-briefcase" style="font-size:60px;"></i></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-sm-2">
+                                                    <div class="small-box bg-green">
+                                                        <div class="inner">
+                                                            <h3>
+                                                                Pending Cases
+                                                            </h3>
+                                                            <p>
+                                                                <div id="totopen"></div>
+                                                            </p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="glyphicon glyphicon-briefcase" style="font-size:60px;"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-sm-2">
+                                                    <div class="small-box bg-red">
+                                                        <div class="inner">
+                                                            <h3>
+                                                                Dispose Cases
+                                                            </h3>
+                                                            <p>
+                                                                <div id="totclose"></div>
+                                                            </p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="glyphicon glyphicon-briefcase" style="font-size:60px;"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div>
+                                                <fieldset style="background:#f1f1f1;">
+                                                    <legend>Subject Wise Case Chart</legend>
+                                                    <div><canvas id="myChart2" width="200" height="180"> </canvas></div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div>
+                                                <fieldset style="background:#f1f1f1;">
+                                                    <legend>Case Chart</legend>
+                                                    <div><canvas id="myChart" width="200" height="180"> </canvas></div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div>
+                                                <fieldset style="background:#f1f1f1;">
+                                                    <legend>District wise Case Chart</legend>
+                                                    <div><canvas id="myChart3" width="200" height="180"> </canvas></div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div>
+                                                <fieldset style="background:#f1f1f1;">
+                                                    <legend>Next Hearing Graph</legend>
+                                                    <div height="200"><canvas id="examChart"> </canvas></div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div>
+                                                <fieldset style="background:#f1f1f1;height:390px">
+                                                    <legend>Next Hearing</legend>
+                                                    <div>
+                                                        <marquee scrolldelay="150" direction="up" onmouseover="this.stop();" onmouseout="this.start();">
+                                                            <ul class="todo-list" id="nexthrlist" style="height:300px;">
+                                                            </ul>
+                                                        </marquee>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div>
+                                                <fieldset style="background:#f1f1f1;">
+                                                    <legend>Case Quick View</legend>
+                                                    <div id="casedataforclient" style="margin-top:-15px;"></div>
+                                                    <div><center><span id="datastatus"></span></center></div>
+                                                    <div id="tfooter">
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane " id="a21">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div id="loadcauselists">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane " id="a31" style="clear:both">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <fieldset>
+                                            <div class="form-group form-horizontal" style="overflow-x:auto">
+                                                <div id="loadclientcase1"></div>
+                                                <div><center><span id="datastatus1"></span></center></div>
+                                                <div id="tfooter1">
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane " id="a41">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <fieldset>
+                                            <div class="form-group form-horizontal" style="overflow-x:auto">
+                                                <div class="container-fluid showcontent" id="showcontent">
+                                                    @*<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>*@
+                                                    <script src="~/CssJsfiles/js/pdfmake.min.js"></script>
+                                                    <script src="~/CssJsfiles/js/html2canvas.min.js"></script>
+                                                    <script type="text/javascript">
+                                                        $("body").on("click", "#btnExport", function () {
+                                                            html2canvas($('#example')[0], {
+                                                                onrendered: function (canvas) {
+                                                                    var data = canvas.toDataURL();
+                                                                    var docDefinition = {
+                                                                        content: [{
+                                                                            image: data,
+                                                                            width: 500
+                                                                        }]
+                                                                    };
+                                                                    pdfMake.createPdf(docDefinition).download("Timer List.pdf");
+                                                                }
+                                                            });
+                                                        });
+                                                    </script>
+                                                    <div id="updatePanel" style="overflow-x:auto; clear:both; margin-top:10px;">
+                                                    </div>
+                                                    <div><center><span id="datastatus2"></span></center></div>
+                                                    <div id="tfooter2">
+                                                    </div>
+                                                    <div class="box-footer clearfix">
+                                                        <ul class="pagination pagination-sm no-margin pull-right"></ul>
+                                                    </div>
+                                                    <div id="tokens"></div>
+                                                </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (role.ToString() == "1")
+                            {
+                                <div class="tab-pane " id="a61">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group form-horizontal">
+                                                <form id="saveclient" enctype="multipart/form-data">
+                                                    <div class="row">
+                                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                                            <fieldset>
+                                                                <legend>Communication</legend>
+                                                                <div id="loadclientmessage">...</div>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else if (role.ToString() == "2")
+                            {
+                                <div class="tab-pane " id="a61" style="display:none">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group form-horizontal">
+                                                <form id="saveclient" enctype="multipart/form-data">
+                                                    <div class="row">
+                                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                                            <fieldset>
+                                                                <legend>Communication</legend>
+                                                                <div id="loadclientmessage">...</div>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <!-- /.row (nested) -->
+                </div>
+        </form>
+        </fieldset>
+        </div>
+        </div>
+    </section>
+</aside>
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="myModalleadcall" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Case: Time Spend list
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div id="exTab1">
+                                            <ul class="nav nav-pills">
+                                                <li class="active">
+                                                    <a href="#1a" data-toggle="tab">View Time Entry</a>
+                                                </li>
+                                                <li class="pull-right">
+                                                    <input type="button" class="btn btn-primary" id="btnExport1" value=" Excel" title="Export to Excel">
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content clearfix">
+                                                <div class="tab-pane active" id="1a">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <fieldset>
+                                                                <div class="form-group form-horizontal" id="casetime">
+                                                                    <table border="1px solid" id="Casetimetable" class="dataTable table table-bordered table-striped" style="overflow-x:auto">
+                                                                        <tr>
+                                                                            <th width="15px;" style="background-color:#5c5c5c">S.No</th>
+                                                                            <th style="background-color:#5c5c5c" width="100px;">Case Name</th>
+                                                                            <th style="background-color:#5c5c5c" width="100px;">Time Spent</th>
+                                                                            <th style="background-color:#5c5c5c" width="140px;">Date</th>
+                                                                            <th style="background-color:#5c5c5c" width="200px;">Created By</th>
+                                                                        </tr>
+                                                                        <tbody id="loadcasetime"></tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span id="textcaseid" style="display:none"></span>
+                                            </div>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+                <script>
+                    $("#btnExport1").click(function (e) {
+                        var a = document.createElement('a');
+                        //getting data from our div that contains the HTML table
+                        var data_type = 'data:application/vnd.ms-excel';
+                        a.href = 'data:application/vnd.ms-excel,' + encodeURIComponent($('div[id=casetime]').html());
+                        //setting the file name
+                        a.download = 'Time Spend list.xls';
+                        //triggering the function
+                        a.click();
+                        //just in case, prevent default behaviour
+                        e.preventDefault();
+                        return (a);
+                    });
+                </script>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function activetab(href, event) {
+        try {
+            $('[data-toggle="tab"][href="#' + href + '"]').trigger('click');
+            if (event == "Open") {
+                eventfsearchTablecase(event);
+                $('#fstatus').prop('selectedIndex', 1);
+            }
+            else if (event == "Close") {
+                eventfsearchTablecase(event);
+                $('#fstatus').prop('selectedIndex', 2);
+            }
+            else {
+                event = '';
+                eventfsearchTablecase(event);
+                $('#fstatus').prop('selectedIndex', 0);
+            }
+        }
+        catch (ex) {
+            alert(ex.message);
+        }
+        //  $("a #a21").trigger("click");
+    }
+</script>
+<script>
+    /*					PAGINATION
+    - on change max rows select options fade out all rows gt option value mx = 5
+    - append pagination list as per numbers of rows / max rows option (20row/5= 4pages )
+    - each pagination li on click -> fade out all tr gt max rows * li num and (5*pagenum 2 = 10 rows)
+    - fade out all tr lt max rows * li num - max rows ((5*pagenum 2 = 10) - 5)
+    - fade in all tr between (maxRows*PageNum) and (maxRows*pageNum)- MaxRows
+    */
+    getPagination('#example');
+    function getPagination(table) {
+        $('#maxRows').on('change', function () {
+            $('.pagination').html('');						// reset pagination
+            var trnum = 0;									// reset tr counter
+            var maxRows = parseInt($(this).val());
+            // alert(maxRows);
+            // alert(maxRows);// get Max Rows from select option
+            var totalRows = $(table + ' tbody tr ').length;
+            // alert(totalRows);// numbers of rows
+            $('#example tbody tr').each(function () {			// each TR in  table and not the header
+                trnum++;
+                //alert(trnum);// Start Counter
+                if (trnum > maxRows) {						// if tr number gt maxRows
+                    $(this).hide();							// fade it out
+                } if (trnum <= maxRows) { $(this).show(); }// else fade in Important in case if it ..
+            });											//  was fade out to fade it in
+            if (totalRows > maxRows) {						// if tr total rows gt max rows option
+                var pagenum = Math.ceil(totalRows / maxRows);
+                // alert(pagenum);// ceil total(rows/maxrows) to get ..
+                //	numbers of pages
+                for (var i = 1; i <= pagenum;) {			// for each page append pagination li
+                    $('.pagination').append('<li data-page="' + i + '">\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <span>'+ i++ + '<span class="sr-only">(current)</span></span>\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </li>').show();
+                }											// end for i
+            } 												// end if row count > max rows
+            $('.pagination li:first-child').addClass('active'); // add active class to the first li
+            $('.pagination li').on('click', function () {		// on click each page
+                var pageNum = $(this).attr('data-page');
+                // alert(pageNum);// get it's number
+                var trIndex = 0;							// reset tr counter
+                $('.pagination li').removeClass('active');	// remove active class from all li
+                $(this).addClass('active');					// add active class to the clicked
+                $('#example tbody tr').each(function () {		// each tr in table not the header
+                    trIndex++;
+                    // alert(trIndex);
+                    // tr index counter
+                    // if tr index gt maxRows*pageNum or lt maxRows*pageNum-maxRows fade if out
+                    if (trIndex > (maxRows * pageNum) || trIndex <= ((maxRows * pageNum) - maxRows)) {
+                        $(this).hide();
+                    } else { $(this).show(); } 				//else fade in
+                }); 										// end of for each tr in table
+            });										// end of on click pagination list
+        });
+        // end of on select change
+        // END OF PAGINATION
+    }
+</script>
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("example");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<div id="myOverlay" class="overlay">
+    @*//<span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>*@
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

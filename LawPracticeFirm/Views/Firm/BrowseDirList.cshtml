@@ -1,0 +1,379 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>
+    <style>
+        #frameWrap {
+            position: relative;
+            height: 490px;
+            width: 100%;
+            border: 1px solid #777777;
+            background: #f0f0f0;
+            box-shadow: 0px 0px 10px #777777;
+        }
+
+        #docframe {
+            height: 490px;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+
+        #loader12 {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: url('//upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Phi_fenomeni.gif/50px-Phi_fenomeni.gif') 50% 50% no-repeat rgb(249,249,249);
+        }
+    </style>
+    <div>
+    </div>
+    <script>
+        var id = "@ViewBag.directoryid";
+        var isfilfolder = "@ViewBag.isfilfolder";
+        $(document).ready(function () {
+            function validatercasefile(param) {
+                var reg = /_matter_[0-9]{5}$/g
+                if (reg.test(param) == false) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            $("#savemovefolderFile").attr("isfilfolder", isfilfolder);
+                $('#loader12').css("display","none");
+            $(document).on("click", "#getnextlevel", function () {
+                var issearch = $("#searcbrowsefoldertext").val();
+                if (issearch == "") {
+                    var did = $(this).attr("dir-val");
+                    var parent = $(this).attr("parent");
+                    LoadDirForBrowse(did, parent);
+                    loaddocbruidcumbbrowse(did);
+                }
+                else {
+                    $("#searcbrowsefoldertext").val("");
+                    $("#clearsearchbrowser").hide();
+                    $("#BackDirBrowse").show();
+                    var did = $(this).attr("dir-val");
+                    var parent = $(this).attr("parent");
+                    LoadDirForBrowse(did, "");
+                    loaddocbruidcumbbrowse(did);
+                }
+            });
+            $(document).on("click", "#transferpagemove", function () {
+                var did = $(this).attr("data-val");
+                LoadDirForBrowse(did);
+                loaddocbruidcumbbrowse(did);
+            });
+            $("#BackDirBrowse").click(function () {
+                    var value = $(this).attr("value");
+                    if (value == "" || value == "undefined")
+                    {
+                    }
+                    else {
+                        LoadDirForBrowse(value);
+                        loaddocbruidcumbbrowse(value);
+                      }
+                });
+            //load AllDirectoryList
+            LoadDirForBrowse(id, "");
+            function LoadDirForBrowse(id, parent) {
+                    $("#filepathbound").html("");
+                    openloadmove();
+                    var searchparam = $("#searcbrowsefoldertext").val();
+                $.ajax({  async: true,
+                    type: "POST",
+                    url: "/api/callApi/LoadDirForBrowse",
+                    headers: {
+                        'did': id,
+                        'search': searchparam
+                    },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response1) {
+                        if (response1.Status == true) {
+                            var datas = JSON.stringify(response1);
+                            var obj = JSON.parse(response1.Data);
+                        }
+                        else {
+                            alert("not found");
+                        }
+                        var option1234 = "";
+                        $.each(obj, function (i, a) {
+                            if (a.ftype == "0") {
+                                var ViewFolderName = "";
+                                var dirname = a.fname;
+                                if (a.Caseid == "") {
+                                    ViewFolderName = dirname;
+                                }
+                                else {
+                                    var resultvalid = validatercasefile(dirname);
+                                    if (resultvalid == true) {
+                                        ViewFolderName = dirname.substring(0, dirname.length - 13);
+                                        ViewFolderName = ViewFolderName + "(Case)";
+                                    }
+                                    else {
+                                        ViewFolderName = dirname;
+                                    }
+                                }
+                                option1234 += '<tr>';
+                                option1234 += '<td></td>';
+                                option1234 += ' <td> <div class="file_wrapper" style="display:flex; align-items:center; gap:6px;"> <img src="/newassets/img/folder_color.svg" />  &nbsp;&nbsp;<a class=""  id="getnextlevel" parent="' + id + '" isfilfolder="' + isfilfolder + '" dir-val="' + a.id + '" dir-path="' + a.FullDirPath + '" style="cursor:pointer;color:black">' + ViewFolderName + '</a></div></td>';
+                                option1234 += '<td>' + a.CreatedBy + '</td>';
+                                var fullpath = "";
+                                var ficon = "";
+                                var icolor = "";
+                                if (String(a.FullDirPath).length > 20) {
+                                    fullpath = String(a.FullDirPath).substring(0, 20) + "...";
+                                }
+                                else {
+                                    fullpath = a.FullDirPath;
+                                }
+                                option1234 += '<td title="' + a.FullDirPath + '">' + fullpath + '</td>';
+                                option1234 += '</tr>';
+                            }
+                            else {
+                                var str = a.filetype;
+                                var ftype = str.substring(str.lastIndexOf(".") + 1, str.length).toUpperCase();
+                                if (ftype == "DOC" || ftype == "DOCX") {
+                                    ficon = '<img src="/newassets/img/doc-icon.png" />';
+                                    icolor = "#1860a3";
+                                }
+                                if (ftype == "PPT" || ftype == "PPTX") {
+                                    ficon = '<img src="/newassets/img/ppt.png" />';
+                                    icolor = "orange";
+                                }
+                                if (ftype == "PDF") {
+                                    ficon = '<img src="/newassets/img/pdf-icon.PNG" />';
+                                    icolor = "red";
+                                }
+                                if (ftype == "ZIP") {
+                                    ficon = '<img src="/newassets/img/zip.png" />';
+                                    icolor = "orange";
+                                }
+                                if (ftype == "PNG" || ftype == "JPG" || ftype == "JPEG") {
+                                    ficon = '<img src="/newassets/img/jpe_icon.svg" />';
+                                    icolor = "#1860a3";
+                                }
+                                if (ftype == "CSV" || ftype == "XLSX" || ftype == "XLS") {
+                                    ficon = '<img src="/newassets/img/csv_icon.svg" />';
+                                    icolor = "green";
+                                }
+                                if (ftype == "TXT") {
+                                    ficon = '<img src="/newassets/img/txt_icon.svg" />';
+                                    icolor = "skyblue";
+                                }
+                                option1234 += '<tr>';
+                                option1234 += '<td><input id="loadbrowsedirlist" class="loadbrowsedirlist" style="cursor:default !important; " name="dirradio" type="checkbox"  dir-val="' + a.id + '" dir-name="' + a.fname + '"></td>';
+                                option1234 += ' <td><div class="file-wrapper" style="display:flex; align-items:center; gap:6px;">' + ficon + '<a class="" id="getnextlevel" parent="' + id + '" isfilfolder="' + isfilfolder + '" dir-val="' + a.id + '" dir-path="' + a.FullDirPath + '" style="cursor:pointer;color:black">' + a.fname + '</a></div></td>';
+
+                                option1234 += '<td>' + a.CreatedBy + '</td>';
+                                var fullpath = "";
+                                if (String(a.FullDirPath).length > 20) {
+                                    fullpath = String(a.FullDirPath).substring(0, 20) + "...";
+                                }
+                                else {
+                                    fullpath = a.FullDirPath;
+                                }
+                                option1234 += '<td title="' + a.FullDirPath + '">' + fullpath + '</td>';
+                                option1234 += '</tr>';
+                            }
+                            $("#BackDirBrowse").attr("value", a.DirId);
+                        });
+                        if (obj.length == 0) {
+                            $("#BackDirBrowse").attr("value", parent);
+                            option1234 += '<tr><td><td colspan="3" style="text-align:center"><span style="color:black;margin-left:5px;font-weight:bold;">No Folder found..</span></td></tr>';
+                        }
+                        $("#filepathbound").html(option1234);
+                    },
+                    failure: function (response) {
+                        alert(data.responseText);
+                        closeloadmove();
+                        },
+                    error: function (response) {
+                        alert(data.responseText);
+                        closeloadmove();
+                    }
+                });
+            }
+            loaddocbruidcumbbrowse(0);
+            function loaddocbruidcumbbrowse(didmove) {
+                openloadmove();
+                $("#bruidcumbbrowse").empty();
+                $("#bruidcumbbrowse").html("");
+                var option2 = '<li class="active"><a style="text-decoration:none; color: #717680;" id="transferpagemove" href="javascript:void()" data-val="00000000-0000-0000-0000-000000000000"> <img src="/newassets/img/folder_color.svg"</a> </li>';
+                $("#bruidcumbbrowse").append(option2);
+                var formdata = new FormData();
+                formdata.append("dirid", didmove);
+                var option = "";
+                $.ajax({
+                    async: true,
+                    url: "/api/AzureApi/Bruidcumb",
+                    data: formdata,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.Status == true) {
+                            var datas = JSON.stringify(response);
+                            try {
+                                var obj = JSON.parse(response.Data);
+                            }
+                            catch
+                            {
+                                closeloadmove();
+                                return false;
+                            }
+                        }
+                        else {
+                            // alert("not found");
+                        }
+                        var qtyr = 0;
+                        $.each(obj, function (i, a) {
+                            qtyr = qtyr + 1;
+                            if (String(a.Name) == "null") {
+                            }
+                            else {
+                                var ViewFolderName = "";
+                                var dirname = a.Name;
+                                if (a.Caseid == "") {
+                                    ViewFolderName = dirname;
+                                }
+                                else {
+                                    var resultvalid = validatercasefile(dirname);
+                                    if (resultvalid == true) {
+                                        ViewFolderName = dirname.substring(0, dirname.length - 13);
+                                        ViewFolderName = ViewFolderName + "(Case)";
+                                    }
+                                    else {
+                                        ViewFolderName = dirname;
+                                    }
+                                }
+                                option += '<li class="active noactive" style="cusror:pointer;"><a style="text-decoration:none; color: #717680;" id="transferpagemove" slno="' + qtyr + '" href="javascript:void()" data-val="' + a.ID + '">' + ViewFolderName + '</a></li>';
+                            }
+                        });
+                        $("#bruidcumbbrowse").append(option);
+                        closeloadmove();
+                    },
+                    error: function () {
+                        alert('Error!');
+                        closeloadmove();
+                    }
+                });
+            }
+            function openloadmove() {
+                $("#myOverlaymove").css("display", "block");
+            }
+            function closeloadmove() {
+                $("#myOverlaymove").css("display", "none");
+            }
+            $(document).on('click', '#searchhbrowsefolder', function () {
+                /* your code here */
+                if ($("#searcbrowsefoldertext").val() == '') {
+                    return false;
+                }
+                $("#clearsearchbrowse").show();
+                $("#BackDirBrowse").hide();
+                LoadDirForBrowse("0", "");
+                loaddocbruidcumbbrowse(0);
+            });
+            $(document).on('click', '#clearsearchbrowse', function () {
+                /* your code here */
+                $("#clearsearchbrowse").hide();
+                $("#searcbrowsefoldertext").val("");
+                LoadDirForBrowse("0", "");
+                loaddocbruidcumbbrowse(0);
+                $("#BackDirBrowse").show();
+            });
+        });
+    </script>
+    <style>
+        .uploadTablehead .breadcrumb {
+            margin-bottom:0 !important;
+        }
+        .uploadTablehead2 thead tr th {
+            padding: 10px 15px;
+        }
+        .uploadTablehead2 thead tr th:nth-child(2){
+            padding:0 0;
+        }
+            .uploadTablehead2 tbody tr td:nth-child(2) {
+                padding: 0 0;
+            }
+    </style>
+    <div class="row">
+        <div class="col-md-12" style="padding:0;">
+            <div class="uploadTablehead">
+                <ol class="breadcrumb" id="bruidcumbbrowse"></ol>
+            </div>
+                <div class="table-responsive" role="tablist">
+                    <table class="uploadTablehead2 table-panel" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th width="5%"></th>
+                            <th width="50%">Folder Name</th>
+                            <th width="25%">Created By</th>
+                            <th width="25%">Path</th>
+                        </tr>
+                        </thead>
+                        <tbody id="filepathbound"></tbody>
+                    </table>
+                </div>
+           
+        </div>
+    </div>
+</body>
+</html>
+<div id="myOverlaymove" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

@@ -1,0 +1,334 @@
+﻿@{
+    ViewBag.Title = "Communication";
+    Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+}
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+    #myModalCustomizedcolumn #od li {
+        border: 1px solid #E9EAEB !important;
+        border-radius: 8px !important;
+        padding: 9px 8px !important;
+        margin: 0 0 7px 0;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/ClientCommunication.js?1.6"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Communication</p> <input type="text" id="searchdata" style="display:none">
+        </div>
+        <div class="supporting-text"></div>
+    </div>
+</section>
+
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1" style="justify-content: flex-end;">
+
+                    <div class="table-header">
+                        <div class="actions3" style="position:relative;">
+                            <div class="dropdown-toggle button13" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()"> Export</a></div>
+                                </div>
+                            </div>
+                            <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                <li>
+                                    <div id="oexcel" title="Export to Excel"><span style="padding: 0 5px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                </li>
+                                <li>
+                                    <div title="Export to PDF" id="opdf"><span style="padding: 0 5px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</div>
+                                </li>
+                                <li>
+                                </li>
+                            </ul>
+                        </div>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                            <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+                            <div class="text-padding">
+                                <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+                <div class="tablecontainer">
+                    <table id="example" class="table-panel">
+                        <thead>
+                            <tr>
+                                <th width="10%" class="commDate"><div class="thbg">Date</div></th>
+                                <th width="8%" class="commType" style="display:none;">
+                                    <div class="thbg">
+                                        <select class="form-control" id="cdcfiltertype">
+                                            <option value="" selected="">Type</option>
+                                            <option value="E-mail">E-mail</option>
+                                            <option value="Chat/Text">Chat/Text</option>
+                                            <option value="Call">Call</option>
+                                            <option value="Meeting">Meeting</option>
+                                        </select>
+                                    </div>
+                                </th>
+                                <th width="29%" class="commBrief">
+                                    <div class="thbg">
+                                        <input type="text" id="commuberiefsearch" placeholder="Communication Brief" class="form-control pull-left" style="width:60%;">
+                                        <span class="glyphicon glyphicon-search pull-left" id="searchcommu"></span>
+                                    </div>
+                                </th>
+                                <th width="20%" class="commmattername"><div class="thbg">Matter Name</div></th>
+                                <th width="10%" class="commCreatedBy">
+                                    <div class="thbg">
+                                        <select class="form-control" id="cdcfiltercreateby">
+                                            <option value="" selected="">Created By</option>
+                                        </select>
+                                    </div>
+                                </th>
+                                <th width="8%" class="commAlertTo">
+                                    <div class="thbg">
+                                        Alert To
+                                    </div>
+                                </th>
+                                <th width="8%" class="commsubject">
+                                    <div class="thbg">
+                                        Subject
+                                    </div>
+                                </th>
+                                <th width="4%" class="commAttachments">
+                                    <div class="thbg">
+                                        Attachments
+                                    </div>
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="bindclientcommunicationdata"></tbody>
+                    </table>
+                    <center>
+
+                        <div class="notfound" id="pdatastatus" style="display:none;">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4>No Matter list found</h4>
+                            <p>We found no matter list.</p>
+                        </div>
+                    </center>
+                </div>
+            </div>
+            <div class="pagination" id="dvPaginationShowHide">
+                <div class="pagination-button-group">
+                    <div id="prevCo1" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbersCo1" class="pagination-button-group-base1">
+                    </div>
+                    <div id="nextCo1" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopageCo1" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGoCo1" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@*<section class="wrapper">
+    <div class="container-main">
+        <div>
+            <div style="align:left">
+                <p class="ctitle">Communication</p>
+            </div>
+            <input type="text" id="searchdata" style="display:none">
+            <div class="table-panel table-responsive">
+                <table id="example" class="table ">
+                    <thead>
+                        <tr>
+                            <th width="10%" class="commDate"><div class="thbg">Date</div></th>
+                            <th width="8%" class="commType" style="display:none;">
+                                <div class="thbg">
+                                    <select class="form-control col_b" id="cdcfiltertype">
+                                        <option value="" selected="">Type</option>
+                                        <option value="E-mail">E-mail</option>
+                                        <option value="Chat/Text">Chat/Text</option>
+                                        <option value="Call">Call</option>
+                                        <option value="Meeting">Meeting</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th width="29%" class="commBrief">
+                                <div class="thbg">
+                                    <input type="text" id="commuberiefsearch" placeholder="Communication Brief" class="form-control pull-left" style="width:95%;">
+                                    <span class="glyphicon glyphicon-search pull-right" id="searchcommu"></span>
+                                </div>
+                            </th>
+                            <th width="20%" class="commmattername"><div class="thbg">Matter Name</div></th>
+                            <th width="10%" class="commCreatedBy">
+                                <div class="thbg">
+                                    <select class="form-control col_b" id="cdcfiltercreateby">
+                                        <option value="" selected="">Created By</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th width="8%" class="commAlertTo">
+                                <div class="thbg">
+                                    Alert To
+                                </div>
+                            </th>
+                            <th width="8%" class="commsubject">
+                                <div class="thbg">
+                                    Subject
+                                </div>
+                            </th>
+                            <th width="4%" class="commAttachments">
+                                <div class="thbg">
+                                    Attachments
+                                </div>
+                            </th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody id="bindclientcommunicationdata"></tbody>
+                </table>
+                <div class="table-panel">
+                    <div class="settingpanel">
+                        <div class="col-md-6">
+                            <div style="float: left;padding: 0 10px 0 0;">
+                                <ul>
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                customize field
+                                            </a>
+                                            <ul class="dropdown-menu settingshowhide" id="od" style="width:200px">
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commDate" checked><a href="#">Date</a></li>
+                                                <li style="display:none;"><input type="checkbox" class="shcheckbox1 chkdhide" name="commType" checked><a href="#">Type</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commBrief" checked><a href="#">Communication Brief</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commmattername" checked><a href="#">matter name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commsubject" checked><a href="#">subject</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commCreatedBy" checked><a href="#">Created By</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commAlertTo" checked><a href="#">Alert To</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commAttachments" checked><a href="#">Attachments</a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="commutfooter">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="pull-right">
+                                <li>
+                                    <div class="btn-group dropup">
+                                        <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action Selected
+                                        </a>
+                                        <ul class="dropdown-menu settingaction">
+                                            <li><a href="javascript:void()" id="oexcel" title="export to excel"> export to excel</a></li>
+                                            <li><a href="javascript:void()" id="opdf" title="export to pdf"> export to pdf</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>*@
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalCustomizedcolumn" class="modal right fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:400px!important;height: 100vh; padding:2px 0;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modaltitle">
+                    <h4><img src="~/newassets/img/customize-icon.png" /> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="overflow-y:scroll; height:700px;">
+                        <ul id="od">
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commDate" checked>Date</li>
+                            <li style="display:none;"><input type="checkbox" class="shcheckbox1 chkdhide" name="commType" checked>Type</li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commBrief" checked>Communication Brief</li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commmattername" checked>matter name</li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commsubject" checked>subject</li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commCreatedBy" checked>Created By</li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commAlertTo" checked>Alert To</li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="commAttachments" checked>Attachments</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,230 @@
+﻿@{
+    ViewBag.Title = "InvoiceSetting";
+    var firmid = ViewBag.firmid;
+    var userid = ViewBag.userid;
+    var invoiceid = ViewBag.invid;
+    var invoicetype = ViewBag.invtype;
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/PaymentInvoice.js?1.9"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script>
+        $(document).ready(function () {
+            var invtoken ="@ViewBag.invid";
+            $("#invoicetoken").val(invtoken);
+        });
+</script>
+<style>
+    /*Adding some css for looks good*/
+    span.error {
+        display: block;
+        visibility: hidden;
+        color: red;
+        font-size: 90%;
+    }
+
+    span.error1 {
+        display: none;
+        clear: both;
+        color: red;
+        font-size: 90%;
+    }
+    /*css for table*/
+    .form-group {
+    height: 70px;
+}
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="row">
+
+            <div class="col-md-12">
+                <div class="text-left">
+                    <p class="ctitle"> Payment Details</p>
+                    <p style="margin-top: 30px;">Add Received Payment Details</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <form id="savedata" enctype="multipart/form-data" name="savedata">
+            <div class="row">
+                <div class="col-md-6 text-left">
+                    <p>
+                        <span>Invoice No : </span>
+                        <input value="@ViewBag.invno" type="text" id="invid" placeholder="Invoice No" disabled style="border: none; font-weight: bold; " />
+                    </p>
+                </div>
+                <div class="col-md-6 text-right">
+                    <p>
+                        <span>Total Amount : </span>
+                        <span>&#8377;</span><input value="@ViewBag.totamt" type="text" id="totamount" placeholder="Total Amount" disabled style="border: none; font-weight: bold; width: 72px; text-align: right;" /><span>/-</span>
+                    </p>
+                    <p>
+                        <span>Due Amount : </span>
+                        <span>&#8377;</span><input value="@ViewBag.dueamt" type="text" id="dueamount" placeholder="Due Amount" disabled style="border: none; font-weight: bold; width: 72px; text-align: right;" /><span>/-</span>
+                    </p>
+                </div>
+            </div>
+            <div class="table" id="paymentdiv" style="overflow:hidden; padding:15px;">
+                <div class="row">
+                    <div class="col-md-4 form-group" id="p1">
+                        <label>Select Payment Mode<span class="required " aria-required="true"><b> *</b> </span></label>
+                        <select class="form-control selctInputFormat" id="ptype">
+                            <option value="">Select</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Cheque">Cheque</option>
+                            <option value="Online">Online</option>
+                            <option value="Demand Draft">Demand Draft</option>
+                        </select>
+                        <span class="error1" id="e1"> Select Payment Type</span>
+                    </div>
+                    <div class="col-md-4 form-group" id="p2" style="display:none">
+                        <label>Payment Mode<span aria-required="true"><b>*</b> </span></label>
+                        <select class="form-control selctInputFormat" id="pmode">
+                            <option value="">Select</option>
+                            <option value="NEFT">NEFT</option>
+                            <option value="IMPS">IMPS</option>
+                            <option value="RTGS">RTGS</option>
+                            <option value="Others">Others</option>
+                        </select>
+                        <span class="error1">Select payment mode</span>
+                    </div>
+                    <div class="col-md-4 form-group" id="p3" style="display:none">
+                        <label>Amount<span aria-required="true"><b>*</b> </span></label>
+                        <input type="text" class="form-control inputFormat" id="pamount" placeholder="Enter Amount"/>
+                        <span class="error1">Enter valid amount</span>
+                    </div>
+                    <div class="col-md-4 form-group" id="p4" style="display:none">
+                        <label>Payment Date<span aria-required="true"><b>*</b> </span></label>
+                        <input type="date" class="form-control inputFormat" id="pdate" />
+                        <span class="error1">select payment date</span>
+                    </div>
+                    <div class="col-md-4 form-group" id="p5" style="display:none">
+                        <label>Bank Name<span aria-required="true"><b>*</b> </span></label>
+                        <input type="text" class="form-control inputFormat" id="pbank" placeholder="Enter Bank Name"/>
+                        <span class="error1">Enter bank name</span>
+                    </div>
+                    <div class="col-md-4 form-group" id="p6" style="display:none">
+                        <label>Demand Draft No<span aria-required="true"><b>*</b> </span></label>
+                        <input type="text" class="form-control inputFormat" id="pddno" placeholder="Enter Demand Draft No."/>
+                        <span class="error1">Enter Demand draft no</span>
+                    </div>
+                    <div class="col-md-4 form-group" id="p7" style="display:none">
+                        <label>Demand Draft Issue Date<span aria-required="true"><b>*</b> </span></label>
+                        <input type="date" class="form-control inputFormat" id="pddidate" />
+                        <span class="error1">Select Demand Draft Issue Date </span>
+                    </div>
+                    <div class="col-md-4 form-group" id="p8" style="display:none">
+                        <label>Cheque No<span aria-required="true"><b>*</b> </span></label>
+                        <input type="text" class="form-control inputFormat" id="pchequeno" placeholder="Enter Cheque No."/>
+                        <span class="error1">Enter Cheque no</span>
+                    </div>
+                    <div class="col-md-4 form-group" id="p9" style="display:none">
+                        <label>Reference No<span aria-required="true"><b>*</b> </span></label>
+                        <input type="text" class="form-control inputFormat" id="preference" placeholder="Enter Reference No."/>
+                    </div>
+                    <div class="col-md-4 form-group" id="p10" style="display:none">
+                        <label>Cheque Issue Date<span aria-required="true"><b>*</b> </span></label>
+                        <input type="date" class="form-control inputFormat" id="pchqidate" />
+                        <span class="error1">Select Cheque issue date</span>
+                    </div>
+                    <div class="col-md-4 form-group" id="p11" style="display:none">
+                        <label>Other Details<span aria-required="true"><b>*</b> </span></label>
+                        <input type="text" class="form-control inputFormat" id="pdetails" placeholder="Enter Details" />
+                    </div>
+                    <div class="col-md-4 form-group" id="p12">
+                        <button type="button" class="btn btn-primary" id="add4" value="Add Payment" style="margin:21px 0 0 0;">Add Payment</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table" style="display:none" id="showvirtualTable">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="orderItems4" style="overflow-x:auto;">
+                        </div>
+                        <button type="button" class="btn btn-primary pull-right" id="createpay" value="Save" style="margin:10px;">Save</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table">
+                <div class="row">
+                    <div class="col-md-12">
+                       <div style="padding:10px;">
+                           <strong>Payment History</strong>
+                       </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div style="overflow-x:auto;">
+                            <table id="invlist" class="table-panel">
+                                <thead>
+                                    <tr>
+                                        <th><div class="thbg">Date</div></th>
+                                        <th><div class="thbg">Payment Mode</div></th>
+                                        <th><div class="thbg">Pay Received</div></th>
+                                        <th><div class="thbg">Bank Name</div></th>
+                                        <th><div class="thbg">DD NO</div></th>
+                                        <th><div class="thbg">DD Date</div></th>
+                                        <th><div class="thbg">Cheque No</div></th>
+                                        <th><div class="thbg">Cheque Date</div></th>
+                                        <th><div class="thbg">Ref. No</div></th>
+                                        <th><div class="thbg">Other Details</div></th>
+                                        <th><div class="thbg">Payment History</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in ViewBag.paymentlist)
+                                    {
+                                        <tr>
+                                            <td>@item.PDate.ToString("dd-MMM-yyyy").Replace("01-Jan-1900", "")</td>
+                                            <td>@item.PaymentType</td>
+                                            <td>@item.Amount</td>
+                                            <td>@item.BankName</td>
+                                            <td>@item.DdNo</td>
+                                            <td>@item.Ddidate.ToString("dd-MMM-yyyy").Replace("01-Jan-1900", "")</td>
+                                            <td>@item.ChequeNo</td>
+                                            <td>@item.Chqidate.ToString("dd-MMM-yyyy").Replace("01-Jan-1900", "")</td>
+                                            <td>@item.RefNo</td>
+                                            <td>@item.OtherDetails</td>
+                                            @if (item.Cleared == 1)
+                                            {
+                                                <td><div class="thbg">Cleared</div></td>
+                                            }
+                                            else if (item.Cleared == 2)
+                                            {
+                                                <td><div class="thbg">Bounced</div></td>
+                                            }
+                                            else
+                                            {
+                                                <td><div class="thbg">Pending</div></td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+             </div>
+        </form>
+    </div>
+</section>
+<input type="hidden" id="invoicetoken" value="" />

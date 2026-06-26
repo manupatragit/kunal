@@ -1,0 +1,746 @@
+﻿@{
+    ViewBag.Title = "InvoiceSetting";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/CreateInvoice.js?5.5"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<script>
+       $(document).ready(function () {
+            var address1 = "@ViewBag.address";
+            var state1 = "@ViewBag.state";
+            var isdefault1 = "@ViewBag.isdefault";
+            //for showing matter auto populate
+                var invclientids = "@ViewBag.invclientid";
+            var invmatterids = "@ViewBag.matterids";
+
+            //for bind client and matter 
+           if (invclientids != "00000000-0000-0000-0000-000000000000" && invclientids != "") {
+               setTimeout(function () {
+                   $("#client").val(invclientids);
+               }, 2000);
+              
+            }
+            if (invmatterids != "00000000-0000-0000-0000-000000000000" && invmatterids != "") {
+                setTimeout(function () {
+                    // $("#MatterName select").val(invmatterids);
+                    $("#MatterName").val(invmatterids.toLowerCase());
+
+                }, 4000);
+               
+            }
+            setTimeout(function () {
+
+                if (String(isdefault1) == "1") {
+                    $('#billeraddress').last().append($("<option></option>").attr("value", address1).text(address1).attr("state", state1).attr("tokenid", "00000000-0000-0000-0000-000000000000").attr("selected", "selected"));
+                    $('#billerstate').val(state1);
+                }
+                else {
+                    $('#billeraddress').last().append($("<option></option>").attr("value", address1).text(address1).attr("state", state1).attr("tokenid","00000000-0000-0000-0000-000000000000"));
+
+                }
+
+            }, 2000);
+
+
+        });
+</script>
+<style>
+    
+    /*Adding some css for looks good*/
+    span.error {
+        display: block;
+        visibility: hidden;
+        color: red;
+        font-size: 90%;
+    }
+
+    span.error1 {
+        display: none;
+        clear: both;
+        color: red;
+        font-size: 90%;
+    }
+    /*css for table*/
+    .container td {
+        vertical-align: top;
+    }
+
+    .tablecontainer table {
+        width: 100%;
+        border-collapse: collapse;
+        border-top: 1px solid #BFAEAE;
+        border-right: 1px solid #BFAEAE;
+    }
+    1
+        border-bottom: 2px solid #BFAEAE !important;
+        font-size: 13px;
+    }
+
+    .tablecontainer th, .tablecontainer td {
+        text-align: left;
+        border-left: 1px solid #BFAEAE;
+        padding: 5px;
+        border-bottom: 1px solid #BFAEAE;
+    }
+
+    .ui-widget {
+        font-size: 12px !important;
+    }
+
+    input[type=radio]:hover {
+        cursor: pointer;
+    }
+
+    input#withtax {
+        cursor: pointer !IMPORTANT;
+    }
+
+    input#withouttax {
+        cursor: pointer !IMPORTANT;
+    }
+    hr{margin:10px 0;}
+    .cke_chrome {
+        visibility: inherit;
+        width: 100% !important;
+        height:160px !important;
+        border-radius:7px;
+    }
+    .cke_top {
+        border-bottom: none;
+        background: transparent;
+        padding: 6px 8px 2px;
+    }
+    .table-panel {
+        border: none;
+    }
+        .table-panel td {
+            background-color: #ffffff;
+            border-bottom: none;
+            box-sizing: border-box;
+            padding: 5px 15px;
+            font-size: 13px;
+            color: #1F2937;
+            font-weight: 500;
+            text-align: revert-layer;
+        }
+    .switch {
+       
+        margin: 0px 0 0 0;
+    }
+
+    table.table-panel th > div {
+        display: flex;
+        gap: 0px !important; 
+    }
+
+    .form-control {
+        color: #717680 !important;
+        font-size: 16px !important;
+        font-family: Inter !important;
+        font-weight: 400 !important;
+        border-radius: 7px !important;
+        height: auto !important;
+        margin: 0px !important;
+        padding: 7px 10px !important;
+        border: 1px solid #d5d7da !important;
+        width: 100% !important;
+        outline: none !important;
+    }
+
+        .form-control:focus {
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075) !important;
+            display: block !important;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s !important;
+            border: 1px solid #66afe9 !important;
+            outline: 0 !important;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6) !important;
+        }
+    
+
+
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Create Invoice</p>
+            <a class="goback" id="goBack" href="/@Session["firmcode"]/Bill/ViewInvoice"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <form id="savedata" enctype="multipart/form-data" name="savedata">
+        <input type="hidden" id="igsttemp" value="0">
+        <input type="hidden" id="cgsttemp" value="0">
+        <input type="hidden" id="sgsttemp" value="0">
+        <input type="hidden" id="igsttempval" value="0">
+        <input type="hidden" id="cgsttempval" value="0">
+        <input type="hidden" id="sgsttempval" value="0">
+        <input type="hidden" id="subtotaltemp" value="0">
+        <input type="hidden" id="finaltotaltemp" value="0">
+        <div class="container-main">
+            <div class="table" style="padding:15px;">
+                <div class="row" id="taxtype">
+                    <div class="col-md-4">
+                        <label class="control-label">Tax <span class="required " aria-required="true"><b> *</b> </span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-12 form-group table-header">
+                                <div class="actions3" style="display: grid;gap: 12px;grid-template-columns: 150px 150px;">
+                                    <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                        <input type="radio" id="withtax" name="tax" class="withtax" value="1">
+                                        <div class="text-padding">
+                                            <div class="text1" style="line-height:23px;">With Tax</div>
+                                        </div>
+
+                                    </div>
+                                    <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                        <input type="radio" id="withouttax" name="tax" class="withouttax" value="2" checked>
+                                        <div class="text-padding">
+                                            <div class="text1" style="line-height:23px;">Without Tax</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @*<div class="form-group col-md-12">
+                                <label>Tax Rate</label>
+                                <select class="form-control selctInputFormat">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>*@
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Client Details <span class="required " aria-required="true"><b> *</b> </span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        @*<div class="row">
+                            <div class="col-md-6 form-group">
+                                <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                    <input type="radio" id="" name="" class="" value="3">
+                                    <div class="text-padding">
+                                        <div class="text1" style="line-height:23px;">Add Details Using Mykase Database</div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                    <input type="radio" id="" name="" class="" value="4" checked>
+                                    <div class="text-padding">
+                                        <div class="text1" style="line-height:23px;">Add Details Manually</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label>Client Name @*<span class="required " aria-required="true"><b> *</b> </span>*@</label>
+                                <select class="form-control selctInputFormat" id="client">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12" style="clear:both;">
+                                <label>Client Address</label>
+                                <select style="background-color: white !important" class="form-control selctInputFormat" id="clientAddress">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        @*<div class="row">
+                            <div class="form-group col-md-12">
+                                <div style="border: 1px solid #e5e7eb; border-radius:8px; margin:10px 0;">
+                                    <table class="table-panel" cellspacing="0" cellpadding="0" width="100%">
+                                        <tr>
+                                            <td align="left" width="200px">GSTIN Number</td>
+                                            <td align="right"><span>22AAAAA000213345</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td align="left">PAN Number</td>
+                                            <td align="right"><span>22AAAAA000213345</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td align="left">Billing Address</td>
+                                            <td align="right"><span>A wing, XYZ Colony, Gujrat, India</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td align="left">Shipping Address</td>
+                                            <td align="right"><span>A wing, XYZ Colony, Gujrat, India</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td align="left">Phone Number</td>
+                                            <td align="right"><span>+91-8877990078</span></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>*@
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label>Bill to Address <span class="required " aria-required="true"><b> *</b> </span></label>
+                                <textarea class="form-control inputFormatTextArea" maxlength="200" name="mname" rows="5" type="text" id="address" required></textarea>
+                                <div class="grid-container" style="display:none">
+                                    <div id="editor"></div>
+                                    <script>
+                                        CKEDITOR.replace('address', {
+                                            toolbar:
+                                                [
+                                                ],
+                                            alignment: {
+                                                options: ['left', 'right']
+                                            },
+
+                                        });
+                                        CKEDITOR.config.allowedContent = true;
+                                        CKEDITOR.config.resize_enabled = false;
+                                        CKEDITOR.config.removePlugins = 'elementspath';
+                                    </script>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Client Bill State <span class="required " aria-required="true"><b> *</b> </span></label>
+                                <select class="form-control selctInputFormat" id="state">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <input type="checkbox" id="copyaddress">
+                                    <span class="formLabel colorDark">Check if ship to address same as bill address</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Ship To Address <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <textarea class="form-control inputFormatTextArea" maxlength="200" name="mname" rows="5" type="text" id="saddress" required></textarea>
+                                    <div class="grid-container" style="display:none">
+                                        <div id="seditor">
+                                        </div>
+                                        <script>
+                                            initSample();
+                                            CKEDITOR.replace('saddress', {
+                                                toolbar:
+                                                    [
+                                                    ],
+                                                alignment: {
+                                                    options: ['left', 'right']
+                                                },
+                                                height: 100,
+                                                width: 520
+                                            });
+                                            CKEDITOR.config.allowedContent = true;
+                                            CKEDITOR.config.resize_enabled = false;
+                                            CKEDITOR.config.removePlugins = 'elementspath';
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Client Ship State <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <select class="form-control selctInputFormat" id="sstate">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6" style="clear:both;">
+                                <div class="form-group">
+                                    <label>Mobile</label>
+                                    <input class="form-control inputFormat" onkeypress="return restrictAlphabets(event)" maxlength="10" name="mname" autocomplete="on" type="text" id="mobile" onkeypress="" placeholder="Enter Mobile Number" required />
+                                </div>
+                            </div>
+                            @*<div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Aadhar Card No</label>
+                                    <input class="form-control inputFormat" onkeypress="return restrictAlphabets(event)" maxlength="10" name="mname" autocomplete="on" type="text" id="aadharno" onkeypress="" placeholder="Enter 12 digit Number" required />
+                                </div>
+                            </div>*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>PAN Card No. </label>
+                                    <input class="form-control inputFormat" name="cpan" type="text" id="clientpan" placeholder="Enter 10 digit Number" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>GST Number </label>
+                                    <input class="form-control inputFormat" name="cgst" type="text" id="clientgst" placeholder="Enter 15 digit Number" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Biller Details <span class="required " aria-required="true"><b> *</b> </span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            @*<div class="col-md-6 form-group">
+                                <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                    <input type="radio" id="" name="" class="" value="3" checked>
+                                    <div class="text-padding">
+                                        <div class="text1" style="line-height:23px;">Add Details Using Mykase Database</div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <div class="button9" style="justify-content: flex-start; padding: 7px 10px;">
+                                    <input type="radio" id="" name="" class="" value="4">
+                                    <div class="text-padding">
+                                        <div class="text1" style="line-height:23px;">Add Details Manually</div>
+                                    </div>
+                                </div>
+                            </div>*@
+                            <div class="col-md-12 form-group">
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Biller Address <span class="required" aria-required="true">*</span></label>
+                                    <select class="form-control selctInputFormat" id="billeraddress"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Biller State <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input class="form-control inputFormat" name="mname" type="text" id="billerstate" required disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Email </label>
+                                    <input class="form-control inputFormat" name="EmailText" type="text" id="EmailText" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Invoice Details<span class="required " aria-required="true"><b> *</b> </span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Matter Name <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <select class="form-control selctInputFormat" id="MatterName">
+                                        <option value=""> Select</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Invoice Name <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input class="form-control inputFormat" name="UserNameFreeText" type="text" id="UserNameFreeText" required />
+                                </div>
+                            </div>
+                            @*<div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Invoice Number </label>
+                                    <input class="form-control inputFormat" name="" type="text" id="" placeholder="Enter Number" />
+                                </div>
+                            </div>*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Invoice Date <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input class="form-control inputFormat" name="mname" type="DATE" onkeydown="return false" id="invdate" required />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Due Date <span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input class="form-control inputFormat" name="mname" type="date" onkeydown="return false" id="duedate" required />
+                                </div>
+                            </div>
+                            @*<div class="col-md-6 form-group">
+                                <label>Discount<span aria-required="true">*</span></label>
+                                <select class="form-control selctInputFormat" id="">
+                                    <option value="">Select Amount</option>
+                                </select>
+                            </div>*@
+                            @*<div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Invoice Date<span aria-required="true">*</span></label>
+                                    <input class="form-control inputFormat" name="mname" type="DATE" onkeydown="return false" id="invdate" required />
+                                </div>
+                            </div>*@
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Subject </label>
+                                    <input maxlength="100" class="form-control inputFormat" name="invsubject" type="text" id="invsubject" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Reference </label>
+                                    <input maxlength="200" class="form-control inputFormat" name="invReference" type="text" id="invReference" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label">Add Services <span class="required " aria-required="true"><b> *</b> </span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div style="border:1px solid #e5e7eb; border-radius:12px;">
+                                    <table width="100%" class="table-panel">
+                                        <tr>
+                                            <th width="40%"><div class="thbg">Particular</div></th>
+                                            <th style="display:none"><div class="thbg">Select Matter</div></th>
+                                            <th><div class="thbg">Billed By</div></th>
+                                            <th><div class="thbg">Amount</div></th>
+                                            @*<th>Hour</th>*@
+                                            @*<th><div class="thbg">&nbsp;Action</div></th>*@
+                                        </tr>
+                                        <tr>
+                                            <td valign="top">
+                                                <input type="text" class="form-control inputFormat" id="itemName2" />
+                                                <span class="error">Item Name required</span>
+                                            </td>
+                                            <td valign="top" style="display:none">
+                                                <select style="display:none;" class="form-control selctInputFormat" id="CaseName2">
+                                                    <option value=""> Select</option>
+                                                </select>
+                                                <span class="error">Matter Name required</span>
+                                            </td>
+                                            <td valign="top">
+                                                <select class="form-control selctInputFormat" id="UserName2">
+                                                    <option value=""> Select</option>
+                                                </select>
+                                                <span class="error">Select Billed By required</span>
+                                            </td>
+                                            <td valign="top">
+                                                <input type="text" class="form-control inputFormat" id="price2" onkeypress="return isNumberKey(event)" />
+                                                <span class="error">Amount is required</span>
+                                            </td>
+                                            @*<td valign="top" align="right"></td>*@
+                                        </tr>
+                                    </table>
+                                    <div id="orderItems2">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div style="margin:15px 0;"><span style="font-weight:bold">Total Fee:</span> <span id="total2">0</span></div>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <div style="margin:15px 0;"><button type="button" id="add2" value="add" style="border: none;background: transparent; color: #154b6d; padding: 5px 0 0 0;"><img src="~/newassets/img/plus-icon-blue.png" /> Add Services</button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <table width="100%">
+                            <tr>
+                                <td width="112px"><label class="control-label">Payment Mode </label></td>
+                                <td>
+                                    <label class="switch">
+                                        <input class="inputFormat" type="checkbox" id="cport" name="setdefault" value="1">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row" id="paymentdiv" style="display:none;">
+                            <div id="p1" class="col-md-12">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Select Payment Type <span class="required " aria-required="true"><b> *</b> </span> </label>
+                                    <select class="form-control selctInputFormat" style="background-color: white !important;" id="ptype">
+                                        <option value="">Select</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="Online">Online</option>
+                                        <option value="Demand Draft">Demand Draft</option>
+                                    </select>
+                                    <span class="error1" id="e1"> Select Payment Type</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p2" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Payment Mode <span class="required " aria-required="true"><b> *</b> </span> </label>
+                                    <select class="form-control selctInputFormat" style="background-color: white !important;" id="pmode">
+                                        <option value="">Select</option>
+                                        <option value="NEFT">NEFT</option>
+                                        <option value="IMPS">IMPS</option>
+                                        <option value="RTGS">RTGS</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                    <span class="error1">Select payment mode</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p3" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Amount<span class="required " aria-required="true"><b> *</b> </span></label>
+                                    <input type="text" class="form-control inputFormat" id="pamount" />
+                                    <span class="error1">Enter valid amount</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p4" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Payment Date <span class="required " aria-required="true"><b> *</b> </span> </label>
+                                    <input class="form-control inputFormat" name="mname" type="DATE" onkeydown="return false" id="pdate" required />
+                                    @*<input type="date" class="form-control" id="pdate" disabled />*@
+                                    <span class="error1">select payment date</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p5" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Bank Name <span class="required " aria-required="true"><b> *</b> </span> </label>
+                                    <input type="text" class="form-control inputFormat" id="pbank" />
+                                    <span class="error1">Enter bank name</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p6" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Demand Draft No <span class="required " aria-required="true"><b> *</b> </span> </label>
+                                    <input type="text" class="form-control inputFormat" id="pddno" />
+                                    <span class="error1">Enter Demand draft no</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p7" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Demand Draft Issue Date<span class="required " aria-required="true"><b> *</b> </span>  </label>
+                                    <input type="date" class="form-control inputFormat" id="pddidate" />
+                                    <span class="error1">Select Demand Draft Issue Date </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p8" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Cheque No<span class="required " aria-required="true"><b> *</b> </span> </label>
+                                    <input type="text" class="form-control inputFormat" id="pchequeno" />
+                                    <span class="error1">Enter Cheque no</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p9" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Reference No<span class="required " aria-required="true"><b> *</b> </span> </label>
+                                    <input type="text" class="form-control inputFormat" id="preference" />
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p10" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Cheque Issue Date<span class="required " aria-required="true"><b> *</b> </span> </label>
+                                    <input type="date" class="form-control inputFormat" id="pchqidate" />
+                                    <span class="error1">Select Cheque issue date</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="p11" style="display:none">
+                                <div class="form-group" style="height:60px;">
+                                    <label>Other Details<span class="required " aria-required="true"><b> *</b> </span> </label>
+                                    <input type="text" class="form-control inputFormat" id="pdetails" />
+                                </div>
+                            </div>
+                            <div class="col-md-12" id="p12">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary pull-right" id="add4" value="Add Payment" style="margin:10px 0 0 0;">Add Payment </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div id="orderItems4" style="margin:0 0 15px 0;">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+
+
+
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="control-label" id="amteords">Final Amount<span class="required " aria-required="true"><b> *</b> </span> </label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <p id="totinwords" style="font-weight: 600;font-size: 13px;"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="">
+                                <table width="100%" border="1px solid" class="dataTable table table-bordered table-striped">
+                                    <tr>
+                                        <td width="50%" align="center">Sub Total:</td>
+                                        <td>&nbsp;&nbsp;&nbsp;<span id="subtotal">0</span></td>
+                                    </tr>
+                                    <tr id="igst">
+                                        <td width="50%" align="center">IGST <span id="igstpername"></span></td>
+                                        <td>&nbsp;&nbsp;&nbsp;<span id="igsttot">0</span></td>
+                                    </tr>
+                                    <tr id="cgst">
+                                        <td width="50%" align="center">CGST <span id="cgstpername"></span></td>
+                                        <td>&nbsp;&nbsp;&nbsp;<span id="cgsttot">0</span></td>
+                                    </tr>
+                                    <tr id="sgst">
+                                        <td width="50%" align="center">SGST <span id="sgstpername"></span></td>
+                                        <td>&nbsp;&nbsp;&nbsp;<span id="sgsttot">0</span></td>
+                                    </tr>
+                                    <tr id="subtotals">
+                                        <td align="center" style="font-weight:bold">Total Amount</td>
+                                        <td>&nbsp;&nbsp;&nbsp;<span id="finaltotal">0</span><span>.00</span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-primary pull-right" id="createinv" value="Create Invoice">Save Invoice</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+           

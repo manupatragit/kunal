@@ -1,0 +1,655 @@
+﻿@using QueryStringEDAES
+@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+    string strid = QueryAES.UrlDecode(Request.QueryString["id"]);
+}
+<script>
+    var userid = '@ViewBag.userId'
+    var firmid = '@ViewBag.firmid';
+            var directoryname = '@ViewBag.directoryname';
+            var directoryid = '@ViewBag.directoryid';
+            var directorypath = '@ViewBag.directorypath';
+            var roleids = "@Session["sessionroleid"]";
+    var isDelete = "@ViewBag.IsDelete";
+            var IsCreate = "@ViewBag.IsCreate";
+            var IsViewAll = "@Session["IsViewAll"]";
+    var roleid = "@role";
+    var userid = "@Session["sessionuserid"]";
+    var GlobalSaechTxt = "@ViewBag.GlobalSearchValues";
+</script>
+<script>
+    $(document).ready(function () {
+        $('.trigger').click(function () {
+            var clsd = $(this).attr("coltype");
+            var dtt = $(this).attr("ttllbl");
+            $(clsd).toggle();
+            if ($(this).hasClass('collapsed')) {
+                $(this).html('<span class="pmicon1"><a>-</a></span> ' + dtt);
+                $(this).removeClass('collapsed');
+            } else {
+                $(this).html('<span class="pmicon"><a>+</a></span> ' + dtt);
+                $(this).addClass('collapsed');
+            }
+        });
+    });
+</script>
+<style>
+    #messages li {
+        clear: both;
+    }
+
+    .trigger {
+        width: 100%;
+        text-align: left;
+        border-bottom: 1px solid #d2d2d2;
+    }
+
+    .headtxt {
+        color: #020202;
+        margin: 0 0 5px 0;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+        .headtxt:hover {
+            cursor: pointer;
+        }
+
+    .pmicon {
+        height: 20px;
+        width: 20px;
+        display: inline-flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        float:right;
+    }
+
+        .pmicon a {
+            color: #414651;
+            font-size: 20px;
+            font-weight: bold;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            margin: -4px 0 0 -1px;
+        }
+
+    .pmicon1 {
+        height: 20px;
+        width: 20px;
+        display: inline-flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        float: right;
+    }
+
+        .pmicon1 a {
+            color: #414651;
+            font-size: 20px;
+            font-weight: bold;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            margin: -4px 0 0 -1px;
+        }
+
+   
+
+    .modal_a {
+        position: fixed;
+        z-index: 9999999999;
+        padding-top: 20px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.8);
+    }
+
+    .modal_a-content {
+        background-color: #fefefe;
+        margin: 50px auto 0;
+        padding: 10px 10px;
+        border: 1px solid #000;
+        border-radius: 5px;
+        width: 50%;
+        height: 400px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+    }
+
+    .close_a {
+        position: relative;
+        right: -20px;
+        top: -22px;
+        float: right;
+    }
+
+        .close_a:hover, .close_a:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    .numberCircle {
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        padding: 8px;
+        background: #fff;
+        border: 2px solid #666;
+        color: #666;
+        text-align: center;
+        font: 14px Arial, sans-serif;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/GlobalSearch.js?2.1"></script>
+<script src="~/Scripts/Firm/Pages/Chat.js"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle">Global Search</p>
+            <input type="hidden" value="" id="txtSearch" />
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table" style="margin:0;">
+            @*Tasks section start*@
+            <div class="trigger headtxt collapsed" coltype="#five" ttllbl="Tasks"><span class="pmicon"><a>+</a></span> Tasks  </div>
+            <p style="margin:-39px 0 0 95px; padding:0; position:absolute; color: #0067b8; font-size: 20px;font-weight: 300;" id="taskcircle"></p>
+            <div class="trigger_bottom" id="five" style="display:none;">
+                <div>
+                    <table class="table-panel">
+                        <thead>
+                            <tr>
+                                <th width="8%"><div class="thbg">Date</div></th>
+                                <th width="12%">
+                                    <div class="thbg">
+                                        Task
+                                        <select id="ifiltertask" class="form-control" style="display:none;">
+                                            <option value="" selected>Task</option>
+                                        </select>
+                                    </div>
+                                </th>
+                                <th width="10%">
+                                    <div class="thbg">
+                                        Client
+                                        <select id="ifilterclient" class="form-control" style="display:none;">
+                                            <option value="" selected>Client</option>
+                                        </select>
+                                    </div>
+                                </th>
+                                <th width="30%"><div class="thbg">Matters</div></th>
+                                <th width="10%"><div class="thbg">Assign By</div></th>
+                                <th width="10%"><div class="thbg">Assign To</div></th>
+                                <th width="10%"><div class="thbg">Due Date</div></th>
+                                <th width="10%"><div class="thbg">Status</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ibindcasetask"></tbody>
+                    </table>
+                    <center><div id="idataescstatus"></div></center>
+                    <div class="table-panel">
+                        <div class="row settingpanel">
+                            <div class="col-md-6">
+                                <div id="itfooter">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*Tasks section end*@
+                </div>
+                <div class="pagination" id="taskPagination">
+                    <div class="pagination-button-group">
+                        <div id="prevTask" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbersTask" class="pagination-button-group-base1">
+                            @*<div class="text">a</div>*@
+                            @*<span id="pageNumbers" class="pages"></span>*@
+                        </div>
+
+                        <div id="nextTask" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopageTask" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGoTask" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*Tasks section end*@
+        </div>
+        <div class="table" style="margin:0;">
+            @*Matters section start*@
+            <div class="trigger headtxt collapsed" coltype="#one" ttllbl="Matters"><span class="pmicon"><a>+</a></span> Matters </div>
+            <p id="mattercircle"></p>
+            <div class="trigger_bottom" id="one" style="display:none;">
+                <table id="example" class="table-panel">
+                    <thead>
+                        <tr>
+                            <th class="casestartdate">
+                                <div class="thbg">
+                                    Date
+                                    <input type="date" title="Start Date" id="casefilterdate" placeholder="Start Date" class="form-control pull-left" style="width:130px; display:none;">
+                                    <span class="glyphicon glyphicon-remove" id="casecleardate" title="Click here to clear date" style="display: none; width: 7%; cursor: pointer; font-size:10px; padding:2px 0 0 0;"></span>
+                                </div>
+                            </th>
+                            <th class="casecasename">
+                                <div class="thbg">
+                                    Matter Name
+                                    <input type="text" id="casefiltercasename" placeholder="Matter Name" class="form-control pull-left" style="width:95%; display:none;">
+                                    <span class="glyphicon glyphicon-search" id="searchdatas" style="display:none;"></span>
+                                </div>
+                            </th>
+                            <th style="display:none;" class="casefirstname">
+                                <div class="thbg">
+                                    Name
+                                    <select class="form-control col_b" id="casefilterclient" style="display:none;">
+                                        <option value="" selected="">Name</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="companyname"><div class="thbg">Client Name</th>
+                            <th class="casecourtname" style="display:none;">
+                                <div class="thbg">
+                                    <select class="form-control col_b" id="casefiltercourt" style="width:75px;">
+                                        <option value="" selected="">Court</option>
+                                        <option value="Supreme Court">Supreme Court</option>
+                                        <option value="High Court">High Court</option>
+                                        <option value="District Court">District Court</option>
+                                        <option value="Tribunals">Tribunals</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="casecasedetails" style="display:none;">
+                                <div class="thbg">
+                                    Court Hearing
+                                </div>
+                            </th>
+                            <th class="casestatus" style="display:none;">
+                                <div class="thbg">
+                                    <select class="form-control col_b" id="casefilterstatus" style="width:75px;">
+                                        <option value="" selected=""> Status</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="MatterType">
+                                <div class="thbg">
+                                    Matter Type
+                                </div>
+                            </th>
+                            <th class="Companyname">
+                                <div class="thbg">
+                                    Company Name
+                                </div>
+                            </th>
+                            <th class="casecreatedby">
+                                <div class="thbg">
+                                    Created By
+                                </div>
+                            </th>
+                            <th class="caseteammembers">
+                                <div class="thbg">
+                                    Team Members
+                                </div>
+                            </th>
+                            <th class="caseclientcontact">
+                                <div class="thbg">
+                                    ClientContact
+                                </div>
+                            </th>
+                            <th class="CertifiedCopyAppliedon" style="display:none;">
+                                <div class="thbg">
+                                    Copy Applied On
+                                </div>
+                            </th>
+                            <th class="CertifiedCopyReceivedon" style="display:none;">
+                                <div class="thbg">
+                                    Copy Received On
+                                </div>
+                            </th>
+                            <th class="ValuationofSuit" style="display:none;">
+                                <div class="thbg">
+                                    Valuation of Suit
+                                </div>
+                            </th>
+                            <th class="Courtfee" style="display:none;">
+                                <div class="thbg">
+                                    Court Fee
+                                </div>
+                            </th>
+                            <th class="OppositePartyCounselname" style="display:none;">
+                                <div class="thbg">
+                                    PartyCounsel Name
+                                </div>
+                            </th>
+                            <th class="OppositePartyCounselemail" style="display:none;">
+                                <div class="thbg">
+                                    PartyCounsel Email
+                                </div>
+                            </th>
+                            <th class="OppositePartyCounselphone" style="display:none;">
+                                <div class="thbg">
+                                    PartyCounsel Phone
+                                </div>
+                            </th>
+                            <th class="CasenumberInternal" style="display:none;">
+                                <div class="thbg">
+                                    Matter Number Internal
+                                </div>
+                            </th>
+                            <th class="PoliceStation" style="display:none;">
+                                <div class="thbg">
+                                    Police Station
+                                </div>
+                            </th>
+                            <th class="FIRNo" style="display:none;">
+                                <div class="thbg">
+                                    FIR No
+                                </div>
+                            </th>
+                            <th class="caseclosedate" style="display:none;">
+                                <div class="thbg">
+                                    Close Date
+                                </div>
+                            </th>
+                            <th style="display:none;"><input type="checkbox" id="select_all" /><div class="thbg"></div></th>
+                            <th style="display:none;"><div class="thbg"><p style="width:80px;">&nbsp;</p></div></th>
+                            <th class="linkedcase" style="display:none;">
+                                <div class="thbg">
+                                    Linked Case
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="bindcasedata"></tbody>
+                </table>
+
+                <div><center><span id="noresultdiv"></span></center></div>
+                <div class="table-panel">
+                    <div class="row settingpanel">
+                        <div class="col-md-6">
+                            <div id="casetfooter">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pagination" id="matterPagination">
+                    <div class="pagination-button-group">
+                        <div id="prevMatter" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbersMatter" class="pagination-button-group-base1">
+                            @*<div class="text">a</div>*@
+                            @*<span id="pageNumbers" class="pages"></span>*@
+                        </div>
+
+                        <div id="nextMatter" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopageMatter" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGoMatter" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*Matters section end*@
+        </div>
+        <div class="table" style="margin:0;">
+            @*Document Management start*@
+            <div class="trigger headtxt collapsed" coltype="#three" ttllbl="Document Management"><span class="pmicon"><a>+</a></span> Document Management </div>
+            <p id="doccircle"></p>
+            <div class="trigger_bottom" id="three" style="display:none;">
+                <div class="table-panel table-responsive" data-example-id="hoverable-table" id="home">
+                    <table id="example" class="table-panel">
+                        <thead>
+                            <tr>
+                                <th width="50%"> <div class="thbg">Files</div> </th>
+                                <th width="10%"><div class="thbg">Date</div> </th>
+                                <th width="10%"><div class="thbg">User</div></th>
+                                <th width="10%"><div class="thbg">File Type</div></th>
+                                <th width="20%"><div class="thbg">File Description</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="dirbound"></tbody>
+                    </table>
+                </div>
+                <center><div id="docstatus"></div></center>
+                <div class="table-panel">
+                    <div class="row settingpanel">
+                        <div class="col-md-9">
+                            <div id="tfooter">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pagination" id="docsPagination">
+                    <div class="pagination-button-group">
+                        <div id="prevDocs" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbersDocs" class="pagination-button-group-base1">
+                            @*<div class="text">a</div>*@
+                            @*<span id="pageNumbers" class="pages"></span>*@
+                        </div>
+
+                        <div id="nextDocs" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopageDocs" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGoDocs" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*Document Management End*@
+        </div>
+        <div class="table" style="margin:0;">
+            @*Knowledge management start*@
+            <div class="trigger headtxt collapsed" coltype="#two" ttllbl="Knowledge Management"><span class="pmicon"><a>+</a></span> Knowledge Management </div>
+            <p id="knowcircle"></p>
+            <div class="trigger_bottom" id="two" style="display:none;">
+                <div class="table-panel">
+                    <div id="updatePanelKnowledge" class="table-panel table-responsive"></div>
+                    <div><center><span id="datastatus"></span></center></div>
+                    <div class="row settingpanel">
+                        <div class="col-md-6">
+                            <div id="ktfooter"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pagination" id="knowledgePagination">
+                    <div class="pagination-button-group">
+                        <div id="prevKnowledge" class="pagination-button-group-base">
+                            <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                            <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                        </div>
+                        <div id="pageNumbersKnowledge" class="pagination-button-group-base1">
+                            @*<div class="text">a</div>*@
+                            @*<span id="pageNumbers" class="pages"></span>*@
+                        </div>
+
+                        <div id="nextKnowledge" class="pagination-button-group-base8">
+                            <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                            <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-parent">
+                        <div class="input">
+                            <div class="content">
+                                <input type="text" id="txtgopageKnowledge" name="query" placeholder="Page No.">
+                            </div>
+                            <div class="help-icon">
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-group">
+                            <div class="text-and-supporting-text">
+                                <div id="divGoKnowledge" class="text9">Go</div>
+                            </div>
+                            <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*Knowledge management end*@
+        </div>
+    </div>
+</section>
+
+
+
+
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="comparemodal" class="modal_a" style="display:none">
+    <div class="modal_a-content">
+        <img src="/Newassets/images/v_btn.png" class="close_a" id="mclose" width="22px" height="22">
+        <div id="frmcompare" style="height: 90%;width:100%;overflow: auto;word-break:break-word;clear:both"></div>
+    </div>
+</div>
+<div id="myModal8" class="modal fade" role="dialog" style="z-index:2000;">
+    <div class="modal-dialog " style="width: 98% !important;margin:20px auto">
+        <!-- Modal content-->
+        <div class="modal-content" style=" height: 585px;">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="resetofficeusers" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <span id="spanheadfile"> View File</span>
+                </h4>
+            </div>
+            <div class="minebody modal-body">
+                <div id="frameWrap">
+                    <img id="loader12" width="36" height="36" />
+                    <iframe id="docframe" src="/Firm/loader" height="490px" width="100%">
+                        <p>Your browser does not support iframes.</p>
+                    </iframe>
+                </div>
+            </div>
+            <script>
+                $('#docframe').on('load', function () {
+                    $('#loader12').hide();
+                });
+            </script>
+            <!-- /.col-lg-12 -->
+        </div>
+    </div>
+</div>
+<div id="myOverlayNew" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

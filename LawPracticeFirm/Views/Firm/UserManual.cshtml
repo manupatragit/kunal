@@ -1,0 +1,1698 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<style>
+
+    :root {
+        --bg: #f6f7fb;
+        --card: #fff;
+        --accent: #2b66f0;
+        --muted: #737a86;
+        --border: #e6e8ee;
+        --shadow: 0 6px 16px rgba(0,0,0,.06);
+    }
+
+    .wrap {
+        max-width: 1180px;
+        margin: 28px auto;
+        padding: 0 16px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 20px;
+    }
+
+    /* ✅ Corrected media query */
+    @@media (max-width:900px) {
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* LEFT: nav */
+    .nav {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        box-shadow: var(--shadow);
+        height: 50%vh;
+        height: fit-content;
+    }
+
+    .btn1 {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 14px;
+        margin: 8px 0;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: linear-gradient(#fff,#fafafa);
+        cursor: pointer;
+        font-weight: 600;
+        color: #1b1f24;
+        transition: .2s;
+    }
+
+        .btn1:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,.05);
+        }
+
+        .btn1.active {
+            outline: 2px solid var(--accent);
+            border-color: transparent;
+        }
+
+        .btn1 .chev {
+            margin-left: auto;
+            opacity: .6;
+            transition: transform .2s;
+        }
+
+        .btn1.collapsible.active .chev {
+            transform: rotate(90deg);
+        }
+
+    .sub {
+        margin: 0 0 8px 0;
+        padding-left: 10px;
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows .25s ease;
+    }
+
+        .sub.open {
+            grid-template-rows: 1fr;
+        }
+
+        .sub > div {
+            overflow: hidden;
+        }
+
+        .sub .subbtn {
+            width: 100%;
+            text-align: left;
+            font-weight: 600;
+            color: #2c2f36;
+            border: 1px dashed var(--border);
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 6px 0;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+            .sub .subbtn:hover {
+                background: #f3f6ff;
+            }
+/*
+            .sub .subbtn.active {
+                background: #eaf1ff;
+                border-color: #cfe0ff;
+            }*/
+
+    /* RIGHT: content panel */
+    .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 20px 24px;
+        min-height: 520px;
+    }
+
+        .panel h2 {
+            margin: 0 0 6px 0;
+            font-size: 28px;
+        }
+
+        .panel .meta {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+    .hr {
+        height: 1px;
+        background: var(--border);
+        margin: 12px 0 18px;
+    }
+
+    .section {
+        display: none;
+        animation: fade .18s ease;
+    }
+
+        .section.show {
+            display: block;
+        }
+
+    /* ✅ Corrected keyframes */
+    @@keyframes fade {
+        from {
+            opacity: .2;
+            transform: translateY(4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    /* Tiny badge style for “Updated on …” */
+    .badge {
+        display: inline-block;
+        background: #f0f3ff;
+        color: #1b3fad;
+        border: 1px solid #cfe0ff;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+    }
+
+ /*   ul {
+        margin-top: 8px;
+    }*/
+
+    .muted {
+        color: var(--muted);
+    }
+
+    .case-page div,
+    .case-page ul,
+    .case-page li,
+    .case-page p {
+        margin: 0;
+        padding: 0;
+        padding: 1rem !important;
+    }
+
+</style>
+<!-- Include jQuery (any 1.x version works) -->
+
+
+
+
+
+
+<div class="wrap">
+    <div class="grid">
+
+        <!-- LEFT: Sidebar -->
+        <aside class="nav" id="sidebar">
+
+            <!-- Copyright (no children) -->
+            <button type="button" class="btn1" data-target="copyright" onclick="showSection('copyright', this)">Dashboard</button>
+
+            <!-- Addcase (with children) -->
+            <button type="button" class="btn1 collapsible" data-accordion="corp" onclick="toggleAccordion('corp', this)">
+                Add Case
+                <span class="chev">▶</span>
+            </button>
+            <div class="sub" id="sub-corp" style="display:none;">
+                <div>
+                    <button type="button" class="subbtn" data-target="corp-about" onclick="showSection('corp-about', this)">Search By party Name </button>
+                    <button type="button" class="subbtn" data-target="corp-team" onclick="showSection('corp-team', this)">With CNR number</button>
+                    <button type="button" class="subbtn" data-target="corp-details" onclick="showSection('corp-details', this)">With Court Deatils</button>
+                </div>
+            </div>
+
+            <!-- Matter (with no children) -->
+            <button type="button" class="btn1" data-target="matterlist" onclick="showSection('matterlist', this)">Matter List</button>
+
+            <!-- Matter (with no children)  (with no children)  -->
+            <button type="button" class="btn1" data-target="revenue" onclick="showSection('revenue', this)">Revenue / RERA Court</button>
+
+            <!-- Pro-Active Alerts  (with no children)  -->
+            <button type="button" class="btn1" data-target="proactivealert" onclick="showSection('proactivealert', this)">Pro-Active Alerts</button>
+
+            <!-- Documents  (with no children)  -->
+            <button type="button" class="btn1" data-target="documents" onclick="showSection('documents', this)">Documents</button>
+
+            <!-- Calendar  (with no children)  -->
+            <button type="button" class="btn1" data-target="calendar" onclick="showSection('calendar', this)">Calendar</button>
+
+            <!-- Tools  (with no children)  -->
+            <button type="button" class="btn1" data-target="tools" onclick="showSection('tools', this)">Tools</button>
+
+            <button type="button" class="btn1 collapsible" data-accordion="admin"  onclick="toggleAccordion('admin', this)">
+                Admin Management
+                <span class="chev">▶</span>
+            </button>
+            <div class="sub" id="sub-admin" style="display:none;">
+                <div>
+                    <button type="button" class="subbtn" data-target="admin-profile" onclick="showSection('admin-profile', this)">Profile </button>
+                    <button type="button" class="subbtn" data-target="admin-authentication" onclick="showSection('admin-authentication', this)">Two Step Authentication</button>
+                    <!--<button class="subbtn" data-target="admin-email">Email Signature Settings</button> -->
+                    <button type="button" class="subbtn" data-target="admin-password" onclick="showSection('admin-password', this)">Change Password</button>
+                    <button type="button" class="subbtn" data-target="admin-account" onclick="showSection('admin-account', this)">Account Details</button>
+                    <button type="button" class="subbtn" data-target="admin-users" onclick="showSection('admin-users', this)">Manage Users</button>
+                    <button type="button" class="subbtn" data-target="admin-alerts" onclick="showSection('admin-alerts', this)">Alerts List</button>
+                    <button type="button" class="subbtn" data-target="admin-organization" onclick="showSection('admin-organization', this)">Organization Settings</button>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- RIGHT: Content preview -->
+        <main class="panel">
+
+            <section class="section case-page" id="copyright" style="display:none;">
+                <h2>Dashboard</h2>
+                <div class="hr case-page"></div>
+                <p>
+                    The <strong>Dashboard</strong> provides a comprehensive overview of the litigation management tool, offering a snapshot of your case portfolio.
+                    It displays a summary of the total number of cases categorized as <strong>Pending</strong>, <strong>Disposed</strong>, and <strong>Status Not Available</strong>.</p><p>
+                    Additionally, the Dashboard allows quick access to your <strong>To-Do List</strong>, <strong>Notes</strong>, and <strong>Contacts</strong>.
+                    You can also track your <strong>Login Activity</strong> by applying filters based on a specific date range.</p><p>
+                    You can click on the <strong>Mykase Logo</strong> or go to <strong>Matter → Dashboard</strong> from any module.
+                </p>
+                <div class="text-center mt-3 case-page">
+                    <img src="~/newassets/img/UserManual/dashboard.png" alt="Dashboard Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    To learn how to use the <strong>Case Tracking</strong> module, click the <strong>"How Case Tracking Works"</strong> option located next to <strong>My Dashboard</strong>.
+                    This will provide you with <strong>step-by-step instructional videos</strong> for easy understanding.
+                </p>
+            </section>
+
+            <section class="section case-page" id="corp-about" style="display:none;">
+                <h2><strong>Add Case –</strong> Search By party Name </h2>
+                <div class="hr case-page"></div>
+                <p>
+                    <strong>Add Case:</strong>
+                   To begin tracking a case in Mykase, it must first be added to your Active Matter List with accurate details. There are multiple ways to add a case, as outlined below: </p>
+
+                   <p><strong>Search by Party Name  :</strong>
+
+                    The Search by Party Name feature enables you to find cases by entering a specific keyword related to a party’s name. Once the search results are displayed, you can select the relevant case from the list.</p>
+
+                   <p> To use this feature, follow the steps below:
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/searchbyparty.png" alt="addcase Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li>Click on <strong>Search by Party Name</strong> option from the right panel.</li>
+                        <li>Select the court in which you want to conduct the search, enter the keyword in the <strong>keyword field</strong>, and click on the <strong>Search</strong> button.</li>
+                        <li>
+                            The result will show all cases from the year <strong>2019</strong> that include your searched keyword in the case name.
+                            You can tick the checkbox <strong>‘Remove already added’</strong> to hide cases already present in your matter list.
+                        </li>
+                        <li>From the list, you can add any relevant case by clicking the <strong>Add</strong> button from the <strong>Action</strong> tab.</li>
+                    </ul>
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/searchbypartyname2.png" alt="addcase Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li>Once you click on the <strong>Add</strong> button, you can edit the matter name for your reference or add team members before saving it using the <strong>Save</strong> button.</li>
+                    </ul>
+                </p>
+
+            </section>
+
+            <section class="section case-page" id="corp-team" style="display:none;">
+                <h2>Add Case – With CNR number</h2>
+                <div class="hr case-page"></div>
+                <p>
+                    A CNR Number (Case Number Record) is a unique 16-digit identifier assigned to every case filed in Indian courts.</p>
+
+                  <p>  To track or add a District Court case using the CNR number, follow the steps below:
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/withcnrno.png" alt="addcase Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li>Click on <strong>Add Matter</strong> on the right panel and select the <strong>CNR Number</strong> tab from the top.</li>
+                        <li>Select the <strong>State/UT</strong> from the dropdown and enter the CNR number in the <strong>CNR field</strong>.</li>
+                        <li>Once you have entered the details, click on the <strong>Search Matter</strong> button to validate the case.</li>
+                    </ul>
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/withcnrno2.png" alt="addcase Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li>Once you click on <strong>Search Matter</strong>, a popup will open where you can see the details of the case.</li>
+                        <li>You can edit the <strong>Matter Name</strong> for your reference or add <strong>Team Members</strong> before saving it using the <strong>Add to Tracking</strong> button.</li>
+                        <li>If the system does not return any result, you can directly save the case by adding the <strong>Matter Name</strong> and <strong>Team Members</strong>.</li>
+                    </ul>
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/withcnrno3.png" alt="addcase Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+            </section>
+
+            <section class="section case-page" id="corp-details" style="display:none;">
+                <h2>Add Case – With Court Details</h2>
+                <div class="hr case-page"></div>
+                <p>
+                    <strong>Adding a case using Court Details</strong> is the most commonly used method in <strong>Mykase</strong>.
+                    By entering the correct case information, you can easily add the case to your <strong>Active Matter List</strong>.
+                   
+                </p>
+                <p> To proceed, follow the <strong>steps below</strong>:</p>
+
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/courtdetails.png" alt="addcase Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li>Click on <strong>Add Matter</strong> on the right panel and select the <strong>Court Details</strong> tab from the top.</li>
+                        <li>Select the <strong>Court Details</strong> in the correct hierarchical manner through the <strong>Court Type</strong> column.</li>
+                        <li>Once the court details are selected, enter the case details like <strong>Matter Type</strong>, <strong>Matter Number</strong>, and <strong>Matter Year</strong>.</li>
+                        <li>Once you have entered the details, click on the <strong>Search Matter</strong> button to validate the case.</li>
+                    </ul>
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/withcourtdetails2.png" alt="Addcase Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li>Once you click on <strong>Search Matter</strong>, a popup will open where you can see the details of the case.</li>
+                        <li>You can edit the <strong>Matter Name</strong> for your reference or add <strong>Team Members</strong> before saving it using the <strong>Add to Tracking</strong> button.</li>
+                        <li>In case the system does not show any result, you can directly save the case by adding the <strong>Matter Name</strong> and <strong>Team Members</strong>.</li>
+                    </ul>
+                </p>
+            </section>
+
+            <section class="section case-page" id="matterlist" style="display:none;">
+                <h2>Matter List</h2>
+                <div class="hr case-page"></div>
+
+                <p>
+                    <ul>
+                        <li>The <strong>Matter List</strong> comprises all cases that you have added for further tracking.</li>
+                        <li>To view the matter list, click on the <strong>Matter</strong> option in the left menu and select <strong>Matter List</strong>.</li>
+                        <li>In the list, you will see all the details of the cases such as <strong>Petitioner</strong>, <strong>Respondent</strong>, <strong>Case No.</strong>, <strong>Court Complex</strong>, <strong>Next Hearing Date</strong>, <strong>Court Status</strong>, etc.</li>
+                    </ul>
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li><strong>Viewing the Case Details:</strong> You can apply filters through the column headers, based on <strong>Court</strong>, <strong>Court Case No.</strong>, <strong>Next Hearing Date</strong>, etc.</li>
+
+                        <li>To view detailed case information such as <strong>Filing Date</strong>, <strong>Registration Date</strong>, <strong>Notices</strong>, <strong>Caveat</strong>, etc., click on the <strong>Court Case No.</strong>.</li>
+
+                        <li>To view previous orders, case history, or listing details, click on the <strong>gavel icon</strong> under the <strong>Orders</strong> tab. To know the process to view, download, or email the order, please <strong>click here</strong>.</li>
+
+                        <li><strong>Export into Excel or PDF:</strong> To download the data in <strong>Excel</strong> or <strong>PDF</strong> format, follow the steps below.</li>
+                    </ul>
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist2.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li>You can apply filters as per your needs. For example, if you need to export the data of only <strong>High Court</strong> cases, you can do so using filters.</li>
+
+                        <li>Apart from the default fields visible in the matter list, you can also add more fields by clicking on <strong>Customize</strong> and selecting the columns as per your requirement.</li>
+
+                        <li>Once you have the desired list of results on the screen, click on the <strong>Export</strong> button and select <strong>Export to Excel</strong> to extract and download the list to your system.</li>
+
+                        <li>The <strong>Export to PDF</strong> button allows you to download the case list in a predefined format. Please note that the column structure cannot be modified, as the PDF layout is fixed and does not support customization.</li>
+
+                        <li><strong>Action Tab:</strong> This section allows you to perform specific operations for each case.</li>
+                    </ul>
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist3.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li>With respect to every case, there will be some <strong>action buttons</strong>, which can be used as follows:</li>
+
+                        <li><strong>Re-run:</strong> Used to sync the details from the court site in case of any delay in the indexing.</li>
+
+                        <li><strong>Today’s Causelist:</strong> Used to check the causelist of the specific case generated by the court site and synced in the system.</li>
+
+                        <li><strong>Additional Alert:</strong> Used to set an additional alert apart from the default alerts. To know the process of setting an alert, please <strong>click here</strong>.</li>
+
+                        <li><strong>Case Notes:</strong> Used to add notes to your case for future reference.</li>
+
+                        <li><strong>Remove Live Update:</strong> Used to remove the case from live tracking.</li>
+
+                        <li><strong>Add For Live Update:</strong> Used to add a case to live tracking if it was previously removed.</li>
+
+                        <li><strong>Archive:</strong> Used to remove the case from the active matter list and send it to the archive list.</li>
+
+                        <li><strong>Delete:</strong> Used to permanently remove the case from the Mykase account.</li>
+
+                        <li><strong>Archive List:</strong> The Archived Matter List contains all cases that have been marked as archived from the Active Matter List. Archived matters are excluded from Excel exports generated through the Matter List. However, they remain on live tracking, and users will continue to receive update alerts for these cases.</li>
+
+                        <li>For example, if a case has been disposed of and is no longer needed in the active list or reports—but should not be permanently deleted—it can be moved to the <strong>Archived Matter List</strong> for future reference.</li>
+
+                        <li>To view the archived case list: Click on the <strong>Matter</strong> option in the left menu and select the <strong>Archived</strong> tab to view archived cases.</li>
+                    </ul>
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist4.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li>You can apply the <strong>Court filter</strong> to check the court-related archived cases.</li>
+
+                        <li>To <strong>unarchive</strong> any case, select the case from the selection box (or select all), and click on the <strong>Unarchive Case</strong> button to move the case back to the <strong>Active Matter List</strong>.</li>
+                    </ul>
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist5.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li><strong>Bulk Matter Assign:</strong> This feature allows you to transfer multiple matters from one user to another in a single action.</li>
+
+                        <li>To bulk assign matters, follow the steps below:</li>
+
+                        <li>Click on the <strong>Matter</strong> option from the left menu and select the <strong>Bulk Matter Assign</strong> tab.</li>
+                    </ul>
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist6.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <ul>
+                        <li><strong>Click on the Assign From dropdown</strong> to select the user whose matters need to be reassigned to another user.</li>
+                        <li><strong>Choose the cases</strong> which need to be assigned to another user from the given list. You can also filter <strong>by Matter Name</strong> or <strong>Court-wise</strong> to assign particular cases.</li>
+                        <li><strong>Use the Assign To dropdown</strong> to choose the user/users to whom the cases should be reassigned.</li>
+                        <li><strong>Click on Bulk Assign</strong> to complete the assignment.</li>
+                    </ul>
+
+                    <div class="case-page">
+                        <img src="~/newassets/img/UserManual/matterlist7.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+
+                <p><strong>View, Download or Email Orders:</strong></p>
+
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist8.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+
+                <ul>
+                    <li><strong>Click on the Download Order button</strong> to download the order to your system.</li>
+                    <li><strong>Click on the Email Order button</strong> and enter the email address of the receiver in the popup. After entering the email address, click <strong>Send</strong> to share the order copy as an email attachment.</li>
+                </ul>
+
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist9.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+
+                <ul>
+                    <li>
+                        <strong>To view the order copy online</strong> without downloading it to your system,
+                        click on the <strong>View</strong> button
+                        <img src="~/newassets/img/UserManual/viewicon.png" alt="View Order Button" style="width:24px; height:auto; vertical-align:middle; margin-left:5px;">
+                        to open the order copy.
+                    </li>
+
+                    <li>
+                        <strong>To add a note to an order</strong>, click the <strong>Notes</strong> button
+                        <img src="~/newassets/img/UserManual/notesicon.png" alt="Notes Button" style="width:24px; height:auto; vertical-align:middle; margin-left:5px;">
+                        to open the notes popup. Enter your note in the text field provided and click <strong>Save</strong>.
+                        Once a note is added, the icon will turn green, indicating that a note has been attached.
+                    </li>
+                </ul>
+
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist10.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+
+                <p>
+                    <strong>Setting an additional alert:</strong></p>
+                    <p>To set an additional alert for yourself or a client, you can choose between two options: a specific date alert or a frequency-based alert.<br><br>
+                    To understand and configure each option, please follow the steps below:</p>
+                    
+                </p>
+                <p><strong>Specific Date Alert -</strong></p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist11.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li><strong>Select the Date Based Alert tab</strong> to set the alert for a specific date.</li>
+
+                    <li><strong>Select the date</strong> on which you want to set the alert.</li>
+
+                    <li>
+                        <strong>In the Set Alert For column</strong>, select either <strong>Self</strong> or <strong>Client</strong> to specify the recipient of the alert.
+                        If <strong>Client</strong> is selected, you will be prompted to enter the mobile number and email address to send the alert.
+                    </li>
+
+                    <li><strong>Once all the relevant details are entered</strong>, click on <strong>Set Alert</strong>.</li>
+                </ul>
+
+                <p><strong>Frequency-based Alert:</strong></p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist12.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li><strong>Select the Hearing Day Based Alert tab</strong> to set a frequency alert.</li>
+
+                    <li><strong>Select the Next Hearing Date</strong> around which you want to set the alert.</li>
+
+                    <li>
+                        <strong>Choose the number of days</strong> and select <strong>Before hearing</strong> or <strong>After hearing</strong> to set the frequency.
+                    </li>
+
+                    <li>
+                        <strong>In the Set Alert For column</strong>, select either <strong>Self</strong> or <strong>Client</strong> to specify the recipient of the alert.
+                        If <strong>Client</strong> is selected, you will be prompted to enter the mobile number and email address to send the alert.
+                    </li>
+
+                    <li><strong>Once all the relevant details are entered</strong>, click on <strong>Set Alert</strong>.</li>
+                </ul>
+
+                <p>
+                    <strong>Manual Next Hearing Date, Tags and Team Member:</strong>
+                    The Matter List also allows you to perform additional actions such as setting a manual next hearing date, tagging matters, and assigning or removing team members associated with those matters.
+                </p>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist13.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p><strong>Manual Next Hearing Date:</strong></p>
+                <ul>
+                    <li>
+                        In certain cases, the next hearing date may not be available on the court website.
+                        In such scenarios, you can manually log the hearing date in Mykase to receive timely alerts.
+                    </li>
+
+                    <li><strong>Select the Manual Next Hearing option</strong> from the Customize list in the top-right corner of the Matter List.</li>
+
+                    <li>
+                        <strong>After selecting</strong> the option, the column for Manual Next Hearing Date will be visible in the matter list.
+                    </li>
+
+                    <li>
+                        <strong>For any specific case, click on the calendar icon</strong> under the column and select a date for the same.
+                    </li>
+                </ul>
+
+                <p><strong>Tagging Matters:</strong></p>
+                <ul>
+                    <li>
+                        Tagging litigation matters helps legal teams streamline workflows, identify patterns, and improve decision-making.
+                        For example, cases related to IP Litigation or Product Disputes can be grouped using tags for easier tracking and analysis.
+                    </li>
+
+                    <li><strong>Select the Tag option</strong> from the Customize list in the top-right corner of the Matter List.</li>
+
+                    <li>
+                        <strong>After selecting</strong> the option, the column for Tag will be visible in the matter list.
+                    </li>
+
+                    <li>
+                        <strong>Click on the tag icon</strong> under the column to open a popup.
+                    </li>
+
+                    <li>
+                        <strong>To tag a matter</strong>, select from the list of existing tags and click <strong>Save</strong>.
+                    </li>
+
+                    <li>
+                        <strong>If you wish to create a new tag</strong>, choose the <strong>Add New</strong> option and enter the name of the new tag in the provided input field.
+                    </li>
+                </ul>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist14.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p><strong>Assigning or Unassigning Team Members:</strong></p>
+                <ul>
+                    <li>
+                        Assigning a team member to a case allows them to view the matter in their Matter List and receive all relevant alerts.
+                    </li>
+
+                    <li>
+                        <strong>Select the Team Member option</strong> from the Customize list in the top-right corner of the Matter List.
+                    </li>
+
+                    <li>
+                        <strong>After selecting</strong> the option, the column for Team Members will be visible in the matter list.
+                    </li>
+
+                    <li>
+                        <strong>Click on the View button</strong> under the column, and a new popup will open.
+                    </li>
+                </ul>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist15.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li>
+                        <strong>From the dropdown</strong>, you can select the users whom you want to assign to the matter and click on the <strong>Save</strong> button.
+                    </li>
+
+                    <li>
+                        <strong>To unassign any team member</strong>, click on the <strong>Delete icon</strong> from the action tab to unassign the respective user.
+                    </li>
+                </ul>
+
+                <p><strong>Causelist:</strong></p>
+                <ul>
+                    <li>
+                        As the Mykase tool provides you with a personalized causelist of the matters added to your account, you can check the causelist by following the steps below.
+                    </li>
+                </ul>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/matterlist16.png" alt="Matterlist Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li>
+                        <strong>Click on Causelist</strong> from the left menu.
+                    </li>
+
+                    <li>
+                        <strong>Select the type of Court</strong> (e.g., Supreme Court, High Court, Tribunal, etc.) for which you want to view the causelist.
+                    </li>
+
+                    <li>
+                        <strong>Post selecting the forum</strong>, select the date and click on <strong>Search</strong>.
+                    </li>
+
+                    <li>
+                        <strong>The causelist</strong> of the applied filters will be generated accordingly.
+                    </li>
+
+                    <li>
+                        <strong>To download the causelist</strong>, click on the <strong>Export</strong> button on the top-right corner and select <strong>Excel/PDF</strong> to download the list in the respective formats.
+                    </li>
+
+                    <li>
+                        <strong>To view the full causelist of the court</strong>, click on the <strong>FullCauseList</strong> under the Action tab.
+                    </li>
+                </ul>
+
+
+
+
+
+
+
+            </section>
+            <section class="section case-page" id="revenue" style="display:none;">
+                <h2>Revenue/RERA Court</h2>
+                <div class="hr case-page"></div>
+                <ul>
+                    <li>
+                        <strong>In Mykase</strong>, you can also track <strong>RERA</strong> and <strong>Revenue cases</strong> for the given courts.
+                    </li>
+
+                    <li>
+                        <strong>To see the details</strong> of the tracked cases, visit the <strong>RERA</strong> or <strong>Revenue Case List</strong> by following the steps below.
+                    </li>
+
+                    <li>
+                        <strong>Revenue Case List:</strong> Click on <strong>Matter List</strong> from the left menu and select the <strong>Revenue</strong> tab.
+                    </li>
+                </ul>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/revenue.png" alt="Revenue Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li>
+                        On the list displayed, you will see all the <strong>Revenue matters</strong> added for live tracking,
+                        with all the details fetched from the court site.
+                    </li>
+
+                    <li>
+                        You can <strong>apply filters</strong> from the filter bar to see cases belonging to a specific
+                        <strong>Court</strong>, <strong>Mandal</strong>, or <strong>Janpad</strong>.
+                    </li>
+
+                    <li>
+                        To <strong>download the list</strong> of these cases, click on the <strong>Export</strong> button
+                        and select <strong>Excel</strong> or <strong>PDF</strong> from the dropdown to download the list
+                        in the respective formats.
+                    </li>
+
+                    <li>
+                        <strong>RERA Case List:</strong> Click on <strong>Matter List</strong> from the left menu
+                        and select the <strong>RERA</strong> tab.
+                    </li>
+                </ul>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/revenue2.png" alt="Revenue Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li>
+                        On the list displayed, you will see all the <strong>RERA matters</strong> added for live tracking,
+                        with all the details fetched from the court site.
+                    </li>
+
+                    <li>
+                        You can <strong>apply filters</strong> or <strong>search</strong> using any specific keyword
+                        from the Filter and Search bar at the top.
+                    </li>
+
+                    <li>
+                        To <strong>download the list</strong> of all these cases, click on the <strong>Export</strong> button
+                        and select <strong>Excel</strong> or <strong>PDF</strong> from the dropdown to download the list
+                        in the respective formats.
+                    </li>
+
+                </ul>
+            </section>
+            <section class="section case-page" id="proactivealert" style="display:none;">
+                <h2>Pro-Active Alerts</h2>
+                <div class="hr case-page"></div>
+                <ul>
+                    <li>
+                        <strong>Pro-Active Alerts:</strong> Proactive Alerts keep you informed about any
+                        new cases filed or listed in the cause list. Once a new case is filed, the system automatically
+                        sends an email alert to the <strong>Admin</strong> and all <strong>Users</strong>.
+                        Additionally, the admin can log in to the portal and view the cases filed under the
+                        <strong>Proactive Alerts</strong> feature.
+                    </li>
+
+                    <li>
+                        To <strong>set up a Proactive Alert</strong>, go to <strong>ProActive Alerts</strong> on the left menu —
+                        the <strong>Keyword Management</strong> screen will open by default.
+                    </li>
+                </ul>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/revenue3.png" alt="Pro-Active Alerts Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li>
+                        To <strong>add a keyword</strong> for case search under <strong>Proactive Alerts</strong>, follow the steps below:
+                    </li>
+
+                    <li>
+                        <strong>Enter the keyword</strong> in the column and select the <strong>Court</strong> in which you want the system to search the cases.
+                    </li>
+
+                    <li>
+                        Once the keyword and court are selected, click on <strong>Add</strong>.
+                    </li>
+
+                    <li>
+                        You can also <strong>Enable</strong> or <strong>Disable</strong> a keyword by clicking on it to toggle its status.
+                    </li>
+
+                    <li>
+                        To <strong>view newly filed cases</strong>, go to <strong>ProActive Alerts</strong> from the left menu and click on the <strong>Alert History</strong> tab.
+                    </li>
+                </ul>
+                <div class="case-page">
+                    <img src="~/newassets/img/UserManual/revenue4.png" alt="Pro-Active Alerts Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li>
+                        On the <strong>Alert History</strong> screen, select the <strong>Court</strong>, <strong>Keyword</strong>, and <strong>Date Range</strong> as per your requirement, then click on <strong>Search</strong>.
+                    </li>
+
+                    <li>
+                        From the results displayed on the screen, you can <strong>add any case for further tracking</strong> by clicking on the <strong>+Add</strong> button.
+                    </li>
+                </ul>
+            </section>
+
+            <section class="section case-page" id="documents" style="display:none;">
+                <h2>Documents</h2>
+                <div class="hr"></div>
+                <p>
+                    <strong>Documents</strong><br><br>
+                    The <strong>Document Management</strong> tab provides a centralized repository for all documents related to your cases.
+                    Whenever a new matter is added, a corresponding folder is automatically created under the case name.
+                   </p>
+                <p>
+                    It allows you to upload files, create folders, perform keyword or content-based searches, track version history,
+                    and control access through confidentiality settings and sharing options.
+                    Advanced features like check-in/check-out, document history, and cloud integration ensure streamlined collaboration
+                    and secure document handling.
+                    </p>
+                <p>
+                    To open the document section, click on the <strong>Docs</strong> option from the left menu and go to the <strong>All</strong> tab
+                    to view all documents.
+                </p>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    In the <strong>Documents</strong> section, you can search for any document by its name or even perform a content-based search within documents, through the below options:
+                </p>
+                <ul>
+                    <li>
+                        <strong>File Name Search –</strong> If you know the name of the document, simply enter it in the search bar to quickly locate the file.
+                    </li>
+
+                    <li>
+                        <strong>Free Text Search –</strong> This option allows you to search within the content of documents.
+                        For example, if you're looking for documents that contain the phrase <strong>“criminal proceedings”</strong>,
+                        go to the <strong>Documents</strong> section, select <strong>Free Text Search</strong> from the dropdown,
+                        enter the keyword, and click <strong>Search</strong>. The system will return all documents where the specified keyword appears in the content.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents2.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <strong>Create New Folder:</strong></p><p>
+                    The <strong>Create Folder</strong> option allows you to organize your documents by creating structured folders within the Document Section.
+                    This helps in categorizing files based on matters, document types, or teams, making it easier to manage and retrieve documents efficiently.
+                    You can also create folders inside other folders.
+                   </p><p>
+                    To create a folder, follow these steps:
+                </p>
+
+                <ul>
+                    <li>Go to the <strong>Documents</strong> section and click on the <strong>+ Create New Folder</strong> button on the top right.</li>
+                    <li>In the popup, enter the name of the folder and click on <strong>Add New Folder</strong> to save the folder.</li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents3.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <strong>Upload Document:</strong><br><br>
+                    The <strong>Upload Document</strong> feature allows you to add files to the Document Section.</p><p>
+                    To upload a document, follow these steps:
+                </p>
+
+                <ul>
+                    <li>Go to the <strong>Document Section</strong> and open the destination folder where you want to upload the file.</li>
+                    <li>Click on the <strong>Add Document</strong> button on the top right.</li>
+                    <li>From the dropdown, select <strong>Upload Document</strong>.</li>
+                    <li>Inside the popup, click on <strong>Click to upload</strong> or drag and drop the file you want to upload.</li>
+                    <li>Optionally, mention the <strong>File Description</strong>, and then click on <strong>Upload Document</strong> to save it in your repository.</li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents4.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <strong>Create New Document:</strong><br><br>
+                    The <strong>Create New Document</strong> feature allows users to generate documents directly within the platform without needing to upload them from external sources. This is useful for drafting templates, notices, reports, or any matter-related documentation in real time.</p><p>
+                    To create a new document, follow these steps:
+                </p>
+
+                <ul>
+                    <li>Go to the <strong>Document Section</strong> and open the destination folder where you want to create the new document.</li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/documents5.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                    <li>Click on the <strong>Add Document</strong> button on the top right.</li>
+                    <li>Select <strong>Create New Document</strong> from the list.</li>
+                    <li>Give the <strong>name of the document</strong> in the popup and click on <strong>Create Document</strong> to create a new document.</li>
+                    <li>Once the document is created, it will open through the <strong>Only Office</strong> window.</li>
+                    <li>Use the <strong>built-in editor</strong> to draft or type your content. The newly created document can then be <strong>shared</strong> and <strong>edited</strong>. Also, <strong>track changes</strong> and <strong>collaboration</strong> can be done so the team can work on the same file.</li>
+                    <li>To <strong>edit the same document</strong>, click on the <strong>three-dot menu</strong> and choose <strong>Edit Document</strong>.</li>
+                </ul>
+                <p>
+                    <strong>Move Document:</strong><br><br>
+                    The <strong>Move Document</strong> feature allows users to relocate a file or document from one folder to another within the Document Section.</p><p>
+                    To move a document, follow these steps:
+                </p>
+
+                <ul>
+                    <li>Go to the <strong>Document Section</strong> and locate the document you want to move.</li>
+                    <li>Select the <strong>document(s)</strong> using the checkbox next to each file.</li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/documents6.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                    <li>Click on the <strong>Add Document</strong> button and choose <strong>Move Document</strong>.</li>
+                    <li>A dialog box will appear — choose the <strong>destination folder</strong> from the folder list.</li>
+                    <li>Click <strong>Move</strong> to complete the action.</li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents7.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <strong>Shared Documents:</strong></p><p>
+                    The <strong>Shared Documents</strong> section displays all the documents and folders that have been shared with you by other users. It provides a consolidated view of shared content, along with the specific access rights granted to you — such as view, download, or edit permissions.</p>
+                <p>
+                    To view your shared documents section, please follow the steps below:
+                </p>
+
+                <ul>
+                    <li>Go to the <strong>Documents Section</strong> from the left menu.</li>
+                    <li>Click on the <strong>Shared Documents</strong> tab.</li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents8.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <strong>Check-Out List:</strong></p>
+                <p>
+                    The <strong>Check-Out List</strong> section displays all the documents that have currently been checked out for editing. It helps you keep track of files that are temporarily locked for updates, ensuring that no other users make changes to them during that period.</p><p>
+                    If a document is checked out by you, the option to <strong>Check-In</strong> will appear on the same page, allowing you to upload the updated version once edits are complete.</p><p>
+                    If a document is checked out by someone else, it will show as <strong>In Use</strong> to you, indicating that it cannot be checked out again until the other user checks it back in.
+                </p>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents9.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    <strong>Delete Request List:</strong></p><p>
+                    The <strong>Delete Request List</strong> is a dedicated section visible only to <strong>admin</strong>, where all document deletion requests submitted by users are displayed for review. This ensures that no file is permanently removed without proper authorization.</p>
+                <p>
+                    The admin can permanently delete any document by following the below steps:
+                </p>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents10.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>
+                    Each folder and document are accompanied by a set of action buttons. Let's explore the functionality of these buttons:
+                </p>
+
+                <p><strong>Action Buttons for Folders:</strong></p>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents11.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p><strong>Here are the options available for managing folders:</strong></p>
+                <ul>
+                    <li>
+                        <strong>
+                            Share Folder
+                            <img src="~/newassets/img/UserManual/share.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:
+                        </strong> This button allows you to share any folder or document with a team member or client, along with the ability to define the access rights granted to them.
+                    </li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/documents12.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                    <li>
+                        <strong>
+                            Delete Folder
+                            <img src="~/newassets/img/UserManual/delete.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:
+                        </strong> This button allows users to delete empty folders. Please note that folders containing any files or documents cannot be deleted.
+                    </li>
+
+                    <li>
+                        <strong>
+                            Folder History
+                            <img src="~/newassets/img/UserManual/documenthistory.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:
+                        </strong> The Folder History button allows users to view the activity log associated with a specific folder. This includes details such as when the folder was created, modified, shared, or if any documents were added or removed. It provides a transparent audit trail for tracking changes and user actions related to the folder.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents13.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>Action Buttons for files/documents: </p>
+                <div>
+                    <img src="~/newassets/img/UserManual/documents14.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p><strong>Here are the options available for managing files/documents:</strong></p>
+
+                <ul>
+                    <li>
+                        <strong>Check-In / Check-Out:</strong> The Check-Out and Check-In options enable you to create versions of documents. When a file is checked out, it is downloaded to your system, and the Check-Out button changes to Check-In. After making the necessary updates to the file, you can click the Check-In button to upload the revised version. This process creates a new version of the document while preserving the integrity of the original document. You can create up to 10 versions of any document.
+                    </li>
+
+                    <li>
+                        <strong>
+                            Share Document
+                            <img src="~/newassets/img/UserManual/share.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">	:
+                        </strong>
+                        This button allows you to share any folder or document with a team member or client, along with the ability to define the access rights granted to them.
+                    </li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/documents15.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                    <li>
+                        <strong>
+                            Delete Document:
+                            <img src="~/newassets/img/UserManual/delete.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">
+                        </strong> This button allows users to mark a document for deletion and provide a remark specifying the reason. Once marked, the document will be highlighted in pink to indicate its pending deletion status. Based on the remark, the admin can then review and permanently delete the file. If needed, the user can unmark the document for deletion by clicking the same delete button again.
+                    </li>
+
+                    <li>
+                        <strong>
+                            View Document
+                            <img src="~/newassets/img/UserManual/view.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:
+                        </strong> To view the uploaded document, you can go to this option.
+                    </li>
+
+                    <li>
+                        <strong>
+                            Edit File Description
+                            <img src="~/newassets/img/UserManual/edit.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:
+                        </strong> This button allows you to add or edit a file description to a document, which is displayed in the document list.
+                    </li>
+
+                    <li>
+                        <strong>
+                            Mark Confidential
+                            <img src="~/newassets/img/UserManual/mark.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:
+                        </strong> This option enables you to mark a file as confidential, thereby restricting its visibility from all team members assigned to the matter. Once a document is marked as confidential, the option will switch itself to <strong>Mark as non-confidential</strong>, which can be used to un-restrict the file.
+                    </li>
+
+                    <li>
+                        <strong>
+                            Version History
+                            <img src="~/newassets/img/UserManual/version.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:
+                        </strong> Once multiple versions of a document have been created using the Check-In/Check-Out feature, all previous versions can be accessed through the Version History section.
+                    </li>
+
+                    <li>
+                        <strong>
+                            Document History
+                            <img src="~/newassets/img/UserManual/documenthistory.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:
+                        </strong> The Document History feature logs all actions performed on a document—such as uploads, sharing, marking confidential, versioning, or deletions—along with the username, date, and time, ensuring transparency and traceability.
+                    </li>
+
+                    <li>
+                        <strong>
+                            Upload Document to Cloud
+                            <img src="~/newassets/img/UserManual/cloud.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:
+                        </strong> This option allows you to upload documents directly to your cloud storage i.e. Google Drive or Dropbox. It ensures secure backup, easy access from anywhere, and seamless document management within the platform.
+                    </li>
+
+                    <li>
+                        <strong>
+                            Download Original Version
+                            <img src="~/newassets/img/UserManual/download.png" alt="Share Document Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:
+                        </strong> Use this button to download the original version of a document.
+                    </li>
+                </ul>
+            </section>
+            <section class="section case-page" id="calendar" style="display:none;">
+                <h2>Calendar</h2>
+                <div class="hr"></div>
+                <p>The calendar in Mykase helps you to keep track of all your hearings and orders related to all your cases. To access the calendar, please follow the below steps:</p>
+                <ul>
+                    <li>Click on <strong>Calendar</strong> option from the right panel from any page to get redirected to the calendar. </li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/calendar.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                    <li>
+                        <strong>Once the calendar opens</strong>, you can view it color-coded for better visualization.
+                    </li>
+
+                    <li>
+                        <strong>Click on the hyperlinked Hearing or Order</strong> to view more details of the respective cases.
+                    </li>
+
+                    <li>
+                        <strong>Use the navigation arrows</strong> at the top of the calendar to check other months.
+                    </li>
+
+                    <li>
+                        <strong>When you click on a Court Hearing</strong>, a popup will open showing all the cases listed for that date.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/calendar2.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p><strong>Actions on Next Hearing:</strong></p>
+                <p>Inside the popup, you can use the below buttons to perform various actions:</p>
+                <ul>
+                    <li>
+                        <strong>Alert Button <img src="~/newassets/img/UserManual/alert.png" alt="calendar Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:</strong> can be used to trigger an alert for all the listed cases to the relevant team members assigned to the cases.
+                    </li>
+                    <li>
+                        <strong>PDF Download <img src="~/newassets/img/UserManual/pdfreader.png" alt="calendar Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:</strong> can be used to download a PDF of the complete list of cases.
+                    </li>
+                    <li>
+                        <strong>Excel Download <img src="~/newassets/img/UserManual/excelfile.png" alt="calendar Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:</strong> can be used to download the Excel file of the complete list of cases.
+                    </li>
+                    <li>
+                        <strong>Email Button <img src="~/newassets/img/UserManual/sendemail.png" alt="calendar Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:</strong> can be used to send the list of all the cases to your colleague, client, advocate, or even yourself directly from the system.
+                    </li>
+                </ul>
+
+                <p><strong>Actions on Orders:</strong></p>
+                <p>Once clicked on <strong>Order</strong>, a popup will open including all the cases where an order is updated for that date.</p>
+                <div>
+                    <img src="~/newassets/img/UserManual/calendar3.png" alt="Documents Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>Inside the popup, you can use the below buttons to perform various actions:</p>
+                <ul>
+                    <li>
+                        <strong><img src="~/newassets/img/UserManual/pdfreader.png" alt="calendar Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:</strong> can be used to download a PDF of the complete list of cases.
+                    </li>
+                    <li>
+                        <strong><img src="~/newassets/img/UserManual/excelfile.png" alt="calendar Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:</strong> can be used to download the Excel file of the complete list of cases.
+                    </li>
+                    <li>
+                        <strong><img src="~/newassets/img/UserManual/sendemail.png" alt="calendar Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:</strong> can be used to send the list of all the cases to your colleague, client, advocate, or even yourself directly from the system.
+                    </li>
+                    <li>
+                        <strong><img src="~/newassets/img/UserManual/download.png" alt="calendar Icon" style="width:22px; height:auto; vertical-align:middle; margin-left:6px;">:</strong> can be used to download the order copy to your system.
+                    </li>
+                </ul>
+
+                <p>
+                    The calendar can also be synced with your <strong>Google Calendar</strong>, which will reflect all your hearings in your Google calendar and help you prevent missing out on any hearing.
+                </p>
+
+                <p>To sync your calendar with your Google Calendar, please follow the below steps:</p>
+                <ul>
+                    <li>
+                        Click on the <strong>Google Calendar Sync</strong> button on the calendar page, which will open a new browser popup allowing you to choose your Gmail account and sync.
+                    </li>
+                    <li>
+                        Click on the account that you want to sync and click <strong>Continue</strong>.
+                    </li>
+                    <li>
+                        Check all the access options and click <strong>Continue</strong> to complete the sync process.
+                    </li>
+                </ul>
+            </section>
+            <section class="section case-page" id="tools" style="display:none;">
+                <h2>Tools</h2>
+                <div class="hr"></div>
+                <p>
+                    The Tools section provides a suite of utility features designed to enhance user productivity and streamline case or document management. <br>
+
+                    Go to<strong> Tools</strong> section from the right panel.
+                </p>
+                <div>
+                    <img src="~/newassets/img/UserManual/tools.png" alt="tools Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <h3>PDF to DOC Converter:</h3>
+                <p>
+                    Convert a PDF file to a DOC file using this tool. To do the same, please follow the below steps:
+                </p>
+                <ul>
+                    <li>
+                        Click on <strong>Click to Upload</strong> to upload your PDF document, then click <strong>Convert to DOC</strong>.
+                    </li>
+                    <li>
+                        Once converted, click on <strong>Download</strong> to export the file into your system.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/tools2.png" alt="tools Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <h3>Cloud Integration:</h3>
+                <p>
+                    The <strong>Cloud Integration</strong> feature enables seamless connectivity between the platform and third-party cloud storage services such as Google Drive, OneDrive, Dropbox, and others.
+                </p>
+                <ul>
+                    <li>
+                        <strong>OneDrive Integration:</strong> Use this option to integrate OneDrive. Click on <strong>Connect Now</strong> to sign in to your OneDrive account.
+                    </li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/tools3.png" alt="tools Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                    <li>
+                        <strong>Dropbox Integration:</strong> Use this option to integrate Dropbox. Click on <strong>Connect Now</strong> to sign in to your Dropbox account.
+                    </li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/tools4.png" alt="tools Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                    <li>
+                        <strong>Google Drive Integration:</strong> Use this option to integrate Google Drive. Click on <strong>Connect Now</strong> to sign in to your Google Drive account.
+                    </li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/tools5.png" alt="tools Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                </ul>
+            </section>
+
+            <section class="section case-page" id="admin-profile" style="display:none;">
+                <h2>Profile</h2>
+                <div class="hr"></div>
+                <p>
+                    The Profile section contains your personal and account-related information within the platform. It allows you to manage your details, update password and configure preferences to tailor the system experience to your needs.<br>
+                    To open the profile, you can click on your logo dropdown and select <strong>Profile</strong> to view your profile details including your name, designation, and organization address. You can also enable or disable two-step authentication from this section.
+                </p>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p>Once the profile section is open, you can update your details like Name, Designation, Mobile Number, Email, Address, Logo, etc. in the form and click on <strong>Update. </strong> </p>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin2.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+            </section>
+
+            <section class="section case-page" id="admin-authentication" style="display:none;">
+                <h2>Two Step Authentication</h2>
+                <div class="hr"></div>
+
+
+                <p>
+                    <strong>Two-Step Authentication</strong> (also known as <strong>Two-Factor Authentication</strong> or <strong>2FA</strong>) adds an extra layer of security to your account by requiring a second verification step in addition to your password. This ensures that even if your login credentials are compromised, unauthorized access is prevented.
+                </p>
+
+                <h4>Steps to Enable Two-Step Authentication:</h4>
+                <ul>
+                    <li>
+                        Click on your <strong>logo dropdown</strong> and select <strong>Profile</strong> to view your profile details.
+                    </li>
+                    <li>
+                        In the <strong>General Information</strong> section, you can find the <strong>Two Step Authentication</strong> option.
+                    </li>
+                    <li>
+                        Click on the <strong>Toggle</strong> button to enable 2FA.
+                    </li>
+                    <li>
+                        Going forward, each time you log in, you will be prompted to enter your password followed by the <strong>OTP</strong> to complete the sign-in process.
+                    </li>
+                    <li>
+                        To disable the 2FA, you can follow the above steps and click on the toggle again to switch it off.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin3.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+
+            </section>
+            <section class="section case-page" id="admin-password" style="display:none;">
+                <h2>Change Password</h2>
+                <div class="hr"></div>
+                <p>
+                    The <strong>Change Password</strong> feature allows you to update your account credentials to maintain security and prevent unauthorized access. Regularly updating your password is recommended as a best practice, especially in a secure, compliance-driven environment.
+                </p>
+
+                <h4>Steps to Change Your Password:</h4>
+                <ul>
+                    <li>
+                        Click on your <strong>logo dropdown</strong> and select <strong>Profile</strong> to view your profile details.
+                    </li>
+                    <li>
+                        Click on the <strong>Change Password</strong> option.
+                    </li>
+                    <li>
+                        Enter your <strong>Old Password</strong> for verification.
+                    </li>
+                    <li>
+                        Enter your <strong>New Password</strong>, ensuring it meets the platform’s security requirements
+                        (<em>Password must be 8–12 characters long and include a combination of uppercase and lowercase letters, numbers, and special characters</em>).
+                    </li>
+                    <li>
+                        Confirm the new password by entering it again.
+                    </li>
+                    <li>
+                        Click <strong>Save</strong> to apply the changes.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin4.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+            </section>
+            <section class="section case-page" id="admin-account" style="display:none;">
+                <h2>Account Details</h2>
+                <div class="hr"></div>
+                <p>
+                    View your <strong>plan details</strong>, including <strong>subscription start and expiry dates</strong>,
+                    <strong>case subscribed quota</strong>, and <strong>balance quota</strong> from this section.
+                </p>
+
+                <h4>Steps to View Account Details:</h4>
+                <ul>
+                    <li>
+                        Click on your <strong>logo dropdown</strong> and select <strong>Account Details</strong>.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin5.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin6.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+            </section>
+            <section class="section case-page" id="admin-users" style="display:none;">
+                <h2>Manage Users</h2>
+                <div class="hr"></div>
+                <p>
+                    The <strong>Manage Users</strong> feature allows administrators to <strong>add</strong>,
+                    <strong>edit</strong>, or <strong>deactivate users</strong> within the platform.
+                </p>
+
+                <h4>To Add a New User:</h4>
+                <ul>
+                    <li>
+                        Navigate to the <strong>Manage Users</strong> section from the <strong>logo dropdown</strong>.
+                    </li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/admin7.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                    <li>
+                        <strong>Click on Add User</strong> and a popup will open.
+                    </li>
+
+                    <li>
+                        <strong>Fill in required details</strong> such as user type, name, email, number, etc.
+                    </li>
+
+                    <li>
+                        If needed, you can fill other details like <strong>professional information</strong> and
+                        <strong>employment details</strong>.
+                    </li>
+
+                    <li>
+                        <strong>Click Save User Details</strong> to save the user details.
+                    </li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/admin8.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                    <li>
+                        Once the user details are saved, we can create the login credentials for them by clicking on <strong>Add Credentials</strong> button in the user list and entering a new User ID and password for the user.
+                    </li>
+                    <div>
+                        <img src="~/newassets/img/UserManual/admin9.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                    </div>
+                    <li>
+                        Click on <strong>Disabled</strong> button to toggle it and enable the user account.
+                    </li>
+                </ul>
+                <p><strong>To Edit an Existing User: </strong></p>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin10.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li>
+                        In the <strong>Manage Users</strong> list, click the <strong>Edit icon</strong> next to the user.
+                    </li>
+
+                    <li>
+                        <strong>Update any necessary information</strong> such as name, role, or department.
+                    </li>
+
+                    <li>
+                        <strong>Click Save User Details</strong> to save changes.
+                    </li>
+                </ul>
+                <p><strong>To Deactivate a User:</strong></p>
+                <ul>
+                    <li>
+                        Only users with <strong>Admin</strong> or <strong>Partner</strong> roles have the authority to deactivate other users within the system.
+                    </li>
+
+                    <li>
+                        <strong>Find the user</strong> in the User list.
+                    </li>
+
+                    <li>
+                        Click on the <strong>Enabled</strong> button to toggle it and temporarily disable access.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin11.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <p><strong>To Reset a User’s Password:</strong></p>
+                <ul>
+                    <li>
+                        Only users with <strong>Admin</strong> or <strong>Partner</strong> roles have the authority to reset another user’s password. This restriction ensures that password management remains secure and is handled only by those with elevated privileges.
+                    </li>
+
+                    <li>
+                        <strong>Find the user</strong> in the User list.
+                    </li>
+
+                    <li>
+                        Click on the <strong>Reset Password</strong> icon next to the user.
+                    </li>
+
+                    <li>
+                        A popup will open, where you can <strong>set a new password</strong>, which can be provided to the user.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin12.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+            </section>
+
+            <section class="section case-page" id="admin-alerts" style="display:none;">
+                <h2>Alerts List</h2>
+                <div class="hr"></div>
+                <ul>
+                    <li>
+                        Access a list of <strong>alerts sent to you</strong>, including case numbers and the dates alerts were issued.
+                    </li>
+
+                    <li>
+                        To open the alert list, click on <strong>Logo Profile</strong> and select <strong>Alerts List</strong>.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin13.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+
+            </section>
+            <section class="section case-page" id="admin-organization" style="display:none;">
+                <h2>Organization Settings</h2>
+                <div class="hr"></div>
+                <p>
+                    <strong>Organization Settings:</strong> Admins have the ability to create and manage <strong>branches</strong>,
+                    <strong>departments</strong>, and <strong>designations</strong> to reflect the organizational hierarchy within the platform.
+                    This structure helps in categorizing users accurately and streamlining access control, reporting, and workflow management.
+                </p>
+
+                <ul>
+                    <li>
+                        To open <strong>Organization Settings</strong>, click on <strong>Logo Profile</strong> and select
+                        <strong>Organization Settings</strong>.
+                    </li>
+
+                    <li>
+                        These organizational elements can then be linked to individual user profiles at the time of user creation,
+                        ensuring that each user is properly categorized based on their role and location within the organization.
+                    </li>
+
+                    <li>
+                        You can also <strong>customize alert options</strong> for any user, partner, or even the admin through these settings.
+                    </li>
+                </ul>
+
+                <p><strong>Create Branch, Department, and Designation:</strong></p>
+                <ul>
+                    <li>
+                        Go to <strong>Organization Settings</strong>.
+                    </li>
+                    <li>
+                        Click on <strong>Add New Category</strong> and a popup will open.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin14.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li>
+                        Under the <strong>Type</strong>, please select the category which you want to create and give a name to that category.
+                    </li>
+
+                    <li>
+                        Once the details are entered, click on <strong>Confirm</strong> to save the details.
+                    </li>
+
+                    <li>
+                        If you want to delete any <strong>branch</strong>, <strong>department</strong>, or <strong>designation</strong>,
+                        you can click on the <strong>Delete</strong> button from the list.
+                    </li>
+                </ul>
+                <p><strong>Customizing the Default Alerts:</strong></p>
+
+                <ul>
+                    <li>
+                        Go to <strong>Organization Settings</strong>.
+                    </li>
+
+                    <li>
+                        Click on <strong>Set Alert</strong>.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin15.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li>
+                        Click on <strong>Set Alert</strong> option to toggle the alert <strong>ON/OFF</strong> for any specific user, partner, or admin.
+                    </li>
+
+                    <li>
+                        Select the name of the user and set the status as <strong>On</strong> or <strong>Off</strong> from the dropdown.
+                    </li>
+
+                    <li>
+                        Once configured, click on <strong>Confirm</strong> to save the changes.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin16.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+                <ul>
+                    <li>
+                        You can also set the <strong>alert days frequency</strong> before the hearing date by following the below steps:
+                    </li>
+
+                    <li>
+                        Go to <strong>Organization Settings</strong>.
+                    </li>
+
+                    <li>
+                        Click on <strong>Set Alert</strong>.
+                    </li>
+
+                    <li>
+                        Choose <strong>Set Alert Days</strong> and a popup will open.
+                    </li>
+
+                    <li>
+                        In the popup, select the name of the user for whom the settings have to be changed.
+                    </li>
+
+                    <li>
+                        Select the days from the dropdown and click on <strong>Confirm</strong> to save the changes.
+                    </li>
+                </ul>
+                <div>
+                    <img src="~/newassets/img/UserManual/admin17.png" alt="admin Overview" class="img-fluid rounded shadow" style="max-width: 600px;">
+                </div>
+
+
+
+
+
+            </section>
+
+
+
+        </main>
+    </div>
+</div>
+
+<script>
+    function showSection(id, btn) {
+        // Hide all sections
+        var sections = document.getElementsByClassName('section');
+        for (var i = 0; i < sections.length; i++) {
+            sections[i].style.display = 'none';
+        }
+
+        // Remove 'active' class from all buttons
+        var buttons = document.getElementsByClassName('btn1');
+        for (var j = 0; j < buttons.length; j++) {
+            buttons[j].className = buttons[j].className.replace(' active', '');
+        }
+
+        // Show selected section
+        var el = document.getElementById(id);
+        if (el) el.style.display = 'block';
+
+        // Mark clicked button as active
+        if (btn) btn.className += ' active';
+
+        // 🔹 Only close accordions if NOT a sub-button
+        if (!btn.className.includes('subbtn')) {
+            var subs = document.getElementsByClassName('sub');
+            for (var k = 0; k < subs.length; k++) {
+                subs[k].style.display = 'none';
+            }
+            var collapsibles = document.getElementsByClassName('collapsible');
+            for (var l = 0; l < collapsibles.length; l++) {
+                collapsibles[l].className = collapsibles[l].className.replace(' active', '');
+            }
+        }
+    }
+
+    function toggleAccordion(accId, btn) {
+        var sub = document.getElementById('sub-' + accId);
+        if (!sub) return;
+
+        var isVisible = sub.style.display === 'block';
+
+        // Close all other accordions
+        var subs = document.getElementsByClassName('sub');
+        for (var i = 0; i < subs.length; i++) {
+            subs[i].style.display = 'none';
+        }
+
+        // Remove 'active' class from all collapsible buttons
+        var collapsibles = document.getElementsByClassName('collapsible');
+        for (var j = 0; j < collapsibles.length; j++) {
+            collapsibles[j].className = collapsibles[j].className.replace(' active', '');
+        }
+
+        // Toggle clicked one
+        if (!isVisible) {
+            sub.style.display = 'block';
+            btn.className += ' active';
+        } else {
+            sub.style.display = 'none';
+        }
+    }
+</script>
+
+<script>
+    window.onload = function () {
+        showSection('copyright', document.querySelector('.btn1[onclick*="copyright"]'));
+    };
+</script>
+
+
+@*<script>
+        (function ($) {
+            $(document).ready(function () {
+                var $sidebar = $('#sidebar');
+                if ($sidebar.length === 0) return;
+
+                function showSection(id) {
+                    $('.section').removeClass('show');
+                    $('#' + id).addClass('show');
+                }
+
+                function setActive($btn) {
+                    $('#sidebar .btn1, #sidebar .subbtn').removeClass('active');
+                    $btn.addClass('active');
+                }
+
+                // Main click handler
+                $sidebar.off('click.sidebar').on('click.sidebar', 'button', function (e) {
+                    var $btn = $(this);
+                    var target = $btn.attr('data-target');
+                    var accordion = $btn.attr('data-accordion');
+
+                    // Sub-button (child)
+                    if ($btn.hasClass('subbtn')) {
+                        if (target) {
+                            setActive($btn);
+                            showSection(target);
+                        }
+                        return;
+                    }
+
+                    // Normal button (no accordion)
+                    if (target && !$btn.hasClass('collapsible')) {
+                        setActive($btn);
+                        showSection(target);
+                        $('#sidebar .sub').removeClass('open');
+                        return;
+                    }
+
+                    // Accordion button
+                    if (accordion) {
+                        var $sub = $('#sub-' + accordion);
+                        var isOpen = $sub.hasClass('open');
+                        $('#sidebar .sub').removeClass('open');
+                        $('#sidebar .btn1.collapsible').removeClass('active');
+
+                        if (!isOpen) {
+                            $sub.addClass('open');
+                            $btn.addClass('active');
+                        }
+                    }
+                });
+            });
+        })(jQuery);
+    </script>*@
+
+
+
+
+
+
+
+
+
+
+
+

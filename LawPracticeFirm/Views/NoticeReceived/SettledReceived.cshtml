@@ -1,0 +1,523 @@
+﻿<!DOCTYPE html>
+@{
+    var role = Session["sessionroleid"];
+    var userid = Session["sessionuserid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+<script>
+    var roleid = "@role";
+     var userid = "@userid";
+    var NoticeId="@ViewBag.NoticeId";
+</script>
+<link href="~/dist/select2/css/select2.min.css" rel="stylesheet" />
+<script src="~/dist/select2/js/select2.min.js"></script>
+<link href="~/Manupanel/css/jquery.datetimepicker.css" rel="stylesheet" />
+<script src="~/Manupanel/js/daterangepicker.min.js"></script>
+<script src="~/Scripts/Notice/SettledReceived.js?2.8"></script>
+<script src="~/Scripts/Notice/commonviewmore.js?1.8"></script>
+<script src="~/Scripts/Notice/ExportToExcelNotice.js"></script>
+<style>
+    #searchnoticeTile {
+        border-box: box-sizing !important;
+        background-repeat: no-repeat !important;
+        border-bottom: 1px solid #ddd !important;
+        width: 280px;
+    }
+
+    .settingshowhide li {
+        margin-left: 10px !important;
+    }
+
+    .typeahead {
+        overflow: scroll !important;
+    }
+
+    #reminderhighlighcls td {
+        background-color: #d0f0c0;
+    }
+</style>
+<link href="~/dist/select2/css/select2.min.css" rel="stylesheet" />
+<div class="container-main">
+    <h2 class="title" id="dynamicnotiheader">Notice Received</h2>
+    <div class="row" style="margin-bottom:10px;">
+        <div class="col-md-3">
+            <input type="text" class="inputbg" id="searchnoticeTile" onkeyup="changePage(1)" placeholder="Search for Notice Title.." title="Type in a name">
+        </div>
+        <div class="col-md-9">
+            <div class="col-md-8">
+                <div class="col-md-2">Date:</div>
+                <div class="col-md-8">
+                    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%;font-size:11px;margin-left:-30px;border-radius:20px;" title="Search Notice by due date">
+                        <i class="fa fa-calendar"></i>&nbsp;
+                        <span></span> <i class="fa fa-caret-down"></i>
+                    </div>
+                    <i class="fa fa-close pull-right" style="margin: -20px 15px 0px 0px;cursor:pointer;display:none;" id="clearrange"></i>
+                </div>
+                <div class="col-md-2" style="margin-left:-35px;">
+                    <button type="button" onclick="fnsearchbydate();" class="sbtbtn">View</button>
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+            <div class="col-md-2">
+            </div>
+        </div>
+    </div>
+    <div class="table-panel table-responsive">
+        <div style="overflow-x:scroll;">
+            <label id="NotExist" style="display:none"></label>
+            <br />
+            <table id="example" class="table">
+                <thead>
+                    <tr>
+                        <th><div class="thbg"></th>
+                        <th class="noticesubject" data-column="RejoinderSubject" data-order="desc"><div class="thbg">Notice Subject &#9650</div></th>
+                        <th class="noticetitle" data-column="NoticeTitle" data-order="desc"><div class="thbg">Notice Title &#9650</div></th>
+                        <th class="statutory" data-column="NoticeType" data-order="desc"><div class="thbg">Notice Type &#9650</div></th>
+                        <th class="pending" data-column="CaseStatus" data-order="desc"><div class="thbg">Notice Status &#9650</div></th>
+                        <th width="100px;" class="servedon" data-column="DateofReceipt" data-order="desc"><div class="thbg">Date of Receipt &#9650</div></th>
+                        <th class="remark" data-column="CreateRejoinder" data-order="desc"><div class="thbg">Remarks &#x25B2</div></th>
+                        <th class="managerapprove"><div class="thbg">Status for Manager/Client</div></th>
+                        <th class="dateofserviceofnotice" data-column="DateofServiceofNotice" data-order="desc"><div class="thbg">Date of Service of Notice &#9650</div></th>
+                        <th class="modeofreceipt" data-column="ModeofReceipt" data-order="desc"><div class="thbg">Mode of Receipt &#9650</div></th>
+                        <th class="dateofrejoinder" data-column="DateofRejoinder" data-order="desc"><div class="thbg">Date of Received Notice &#9650</div></th>
+                        <th width="100px;" class="modeofdeliveryofrejoinder" data-column="ModeofDeliveryofRejoinder" data-order="desc"><div class="thbg">Mode of Receipt &#9650</div></th>
+                        <th class="rejoinderaddressedto" data-column="RejoinderAddressedto" data-order="desc"><div class="thbg">Notice Received Addressed to &#x25B2</div></th>
+                        <th class="addresseeaddress" data-column="AddresseeAddress" data-order="desc"><div class="thbg">Addressee Address &#9650</div></th>
+                        <th class="otherdetailsofaddressee" data-column="OtherDetailsofAddressee" data-order="desc"><div class="thbg">Other Details of Addressee &#9650</div></th>
+                        <th class="noticeandreplyreference" data-column="NoticeandReplyReference" data-order="desc"><div class="thbg">Notice and Reply Reference &#9650</div></th>
+                        <th class="rejoinderthrough" data-column="RejoinderThrough" data-order="desc"><div class="thbg">Notice Received Through &#9650</div></th>
+                        <th class="currentstatus" data-column="CurrentStatus" data-order="desc"><div class="thbg">Current Status &#9650</div></th>
+                        <th class="dateofcreatingrejoinder" data-column="DateofCreatingRejoinder" data-order="desc"><div class="thbg">Date of Creating &#9650</div></th>
+                        <th class="attachment"><div class="thbg">Attachment</th>
+                    </tr>
+                </thead>
+                <tbody id="Rejoindertablevalue"></tbody>
+            </table>
+        </div>
+        <div>
+            <center> <div id="rejoindernonotice"> </div></center>
+            <div class="table-panel">
+                <div class="settingpanel">
+                    <div class="col-md-6" id="footer-data">
+                        <div style="float: left;padding: 0 10px 0 0;">
+                            <ul>
+                                <li>
+                                    <div class="btn-group dropup">
+                                        <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                            Customize Fields
+                                        </a>
+                                        <ul class="dropdown-menu settingshowhide" id="od" style="width:260px; height: 250px !important; overflow-y: scroll">
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="noticesubject" checked><a href="#">Notice Subject</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="noticetitle" checked><a href="#">Notice Title</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="statutory" checked><a href="#">Notice Type</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="pending" checked><a href="#">Notice Status</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="remark" checked><a href="#">Remarks</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="managerapprove"><a>Status for Manager/Client</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="servedon"><a href="#" class="dropdown-item">Date of Receipt</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofserviceofnotice" checked><a href="#">Date of Service of Notice</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="modeofreceipt"><a href="#">Mode of Receipt</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofrejoinder"><a href="#">Date of Received Notice</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="modeofdeliveryofrejoinder"><a href="#">Mode of Receipt</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="rejoinderaddressedto"><a href="#" class="dropdown-item">Notice Received Addressed to</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="addresseeaddress"><a href="#">Addressee Address</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="otherdetailsofaddressee"><a href="#">Other Details of Addressee</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="noticeandreplyreference"><a href="#">Notice and Reply Reference</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="rejoinderthrough"><a href="#">Notice Received Through</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="currentstatus"><a href="#">Current Status</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dateofcreatingrejoinder"><a href="#">Date of Creating</a></li>
+                                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="attachment" checked><a>Attachments</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="listingTablefooter"></div>
+                    </div>
+                    <div class="col-md-6" style="padding-right:20px">
+                        <ul class="pull-right">
+                            @if (role.ToString() == "1")
+                            {
+                                <li><a href="/@Session["firmcode"]/NoticeReceived/AddReceivedNotice" class="sbtbtn" title="Create Received Notice">Add Received Notice Details</a> </li>
+                            }
+                            else
+                            {
+                                if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                                {
+                                    <li><a href="/@Session["firmcode"]/NoticeReceived/AddReceivedNotice" class="sbtbtn" title="Create Received Notice">Add Received Notice Details</a> </li>
+                                }
+                            }
+                            <li><a href="#" onclick="fnsetnotificationalert()" class="sbtbtn" title="Setting for alert">Setting</a> </li>
+                            <li><a href="#" onclick="ExportToExcelNotice('NoticeReceivedSettled')" class="sbtbtn" title="Export to Excel">Export to Excel</a> </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModallinkcase" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="closelinkmatter" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Link to matter
+                </h4>
+            </div>
+            <div class="myModallinkcase1" id="myModallinkcase1" style="margin-top:10px;">
+                <div class="modal-body">
+                    <div class="ec_bg" style="height:130px;overflow:unset !important">
+                        <div>
+                            <div class="col-md-5">
+                                <input id="selectlinktypenew" value="newmatter" name="selectlinktype" style="float:left;cursor:pointer !important" type="radio" />
+                                <label class="col-md-12" for="selectlinktypenew" style="margin-top: -15px;margin-left: 7px;">Link to New matter</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input id="selectlinktype" value="linkmatter" name="selectlinktype" style="float:left;cursor:pointer !important" type="radio" />
+                                <label class="col-md-12" for="selectlinktype" style="margin-top: -15px;margin-left: 7px;">Link to Existing matter</label>
+                            </div>
+                            <div class="col-md-2"></div>
+                        </div>
+                        <div id="dvlinktocase" style="display:none;margin-top:50px;">
+                            <div class="col-md-8">
+                                <input id="livecaseidhide" class="form-control inputFormat" type="hidden" />
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" id="mattersforlink2" class="form-control inputFormat" placeholder="Enter Matter Name" />
+                            </div>
+                            <div class="col-md-4">
+                                <button class="sbtbtn" id="savelinkmatter">Save</button>
+                            </div>
+                        </div>
+                        <div id="dvcreatecase" style="display:none;margin-top:50px;">
+                            <div class="col-md-12">
+                                <button class="sbtbtn" id="CreateNoticetoMatter">Link to  New matter</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br><br><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalNotificationsetting" class="modal fade in" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog " style="width:790px;">
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <span id="fstitle"> Notification Settings</span>
+                </h4>
+            </div>
+            <div class="modal-body" style="overflow-y:scroll;">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form class="ec_bg" id="fileupload" name="fileupload">
+                                            <table cellpadding="0" cellspacing="0" width="100%">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="col-md-6">
+                                                            <label class="formLabel colorDark">Set Notification For<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                            <select class="form-control  " onchange="fnnotificationalerttype()" id="ddlnotificationalerttype">
+                                                                <option value="individual">Individual</option>
+                                                            </select>
+                                                        </td>
+                                                        <td class="col-md-6" id="divnoticelist" style="display:none">
+                                                            <label class="formLabel colorDark">Notice<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                            <select class="form-control selctInputFormat" id="ddlnoticelist" onchange="Getdateforalertbynoticeid()"></select>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="col-md-6" id="alertbeforeincaseall">
+                                                            <label class="formLabel colorDark">Alert Condition</label><span style="color:red">*</span>
+                                                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="txtalertcondition">
+                                                                <option value="beforeduedate">Before Due Date</option>
+                                                                <option value="afterreceivedate">After Received Date</option>
+                                                            </select>
+                                                        </td>
+                                                        <td class="col-md-6">
+                                                            <label class="formLabel colorDark">Set Days</label><span style="color:red">*</span>
+                                                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="alertbeforeincaseallddl" multiple onchange="fndisplayreminder()">
+                                                                <option value="1">1</option>
+                                                                <option value="2">2</option>
+                                                                <option value="3">3</option>
+                                                                <option value="4">4</option>
+                                                                <option value="5">5</option>
+                                                                <option value="6">6</option>
+                                                                <option value="7">7</option>
+                                                                <option value="8">8</option>
+                                                                <option value="9">9</option>
+                                                                <option value="10">10</option>
+                                                            </select>
+                                                        </td>
+                                                        <td class="col-md-6" id="alertbeforeincaseindividual12" style="display:none;">
+                                                            <div class="row">
+                                                                <div class="col-md-3">
+                                                                    <label class="formLabel colorDark">Due Date : </label>
+                                                                    <input type="date" class="form-control inputFormat" id="txtduedate1" readonly />
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <label class="formLabel colorDark">Received Date : </label>
+                                                                    <input type="date" class="form-control inputFormat" id="txtreceiveddate1" readonly />
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr id="alertbeforeincaseindividual" style="display:;">
+                                                        <td class="col-md-6">
+                                                            <label class="formLabel colorDark">Due Date</label><br />
+                                                            <span id="txtduedate"></span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <br />
+                                                        <td class="col-md-6" id="remindercollection">
+                                                            <label class="formLabel colorDark">Reminder's</label><br />
+                                                            <div id="multiplereminderdiv"></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="col-md-6" style="display:none">
+                                                            <label>Alert Before<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                            <input type="text" id="txtalertbefore" class="form-control" />
+                                                        </td>
+                                                        <td class="col-md-6" style="display:none">
+                                                            <label>Due Date<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                                            <input type="date" id="txtduedate" class="form-control" />
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="sbtbtn" id="savenotificationsettings" data-type="">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ActualclosurModal" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Closure</h3>
+            </div>
+            <div class="modal-body" style="height:185px;">
+                <form class="ec_bg" enctype="multipart/form-data" novalidate="novalidate">
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <span style="color:red">*</span><label>Close Date</label>
+                            <input type="date" class="form-control inputFormat" id="dateofclosure" />
+                        </div>
+                        <div class="col-md-6">
+                            <span style="color:red">*</span><label>Notice Status</label>
+                            <select id="ddlnoticestatus" class="form-control selctInputFormat" style="background-color: white !important;">
+                                <option value="Settled">Settled</option>
+                                <option value="Convert to case">Convert to case</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12" style="margin-top:10px;">
+                            <button type="button" id="saveclosuedate" class="sbtbtn pull-right">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Delete Rejoinder Notice</h3>
+            </div>
+            <div class="ec_bg">
+                <h4>Are you sure you want to Remove this Received Notice?</h4>
+            </div>
+            <div class="modal-footer" style="border-top: none !important;">
+                <a href="#" class="sbtbtn" data-dismiss="modal">Cancel</a>
+                <a href="#" class="sbtbtn" onclick="DeleteReceivedNotice()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ViewMoreModal">
+    <div class="modal-dialog">
+        <div class="modal-content viewmore">
+            <div class="modal-header" style="background-color:#fff !important">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+            </div>
+            <div class="modal-body" style="height:350px;overflow-y: scroll;">
+                <span id="viewmorecontent"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myDocumentModal" class="modal fade myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ViewLogModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice Logs</h3>
+            </div>
+            <div class="modal-body">
+                <table class="table ">
+                    <thead>
+                        <tr>
+                            <th><div class="thbg">Sender Name</div></th>
+                            <th><div class="thbg">Receiver Name</div></th>
+                            <th><div class="thbg">Notice Sent On</div></th>
+                            <th><div class="thbg">Status</div></th>
+                            <th><div class="thbg">Feedback</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="modlbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="AssignModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Send For Approval</h3>
+            </div>
+            <div class="modal-body">
+                <div class="ec_bg">
+                    <div>
+                        <label>Send to manager</label>
+                        <input type="radio" name="assignee" value="manager" class="assignto" />
+                        <label>Send to client</label>
+                        <input type="radio" name="assignee" value="client" class="assignto" />
+                    </div>
+                    <div>
+                        <select id="bindusr" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                    </div>
+                    <br />
+                    <button type="button" id="assignnoticebtn" class="sbtbtn  pull-right" value="Save">save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="NoticeDraftModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice</h3>
+            </div>
+            <div class="modal-body">
+                <table class="table ">
+                    <thead>
+                        <tr>
+                            <th><div class="thbg">Sr no.</div></th>
+                            <th><div class="thbg">File</div></th>
+                            <th><div class="thbg">Created By</div></th>
+                            <th><div class="thbg">Created Date</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="draftnoticemodlbody"></tbody>
+                </table>
+                <center> <div id="nodraftnotice"> </div></center>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#mattersforlink2").autocomplete({
+            disabled: true
+        });
+    });
+    $('#mattersforlink2').on('keyup', function () {
+        /* your code here */
+        var txtlength = $("#mattersforlink2").val().length;
+        if (txtlength > 0) {
+        }
+        else {
+            $("#livecaseidhide,#mattersforlink2").val("");
+        }
+    });
+    $(function () {
+        $("#mattersforlink2").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/MatterFilterAutoCompleteForNotice',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            map[name] = { id: id, name: name };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#livecaseidhide").val(map[item].id);
+                return map[item].name;
+            }
+        });
+    });
+</script>

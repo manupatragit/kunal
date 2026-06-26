@@ -1,0 +1,563 @@
+﻿@{
+    Layout = null;
+}
+<style>
+    table {
+        border: 0;
+        width: 100% !important;
+    }
+</style>
+<!-- Page Content -->
+<script>
+    var emailcasedno = localStorage.getItem('emailcasedno');
+    var emailcourt = localStorage.getItem('emailcourt');
+    var emailcasename = localStorage.getItem('emailcasename');
+    var emailadv = localStorage.getItem('emailadv');
+    var emaildspdate = localStorage.getItem('emaildspdate');
+    var emailstatus = localStorage.getItem('emailstatus');
+    $("#csdno").html(emailcasedno);
+    $("#cscourt").html(emailcourt);
+    $("#cscase").html(emailcasename);
+    $("#csadv").html(emailadv);
+    $("#csdsp").html(emaildspdate);
+    $("#cssts").html(emailstatus);
+    $("#emailsubject").val("Order Detail of " + emailcasedno);
+</script>
+<script src="~/Scripts/Firm/Pages/MultipleEmailValid.js"></script>
+<script>
+    var IsReraCourt = "@ViewBag.IsReraCourt";
+    var IsRevenueCourt = "@ViewBag.IsRevenueCourt";
+    var tokencasedata = "@ViewBag.token";
+    var caseid = "@ViewBag.caseid";
+
+        var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter = "@Session["dashmatter"]";
+    function openModalload() {
+        $("#myOverlayModal").css("display", "block");
+    }
+    function closeModalload() {
+        $("#myOverlayModal").css("display", "none");
+    }
+    openModalload();
+                    CaseordersCaseWatch();
+                    function CaseordersCaseWatch() {
+                        var formData = new FormData();
+                        formData.append("id", tokencasedata);
+                        formData.append("caseid", caseid);
+                        formData.append("IsRevenueCourt", IsRevenueCourt);
+                        formData.append("IsReraCourt", IsReraCourt);
+                        //read assign using list
+                        qty1 = 0;
+                        var html = '';
+                        var CompleteForm= $.ajax({
+                            async: true,
+                            type: "POST",
+                            url: "/firm/ListCaseOrders",
+                            dataType: 'json',
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                var OrderDataDivData = "";
+                                var DisputeLandDetailsDivData = "";
+                                if (response == "") {
+                                    $("#nocaseorder").append("");
+                                    $("#OrderData").html("");
+                                    $("#DisputeLandDetails").html("");
+                                    $("#nocaseorderstatus").html("No data available.");
+                                    return false;
+                                }
+                                else {
+                                    if (String(IsRevenueCourt) == "1" && String(IsReraCourt) != "RERH") {
+                                        $.each(response, function (i, a) {
+                                            if (String(a.OrderData) != "") {
+                                                html += '<tr  scope="row">';
+                                                html += '<td>' + a.Order_Date + '</td>';
+                                                html += '<td>' + a.Status + '</td>';
+                                                html += '</tr>';
+                                                OrderDataDivData = a.OrderData;
+                                                OrderDataDivData = OrderDataDivData.replace("BOR/", "http://vaad.up.nic.in/BOR/");
+                                                DisputeLandDetailsDivData = a.DisputeLandDetails;
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        $.each(response, function (i, a) {
+                                            html += '<tr  scope="row">';
+                                            html += '<td style="text-align:center">' + a.Order_Date + '</td>';
+                                            var enableOrderNotes = "";
+                                            if (hsmklitigation == "display:unset" && dashmatter == "display:none") {
+                                                if (a.Ordernotescount>=1)
+                                                {
+                                                    //Notes Icon Changes
+                                                    enableOrderNotes = '<a class="taskoutboxbtnicon" title="Show order notes" href="Javascript:void(0)" ><span onclick="OpenOrderNotes(' + a.Id + ')"><img src="/newassets/images/ViewOrderDetails.png"/></span></a>'
+                                                }
+                                                else
+                                                {
+                                                    enableOrderNotes = '<a class="taskoutboxbtnicon" title="Show order notes" href="Javascript:void(0)" ><span onclick="OpenOrderNotes(' + a.Id + ')"><img src="/newassets/images/ViewOrderDetails.png"/></span></a>'
+                                                }
+
+                                            }
+                                            if (hsmklitigation == "display:none" && dashmatter == "display:unset") {
+                                                if (a.Ordernotescount >= 1) {
+                                                    //Notes Icon Changes
+                                                    enableOrderNotes = '<a class="taskoutboxbtnicon" title="Show order notes" href="Javascript:void(0)" ><span onclick="OpenOrderNotes(' + a.Id + ')"><img src="/newassets/images/ViewOrderDetails.png"/></span></a>'
+                                                }
+                                                else {
+                                                    enableOrderNotes = '<a class="taskoutboxbtnicon" title="Show order notes" href="Javascript:void(0)" ><span onclick="OpenOrderNotes(' + a.Id + ')"><img src="/newassets/images/ViewOrderDetails.png"/></span></a>'
+                                                }
+
+                                            }
+                                            if (a.Filename != "/") {
+                                                if (a.Filepath != "") {
+                                                    //html += '<td></td>';
+                                                    html += '<td style="display:flex; justify-content:center; border-top:none !important; "><ul class="table_action"><li><a class="taskoutboxbtnicon" href="/DownloadFile.ashx?module=caseorder&ftoken=' + a.Filepath + '" download="' + a.Filename + '" target="_blank"><img src="/newassets/img/download.svg" /></a></li><li><span title="Email Matter order" class="taskoutboxbtnicon" id="emailorder" FileName="' + a.Filename + '"  casetoken="' + caseid + '" ftoken="' + a.Filepath + '" style="cursor:pointer"><img src="/newassets/img/mail.svg"> </span></li> <li> <a class="taskoutboxbtnicon" href="#" title="View Order" Id="ViewOrders" filepath="' + a.vLocalFile + '" Filename="' + a.Filename + '"><img src="/newassets/img/eye.svg" /></a></li>' + enableOrderNotes +'</ul></td>';
+                                                }
+                                                else {
+                                                    html += '<td></td>';
+                                                    //html += '<td>' + enableOrderNotes +'</td>';
+                                                }
+                                            }
+                                            else {
+                                                html += '<td></td>';
+                                                //html += '<td>' + enableOrderNotes +'</td>';
+                                            }
+                                            html += '</tr>';
+                                            OrderDataDivData = a.OrderData;
+                                            DisputeLandDetailsDivData = a.DisputeLandDetails;
+                                        });
+                                    }
+                                    $("#bindcaseorder").append(html);
+                                    if (String(IsRevenueCourt) == "1" && String(IsReraCourt) != "RERH") {
+                                        if (OrderDataDivData == "") {
+                                            $("#OrderData").html("");
+                                        }
+                                        else {
+                                            $("#OrderData").html(OrderDataDivData);
+                                        }
+                                        if (DisputeLandDetailsDivData == "") {
+                                            $("#DisputeLandDetails").html("");
+                                        }
+                                        else {
+                                            $("#DisputeLandDetails").html(DisputeLandDetailsDivData);
+                                        }
+                                        if (OrderDataDivData == "" && DisputeLandDetailsDivData == "") {
+                                            $("#nocaseorderstatus").html("No data available.");
+                                        }
+                                        else {
+                                            $("#nocaseorderstatus").html("");
+                                        }
+                                    }
+                                }
+                            }, //End of AJAX Success function
+                            failure: function (response) {
+                                alert(data.responseText);
+                            }, //End of AJAX failure function
+                            error: function (response) {
+                                alert(data.responseText);
+                            } //End of AJAX error function
+                        });
+                        $.when(CompleteForm).then(function () {
+                            if (IsReraCourt != "1") {
+                                $("#casehistrydive").show();
+                                setTimeout(function () { CaseordershistoryCaseWatch(); }, 3000);
+                                ListCaseOrdershistoryForList();
+                            }
+                            else {
+                                $("#casehistrydive").hide();
+                                closeModalload();
+                            }
+                        })
+    }
+    //for binding CW orders list
+
+    function CaseordershistoryCaseWatch() {
+        var formData = new FormData();
+        formData.append("id", tokencasedata);
+        formData.append("caseid", caseid);
+        formData.append("IsRevenueCourt", IsRevenueCourt);
+        formData.append("IsReraCourt", IsReraCourt);
+        //read assign using list
+        qty1 = 0;
+        var html = '';
+        var completeForm=$.ajax({
+            async: true,
+            type: "POST",
+            url: "/firm/ListCaseOrdershistory",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response == "") {
+                   // $("#nocaseorder").append("");
+                    $("#bindcaseorderhistory").html("");
+                    $("#nocaseorderhistory").html("No data available.");
+                    $("#casehistrydive").hide();
+                    return false;
+                }
+                else {
+                    $("#casehistrydive").show();
+                        $.each(response, function (i, a) {
+                            html += '<tr  scope="row">';
+                            //html += '<td>' + a.JudgeName + '</td>';
+                            html += '<td>' + (a.JudgeName || '') + '</td>';
+                            if (a.vLocalFile != "")
+                            {
+                                html += '<td><a href="' + a.vLocalFile + '" target="_blank"> ' + a.BusinessDate + '</a></td>';
+                            }
+                            else
+                            {
+                                html += '<td>' + a.BusinessDate + '</td>';
+                            }
+                            //html += '<td>' + a.Hearing + '</td>';
+                            if (a.vLocalFile != "") {
+                                html += '<td><a href="' + a.vLocalFile + '" target="_blank">' + a.Hearing + '</a></td>';
+                            }
+                            else {
+                                html += '<td>' + a.Hearing + '</td>';
+                            }
+                            html += '<td>' + a.Purpose + '</td>';
+                            html += '</tr>';
+                        });
+                    $("#bindcaseorderhistory").append(html);
+                }
+            }, //End of AJAX Success function
+            failure: function (response) {
+                alert(data.responseText);
+            }, //End of AJAX failure function
+            error: function (response) {
+                alert(data.responseText);
+            } //End of AJAX error function
+        });
+        $.when(completeForm).then(function () {
+            closeModalload();
+        })
+    }
+    //Listing Details
+    function ListCaseOrdershistoryForList() {
+        var formData = new FormData();
+        formData.append("id", tokencasedata);
+        formData.append("caseid", caseid);
+        //read assign using list
+        qty1 = 0;
+        var html = '';
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/firm/ListCaseOrdershistoryForList",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response == "") {
+                    $("#bindcaseorderhistoryList").html("");
+                    $("#nocaseorderhistoryList").html("No data available.");
+                    $("#casehistrylistdive").hide();
+                    return false;
+                }
+                else {
+                    $("#casehistrylistdive").show();
+                    $.each(response, function (i, a) {
+                        html += '<tr  scope="row">';
+                        html += '<td>' + a.Order_Date + '</td>';
+                        html += '<td>' + a.Purpose + '</td>';
+                        if (a.vLocalFile != "") {
+                            html += '<td><a href="' + a.vLocalFile + '" target="_blank" style="cursor:pointer;"><img src="/newassets/img/file.svg" /></a></td>';
+                        }
+                        else {
+                            html += '<td></td>';
+                        }
+                        html += '</tr>';
+                    });
+                    $("#bindcaseorderhistoryList").append(html);
+                }
+            }, //End of AJAX Success function
+            failure: function (response) {
+                alert(data.responseText);
+            }, //End of AJAX failure function
+            error: function (response) {
+                alert(data.responseText);
+            } //End of AJAX error function
+        });
+    }
+    $(document).on("click", "#emailorder", function () {
+        var flname = $(this).attr("filename");
+        $("#attach").val("Attached document");
+        $("#hidftoken").val($(this).attr("ftoken"));
+        $("#hidctoken").val($(this).attr("casetoken"));
+            $('#test2').modal({
+                backdrop: 'static',
+                keyboard: false });
+    });
+    $(document).on("click", "#cemailorder", function () {
+        $("#test2").modal('hide');
+    });
+    try {
+        $("#senddocs").click(function () {
+            var formdata1 = new FormData();
+            var emailto = $("#emailto").val();
+            if (emailto == "") {
+                alert("Please enter the E-mail Id.");
+                return false;
+            }
+            else {
+                //if (emailto != "") {
+                //    var emailArray = emailto.split(",");
+                //    for (i = 0; i <= (emailArray.length - 1); i++) {
+                //        if (checkEmail(emailArray[i])) {
+                //            vEmails = "true";
+                //        } else {
+                //            vEmails = "false";
+                //            new PNotify({
+                //                title: 'Warning!',
+                //                text: ' Invalid email format!',
+                //                type: 'error',
+                //                delay: 3000
+                //            });
+                //        }
+                //    }
+                //}
+                vEmails = "true";
+            }
+            if (vEmails == "" || vEmails == "true") {
+                formdata1.append("email", EncodeText(emailto));
+                formdata1.append("casetoken", EncodeText($("#hidctoken").val()));
+                formdata1.append("ftoken", EncodeText($("#hidftoken").val()));
+                formdata1.append("mailfilename", EncodeText($("#attach").val()));
+                formdata1.append("mailbody", EncodeText($("#emailbody").html()));
+                formdata1.append("mailsubject", EncodeText($("#emailsubject").val()));
+                $.ajax({
+                    async: true,
+                    url: '/firm/Sendcaseorderfile',
+                    data: formdata1,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (response) {
+                        new PNotify({
+                            title: 'Success!',
+                            text: ' Matter order has been sent successfully',
+                            type: 'success',
+                            delay: 3000
+                        });
+                        $("#emailto").val("");
+                    },
+                    error: function () {
+                    }
+                });
+            }
+        });
+    }
+    catch (er) {
+       // alert(er.message);
+    }
+    //for open ifrmae
+    $(document).off("click", "#ViewOrders").on("click", "#ViewOrders", function () {
+        var link = $(this).attr("filepath");
+        window.open(link);
+    });
+
+
+</script>
+@if (ViewBag.IsRevenueCourt == "1" && ViewBag.IsReraCourt != "RERH")
+{
+    <div class="modal-header btn-primary">
+        <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+        <h4 class="ctitle">
+            Revenue Case Details
+        </h4>
+    </div>
+    <div class="modal-body " style="height:400px;">
+        <!-- Main content -->
+        <div id="content">
+            <div class="table-panel table-responsive">
+                <table id="" class=" table " cellspacing="0" width="100%" style="font-size:13px;display:none">
+                    <thead style=" text-align:center;">
+                        <tr>
+                            <th scope="col"><div class="thbg">Order Date</div></th>
+                            <th scope="col"><div class="thbg">Status</div></th>
+                        </tr>
+                    </thead>
+                    <tbody style="text-align:center;" id="bindcaseorder"></tbody>
+                </table>
+                <center> <div id="nocaseorder" style="display:none"> </div></center>
+                <div class="thbg" style="display:none">Order Data</div>
+                <div id="OrderData" style="text-align:center;padding:5px">
+                </div>
+                <div class="thbg" style="clear:both;display:none"> Dispute Land Details</div>
+                <div id="DisputeLandDetails" style="text-align:center;padding:5px">
+                </div>
+                <center> <div id="nocaseorderstatus"> </div></center>
+            </div>
+        </div>
+        <!-- /.content -->
+    </div>
+}
+else
+{
+    <div class="modal-header btn-primary">
+        <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+        <h4 class="ctitle">
+            Court Orders
+        </h4>
+        <ul class="snav nav nav-pills" style="border-bottom: none;"
+>
+            <li class="active"  style="border-bottom: none;"><a data-toggle="pill" href="#courtorder">Court Orders</a></li>
+            <li id="casehistrydive"><a data-toggle="pill" href="#courtorder1">Case History</a></li>
+            <li id="casehistrylistdive"><a data-toggle="pill" href="#courtorder2">Listing Details</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="courtorder" class="tab-pane fade in active">
+                <div class="table-panel table-responsive">
+                    <table id="" class=" table " cellspacing="0" width="100%" style="font-size:13px;">
+                        <thead>
+                            <tr>
+                                <th scope="col"><div class="thbg" style="text-align:center;">Order Date</div></th>
+                                <th scope="col"><div class="thbg" style="display:flex; justify-content:center;">Action</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="bindcaseorder"></tbody>
+                    </table>
+                    <center> <div id="nocaseorder"> </div></center>
+                </div>
+            </div>
+            <div id="courtorder1" class="tab-pane fade">
+                <div class="table-panel table-responsive">
+                    <table id="" class=" table " cellspacing="0" width="100%" style="font-size:13px;">
+                        <thead>
+                            <tr>
+                                <th scope="col"><div class="thbg">Judge Name</div></th>
+                                <th scope="col"><div class="thbg">Business Date</div></th>
+                                <th scope="col"><div class="thbg">Hearing</div></th>
+                                <th scope="col"><div class="thbg">Purpose</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="bindcaseorderhistory"></tbody>
+                    </table>
+                    <center> <div id="nocaseorderhistory"> </div></center>
+                </div>
+            </div>
+            <div id="courtorder2" class="tab-pane fade">
+                <div class="table-panel table-responsive">
+                    <table id="" class=" table " cellspacing="0" width="100%" style="font-size:13px;">
+                        <thead>
+                            <tr>
+                                <th scope="col"><div class="thbg">Date</div></th>
+                                <th scope="col"><div class="thbg">Details</div></th>
+                                <th scope="col"><div class="thbg">URL</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="bindcaseorderhistoryList"></tbody>
+                    </table>
+                    <center> <div id="nocaseorderhistoryList"> </div></center>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div id="test2" class="modal fade" role="dialog" data-backdrop="static" style="clear:both;">
+    <div class="modal-dialog" style="max-width:500px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="cemailorder">&times;</button>
+                <h4 class="ctitle">
+                    Email Matter Order
+                </h4>
+            </div>
+            <div class="modal-body" sstyle="height:450px;">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div style="padding:0 10px;">
+                                    <div>
+                                        <div class="form-group row">
+                                            <label class="control-label col-md-4" style="background: #f5f5f5;padding: 3px 9px; font-weight:400 !important;">To <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-8">
+                                                <input class="form-control inputFormat " name="subject" type="text" id="emailto" placeholder="Email Id" required="" style="border-radius: 0 !important;border: 1px solid #ededed !important;height: 25px !important;">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="control-label col-md-4" style="background: #f5f5f5;padding: 3px 9px; font-weight:400 !important;">Subject <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-8">
+                                                <input class="form-control inputFormat" name="subject" type="text" id="emailsubject" placeholder="Subject" required="" disabled style="border-radius: 0 !important;border: 1px solid #ededed !important;height: 25px !important;">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="control-label col-md-4" style="background: #f5f5f5;padding: 3px 9px; font-weight:400 !important;">Attachment <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-8">
+                                                <input class="form-control inputFormat" name="subject" type="text" id="attach" placeholder="Attachment" required="" disabled style="border-radius: 0 !important;border: 1px solid #ededed !important;height: 25px !important;">
+                                            </div>
+                                        </div>
+                                        <div id="emailbody" style="clear: both;padding: 10px 0 0 0;">
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-4" style="padding: 3px 9px; font-weight:400 !important;">Matter/ Diary No. <span style="float:right;">:</span></label>
+                                                <div class="col-md-8">
+                                                    <span id="csdno"></span>
+
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-4" style="padding: 3px 9px; font-weight:400 !						important;">Court <span style="float:right;">:</span></label>
+                                                <div class="col-md-8">
+                                                    <span id="cscourt"></span>
+
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-4" style="padding: 3px 9px; font-weight:400 !									important;">Matter Name <span style="float:right;">:</span></label>
+                                                <div class="col-md-8">
+                                                    <span id="cscase"></span>
+
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-4" style="padding: 3px 9px; font-weight:400 !									important;">Advocate <span style="float:right;">:</span></label>
+                                                <div class="col-md-8">
+                                                    <span id="csadv"></span>
+
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-4" style="padding: 3px 9px; font-weight:400 !									important;">Status <span style="float:right;">:</span></label>
+                                                <div class="col-md-8">
+                                                    <span id="cssts"></span>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group form-horizontal" style=" display: flex; justify-content: end;">
+                                            
+                                            <button type="button" class="btn btn-primary" id="senddocs">Send</button>
+
+                                        </div>
+                                        <input type="hidden" id="hidftoken">
+                                        <input type="hidden" id="hidctoken">
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myOverlayModal" class="overlay" style="z-index:10005">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+

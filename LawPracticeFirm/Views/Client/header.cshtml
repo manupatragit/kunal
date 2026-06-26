@@ -1,0 +1,1162 @@
+﻿@{
+    Layout = null;
+    var firmcode121 = Session["FirmCode"];
+}
+@using QueryStringEDAES;
+@{
+
+    Session["dashdocument"] = @ViewBag.hsdocument;
+    Session["dashmatter"] = @ViewBag.hsmatter;
+    Session["dashcontact"] = @ViewBag.hscontact;
+    Session["dashtimeentry"] = @ViewBag.hstimeentry;
+    Session["dashinvoice"] = @ViewBag.hsinvoice;
+    Session["dashchat"] = @ViewBag.hschat;
+    Session["dashtask"] = @ViewBag.hstask;
+    Session["hscfield"] = @ViewBag.hscfield;
+    Session["dashcalendar"] = @ViewBag.hscalendar;
+    Session["dashlimit"] = @ViewBag.hslimit;
+    Session["dashexpense"] = @ViewBag.hsexpense;
+    Session["dashuser"] = @ViewBag.hsuser;
+    Session["dashcw"] = @ViewBag.hscw;
+    Session["hsknowledge"] = @ViewBag.hsknowledge;
+    Session["hsrights"] = @ViewBag.hsrights;
+    Session["hsnotice"] = @ViewBag.hsnotice;
+    Session["IsCWActive"] = @ViewBag.IsCWActive;
+}
+
+<script>
+       var dashcalendar = "@Session["dashcalendar"]";
+    var dashmatter = "@Session["dashmatter"]";
+    var dashcontact = "@Session["dashcontact"]";
+    var dashtimeentry = "@Session["dashtimeentry"]";
+    var dashinvoice = "@Session["dashinvoice"]";
+    var dashtask = "@Session["dashtask"]";
+    var dashchat = "@Session["dashchat"]";
+    var dashdocument = "@Session["dashdocument"]";
+    var dashlimit = "@Session["dashlimit"]";
+    var hscfield = "@Session["hscfield"]";
+     var dashexpense = "@Session["dashexpense"]";
+    var dashuser = "@Session["dashuser"]";
+    var dashcw = "@Session["dashcw"]";
+    var dashknow = "@Session["hsknowledge"]";
+    var dashrights= "@Session["hsrights"]";
+    var dashnotice= "@Session["hsnotice"]";
+
+      var IsCWActive ="@Session["IsCWActive"]";
+         var loadsidemenus = localStorage.getItem("loadsidemneuadmin");
+
+            var pathArray = window.location.pathname.split('/');
+            var segment_1 = pathArray[1];
+
+            //var fcodes = localStorage.setItem("FirmCode", segment_1);
+            localStorage.setItem("FirmCode", "@Session["FirmCode"]");
+             //alert(localStorage.getItem("FirmCode"));
+          var fcodes = "@Session["FirmCode"]";
+
+    var sideclienth = "Prospect/Client";
+    var createchild = "Add Client";
+    var viewchild = "Client List";
+    var clientlable = "Client";
+    //alert( @Session["firmtype"]);
+   // var condt = @Session["firmtype"]!= null ? @Session["firmtype"] :"";
+    @{
+        Session["caclientlable"] = "Client";
+        var caclientlable = "Clients";
+        if (Session["firmtype"] != null)
+        {
+            if (Session["firmtype"].ToString() == "3")
+            {
+
+                Session["caclientlable"] = "Lawyer/LawFirm";
+            }
+            else
+            {
+                Session["caclientlable"] = "Client";
+            }
+        }
+      }
+
+</script>
+
+
+<script>
+    var pageindex = 1, pagesize = 10;
+    $(document).ready(function () {
+        LogoPath();
+       // notification();
+
+        var tatalRecordCount = 1;
+         function notification(pageindex) {
+            var formdata = new FormData();
+            formdata.append("pageindex", pageindex);
+            formdata.append("pagesize", pagesize);
+            $.ajax({
+                async: true,
+                url: "/api/callApi/FirmNotifications",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    debugger;
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        // alert(datas);
+
+                    }
+                    else {
+                        //alert("not found");
+                    }
+                    //alert(response.Data.length);
+                    if (response.Data.length > 0) {
+                        $("#bndClientNotDiv").show();
+                        $("#pClientdatastatus").hide();
+                        $("#not1").hide();
+                        $("#not2").show();
+                    }
+                    else {
+                        $("#bndClientNotDiv").hide();
+                        $("#pClientdatastatus").show();
+                        $("#not2").hide();
+                        $("#not1").show();
+                    }
+                    var html34 = '';
+                    var length = response.Data.length;
+                    $("#cnotifooter").html("");
+                    $.each(response.Data, function (i, std) {
+                        if (i === 0) {
+                            firstvalue = std.rownum;
+                        }
+                        var totdata = std.totRow;
+                        var totpage = 0;
+                        if (i === (length - 1)) {
+                            totpage = parseInt(totdata) / parseInt(pagesize);
+                            if (parseInt(totdata) % parseInt(pagesize) != 0) {
+                                totpage = parseInt(totpage) + 1;
+                            }
+                            if (pageindex == totpage) {
+                                $('#nextClient').hide();
+                                $('#prevClient').css("display", "block");
+                            }
+                            else {
+                                $('#nextClient').css("display", "block");
+                            }
+                            if (pageindex == 1) {
+                                $('#prevClient').css("display", "none");
+                            }
+                            else {
+                                $('#prevClient').css("display", "block");
+                            }
+
+                            if (isRenderPage == false) {
+                                tatalRecordCount = totpage;
+                                renderPagination(pageindex, totpage);
+                            }
+                        //  alert(std.ntype);
+                        //if (i === 0) {
+
+                        //    firstvalue = std.rownum;
+
+                        //}
+                        //if (i === (length - 1)) {
+                        //    var pnext = pageindex;
+                        //    var pprev = pageindex;
+                        //    var pageno = pageindex;
+
+                        //    var totdata = std.totRow;
+                        //    var totpage = 0;
+                        //    if (std.totRow > 0) {
+                        //        pnext = parseInt(pnext) + 1;
+                        //        if (pnext == 0) pnext = 1;
+
+                        //        pprev = parseInt(pageno) - 1;
+                        //        if (pprev == 0) pprev = 1;
+                        //        totpage = parseInt(totdata) / parseInt(pagesize);
+
+                        //        if (parseInt(totdata) % parseInt(pagesize) != 0) {
+                        //            totpage = parseInt(totpage) + 1;
+                        //        }
+
+                        //        $("#pagnumvalue").attr("max", totpage);
+
+                        //    }
+
+                        //    var tfot = '';
+                        //    $("#exportrecords").val(std.totRow);
+                        //    tfot += '<ul>'
+                        //    tfot += '<li>results <span>' + std.totRow + '</span>  <span id="psotopage" style="display:none">' + totpage + '</span></li>'
+
+                        //    tfot += '<li><span>|</span></li>'
+                        //    tfot += '<li>pages ' + pageindex + '/ ' + parseInt(totpage) + '</li>'
+                        //    tfot += '<li><span>|</span></li>'
+                        //    tfot += '<li ><input type="number" id="ppagnumvalue" min="1" class="footerInput" style="background:#fff !important;"><a class="gobtn" type="button" id="pgetdatabypagenumnoti" style="margin-left:10px;cursor:pointer">Go</a></button> </li>'
+
+                        //    if (std.totRow <= length) {
+
+                        //    }
+                        //    else if (pageno == 1) {
+
+                        //    }
+                        //    else if (pageno == totpage) {
+                        //        tfot += '<li><span><a id="ppaginatenoti"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png"></a></span>  ' + firstvalue + '-' + std.rownum + '  <span>'
+                        //    }
+
+                        //    else {
+                        //        tfot += '<li><span><a id="ppaginatenoti"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png" > </a></span>  ' + firstvalue + '-' + std.rownum + '  <span>'
+                        //    }
+
+                        //    if (pageno < totpage) {
+                        //        tfot += '<a  id="ppaginatenoti" title="Next Page" href="javascript:void()" index="' + pnext + '"  ><img src="/newassets/images/arrow_right.png" style="padding:3px 0 0 0;"></a ></span ></li >'
+                        //    }
+                        //    tfot += '</ul>'
+                        //    $("#cnotifooter").append(tfot);
+                        //    // closeload();
+                        }
+                        var linkpage23 = "";
+                        var recentlabel23 = "";
+                        html34 += '<tr>';
+                        var firm = localStorage.getItem("FirmCode");
+                        if (std.ntype == "Matter") {
+                            linkpage23 = "/" + firm + "/firm/mattersingleview/";
+                        }
+                        else if (std.ntype == "Contact") {
+                            linkpage23 = "/" + firm + "/firm/Contactsingleview/";
+                        }
+                        else if (std.ntype == "File") {
+                            linkpage23 = "/" + firm + "/Employee/AssignUserFileList";
+                        }
+                        else if (std.ntype == "Workflow") {
+                            linkpage23 = "/" + firm + "/firm/WorkFlowNUserActivity";
+                        }
+                        else if (std.ntype == "Call") {
+                            linkpage23 = "/" + firm + "/firm/Callsingleview/";
+                        }
+                        else if (std.ntype == "Note") {
+                            linkpage23 = "/" + firm + "/firm/notesingleview/";
+                        }
+                        else if (std.ntype == "Task") {
+                            linkpage23 = "/" + firm + "/firm/tasksingleview/";
+                        }
+                        else if (std.ntype == "Event") {
+                            linkpage23 = "/" + firm + "/firm/eventsingleview/";
+                        }
+                        else if (std.ntype == "Lead") {
+                            linkpage23 = "/" + firm + "/firm/LeadSingleView/";
+                        }
+                        else if (std.ntype == "User") {
+                            linkpage23 = "/" + firm + "/firm/UserList/";
+                        }
+                        else if (std.ntype == "TimeEntry") {
+                            linkpage23 = "/" + firm + "/firm/ViewTimer/";
+                        }
+                        else if (std.ntype == "CustomForm") {
+                            linkpage23 = "/" + firm + "/firm/ViewCustomForm/";
+                        }
+                        else if (std.ntype == "cactivity") {
+                            linkpage23 = "/" + firm + "/firm/CustomActivitySingleView";
+                        }
+                        else if (std.ntype == "MatterDelete") {
+                            linkpage23 = "/" + firm + "/firm/caselistarchive/";
+                        }
+                        if (std.ntype == "Matter") {
+                            recentlabel23 = "Case";
+                        }
+                        else {
+                            recentlabel23 = std.ntype;
+                        }
+                         if (std.ntype == "Workflow") {
+                            linkpage23 = "/" + firm + "/firm/WorkFlowNUserActivity";
+                        }
+                        else if (std.ntype == "aknow") {
+
+                        }
+                         else {
+                            if (std.status == "1") {
+                                if (String(std.notification).length > 40) {
+                                    var notificationsdata = String(std.notification).substring(0, 40)+"...";
+                                }
+                                else {
+                                    var notificationsdata =std.notification;
+                                }
+                                html34 += '<td><p style="float:left; width:6%;"><span id="bellcolor' + std.Nid + '" ><img src="/newassets/img/noti-green.png" /></span></p><a href="javascript:void()" onclick=loadnotifi("' + linkpage23 + '","' + std.typeid + '","' + std.Nid + '","' + std.ntype + '") id="datalinking" data-link23="' + linkpage23 + '" data-val23="' + std.typeid + '" style="float:left;cursor:pointer; width:90%;" title="' + std.notification + '"><p style="float:left">' + notificationsdata +'</p></a></td>';
+                                html34 += '<td>' + formatDatetoIST(std.date_time) + '</td>';
+                                html34 += '<td><span Id="UnReadnoti" idds="' + std.Nid + '"" style="cursor: pointer;font-size:13px;" title="mark as unread"><img src="/newassets/img/unread-icon.png" /></span></a></a> <span id="deleteNotisingle" style="cursor: pointer;" title="Mark Notification For Deletion" is-delete="' + std.Nid + '""><img src="/newassets/img/deletecasesingle-icon.png" /></span></td>';
+                               // html34 += '<li class="notification"><div style="width:100% !important; margin-left: -11px;"><p style="float:left">&nbsp;&nbsp;&nbsp;<i style="font-size:15px;  color:#85d000 !Important"  id="bellcolor' + std.Nid + '" class="glyphicon glyphicon-bell"></i></p><p style="float:left"><a href="javascript:void()" onclick=loadnotifi("' + linkpage23 + '","' + std.typeid + '","' + std.Nid + '","' + std.ntype +'") id="datalinking" data-link23="' + linkpage23 + '" data-val23="' + std.typeid + '" style="color:black; font-size:10px;padding:0 0 0 6px; width:100%;" title="' + std.notification + '">' + notificationsdata+ '(' + formatDatetoIST(std.date_time) + ')</a></p></div></li>';
+                            }
+                            else {
+
+                              if (std.ntype =="AssignTeamMember") {
+
+                                  html34 += '<td><p style="float:left"><span  id="bellcolor' + std.Nid + '" class=""><img src="/newassets/img/noti-org.png" /></span></p><a href="/@firmcode121/firm/personaldashboard"  style="color:#477970e6; font-size:10px;padding:0 0 0 6px; width:100%;font-weight:bold;cursor:pointer;"><p style="float:left">You have Case assign Request</p></a></td>';
+                                  html34 += '<td>' + formatDatetoIST(std.date_time) + '</td>';
+                                  html34 += '<td><span class="glyphicon glyphicon-check" Id="Readnoti" idds="' + std.Nid + '"" style="color: black; cursor: pointer;font-size:13px;" title="View"></span></a></a>|<span class="glyphicon glyphicon-trash" id="deleteNotisingle" style="color: black; cursor: pointer;" title="Mark Notification For Deletion" is-delete="' + std.Nid + '""></span></td>'
+                                 // html34 += '<li class="notification" ><div style="width:100% !important; margin-left: -11px;"><p style="float:left">&nbsp;&nbsp;&nbsp;<i style="font-size:15px; color:#e39d05" id="bellcolor' + std.Nid +'" class="glyphicon glyphicon-bell"></i></p><p style="float:left"><a href="/@firmcode121/firm/personaldashboard"  style="color:#477970e6; font-size:10px;padding:0 0 0 6px; width:100%;font-weight:bold">You have Case assign Request (' + formatDatetoIST(std.date_time) + ')</a></p></div></li>';
+                                }
+                              else {
+                                  if (String(std.notification).length > 40) {
+                                      var notificationsdata = String(std.notification).substring(0, 40) + "...";
+                                  }
+                                  else {
+                                      var notificationsdata = std.notification;
+                                  }
+                                  html34 += '<td><p style="float:left"><span  id="bellcolor' + std.Nid + '" ><img src="/newassets/img/noti-org.png" /></span></p><a href="javascript:void()" onclick=loadnotifi("' + linkpage23 + '","' + std.typeid + '","' + std.Nid + '","' + std.ntype + '") id="datalinking" data-link23="' + linkpage23 + '" data-val23="' + std.typeid + '" style="cursor:pointer;" title="' + std.notification + '"><p style="float:left">' + notificationsdata +'</a></p></td>';
+                                  html34 += '<td>' + formatDatetoIST(std.date_time) + '</td>';
+                                  html34 += '<td><span Id="Readnoti" idds="' + std.Nid + '"" style="color: black; cursor: pointer; font-size:13px;" title="Mark as read"><img src="/newassets/img/read-icon.png" /></span></a> <span class="" id="deleteNotisingle" style="cursor: pointer;" title="Mark Notification For Deletion" is-delete="' + std.Nid + '""><img src="/newassets/img/deletecasesingle-icon.png" /></span></td>'
+                                //  html34 += '<li class="notification"><div style="width:100% !important; margin-left: -11px;"><p style="float:left">&nbsp;&nbsp;&nbsp;<i style="font-size:15px; color:#e39d05" id="bellcolor' + std.Nid + '" class="glyphicon glyphicon-bell"></i></p><p style="float:left"><a href="javascript:void()" onclick=loadnotifi("' + linkpage23 + '","' + std.typeid + '","' + std.Nid + '","' + std.ntype + '") id="datalinking" data-link23="' + linkpage23 + '" data-val23="' + std.typeid + '" style="color:black; font-size:10px;padding:0 0 0 6px; width:100%;" title="' + std.notification + '">' + notificationsdata + '(' + formatDatetoIST(std.date_time) + ')</a></p></div></li>';
+                                }
+                            }
+                        }
+                    });
+                    $("#bindnotificationdata").html("").html(html34);
+                },
+
+                failure: function (response) {
+                  //  alert(data.responseText);
+                },
+                error: function (response) {
+                   // alert(data.responseText);
+                }
+
+            });
+        }
+        /*Pagination Start*/
+        var isRenderPage = false;
+        var totalPageRec = "";
+        function renderPagination(pageindex, totdata) {
+            let totPages = totdata;
+            setPageNo = pageindex;
+            totalPageRec = totdata;
+            let paginationHtml = '';
+            let maxVisible = 4; // Visible page numbers before ellipsis
+            if (totdata <= maxVisible + 2) {
+                for (let i = 1; i <= totPages; i++) {
+                    paginationHtml += `<button type="button" class="page-btnClient ${i === pageindex ? 'active' : ''}" data-page="${i}">${i}</button>`;
+                }
+            } else {
+                if (pageindex <= maxVisible) {
+                    for (let i = 1; i <= maxVisible; i++) {
+                        paginationHtml += `<button type="button" class="page-btnClient ${i === pageindex ? 'active' : ''}" data-page="${i}">${i}</button>`;
+                    }
+                    paginationHtml += `<span>.......</span>`;
+                    for (let j = totPages - 3; j <= totPages; j++) {
+                        paginationHtml += `<button type="button" class="page-btnClient ${j === pageindex ? 'active' : ''}" data-page="${j}">${j}</button>`;
+                    }
+                }
+            }
+            $("#pageNumbersClient").html(paginationHtml);
+            $("#prevClient").toggleClass("disabled", pageindex === 1);
+            $("#nextClient").toggleClass("disabled", pageindex === totdata);
+            isRenderPage = true;
+        }
+
+
+        var setPageNo = 1;
+        $(document).on("click", ".page-btnClient", function () {
+            let page = $(this).data("page");
+            setPageNo = page;
+            //if (page) changePage(page);
+            loadflag = true;
+            isRenderPage = true;
+            $("#txtgopageClient").val("");
+            notification(setPageNo);
+            $(".page-btnClient").removeClass("active");
+            $(".page-btnClient[data-page='" + setPageNo + "']").addClass("active");
+        });
+        $(document).on("click", "#prevClient", function () {
+
+            if (setPageNo > 1) {
+                setPageNo = setPageNo - 1;
+            }
+            loadflag = true;
+            isRenderPage = true;
+            $("#txtgopageClient").val("");
+            notification(setPageNo);
+            $(".page-btnClient").removeClass("active");
+            $(".page-btnClient[data-page='" + setPageNo + "']").addClass("active");
+        });
+        $(document).on("click", "#nextClient", function () {
+            if (setPageNo => 1) {
+                setPageNo = setPageNo + 1;
+            }
+            loadflag = true;
+            isRenderPage = true;
+            $("#txtgopageClient").val("");
+            notification(setPageNo);
+            $(".page-btnClient").removeClass("active");
+            $(".page-btnClient[data-page='" + setPageNo + "']").addClass("active");
+        });
+        $(document).on("click", "#divGoClient", function () {
+            let goToPage = parseInt($("#txtgopage").val());
+            if (!isNaN(goToPage)) {
+                setPageNo = goToPage;
+            }
+            if (goToPage > tatalRecordCount) {
+                alert("Please enter a valid page number.");
+                setPageNo = 1;
+                return false;
+            }
+            loadflag = true;
+            isRenderPage = true;
+            notification(setPageNo);
+            $(".page-btnClient").removeClass("active");
+            $(".page-btnClient[data-page='" + setPageNo + "']").addClass("active");
+        });
+
+    /*Pagination End*/
+        //For Binding the Notification Value
+        $("#clkcountnotify").click(function () {
+            notification(pageindex);
+            $("#myModalNotificationdata ").modal('show');
+
+        });
+        //for paging
+        $(document).on('click', '#ppaginatenoti', function () {
+            ppageindex = $(this).attr("index");
+            notification(ppageindex);
+        });
+        $(document).on('click', '#pgetdatabypagenumnoti', function () {
+            ppageindex = $("#ppagnumvalue").val();
+            if (ppageindex != "undefined") {
+                if (Math.sign(ppageindex) == 1) {
+                    var ppageindesx = $("#psotopage").text();
+                    if (ppageindex <= parseInt(ppageindesx)) {
+                        notification(ppageindex);
+                    }
+                    else {
+                        alert("Please enter a valid page number.");
+                        closeload();
+                    }
+                }
+                else {
+                    alert("Please enter a valid page number.");
+                }
+            }
+        });
+
+        //Remove Notifications single
+        $(document).on('click', '#deleteNotisingle', function () {
+            var Notificationid = $(this).attr("is-delete");
+            deletenotifications(Notificationid, "");
+        });
+        //Remove Notifications bulk
+        $(document).on('click', '#clearallnoti', function () {
+            deletenotifications("", "1");
+        });
+        //Notification delete single/bulk
+        function deletenotifications(Notificationid, deleteflag) {
+            var formdata = new FormData();
+            formdata.append("id", Notificationid);
+            formdata.append("deleteflag", deleteflag);
+            var result = confirm("Are you sure to remove notification?");
+            if (result) {
+                $.ajax({
+                    async: true,
+                    url: "/api/callApi/RemoveNotificationStatus",
+                    data: formdata,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.Data >= 1) {
+                            alert("Notification deleted successfully.");
+                            notification(1);
+                        } else {
+                            alert("Something went wrong please try again later.");
+                        }
+                    },
+
+                    failure: function (response) {
+                        //alert(data.responseText);
+                    },
+                    error: function (response) {
+                        //alert(data.responseText);
+                    }
+
+                });
+            }
+        }
+        //For Mark  Read Notification single
+        $(document).on('click', '#Readnoti', function () {
+            var ids = $(this).attr("idds");
+            Readnotifi(ids, "");
+        });
+        //For Mark Notification UnRead
+        $(document).on('click', '#UnReadnoti', function () {
+            var ids = $(this).attr("idds");
+            Readnotifi(ids, "2");
+        });
+        //For Mark  Read Notification bulk
+        $(document).on('click', '#Allreadnoti', function () {
+            Readnotifi("", "1");
+        });
+
+        //For Read single/bulk Notification
+        function Readnotifi(ids, Isreadflag) {
+            var formdata = new FormData();
+            formdata.append("id", ids);
+            formdata.append("Isreadflag", Isreadflag);
+            $.ajax({
+                async: true,
+                url: "/api/callApi/UpdateNotificationStatus",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    headercount();
+                    notification(1);
+                    //  $("#bellcolor" + c).css("color", "#85d000");
+                },
+
+                failure: function (response) {
+                    //alert(data.responseText);
+                },
+                error: function (response) {
+                    //alert(data.responseText);
+                }
+
+            });
+            // window.location = url1 + enctype(uid1);
+        }
+
+    });
+    headercount();
+    function headercount() {
+
+
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/FirmHeaderData",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    //alert(datas);
+                }
+                else {
+                    //alert("not found");
+                }
+                $.each(response.Data, function (i, a) {
+
+                    $("#countmessage").text(a.countmessage);
+                    $("#countnotify").text(a.countnotify);
+                });
+                //console.log(response);
+            },
+            failure: function (response) {
+                alert(data.responseText);
+            },
+            error: function (response) {
+                if (String(response.responseJSON.Message) == "SessionTimeOut") {
+                    alert("Your session has expired, please log out and then login again");
+
+                    window.location.href = location.protocol + '//' + location.host;
+                }
+                else {
+                    alert(response.responseText);
+                }
+            }
+
+        });
+    }
+    function loadnotifi(a, b, c, d) {
+        var url1 = a;
+        var uid1 = b;
+        var formdata = new FormData();
+        formdata.append("id", c);
+        formdata.append("Isreadflag", "");
+
+        $.ajax({
+            async: true,
+            url: "/api/callApi/UpdateNotificationStatus",
+            data: formdata,
+            processData: false,
+            contentType: false,
+            type: 'POST',
+            success: function (response) {
+                headercount();
+
+                $("#bellcolor" + c).css("color", "#85d000");
+                var fcode = localStorage.getItem("FirmCode");
+                 if (d == "SharedDoc") {
+                    var urls = "/" + fcode + "/azure/AssignUserFileList";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+                else if (d == "SentCommunication") {
+                    var urls = "/" + fcode + "/Firm/NewCaseDashboard?type=SentCommunication";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: { token: b }
+                    });
+                 }
+                 else if (d == "InvoiceShare") {
+                     var urls = "/" + fcode + "/Firm/NewCaseDashboard?type=Invoice";
+                     url_redirect({
+                         url: urls,
+                         method: "post",
+                         data: { token: b }
+                     });
+                 }
+                 else if (d == "ChatNotification") {
+                     var urls = "/" + fcode + "/Chat/InvitedChat";
+                     url_redirect({
+                         url: urls,
+                         method: "post",
+                         data: {}
+                     });
+                 }
+
+            },
+
+            failure: function (response) {
+                alert(data.responseText);
+            },
+            error: function (response) {
+                alert(data.responseText);
+            }
+
+        });
+
+    }
+    function LogoPath() {
+
+
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/LogoPath",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+
+
+
+                if (response.Data != "") {
+                    $("#firmlogosrc").attr("src", response.Data)
+                    $("#firmlogolink").show();
+                    $("#sidebarnav").css("margin-top", "0px");
+                    $("#navheaderpostion").css("float", "unset");
+
+                }
+                else {
+                    $("#firmlogolink").hide();
+                    $("#sidebarnav").css("margin-top", "38px");
+                    $("#navheaderpostion").css("float", "left");
+                }
+
+
+
+                //console.log(response);
+            },
+
+            failure: function (response) {
+                alert(data.responseText);
+            },
+            error: function (response) {
+
+
+                if (String(response.responseJSON.Message) == "SessionTimeOut") {
+                    alert("Your session has expired, please log out and then login again");
+
+                    window.location.href = location.protocol + '//' + location.host;
+                }
+                else {
+                    alert(response.responseText);
+                }
+            }
+
+        });
+    }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+
+<link href="~/Manupanel/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="~/newassets/css/style.css?3.6" rel="stylesheet" />
+<link href="~/newassets/css/custom.css?3.3" rel="stylesheet" />
+<link href="~/newassets/css/flipcard.css?1.5" rel="stylesheet" />
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script src="~/Scripts/AES.js"></script>
+<link href="~/newassets/css/style_new.css" rel="stylesheet" />
+<link href="~/newassets/css/pagination.css" rel="stylesheet" />
+<style>
+    #bindnotificationdata a {
+        color: #1F2937;
+    }
+</style>
+<header id="header" class="header fixed-top d-flex align-items-center" style="display:none;">
+    <div class="d-flex align-items-center justify-content-between">
+        <a href="index.html" class="logo d-flex align-items-center">
+            <img src="/newassets/img/logo.png" alt="">
+        </a>
+        <i class="bi bi-list toggle-sidebar-btn"></i>
+    </div><!-- End Logo -->
+     @{
+        var userfullname = @Session["fullusername"];
+    }
+    @{
+        if (userfullname != null)
+        {
+            if (userfullname.ToString().Length > 12)
+            {
+                userfullname = Convert.ToString(userfullname).Replace("&amp;", "&").Substring(0, 12) + "...";
+            }
+            else
+            {
+                userfullname = Convert.ToString(userfullname).Replace("&amp;", "&");
+            }
+        }
+    }
+    <nav class="header-nav ms-auto">
+        <ul class="d-flex align-items-center">
+            <li class="nav-item dropdown" style="margin-right:15px;">
+
+                <a class="dropdown-toggle" data-toggle="dropdown" title="Notifications" id="clkcountnotify" style="cursor:pointer; margin:12px 0 0 0;">
+                    <img src="/newassets/img/bell-01.png" alt="">
+                    <span class="badge bg-primary badge-number" id="countnotify"></span>
+                </a><!-- End Notification Icon -->
+
+            </li><!-- End Notification Nav -->
+
+            <li class="nav-item">
+
+                <a href="https://www.manupatra.com/" target="_blank" class="">
+                    <img src="/newassets/img/manu-logo.png" alt="Manupatra" style="width:34px;">
+                </a>
+            </li>
+            <li class="nav-item">
+                <div class="" style="cursor:pointer;display:none;" id="firmlogolink"><img id="firmlogosrc" src="" height="37px" /></div>
+            </li>
+            <li class="nav-item dropdown">
+
+                <a class="dropdown-toggle" data-toggle="dropdown" title="Mykase Admin">
+                    <img src="/newassets/img/profile-img.jpg" alt="Profile" class="rounded-circle" width="38">
+
+                </a><!-- End Profile Iamge Icon -->
+                <ul class="dropdown-menu" style="left:inherit;right:0;">
+                    <li><a href="javascript:void(0);" title="@Session["fullusername"]" style="color: #075985; font-weight: 500; padding-top: 5px; padding-bottom: 5px; margin-bottom: 8px; background: #f5f5f5;">@userfullname</a></li>
+                    <li><a href="/@firmcode121/client/profile">Profile</a></li>
+                    <li class="divider"></li>
+                    @if (Session["Companyid"].ToString() != "00000000-0000-0000-0000-000000000000")
+                    {
+                        <li><a id="openuserlist" style="cursor:pointer">UserList</a></li>
+                    }
+                    @*<li id="password1"><a href="javascript:void()">Change Password</a></li>*@
+                    <li class="divider"></li>
+                    <li><a href="javascript:void()" id="signoutconfirm">Sign Out</a></li>
+                </ul>
+                <!-- End Profile Dropdown Items -->
+            </li><!-- End Profile Nav -->
+
+        </ul>
+    </nav><!-- End Icons Navigation -->
+
+</header><!-- End Header -->
+<!-- ======= Sidebar ======= -->
+<aside id="sidebar" class="sidebar">
+    <ul class="sidebar-nav" id="sidebar-nav">
+
+        <li style="@ViewBag.hsmatter" class="nav-item">
+            <a class="nav-link" href="/@firmcode121/client/matterlist">
+                <p class="task">Matters</p>
+            </a>
+        </li>
+
+        <li style="@ViewBag.hsmatter" class="nav-item">
+            <a class="nav-link" href="/@firmcode121/client/Communication">
+                <p class="task">Comm.</p>
+            </a>
+        </li>
+
+        <li style="@ViewBag.hsdocument" class="nav-item">
+            <a class="nav-link" href="/@firmcode121/Azure/AssignUserFileList">
+                <p class="task">Docu.</p>
+            </a>
+        </li>
+        <li style="@ViewBag.hsnotice" class="nav-item" id="noticelist">
+            <a class="nav-link" href="/@firmcode121/NoticeNew/DraftNotice">
+                <p class="reports">Notice</p>
+            </a>
+        </li>
+        @*<li class="nav-item" style="@ViewBag.hsnotice" onclick="OpenActive(this)" id="noticelist">
+            <a class="nav-link" data-bs-target="#report-nav" data-bs-toggle="collapse" href="javascript:void(0)">
+                <p class="reports">Notice</p>
+            </a>
+            <ul id="report-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="/@firmcode121/NoticeNew/DraftNotice">
+                        <i class="bi bi-circle"></i><span>Sent</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/@firmcode121/NoticeReceived/ReceivedDraftNotice">
+                        <i class="bi bi-circle"></i><span>Received</span>
+                    </a>
+                </li>
+            </ul>
+        </li>*@
+        <!-- End Notice Nav -->
+    </ul>
+
+</aside><!-- End Sidebar-->
+@*<nav class="navbar navbar-default fixed-top" style="background-color: white !important;" role="navigation">
+        <div class="container-main" style="position:relative">
+
+            <div class="accessbility nav-item dropdown">
+                <a href="#" id="accessbility" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><img src="~/newassets/images/accessibility_icon.png" style="position: relative; right: 10px;"></a>
+                <ul class="dropdown-menu a-accessbility">
+                    <li>
+                        <a href="javascript:void(0);" id="incfont" class="button buttonfont">+</a>
+                    </li>
+                    <li><a href="javascript:void(0);" id="decfont" class="button buttonfont">-</a></li>
+                    <li style="float:right;"><p id="resetfont" class="button buttonfont">Reset</p></li>
+                </ul>
+            </div>
+            <div class="navbar-header" id="navheaderpostion">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+                <a class="navbar-brand" href="#"><img src="~/newassets/images/logo.png" /></a>
+
+                <div class="navbar-brand pull-right" style="cursor:pointer;display:none; margin-top:10px;margin-right:20px; " id="firmlogolink"><img id="firmlogosrc" src="" height="37px" /></div>
+
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right ml-auto" id="sidebarnav" style="margin-right: -40px !important;margin-top: 0px;">
+                    <li id="matterlist" style="@ViewBag.hsmatter"><a href="/@firmcode121/client/matterlist">Matters</a></li>
+                    <li id="Communication" style="@ViewBag.hsmatter"><a href="/@firmcode121/client/Communication">Communication</a></li>
+                    <li id="AssignUserFileList" style="@ViewBag.hsdocument"><a href="/@firmcode121/Azure/AssignUserFileList">Documents</a></li>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Tool Box"><img src="~/newassets/images/setting_icon_2.png" style="width:16px" /></a>
+                        <ul class="dropdown-menu">
+
+
+                            <li style="@ViewBag.hschat"><a href="/@firmcode121/Chat/ChatMenu" title="Chat">Chat</a></li>
+
+
+
+
+
+                            <li><a href="/@firmcode121/firm/translator" title="Translator">Translator</a></li>
+
+                            <li style="@ViewBag.hsvcgooglemeet"><a href="https://apps.google.com/meet/" target="_blank" title="VC Google Meet"><img src="~/newassets/images/google_meet.png" />VC Google Meet</a></li>
+
+
+                        </ul>
+                    </li>
+                    <li class="dropdown hideliclass" style="@ViewBag.hsnotice" id="noticelist">
+                        <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Notice <b class="caret" style="margin-top:-2px;"></b></a>
+                        <ul class="dropdown-menu">
+                            <li id="ViewTimer" class="hideliclass" style=""><a href="/@firmcode121/NoticeNew/DraftNotice">Sent</a></li>
+                            <li id="ViewTimer" class="hideliclass" style=""><a href="/@firmcode121/NoticeReceived/ReceivedDraftNotice">Received</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown" title="Notifications">
+                            <img src="~/newassets/images/notification_icon1.png" style="padding-top: 5px;"> <span class="badge badge-light" id="countnotify"
+                                                                                                                  style="margin: -2px 0px 0px -15px;position:absolute;background-color: #8bd00b !important;">28</span>
+                        </a>
+
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle userprofile" data-toggle="dropdown" style="cursor:pointer; margin-left: 10px"> @Session["FullName"]   <b class="caret"></b></a>
+                        <ul class="dropdown-menu " style="padding-left:10px;">
+
+                            <li><a href="/@firmcode121/client/profile">Profile</a></li>
+                            @if (Session["Companyid"].ToString() != "00000000-0000-0000-0000-000000000000")
+                            {
+                                <li><a id="openuserlist" style="cursor:pointer">UserList</a></li>
+                            }
+                            <li id="password1"><a href="javascript:void()">Change Password</a></li>
+                            <li class="divider"></li>
+                            <li><a href="javascript:void()" id="signoutconfirm">Sign Out</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>*@
+<div id="companyuserlistmodal" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/notice-icon.png" style="margin:-15px 0px 0 -15px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4>User List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div>
+
+                            <input type="hidden" id="caseidhide">
+                            <input type="hidden" id="nhhide">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <table id="example123" class="table-panel">
+                                        <thead>
+                                            <tr>
+                                                <th width="15%" class="Activity"><div class="thbg">Sl. No.</div></th>
+                                                <th><div class="thbg">User Name</div></th>
+                                                <th class="Date"><div class="thbg">Mobile</div></th>
+                                                <th class="action actiondelete"><div class="thbg">Email</div></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="savefildedata">
+
+                                            @{
+                                                int qty = 0;
+
+                                            }
+                                            @if (ViewBag.companycontact != null)
+                                            {
+                                                foreach (var item in ViewBag.companycontact)
+                                                {
+                                                    qty = qty + 1;
+                                                    <tr>
+
+                                                        <td class="action ">@qty</td>
+                                                        @if (String.IsNullOrEmpty(item.UserName))
+                                                        {
+                                                            <td style="text-align: center;" class="action ">@item.cfname</td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td class="action ">@item.cfname - ( @item.UserName)</td>
+                                                        }
+                                                        <td class="action ">@item.cmobile</td>
+                                                        <td class="action ">@item.EmailId</td>
+                                                    </tr>
+                                                }
+                                            }
+
+                                        </tbody>
+                                    </table>
+
+
+
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalNotificationdata" role="dialog">
+    <div class="modal-dialog" style="width:56%">
+        <div class="modal-content shadow">
+            <form id="fileupload" name="fileupload">
+                <div class="modal-header" style="background-color: transparent !important;">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="button9 pull-right" id="Allreadnoti" type="button" data-type="" title="Mark all as Read" style="margin:0 10px;">
+                        <img class="plus-icon" alt="" src="/newassets/img/mark-read-icon.png">
+                    </div>
+                    <div class="button9 pull-right" id="clearallnoti" type="button" data-type="" title="Clear notification">
+                        Clear All
+                    </div>
+                    <h4 class="modal-title">Notification</h4>
+                </div>
+                <div class="modal-body" style="margin:15px 0 0 0;">
+                    <div style="overflow-y:auto; height:375px;">
+                        <table class="table-panel">
+                            <thead>
+                                <tr>
+                                    <th><div class="thbg">Notifications</div></th>
+                                    <th width="115px"><div class="thbg">Date</div></th>
+                                    <th width="100px"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="bindnotificationdata"></tbody>
+                            <tr></tr>
+                        </table>
+                        <center>
+                            <div class="notfound" id="pClientdatastatus" style="display:none;">
+                                <img src="~/newassets/img/not-found.png" />
+                                <h4>No Notification list found</h4>
+                                <p>We found no notification list.</p>
+                            </div>
+                        </center>
+                    </div>
+                    <div class="pagination" id="bndClientNotDiv">
+                        <div class="pagination-button-group">
+                            <div id="prevClient" class="pagination-button-group-base">
+                                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                            </div>
+                            <div id="pageNumbersClient" class="pagination-button-group-base1">
+                            </div>
+                            <div id="nextClient" class="pagination-button-group-base8">
+                                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                            </div>
+                        </div>
+                        <div class="text-and-supporting-text-parent">
+                            <div class="input">
+                                <div class="content">
+                                    <input type="text" id="txtgopageClient" name="query" placeholder="Page No.">
+                                </div>
+                                <div class="help-icon">
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-group">
+                                <div class="text-and-supporting-text">
+                                    <div id="divGoClient" class="text9">Go</div>
+                                </div>
+                                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+     //Navigation By Navin
+    function OpenActive(obj) {
+
+        if (!$(obj).find(".nav-content").hasClass("collapse")) {
+            $(obj).find(".nav-content").addClass("collapse");
+            $(obj).find("p").removeClass("active");
+        } else {
+            $("#sidebar .nav-content").addClass("collapse")
+            $(".nav-link p").removeClass("active")
+            $(obj).find(".nav-content").removeClass("collapse");
+            $(obj).find("p").addClass("active");
+        }
+    }
+    function openload() {
+        $('#myOverlay').css("display", "block");
+    }
+
+    function closeload() {
+        $('#myOverlay').css("display", "none");
+    }
+    $(document).ready(function () {
+        $(document).on("click", "#openuserlist", function () {
+            $('#companyuserlistmodal').modal({ show: true });
+        });
+        $("#signoutconfirm").click(function () {
+               if (confirm('Thank you for using myKase.\r\nAre your sure you want to Sign Off?')) {
+                location.href = "/@firmcode121/Account/LogOut";
+            }
+
+        });
+        function openload3() {
+            $('#myOverlay').css("display", "block");
+        }
+        function closeload3() {
+            $('#myOverlay').css("display", "none");
+        }
+        $("#password1").click(function (e) {
+            try {
+                openload3();
+                var url = "/Client/ChangePassword";
+                $('.mymodelscpd').load(url, function (result) {
+                    closeload3();
+                    $('#myModalcpd').modal({ show: true });
+                });
+                //window.location = "/" + fcode + url;
+            }
+            catch (err) {
+                alert(err.message);
+            }
+        });
+    });
+</script>
+<script>
+
+    var pagename;
+    $(document).ready(function () {
+
+        var pagename1 = location.pathname.split('/');
+        var pagename = pagename1[3];
+
+        $("#" + pagename).addClass("active");
+
+
+
+    });
+    $('div .a-accessbility').on('click', function (event) {
+        // The event won't be propagated up to the document NODE and
+        // therefore delegated events won't be fired
+        event.stopPropagation();
+    });
+     @*$("#chaticon").click(function () {
+         var fcode678 = localStorage.getItem("FirmCode");
+         window.location.href ="/"+ fcode678+"/Chat/InvitedChat";
+        });
+        //InvitedChatList();
+        //setTimeout(function () { InvitedChatList(); }, 3000);
+        function InvitedChatList() {
+            $("#bindinvitedchatlist").empty();
+            var formData = new FormData();
+            formData.append("firmid", "@Session["sessionfirmid"].ToString()");
+            formData.append("userid", "@Session["sessionuserid"].ToString()");
+            $.ajax({
+                async: true,
+                url: '/api/ChatApi/InvitedChatList',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    var html3 = '';
+
+                    if (response.Data == "") {
+                        $("#chaticon").hide();
+						$("#chatnoti").hide();
+                    }
+                    else {
+					try{
+					$("#countnotify").text(parseInt($("#countnotify").text())+1);
+					}
+					catch
+					{
+					}
+                        $("#chaticon").show();
+						$("#chatnoti").show();
+                    }
+
+                    $.each(response.Data, function (i, val) {
+                        if (val.iChatType == 2) {
+                            html3 += '<tr><td>You have private chat invitation by <b>' + val.SenderName + '</b></td><td><a href="#" id="Channelid" data-val=' + val.ChannelGuid + '>JOIN</a></td></tr>';
+                        }
+                        else {
+                            html3 += '<tr><td>You have group chat invitation by <b>' + val.SenderName + '</b></td><td><a href="#" id="ChannelidGroup" data-val=' + val.ChannelGuid + '>JOIN</a></td></tr>';
+                        }
+                    });
+                    $("#bindinvitedchatlist").append(html3);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+
+        });
+    }*@
+
+</script>

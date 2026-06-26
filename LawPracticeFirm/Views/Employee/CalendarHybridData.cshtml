@@ -1,0 +1,46 @@
+﻿@using NJDGDetail.Models;
+@using NJDGDetail.Controllers;
+@using NJDGDetail.Models;
+@{
+    Layout = null;
+}
+<data>
+    @{
+        var userid = "1632";
+        int i = 0;
+        EventList recentlyViewedEvent = CalendarEventController.CountCaseBYUserName(userid);
+        string ch = "";
+        foreach (var myevent in recentlyViewedEvent)
+        {
+            ch = "";
+            EventList recentlyViewedEvent1 = CalendarEventController.GetCalendarEventByUserName1(myevent.username_, myevent.Disposeddt);
+            foreach (var myevent1 in recentlyViewedEvent1)
+            {
+                myevent1.LastFinaldate = Convert.ToDateTime(myevent1.start_date);
+                string s = string.Format("{0:D1}", Convert.ToDateTime(myevent1.start_date).ToString("MM"));
+                string s1 = Convert.ToDateTime(myevent1.start_date).ToString("dd");
+                string y1 = Convert.ToDateTime(myevent1.start_date).ToString("yyyy");
+                string main1 = "";
+                string main = s + "/" + s1 + "/" + y1;
+                main1 = main;
+                myevent1.start_date = main;// "11-01-2018 00:00:00";
+                                           //myevent1.start_date =  "08/18/2017";
+                if (recentlyViewedEvent1.Count > 1)
+                {
+                    //myevent1.text = "\"<a target=\"_blank\" href=\"../" + myevent1.Localfile + "\">" + myevent1.Casetype + ' ' + myevent1.CaseNo + '/' + myevent1.Caseyear + " (" + myevent1.Disposeddt + ") - " + myevent1.Court + "</a>" + "  <br /> <a href=\"#\" data-toggle=\"modal\" data-target=\"#modalDatebindBysuser\" name=\"register\" onclick=\"DateUservalue('" + myevent1.LastFinaldate + "');\">More</a>";
+                    myevent1.text = myevent1.Casetype + ' ' + myevent1.CaseNo + '/' + myevent1.Caseyear + " (" + myevent1.Disposeddt + ") - " + myevent1.Court + "  <br /> <a class=\"more\" href=\"#\" data-toggle=\"modal\" data-target=\"#modalDatebindBysuser\" name=\"register\" onclick=\"DateUservalue('" + System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(myevent1.LastFinaldate.ToString())) + "');\">More</a>" + " " + ch;
+                }
+                else
+                {
+                    myevent1.text = "<a class=\"txt\" href=\"#\" data-toggle=\"modal\" data-target=\"#modalDatebindBysuser\" name=\"register\" onclick=\"DateUservalue('" + myevent1.LastFinaldate + "');\">" + myevent1.Casetype + ' ' + myevent1.CaseNo + '/' + myevent1.Caseyear + " (" + myevent1.Disposeddt + ") - " + myevent1.Court + " </a>" + " " + ch;
+                }
+                ch = myevent1.text;
+                myevent1.start_date = "01/01/2019";
+                myevent1.text = ch;
+                myevent1.id = 1;
+                break;
+                //break;
+            }
+        }
+    }
+</data>

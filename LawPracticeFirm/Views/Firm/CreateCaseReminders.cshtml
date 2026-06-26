@@ -1,0 +1,194 @@
+﻿@{
+    Layout = null;
+}
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+<link href="/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script>
+    var token = "@ViewBag.token";
+    var filesize = "@ViewBag.filesize";
+</script>
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<script src="~/Scripts/Firm/Pages/CreateCaseReminders.js"></script>
+<script src="~/Content/multipleselect/selectize.js"></script>
+<script src="~/Content/multipleselect/index.js"></script>
+<link href="~/Content/multipleselect/dist/css/selectize.bootstrap2.css" rel="stylesheet" />
+<link href="~/Content/multipleselect/dist/css/jquery.magicsearch.min.css" rel="stylesheet" />
+<style>
+    .selectize-control {
+        margin: 0 0 6px 0;
+    }
+
+    .selectize-dropdown {
+        position: unset !important;
+    }
+</style>
+<div class="modal-body" style="padding:0px !important">
+    <div class="col-lg-12">
+        <div id="loaddatareminders">
+            <form id="savecasealert" enctype="multipart/form-data">
+                <!-- Start About boxes -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <fieldset>
+                            <legend>Case Reminders</legend>
+                            <input type="hidden" id="edittoken">
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Event <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-8" id="firstdiv">
+                                    @Html.DropDownList("caseevents", new SelectList(ViewBag.events, "val", "label"), "select", new { @id = "caseevents", @class = "demodefault ", @multiple = "multiple" })
+                                </div>
+                                <div class="col-md-8" id="seconddiv" style="display:none">
+                                    <span id="tempeventname"></span>
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal" id="customeventblock" style="display:none">
+                                <label class="control-label col-md-3"> &nbsp;</label>
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" placeholder="Enter Event Name" style="width: 310px !important;" id="customevent" />
+                                    <br><br><span style="clear:both;color:green;font-size:12px">(You can Add multiple event with comma(,) separated value example: event1,event2)</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Users <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-8">
+                                    @Html.DropDownList("select-user", new SelectList(ViewBag.Fruits, "val", "label"), "select", new { @id = "select-user", @class = "demodefault1 ", @multiple = "multiple" })
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Attachments</label>
+                                <div class="col-md-8">
+                                    <input class="form-control" name="postedFile" id="postedFile" type="file" multiple placeholder="Add description..." />
+                                    <br><br><span id="filelist"> </span>
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">Due Date <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-8">
+                                    <input type="date" class="form-control" id="duedate" />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">
+                                    Set Alert Date: <span class="required" aria-required="true">*</span>
+                                </label>
+                                <div class="col-md-8">
+                                    <input type="date" class="form-control" id="callfromdate" />
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">
+                                </label>
+                                <div class="col-md-8">
+                                    Or
+                                </div>
+                            </div>
+                            <div class="form-group form-horizontal">
+                                <label class="control-label col-md-3">
+                                </label>
+                                <div class="col-md-8">
+                                    <select name="ddldays" id="ddldays" class="txtbox-setting form-control">
+                                        <option selected="selected" value="">-Day-</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
+                                        <option value="17">17</option>
+                                        <option value="18">18</option>
+                                        <option value="19">19</option>
+                                    </select>
+                                    <select name="ddlHearing" id="ddlHearing" class="txtbox-setting1 form-control" style="margin-top:5px;">
+                                        <option selected="selected" value="0">--Select--</option>
+                                        <option value="1">Days Before Due date</option>
+                                        <option value="2">Days After Due date</option>
+                                        <option value="3">On Same Day</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <!-- /.content -->
+            </form>
+        </div>
+        <!-- /.row (nested) -->
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <input type="button" id="savealerts" class="btn save pull-right" value="save" style="margin-right:30px;">
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+</div>
+<script>
+    var $select = $('#caseevents').selectize({
+    });
+    var selectizeControl = $select[0].selectize;
+    selectizeControl.on('change', function () {
+        var s = this.getValue();
+        var lastIndex = String(s).lastIndexOf(",")
+        var s1 = String(s).substring(0, lastIndex); //after this s1="Text1, Text2, Text"
+        var s2 = String(s).substring(lastIndex + 1); //after this s2="true"
+        if (String(s2) == "Others") {
+            $("#customeventblock").css("display", "block");
+        }
+    });
+    $('#select-user').selectize({
+        //maxItems: 3
+    });
+    $(document).on('click', 'div .demodefault  .selectize-input div.item', function (e) {
+        var select = $('#caseevents').selectize();
+        var selectSizeControl = select[0].selectize;
+        // 1. Get the value
+        var selectedValue = $(this).attr("data-value");
+        // 2. Remove the option
+        select[0].selectize.removeItem(selectedValue);
+        select[0].selectize.refreshItems();
+        select[0].selectize.refreshOptions();
+        if (String(selectedValue) == "Others") {
+            $("#customeventblock").css("display", "none");
+            $("#customevent").val("");
+        }
+    });
+    $(document).on('click', 'div .demodefault1 .selectize-input div.item', function (e) {
+        var select1 = $('#select-user').selectize();
+        var selectSizeControl1 = select1[0].selectize;
+        // 1. Get the value
+        var selectedValue1 = $(this).attr("data-value");
+        // 2. Remove the option
+        select1[0].selectize.removeItem(selectedValue1);
+        select1[0].selectize.refreshItems();
+        select1[0].selectize.refreshOptions();
+    });
+</script>

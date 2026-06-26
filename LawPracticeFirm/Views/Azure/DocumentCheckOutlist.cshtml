@@ -1,0 +1,1423 @@
+﻿@{
+    /**/
+    ViewBag.Title = "CreateUser";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+@using System.Web.Configuration
+@using LawPracticeFirm.Helpers
+<script src="~/newassets/js/ExternalJS/jquery-1.12.4.js"></script>
+<script src="~/newassets/js/ExternalJS/jquery-ui.js"></script>
+<style>
+    .docactiontable tr td {
+        padding: 8px 5px 3px 5px !important;
+    }
+
+    .glyphicon-book, .glyphicon-trash, .glyphicon-pencil, .glyphicon-cloud-upload, .glyphicon-edit, .fa-unlock, .fa-lock, .glyphicon-log-out, .glyphicon-download-alt, .glyphicon-share {
+        color: black !important;
+        font-size: 12px !important;
+    }
+
+    .ui-widget-header {
+        background: #cedc98;
+        border: 1px solid #DDDDDD;
+        color: #333333;
+        font-weight: bold;
+    }
+
+    .progress-label {
+        position: absolute;
+        left: 50%;
+        top: 13px;
+        font-weight: bold;
+        text-shadow: 1px 1px 0 #fff;
+    }
+
+    .red {
+        color: red;
+    }
+</style>
+<script>
+    var totpagesize = 10;
+    var roleid = "1";
+     var userid = '@ViewBag.userId'
+    var firmid = '@ViewBag.firmid';
+</script>
+<script>
+    var isDelete = "@ViewBag.IsDelete";
+    var IsCreate = "@ViewBag.IsCreate";
+</script>
+<script type='text/javascript'>
+    if (typeof enctypesingle !== 'undefined' && $.isFunction(enctypesingle)) {
+        //  alert("exuisdt");
+    }
+    else {
+        location.reload();
+        return false;
+    }
+    if (String(directoryid) != "") {
+        localStorage.setItem("contacttoken", directoryid);
+    }
+    if (String(directoryid) == "") {
+        var urls = window.location.href;
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": localStorage.getItem("contacttoken"), "tflg": "0" }
+        });
+    }
+    function goodbye(e) {
+        localStorage.setItem("contacttoken", directoryid);
+        if (!e) e = window.event;
+        //e.cancelBubble is supported by IE - this will kill the bubbling process.
+        e.cancelBubble = true;
+        //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+        //e.stopPropagation works in Firefox.
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+    window.onbeforeunload = goodbye;
+</script>
+<style>
+    .dropbtn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .dropbtn:hover, .dropbtn:focus {
+            background-color: #3e8e41;
+        }
+
+    #searchdata {
+        border-box: box-sizing;
+        background-image: url('searchicon.png');
+        background-position: 14px 12px;
+        background-repeat: no-repeat;
+        font-size: 16px;
+        padding: 14px 20px 12px 45px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #myInput:focus {
+        outline: 3px solid #ddd;
+    }
+    /*.dropdown {
+        position: relative;
+        display: inline-block;
+    }*/
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        overflow: auto;
+        border: 1px solid #ddd;
+        z-index: 1;
+    }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+    .dropdown a:hover {
+        background-color: #ddd;
+    }
+
+    .show {
+        display: block;
+    }
+</style>
+<style>
+    #frameWrap {
+        position: relative;
+        height: 490px;
+        width: 100%;
+        border: 1px solid #777777;
+        background: #f0f0f0;
+        box-shadow: 0px 0px 10px #777777;
+    }
+
+    #docframe {
+        height: 490px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    #loader12 {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        z-index: 9999;
+    }
+</style>
+<style>
+    #frameWrap1 {
+        position: relative;
+        height: 490px;
+        width: 100%;
+        border: 1px solid #777777;
+        background: #f0f0f0;
+        box-shadow: 0px 0px 10px #777777;
+    }
+
+    #otherdocframe {
+        height: 490px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    #loader121 {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        z-index: 9999;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $(".modal").on("hidden.bs.modal", function () {
+            $("#list").text("");
+            $(this).find('form').trigger('reset');
+        });
+        $(document).on("click", "#resercreatefiles", function () {
+            $("#list").text("");
+            $(".modal").find('form').trigger('reset');
+        });
+        //Do stuff here
+    });
+    function goForward() {
+        window.history.forward();
+    }
+    function goBack() {
+        window.history.back();
+    }
+</script>
+<script>
+    /* When the user clicks on the button,
+    toggle between hiding and showing the dropdown content */
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+</script>
+<style>
+    #sectiontemp li {
+    }
+</style>
+
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <h2 class="ctitle">Documents</h2>
+        </div>
+    </div>
+</section>
+
+<section class="main_content">
+    <div class="horizontal-tabs">
+        <div class="tabs">
+            @if (role.ToString() == "1" || role.ToString() == "2")
+            {
+                <div class="tab_button_base">
+                    <div class="text1"><a href="/@Session["firmcode"]/azure/directorylist/0" title="Directory list">All </a> </div>
+                </div>
+            }
+            @if (role.ToString() == "3")
+            {
+                <div class="tab_button_base">
+                    <div class="text1" style="cursor:pointer;"><a href="/@Session["firmcode"]/azure/AssignUserFileList" title="Shared document list">Shared Documents</a></div>
+                </div>
+            }
+            else
+            {
+
+                <div class="tab_button_base">
+                    <div class="text1" style="cursor:pointer;"><a href="/@Session["firmcode"]/azure/AssignUserFileList" title="Shared document list">Shared Documents</a></div>
+                </div>
+                <div class="tab_button_base active">
+                    <div class="text1" style="cursor:pointer;"><a href="/@Session["firmcode"]/azure/DocumentCheckOutlist" title="CheckOut document list">Check Out List <span id="docTotalSharedCount"></span></a></div>
+                </div>
+            }
+            @if (role.ToString() == "1")
+            {
+                <div class="tab_button_base">
+                    <div class="text1" style="cursor:pointer;"><a href="javascript:void()" id="removerequest" title="Files list marked for deletion">Delete request</a></div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="wrapper" style="margin:unset !important">
+    <div class="container-main showcontent" id="showcontent">
+        <div>
+            <div>
+                @*<h2 class="title"> CheckOut document list</h2>*@
+                <div class="content-header">
+                    <ol class="breadcrumb" style="list-style:none; margin-right:20px !important;">
+                        @*<li class="active" style="cusror:pointer;float"><a id="transferpage12" href="javascript:void()" data-val="0"><span class="glyphicon glyphicon-folder-open"></span> </a> </li>*@
+                        <li class="active"><a id="transferpage12" href="javascript:void()" data-val="0"><img width="25px" src="~/newassets/img/file.svg" /> </a> </li>
+                        @if (ViewBag.DIRECTORYLINK != null)
+                        {
+                            foreach (var item in ViewBag.DIRECTORYLINK)
+                            {
+                                <li class="active noactive" style="cursor:pointer;"><a id="transferpage" href="javascript:void()" data-val="@item.ID">@item.Name</a> </li>
+                            }
+                        }
+                    </ol>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var tableToExcel = (function () {
+                    var uri = 'data:application/vnd.ms-excel;base64,'
+                        , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                        , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                        , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+                    return function (table, name) {
+                        if (!table.nodeType) table = document.getElementById(table)
+                        var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+                        var blob = new Blob([format(template, ctx)]);
+                        var blobURL = window.URL.createObjectURL(blob);
+                        if (ifIE()) {
+                            csvData = table.innerHTML;
+                            if (window.navigator.msSaveBlob) {
+                                var blob = new Blob([format(template, ctx)], {
+                                    type: "text/html"
+                                });
+                                navigator.msSaveBlob(blob, '' + name + '.xls');
+                            }
+                        }
+                        else
+                            window.location.href = uri + base64(format(template, ctx))
+                    }
+                })()
+                function ifIE() {
+                    var isIE11 = navigator.userAgent.indexOf(".NET CLR") > -1;
+                    var isIE11orLess = isIE11 || navigator.appVersion.indexOf("MSIE") != -1;
+                    return isIE11orLess;
+                }
+            </script>
+            <script>
+                    var directoryname = '@ViewBag.directoryname';
+                    var directoryid = '@ViewBag.directoryid';
+                    var directorypath = '@ViewBag.directorypath';
+            </script>
+            <script src="~/Scripts/Azure/DocumentCheckOutlist.js?3.1"></script>
+            <script type="text/javascript">
+                var tableToExcel = (function () {
+                    var uri = 'data:application/vnd.ms-excel;base64,'
+                        , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="https://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                        , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                        , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+                    return function (table, name) {
+                        if (!table.nodeType) table = document.getElementById(table)
+                        var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+                        window.location.href = uri + base64(format(template, ctx))
+                    }
+                })()
+            </script>
+            <script>
+                $(document).ready(function () {
+                    $("#searchdata2").on("keyup", function () {
+                        var value = $(this).val().toLowerCase();
+                        $("#doctable tbody tr").filter(function () {
+                            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                        });
+                    });
+                });
+            </script>
+            <script src="~/CssJsfiles/js/html2canvas.min.js"></script>
+            <script type="text/javascript">
+                $("body").on("click", "#btnExport", function () {
+                    html2canvas($('#doctable')[0], {
+                        onrendered: function (canvas) {
+                            var data = canvas.toDataURL();
+                            var docDefinition = {
+                                content: [{
+                                    image: data,
+                                    width: 500
+                                }]
+                            };
+                            pdfMake.createPdf(docDefinition).download("Table.pdf");
+                        }
+                    });
+                });
+            </script>
+            <div class="table-panel table-responsive" data-example-id="hoverable-table" id="home">
+                <div style="overflow-x:scroll;" id="dirtabparentdiv">
+                    <table id="doctable" class="table-panel">
+                        <thead>
+                            <tr>
+                                <th style="width:4%"><div class="thbg"><input type="checkbox" id="select_all" /></div></th>
+                                <th onclick="sortTable(1)" width="30%"><div class="thbg">Folders/Files <span class="fa fa-sort fa-fw  pull-right"></span></div></th>
+                                <th onclick="sortTable(2,1)" width="200px;"><div class="thbg">Date <span class="fa fa-sort fa-fw  pull-right"></span></div></th>
+                                <th width="10%;"><div class="thbg">Check Out Control</div></th>
+                                <th width="5%;"><div class="thbg">Action</div></th>
+                                <th onclick="sortTable(8)" width="100px;"><div class="thbg">FileType <span class="fa fa-sort fa-fw  pull-right"></span></div></th>
+                                <th width="100px;"><div class="thbg">size</div></th>
+                                <th width="10%" onclick="sortTable(10)">
+                                    <div class="thbg">
+                                        <span> Created By</span><span class="fa fa-sort fa-fw  pull-right"></span>
+                                    </div>
+                                </th>
+                                <th onclick="sortTable(11)" width=""><div class="thbg">File Description<span class="fa fa-sort fa-fw pull-right"></span></div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="dirbound"></tbody>
+                    </table>
+                </div>
+            </div>
+            @*<center><div id="docstatus"></div></center>*@
+            <center>
+                <div class="notfound" id="pdatastatus" style="display:none;">
+                    <img src="~/newassets/img/not-found.png" />
+                    <h4><span id="dtNotFound">No data found</span></h4>
+
+                </div>
+            </center>
+            <div class="pagination" id="divshared">
+                <div class="pagination-button-group">
+                    <div id="PopPrev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="popUpPageNumbers" class="pagination-button-group-base1">
+                    </div>
+                    <div id="PopNext" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="poptxtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divpopGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="table-panel" style="margin-top:5px;display:none;">
+                <div class="row settingpanel">
+                    <div class="col-md-8">
+                        <div style="float: left;padding: 0 10px 0 0;display:none;">
+                            <ul>
+                                <li style="margin-left:-15px;">
+                                    <select class="form-control" id="searchtype" style="height:24px !important;border-bottom: 1px solid #ccc !important;">
+                                        <option value="1">File Name</option>
+                                        <option value="2">Free Text</option>
+                                    </select>
+                                </li>
+                                <li style="margin-left:5px;"><input type="text" class="form-control form-control-sm" placeholder="Search" id="searchdata" style="height:24px !important;border-bottom: 1px solid #ddd !important;" /></li>
+                                <li style="margin-left:5px;">
+                                    <span id="clearnewseach" class="" title="Click here to reset search" style="margin-top:-10px;display:none;color:black;font-size:15px;font-weight:350;cursor:pointer">x</span>
+                                </li>
+                                <li><button type="button" class="sbtbtn" id="searchdatas"><i class="glyphicon glyphicon-search"></i></button></li>
+                            </ul>
+                        </div>
+                        <div id="tfooter">
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="display:none;">
+                        <ul class="pull-right">
+                            @if (role.ToString() == "1")
+                            {
+                                <li>
+                                    <select id="filteruserdocument" name="filteruserdocument" class="form-control-sm  col_b" style="width:180px;">
+                                        <option value="">Select Users</option>
+                                    </select>
+                                </li>
+                            }
+                            <li><span>|</span></li>
+                            <li>
+                                <div class="btn-group dropup">
+                                    <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Action Selected <span class="glyphicon glyphicon-chevron-down"></span>
+                                    </a>
+                                    <ul class="dropdown-menu settingaction">
+                                        @if (role.ToString() == "1")
+                                        {
+                                            <li>
+                                                <a href="javascript:void()" style="margin-top:0px;" data-toggle="modal" id="myModal12" title="Create Folder">create folder</a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void()" data-toggle="modal" data-target="#myModal1" id="uploadfile">upload document</a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void()" data-toggle="modal" data-target="#myModal3" id="" title="Create Online Document">create new document</a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                                            {
+                                                <li>
+                                                    <a href="javascript:void()" style="margin-top:0px;" data-toggle="modal" id="myModal12" title="Create Folder">create folder</a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void()" data-toggle="modal" data-target="#myModal1" id="uploadfile">upload document</a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void()" data-toggle="modal" data-target="#myModal3" id="" title="Create Online Document">create new document</a>
+                                                </li>
+                                            }
+                                        }
+                                        <li>
+                                            <a href="/@Session["firmcode"]/azure/AssignUserFileList" title="Shared document list">shared documents</a>
+                                        </li>
+                                        @if (role.ToString() == "1")
+                                        {
+                                            <li><a href="javascript:void()" id="removerequest" title="Files list marked for deletion"> delete files request list</a></li>
+                                        }
+                                        <li>
+                                            @if (ViewBag.caseidNEW == "")
+                                            {
+                                            <li> <a href="javascript:void()" id="movefile" title="Move document"> Move Document </a></li>
+                                        }
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        $(document).ready(function () {
+            $('#dropboxframe').on('load', function () {
+                $('#loader122').hide();
+            });
+        });
+    </script>
+    <div id="myModaldropbox" class="modal fade" role="dialog" style="z-index:2000;" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog " style="width:440px;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        <span id="spanhead"> Dropbox/Google Drive </span>
+                    </h4>
+                </div>
+                <div class="minebodydrop modal-body">
+                    <div id="frameWrap5">
+                        <iframe id="dropboxframe" src="/Firm/loader" height="220px;" width="400px;">
+                            <p>Your browser does not support iframes.</p>
+                        </iframe>
+                        </embed>
+                    </div>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        </div>
+    </div>
+    <div id="myOverlay" class="overlay" style="z-index:9999 !important">
+        @*//<span class="closebtn" onclick="closeSearch()" title="Close Overlay">×</span>*@
+        <div class="overlay-content">
+            <div class="spinner2">
+                <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+            </div>
+            <center> <div style="margin-top:-80px;"><span id="overlaycontent"></span> <span id="overlaytime"></span></div></center>
+        </div>
+    </div>
+
+    <!--Document version history model popup start-->
+    <div id="modal_docVersionHistory" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog " style="width: 990px;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        Version History
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="col-md-12 table-panel table-responsive" style=" margin-top:5px;">
+                                <div class="panel-body" id="dochistory">
+                                    <div class="tablearea">
+                                        <div id="loadractivity" class="tablecontainer">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="thbg">
+                                                            #
+                                                        </th>
+                                                        <th class="thbg">
+                                                            Date
+                                                        </th>
+                                                        <th class="thbg">
+                                                            Time
+                                                        </th>
+                                                        <th class="thbg">
+                                                            Created By
+                                                        </th>
+                                                        <th class="thbg">
+                                                            Last Modified
+                                                        </th>
+                                                        <th class="thbg">
+                                                            File Version
+                                                        </th>
+                                                        <th class="thbg">
+                                                            Action
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="bindfileversion"></tbody>
+                                            </table>
+                                            <center>
+                                                <div class="notfound" id="verHDatastatus" style="display:none;">
+                                                    <img src="~/newassets/img/not-found.png" />
+                                                    <h4>Data Not Found</h4>
+                                                </div>
+                                            </center>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Document history model popup END-->
+
+    <div style="border: 1px solid green;
+    position: absolute;
+    top: 50%;
+    left: 41%;
+    z-index: 5000;
+    padding: 15px;
+    -webkit-box-shadow: 0px 0px 6px 3px rgba(61,61,61,0.27);
+    -moz-box-shadow: 0px 0px 6px 3px rgba(61,61,61,0.27);
+    box-shadow: 0px 0px 6px 3px rgba(61,61,61,0.27);
+    background: white;display:none" id="docsavediv">
+        <p style="text-align:center"><img src="~/newassets/images/loaderfile.gif" height="50px" width="50px" /></p>
+        <p style="text-align:center;font-size:14px;"> Saving changes in file, please wait.</p>
+    </div>
+    <style>
+        .overlay {
+            height: 100%;
+            width: 100%;
+            display: none;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0, 0.4);
+        }
+
+        .overlay-content {
+            position: relative;
+            top: 46%;
+            width: 80%;
+            text-align: center;
+            margin-top: 30px;
+            margin: auto;
+            color: white;
+        }
+
+        .overlay .closebtn {
+            position: absolute;
+            top: 20px;
+            right: 45px;
+            font-size: 60px;
+            cursor: pointer;
+            color: white;
+        }
+
+            .overlay .closebtn:hover {
+                color: #ccc;
+            }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $('#docframe').on('load', function () {
+                //  alert("hi");
+                $('#loader12').hide();
+            });
+        });
+    </script>
+    <input type="hidden" id="hiddirectid">
+    <div id="myModal8" class="modal fade" role="dialog" style="z-index:2000;">
+        <div class="modal-dialog " style="width: 98% !important;margin:20px auto">
+            <!-- Modal content-->
+            <div class="modal-content" style=" height: 585px;">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" id="resetofficeusers" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        <span id="spanheadfile"> Create File</span>
+                    </h4>
+                </div>
+                <div class="minebody modal-body">
+                    <div id="frameWrap">
+                        <img id="loader12" width="36" height="36" />
+                        <iframe id="docframe" src="/Firm/loader" height="490px" width="100%">
+                            <p>Your browser does not support iframes.</p>
+                        </iframe>
+                    </div>
+                </div>
+                <script>
+                    $('#docframe').on('load', function () {
+                        $('#loader12').hide();
+                    });
+                </script>
+                <!-- /.col-lg-12 -->
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $('#otherdocframe').on('load', function () {
+                $('#loader121').hide();
+            });
+        });
+    </script>
+    @*for other filesopen*@
+    <div id="myModal9" class="modal fade" role="dialog" style="z-index:2000;" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog " style="width: 98% !important;margin:20px auto">
+            <!-- Modal content-->
+            <div class="modal-content" style=" height: 585px;">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        <span id="spanhead"> View File</span>
+                    </h4>
+                </div>
+                <div class="minebody modal-body">
+                    <div id="frameWrap1">
+                        <img id="loader121" width="36" height="36" />
+                        <iframe id="otherdocframe" src="/Firm/loader" height="490px;" width="100%;">
+                            <p>Your browser does not support iframes.</p>
+                        </iframe>
+                    </div>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        </div>
+    </div>
+    @*for other movefile*@
+    <div id="myModalmove" class="modal fade" role="dialog" style="z-index:2000;" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content" style=" height: 585px;">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" id="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        <span id="spanheadmove"> Move Files</span>
+                    </h4>
+                </div>
+                <span id="fileids" style="display:none"></span>
+                <span id="filenames" style="display:none"></span>
+                <span id="filepath" style="display:none"></span>
+                <div class="minebody modal-body loadmovedirlist" style="height:450px; overflow-x:auto">
+                </div>
+                <div class="modal-footer">
+                    <div style="float:left">
+                        Search:
+                        <input type="text" id="searcmovefoldertext" style="border-bottom: 1px solid;">
+                        <span id="clearsearchmove" style="color:black;font-size:15px;font-weight:350;cursor:pointer;display:none;">x</span>
+                        <button type="button" class="sbtbtn" id="searchhmovefolder" style="margin-left:10px;"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                    <button type="button" class="sbtbtn" id="BackkDir" value="00000000-0000-0000-0000-000000000000" back-value="00000000-0000-0000-0000-000000000000">Back</button>
+                    <button type="button" class="sbtbtn" id="savemovefolderFile">Move</button>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        </div>
+    </div>
+    <div id="myModal3" class="modal fade" role="dialog">
+        <div class="modal-dialog ">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal" id="createdocclose">&times;</button>
+                    <h4 class="modal-title">
+                        Create Document
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="form-group form-horizontal" id="createfolderdirdiv">
+                                                <label class="control-label col-md-3">Choose Folder</label>
+                                                <div class="col-md-8">
+                                                    <select name="" class="form-control" id="filedirectory">
+                                                        <option value="">Select Folder...</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <label class="control-label col-md-3">File Name <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" id="filename">
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-horizontal">
+                                                <button class="sbtbtn pull-right" data-toggle="modal" id="modeldocs" style="margin-top: 25px;margin-right: 56px;">
+                                                    <span class="btn-label"><i class="fa fa-file-word-o"></i></span> Create  Document
+                                                </button>&nbsp;
+                                                <div class=" form-horizontal" style="display:none">
+                                                    <ul class="try-editor-list">
+                                                        <li><a class="try-editor document" href=" @Url.Action("sampleCloud", "Docs" , new { fileExt="docx" })" target="_blank">Create<br />Sample Document</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <!-- /.row (nested) -->
+                                        </div>
+                                        <!-- /.panel-body -->
+                                    </div>
+                                    <!-- /.panel -->
+                                </div>
+                                <!-- /.col-lg-12 -->
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*////permission mpodel*@
+    <div id="myModalperm" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog " style="width:790px;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        <span id="fstitle"> File Sharing</span>
+                    </h4>
+                </div>
+                <div class="modal-body" style="height:400px; overflow-y:scroll;">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <form id="fileupload" name="fileupload">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3"> <span id="fsfnamelabel">File Name</span></label>
+                                                    <div class="col-md-8">
+                                                        <span id="directoryname"></span> <span id="directoryid" style="visibility:hidden"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" style="margin-top:4px;">
+                                                    <label class="control-label col-md-3">Select User Type </label>
+                                                    <div class="col-md-8">
+                                                        <select class="form-control  viewm" name="usertype" tempname="usertype" id="usertype">
+                                                            <option value="User" selected>User</option>
+                                                            <option value="Client">Client</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3">Select User</label>
+                                                    <select class="form-control  viewm" name="contact" tempname="contact" id="contact" style="display:none"></select>
+                                                    <div class="col-md-8">
+                                                        <p class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="height: 24px;border-bottom: 1px solid #ccc;font-size:12px; padding:4px 0 0 0;">
+                                                            <label id="lblTeammemberSelectsharedocs" style="color: #7c7777;font-size: 12px;font-weight: 500;text-transform:unset !important">Select</label>
+                                                            <span class="glyphicon glyphicon-chevron-down" style="float: right;font-size: 10px;font-weight: 300;margin: 3px 4px 0 0px;cursor:pointer;"></span>
+                                                        </p>
+                                                        <ul class="dropdown-menu   settingshowhide" id="documentsharecontact" style="position: absolute; right: 0px; z-index: 10000;left:unset; width:100%;"></ul>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group ">
+                                                    <label class="control-label col-md-3" style="margin-top: 10px;">Rights</label>
+                                                    <div class="col-md-8" id="linkdata" style="margin-top: 11px;">
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="table-panel table-responsive" data-example-id="hoverable-table" id="home" style="width: 100%;overflow: auto;">
+                                                    <table class="table-panel">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="15px;">S.No</th>
+                                                                <th><img src="~/newassets/img/file.svg" /><span id="fstblfnamelabel">File Name</span></th>
+                                                                <th width="100px;">Created On</th>
+                                                                <th width="100px;">Shared With</th>
+                                                                <th width="100px;">Rights</th>
+                                                                <th width="100px;">Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="assignuserdata"></tbody>
+                                                    </table>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="sbtbtn" id="assign" data-type="">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModal4" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog ">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        Edit File Description
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <form role="form" id="editfile">
+                                                <input type="hidden" value="" id="editfilenamehidden">
+                                                <div class="form-group ">
+                                                    <label class="control-label col-md-3">File Name</label>
+                                                    <div class="col-md-8">
+                                                        <span id="editfilename"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group ">
+                                                    <label class="control-label col-md-3">File Description</label>
+                                                    <div class="col-md-8">
+                                                        <input class="form-control" type="text" value="" maxlength="400" id="filedetailsedit">
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="sbtbtn" id="EditFileSaves">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal_e_sign_type" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog ">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        Select File Type
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <form role="form" id="editfile">
+                                                <input type="hidden" value="" id="editfilenamehidden">
+                                                <div class="form-group col-lg-6">
+                                                    <div class="row form-group"><input name="ch_radio" type="radio" id="" value="2"><label class="control-label col-md-6">dSign Only</label></div>
+                                                    <div class="row form-group"><input name="ch_radio" type="radio" id="" value="3"><label class="control-label col-md-6">eSign Only</label></div>
+                                                    <div class="row form-group"><input name="ch_radio" type="radio" id="" value="4"><label class="control-label col-md-6">eSignature</label></div>
+                                                </div>
+                                                <div class="form-group col-lg-6" style=" margin-left: 52%; margin-top: -12%;">
+                                                    <div class="row" style="/* padding-left: 14px */">
+                                                        <div class="row form-group">
+                                                            <input type="radio" id="all" name="page" value="ALL">
+                                                            <label for="ALL">ALL</label>
+                                                        </div>
+                                                        <div class="row form-group">
+                                                            <input type="radio" id="first" name="page" value="FIRST">
+                                                            <label for="FIRST">FIRST</label>
+                                                        </div>
+                                                        <div class="row form-group">
+                                                            <input type="radio" id="last" name="page" value="LAST">
+                                                            <label for="LAST">LAST</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="sbtbtn" id="DigiFileSaves">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 99999;padding-top: 71px;">
+        <div class="modal-dialog" role="document" style="width:30%">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#dcdcdc !important;">
+                    <h5 class="modal-title" id="exampleModalLabel">Document Confirmation</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="virusconfirmbody" style="font-size: 13px;"> The uploaded files seems to be infected or containing malicious content. Are you sure to continue?</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="sbtbtn" id="confirmvirusupload">&nbsp;Ok&nbsp;</button>
+                    <button type="button" class="sbtbtn" id="cancelvirusupload" aria-label="Close">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModalRenameFolder" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog ">
+            <input type="hidden" id="refolderhide">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal" id="closecreatefolderre">&times;</button>
+                    <h4 class="modal-title">
+                        Rename Folder
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="alert alert-danger alert-dismissable validpanelre" style="display:none">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                . <a href="#" class="alert-link">Alert Link</a>.
+                            </div>
+                            <div class="ec_bg">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <form role="form" id="foldercreate">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3">Folder Name<span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                                                    <div class="col-md-8">
+                                                        <input class="form-control inputFormat" type="text" value="" id="cdirre"><span style="font-size:10px;color:black;font-style:italic">(@@\/:*?"<>|.&$%#!~+`*^,) is not allowed.</span>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: none !important">
+                    <button type="submit" class="sbtbtn" id="RenameDirData">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog ">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal" id="closecreatefolder">&times;</button>
+                    <h4 class="modal-title">
+                        Create Folder for Files
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="alert alert-danger alert-dismissable validpanel">
+                                <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                                . <a href="#" class="alert-link">Alert Link</a>.
+                            </div>
+                            <div class="ec_bg">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <form role="form" id="foldercreate">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3">Folder Name<span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                                                    <div class="col-md-8">
+                                                        <input class="form-control inputFormat" type="text" value="" id="cdir"><span style="font-size:10px;color:black;font-style:italic">(@@\/:*?"<>|.&$%#!~+`*^,) is not allowed.</span>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: none !important">
+                    <button type="submit" class="sbtbtn" id="CreateDir">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModal1" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog ">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        Upload  Files
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="ec_bg">
+                        <div class="col-md-12">
+                            <input type="hidden" id="maliciousfilename">
+                            <form id="fileupload" name="fileupload">
+                                <div class="form-group " id="fileclientdiv">
+                                    <label class="control-label col-md-3">Client </label>
+                                    <div class="col-md-8" style="margin-bottom: 5px;">
+                                        <input type="text" id="client" name="client" class="form-control inputFormat" autocomplete="off" placeholder="Type atleast 3 characters" />
+                                    </div>
+                                </div>
+                                <div class="form-group " id="filecasediv">
+                                    <label class="control-label col-md-3">Matter </label>
+                                    <div class="col-md-8">
+                                        <select name="cmatter" class="form-control selctInputFormat" style="background-color: white !important;" id="cmatter" required>
+                                            <option value="">Select Matter</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group " id="filecasedivlevel" style="display:none">
+                                    <label class="control-label col-md-3">Matter </label>
+                                    <div class="col-md-8" style="margin-bottom:5px;">
+                                        <span id="filecasedivleveltxt"> </span>
+                                    </div>
+                                </div>
+                                <div class="form-group " id="filefolderdiv">
+                                    <label class="control-label col-md-3">Choose Folder</label>
+                                    <div class="col-md-8">
+                                        <select name="" class="form-control selctInputFormat" style="background-color: white !important;" id="directory">
+                                            <option value="">Select Directory...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label class="control-label col-md-3">File <span class="required" aria-required="true">*</span></label>
+                                    <div class="col-md-8">
+                                        <div id="dropContainer" style="border:1px solid #ccc;width:100%;">
+                                            <center>
+                                                <h3><span class="glyphicon glyphicon-cloud" style="color:#ccc"> </span><span style="color:#ccc">Drag and Drop Files here</span></h3>
+                                                <input type="file" id="attachment" class="inputFormat" multiple required @*class="upload"*@>
+                                                <label for="attachment">@*(Please upload a file up to 20MBs only..)*@</label>
+                                                <output id="list"></output>
+                                                <span style="color:black;font-size:10px;font-style:italic">(File Name must be less than 100 characters and (@@\/:*?"<>|.&$%#!~+`*^,) characters are not allowed.)</span>
+                                            </center>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label class="control-label col-md-3">Description</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control inputFormat" type="text" id="filedetails" maxlength="50">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="progress" style="display:none">
+                        <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                            0%
+                        </div>
+                    </div>
+                    <div id="progressBarstatus" style="text-align:center; margin-top: -15px;display:none">
+                        Please wait document is uploading....
+                    </div>
+                    <div class="modal-footer" style="border-top: none !important">
+                        <button type="button" class="sbtbtn" id="createfiles">Upload</button>
+                        <button type="button" class="sbtbtn" id="resercreatefiles"> Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+        </style>
+        <script>
+            dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
+                evt.preventDefault();
+            };
+            dropContainer.ondrop = function (evt) {
+                // pretty simple -- but not for IE :(
+                var files1 = evt.dataTransfer.files;
+                var output = [];
+                for (var i = 0, f; f = files1[i]; i++) {
+                    output.push('<tr><td class="">', f.name, ' </td><td> ',
+                        f.size, ' bytes',
+                        '</td></tr>');
+                }
+                document.getElementById('list').innerHTML = '<table id="" style="font-size:13px;" class=" table table-striped"><tr><th style="background:#ccc;color:black;font-weight:normal">File Name</th><th style="background:#ccc;color:black;font-weight:normal">Size</th></tr>' + output.join('') + '</table>';
+                attachment.files = evt.dataTransfer.files;
+                evt.preventDefault();
+            };
+        </script>
+        @*//delete confirm model*@
+        <div id="confirm" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- dialog body -->
+                    <div class="modal-body">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        Hello world!
+                    </div>
+                    <!-- dialog buttons -->
+                    <div class="modal-footer"><button type="button" class="btn btn-primary">OK</button></div>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(document).on("click", "#myModal12", function () {
+                $(".validpanel").css("display", "none");
+                $('#myModal').modal({ show: true });
+            });
+            $(document).on("click", "#uploadfile", function () {
+                //$("#client").find('option:first').attr("selected", "selected");
+                $('#client').prop('selectedIndex', 0);
+                $("#cmatter").empty().append('<option value="">Select Matter</option>').find('option:first').attr("selected", "selected");
+            });
+        </script>
+        @*@Scripts.Render("~/bundles/jquery", "~/bundles/scripts")*@
+        <script language="javascript" type="text/javascript">
+        var ConverExtList = '@string.Join(",", DocManagerHelper.ConvertExts.ToArray())';
+        var EditedExtList = '@string.Join(",", DocManagerHelper.EditedExts.ToArray())';
+        var UrlConverter = '@Url.Content("~/webeditor.ashx?type=convert")';
+        var UrlEditor = '@Url.Action("editor", "Docs")';
+        </script>
+        <script>
+            //#example tbody tr
+            function sortTable(n, type = null) {
+                var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+                table = document.getElementById("doctable");
+                switching = true;
+                //Set the sorting direction to ascending:
+                dir = "asc";
+                /*Make a loop that will continue until
+                no switching has been done:*/
+                while (switching) {
+                    //start by saying: no switching is done:
+                    switching = false;
+                    //rows = table.rows;
+                    rows = $("#doctable >tbody>tr");
+                    /*Loop through all table rows (except the
+                    first, which contains table headers):*/
+                    for (i = 0; i < (rows.length - 1); i++) {
+                        //start by saying there should be no switching:
+                        shouldSwitch = false;
+                        /*Get the two elements you want to compare,
+                        one from current row and one from the next:*/
+                        x = rows[i].getElementsByTagName("TD")[n];
+                        y = rows[i + 1].getElementsByTagName("TD")[n];
+                        /*check if the two rows should switch place,
+                        based on the direction, asc or desc:*/
+                        console.log(x.innerHTML.toLowerCase());
+                        if (type == "1") {
+                            if (dir == "asc") {
+                                if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            } else if (dir == "desc") {
+                                if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            }
+                        }
+                        else if (type == "2") {
+                            if (dir == "asc") {
+                                if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            } else if (dir == "desc") {
+                                if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            }
+                        }
+                        else {
+                            if (dir == "asc") {
+                                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            } else if (dir == "desc") {
+                                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                                    //if so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (shouldSwitch) {
+                        /*If a switch has been marked, make the switch
+                        and mark that a switch has been done:*/
+                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                        switching = true;
+                        //Each time a switch is done, increase this count by 1:
+                        switchcount++;
+                    } else {
+                        /*If no switching has been done AND the direction is "asc",
+                        set the direction to "desc" and run the while loop again.*/
+                        if (switchcount == 0 && dir == "asc") {
+                            dir = "desc";
+                            switching = true;
+                        }
+                    }
+                }
+            }
+        </script>
+    </div>
+    <div id="myModalcheckin" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" style="width:400px;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                @*<div class="modal-header btn-success">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            CheckIn Documents
+                        </h4>
+                    </div>*@
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        <img src="/newassets/img/receipt-check.png" style="margin:-10px 0px 0 -12px">
+                    </h4>
+                </div>
+                <div class="modaltitle" style="border-bottom: none; margin: -35px 0 0 0;">
+                    <h4>Check In</h4>
+                </div>
+                <form id="fileuploadin" name="fileupload">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="hidden" id="checkinfileid">
+                                <div class="form-group">
+                                    <label>FileName</label>
+                                    <div id="checkinfilename"></div>
+                                </div>
+                                @*<div class="form-group ">
+                                        <label class="control-label col-md-4">FileName</label>
+                                        <div class="col-md-8">
+                                            <span id="checkinfilename"></span>
+                                        </div>
+                                    </div>
+                                    <br><br>
+                                    <div class="form-group ">
+                                        <label class="control-label col-md-4">File <span class="required" aria-required="true">*</span></label>
+                                        <div class="col-md-8" style="margin-top:5px;">
+                                            <span> <input type="file" class="inputFormat" id="attachmentcheckin" required></span>
+                                        </div>
+                                    </div>*@
+
+                                <div class="form-group">
+                                    <div class="dragUpload">
+                                        <div class="upload-icon"> <img src="/newassets/img/upload-cloud.svg"> </div>
+                                        <p class="upload-text" style="font-size:14px;margin:0;"><span><label for="attachmentcheckin" style="color: #0369A1; font-weight:600; cursor:pointer;">Click to upload</label></span> or drag and drop</p>
+                                        <p class="upload-subtext" style="font-size:14px;margin:0;">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                                        <input type="file" id="attachmentcheckin" class="inputFormat" required style="display:none;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="modal-footer" style="border-top: none !important">
+                            <button type="button" class="sbtbtn" id="createcheckinfiles"> Upload </button>
+                            <button type="reset" class="sbtbtn" id="resercreatefiles"> Reset</button>
+                        </div>*@
+                    <div class="modal-footer" style="border-top: none !important">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="reset" class="btn btn-secondary" data-dismiss="modal" id="resercreatefiles" style="width:100%;">Cancel</button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-primary" id="createcheckinfiles" style="width:100%;">Check In</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

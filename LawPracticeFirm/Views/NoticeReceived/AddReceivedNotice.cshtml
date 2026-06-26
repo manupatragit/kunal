@@ -1,0 +1,771 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    var userid = Session["sessionuserid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+@{ var date = DateTime.Now.Date;
+    var day = date.Day;
+    var day1 = "";
+    if (day.ToString().Length < 2)
+    {
+        day1 = "0" + day;
+    }
+    else
+    {
+        day1 = day.ToString();
+    }
+    var month = date.Month;
+    var month1 = "";
+    if (month.ToString().Length < 2)
+    {
+        month1 = "0" + month;
+    }
+    else
+    {
+        month1 = month.ToString();
+    }
+    var year = date.Year;
+    var todayddate = year + "-" + month1 + "-" + day1;
+}
+
+<style>
+    .upload_btn {
+        background: #fff;
+        padding: 8px 12px;
+        outline: 0 !important;
+        border: 1px solid rgba(209, 213, 219, 1);
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(65, 70, 81, 1);
+        display: inline-block;
+        float: right;
+        cursor: pointer;
+    }
+
+    .inputFormatTextArea {
+        border-radius: 7px !important;
+        height: 36px !important;
+        margin-top: 0px !important;
+        padding: 7px 10px !important;
+        border: 1px solid #d5d7da !important;
+        background: #ffffff !important;
+        width: 100%;
+    }
+    .tablinks {
+        border: none;
+        background: transparent;
+        font-size: 14px;
+        color: #717680;
+        font-weight: 600;
+        padding: 0 0 5px 0;
+        margin: 0 15px 0 0;
+    }
+    .active {
+        color: #0369a1 !important;
+        border-bottom: 2px solid #0369a1 !important;
+    }
+    #divOCRContent, #divlabelchkbox {
+        height: 360px;
+        overflow-y: auto;
+    }
+</style>
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-8 text-left">
+                <p class="ctitle" id="dynamicrejoindernotiheader">Add Details Of Notices Received</p>
+            </div>
+            <div class="col-md-4">
+                @if (role.ToString() == "1")
+                {
+                    <button id="resetcf" class="btntop pull-right">Refresh Custom Fields</button>
+
+                    @*<img src="/newassets/images/reset_btn.png" id="resetcf" title="Reset All Custom Fields" class="pull-right publish" style="cursor:pointer; height: 25px; margin-right: 10px;display:none">*@
+                }
+            </div>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table" style="padding:15px;">
+            <form enctype="multipart/form-data" autocomplete="off" class="ec_bg" id="noticereceivedform">
+                <!-- Start About boxes -->
+                <input type="hidden" value="" id="hiddenid" />
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>OCR Notice</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-12">
+                            <fieldset style="border-radius: 10px; margin: 0; padding: 15px 0;">
+                                @*<legend class="sbtbtn" onclick="myhideshowOCRNotice()" style="cursor:pointer">OCR Notice +</legend>*@
+                                <div id="OtherOCRNotice">
+                                    <div id="fileupload">
+                                        <div class="col-md-12">
+                                            @*<div>
+                                                <label>Import Document  </label>
+                                                <input type="file" id="attachment" class="form-control" value="AA" accept="application/pdf,image/png,image/jpeg" onchange="return fileValidation()" />
+                                            </div>*@
+
+                                            <div>
+                                                <div class="form-group">
+                                                    <span id="fileName" style="font-size:12px; color:#444;"></span>
+                                                    <span id="deleteFile" style="display: none; margin-left: 10px; border: none; color: red; padding: 4px 8px; border-radius: 4px; cursor: pointer; ">
+                                                        ✖
+                                                    </span>
+                                                    <label for="attachment" type="button" class="upload_btn"> <img src="/newassets/img/upload-cloud.svg">Import Document </label>
+                                                    <input type="file" class="inputFormat" id="attachment" accept="application/pdf,image/png,image/jpeg" onchange="return fileValidation()" style="display:none;">
+                                                </div>
+                                            </div>
+
+                                                
+                                            </div>
+                                            <div class="col-md-12 text-right" style="margin:10px 0 0 0;">
+                                                <button type="button" class="btn btn-primary" id="savecasefilenew">Convert Document</button>
+                                                <button type="button" class="btn btn-secondary" id="showomoredetail" style="margin: 0 0px 0 10px;">More Details</button>
+                                            </div>
+                                            <div style="display:none">
+                                                <div class="col-md-12" style="padding-bottom:20px;">
+                                                    <p>
+                                                        OCR converter service allows you to convert scanned images and documents into editable files.</br> myKase has provided the facility of OCR for your convenience and
+                                                        research. myKase is not responsible for (and makes no Warranty with respect to) accuracy, adequacy and reliability or completeness of text.<br> OCR doesn't always work
+                                                        well with Handwriting and cursive letters!<br> Max file size 20 MB
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" style="display:none">
+                                                <label>LANGUAGE</label>
+                                                <select class="form-control selctInputFormat" style="background-color: #ebebeb !important;" id="ocrlanguage">
+                                                    <option value="" selected>Select</option>
+                                                    <option value="eng">English</option>
+                                                    <option value="hin">Hindi</option>
+                                                    <option value="enghin">English + Hindi</option>
+                                                    <option value="kan">Kannad</option>
+                                                    <option value="mal">Malyalam</option>
+                                                    <option value="mar">Marathi</option>
+                                                    <option value="tam">Tamil</option>
+                                                    <option value="guj">Gujarati</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label >General Information</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label >Reference Number</label>
+                                <textarea type="text" class="inputFormatTextArea" id="Refernceno"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label >Internal Number</label>
+                                <textarea type="text" class="inputFormatTextArea" id="IntRefernceno"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label > Sender Details</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label">Sender's Name </span></label>
+                                <textarea type="text" class="inputFormatTextArea" id="txtrejoindernoticeto"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label">Sender's Address </span></label>
+                                <textarea type="text" class="inputFormatTextArea" id="txtaddressto"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label">Other Details of Sender</span></label>
+                                <textarea type="text" class="inputFormatTextArea" id="txtotherdetailsofsender"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Receiver Details</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label"> Receiver's Name</label>
+                                <select class="selctInputFormat" id="txtsendernameReceived"></select>
+                            </div>
+                            <div class="form-group" style="display:None" id="txtothersenderdiv">
+                                <input type="text" id="txtsendernameother" value="" name="txtsendernameother" class="inputFormat">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label"> Receiver's Address</span></label>
+                                <textarea type="text" class="inputFormatTextArea" id="txtsenderaddress"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label">Other Details of Receiver</span></label>
+                                <textarea type="text" class="inputFormatTextArea" id="txtotherdetailsofaddress"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label >Notice Details</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label">Type</span></label>
+                                <select class="selctInputFormat" id="ddlnoticetype">
+                                    <option value="">Please Select</option>
+                                    <option value="Statutory">Statutory</option>
+                                    <option value="Non-Statutory">Non-Statutory</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label">Subject</span></label>
+                                <select class="selctInputFormat" id="txtrejoindersub"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label">Title<span class="required" aria-required="true"><b>*</b> </span></span></label>
+                                <input type="text" class="inputFormat" id="txtrejoindertitle" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label">Date of Notice</span></label>
+                                <input type="date" class="inputFormat" id="txtdateofcreaterejoinder" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label">Date Of Receipt</span></label>
+                                <input type="date" class="inputFormat" id="dateofServiceofNotice" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label ><span class="control-label">Due Date </span></label>
+                                <input type="date" class="inputFormat" id="txtduedatenotice" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label><span class="control-label">Mode of Delivery</span></label>
+                                <select class="selctInputFormat" name="languageSelect[]" id="txtmodeofReceipt" multiple style="border-radius:10px;">
+                                    <option value="Post"> Speed Post/Registered Post</option>
+                                    <option value="Courier">Courier</option>
+                                    <option value="Email">Email</option>
+                                    <option value="ByHand">By Hand</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label><span class="control-label"> Notice Through/To</span></label>
+                                <select class="selctInputFormat" name="languageSelect[]" id="txtnoticetreceivedhrough" multiple style="border-radius:10px;">
+                                    <option value="Receiver">Receiver</option>
+                                    <option value="CounselforReceiver">Counsel for Receiver</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label><span class="control-label">Notice Status</span></label>
+                                <select class="selctInputFormat" id="txtStatusOfNotice"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label><span class="control-label">Amount Claimed</span></label>
+                                <input type="text" class="inputFormat" id="txtamountclaimed" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label><span class="control-label">Tags</span></label>
+                                <input type="text" class="inputFormat" id="txttag" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label><span class="control-label"> Priority</span></label>
+                                <select class="selctInputFormat" id="txtCriticality" onchange="fnhighpriorityreason()">
+                                    <option value="0">
+                                        Please Select
+                                    </option>
+                                    <option value="Low">
+                                        Low
+                                    </option>
+                                    <option value="Medium">
+                                        Medium
+                                    </option>
+                                    <option value="High">
+                                        High
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            @*<div class="form-group">
+                                <label><span class="control-label">Upload File</span></label>
+                                <input type="file" multiple class="inputFormat" id="txtrejoinderfile" />
+                            </div>*@
+                            <div>
+                                <div class="form-group">
+                                    <label for="txtrejoinderfile" type="button" class="upload_btn" style="float:unset"><span class="control-label"><img src="/newassets/img/upload-cloud.svg"> Upload File</span></label>
+                                    
+                                    <input type="file" class="inputFormat" id="txtrejoinderfile" accept="application/pdf,image/png,image/jpeg" multiple="" style="display:none;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row" style="display:None" id="divhighpriorityreson">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="form-group col-md-8">
+                        <label><span class="control-label col-md-12"> Reason for high priority<span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                        <textarea type="text" class="inputFormatTextArea" id="reasonforhighpriority"></textarea>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Description</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-12 form-group">
+                            <label><span class="control-label">Notice Text</span></label>
+                            <textarea type="text" class="inputFormatTextArea" id="CreateNotice"></textarea>
+                            <div class="grid-container" style="display:none">
+                                <script>
+                                    CKEDITOR.replace('CreateNotice', {
+                                        toolbar:
+                                            [
+                                                { name: 'document', groups: ['mode', 'document', 'doctools'], items: ['Source', '-', 'Print', '-', 'Templates'] },
+                                                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'justify', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'] },
+                                                { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                                { name: 'tools', items: ['Maximize', '-'] },
+                                                { name: 'styles', items: ['Styles', 'format', 'Font', 'FontSize'] },
+                                                { name: 'colors', items: ['TextColor', 'BGColor'] },
+                                                { name: 'editing', items: ['Scayt'] }
+                                            ],
+                                        height: 100
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12"><hr /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2" style="display:none">
+                        <div class="">
+                            <div class="form-group col-md-12">
+                                <label>Date of Delivery (Once Approved by Client)</label>
+                                <input type="date" class="form-control" id="txtDateofDelivery" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="display:none">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label>Date of Receipt (Proof)</label><span style="color:red">*</span>
+                                <input type="date" class="form-control" id="txtdateofreceipt" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="display:none">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label>Current Status</label>
+                                <textarea type="text" class="inputFormatTextArea" id="txtcurrentstatus"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="display:none">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label>Upload Files</label>
+                                <input type="file" class="form-control" id="txtrejoinderfile" multiple />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="htmlContainer">
+                    <div class="col-md-4">
+                        <label class="formLabel colorDark"> Custom Fields</label>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="col-md-12">
+                            @{Html.RenderPartial("CustomizeFormField", new ViewDataDictionary { { "Pagename", "ReceivedNotice" }, { "PageId", "13" } });}
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <button type="submit" id="savenoticebtn" class="btn btn-primary" value="Save">Save</button>
+                    </div>
+                </div>                       <!-- /.content -->
+</form> 
+        </div>
+    </div>
+</section>
+       
+        <div class="modal fade" id="myOCRModal">
+            <div class="modal-dialog" style="width:90%">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        &nbsp;
+                        <a href="#" class="close" data-dismiss="modal">&times;</a>
+                    </div>
+                    <div class="modal-body" style="overflow:hidden;">
+                        <div class="ctitle">OCR Convertor</div>
+                        <div class="tab" style="margin:15px 0;">
+                            <button class="tablinks active" onclick="openCity(event, 'ocrwithcontrol')">Ocr with Controls</button>
+                            <button class="tablinks" onclick="openCity(event, 'ocrorignalimage')">Original Copy</button>
+                        </div>
+                        <div class="tabcontent" id="ocrwithcontrol" style="overflow:hidden;display:block;">
+                                <div id="divOCRContent" class="col-md-8">
+                                </div>
+                                <div class="col-md-4" style="display:block;" id="divlabelchkbox">
+                                    <label style="border-bottom:1px solid black; font-weight:600;">Input Field Controls</label>
+                                    <div style="padding-left:2px;">
+                                        <label>Please select checkbox<span>*</span></label>
+                                        
+                                        <br />
+                                        <input type="checkbox" id="Referncenolbl" name="Refernceno" dirname="abcv" value="Reference Number" class="fieldnamecls">
+                                        <label for="Refernceno">Reference Number</label><br>
+                                        <input type="checkbox" id="IntReferncenolbl" name="IntRefernceno" dirname="abcv" value="Reference Number" class="fieldnamecls">
+                                        <label for="IntRefernceno">Internal  Number</label><br>
+                                        <input type="checkbox" id="txtrejoindernoticetolbl" name="txtrejoindernoticeto" dirname="abcv" value="Sender's Name" class="fieldnamecls">
+                                        <label for="txtrejoindernoticeto">Sender's Name</label><br>
+                                        <input type="checkbox" id="txtaddresstolbl" name="txtaddressto" dirname="abcv" value="Sender's Address" class="fieldnamecls">
+                                        <label for="txtaddressto">Sender's Address</label><br>
+                                        <input type="checkbox" id="txtotherdetailsofsenderlbl" name="txtotherdetailsofsender" dirname="abcv" value="Other Details of Sender" class="fieldnamecls">
+                                        <label for="txtotherdetailsofsender">Other Details of Sender</label><br>
+                                        <input type="checkbox" id="txtsenderaddresslbl" name="txtsenderaddress" dirname="abcv" value="Receiver’s Address" class="fieldnamecls">
+                                        <label for="txtsenderaddress">Receiver’s Address</label><br>
+                                        <input type="checkbox" id="txtotherdetailsofaddresslbl" name="txtotherdetailsofaddress" dirname="abcv" value="Other Details of Receiver" class="fieldnamecls">
+                                        <label for="txtotherdetailsofaddress">Other Details of Receiver</label><br>
+                                        <input type="checkbox" id="txtrejoindertitlelbl" name="txtrejoindertitle" dirname="abcv" value="Title" class="fieldnamecls">
+                                        <label for="txtrejoindertitle">Title</label><br>
+                                        <input type="checkbox" id="dateofServiceofNoticelbl" name="dateofServiceofNotice" dirname="abcv" value="Date Of Receipt" class="fieldnamecls">
+                                        <label for="dateofServiceofNotice">Date Of Receipt</label><br>
+                                        <input type="checkbox" id="txtdateofcreaterejoinderlbl" name="txtdateofcreaterejoinder" dirname="abcv" value="Date of Notice" class="fieldnamecls">
+                                        <label for="txtdateofcreaterejoinder">Date of Notice</label><br>
+                                        <input type="checkbox" id="txtduedatenoticelbl" name="txtduedatenotice" dirname="abcv" value="Date of Notice" class="fieldnamecls">
+                                        <label for="txtduedatenotice">Due Date</label><br>
+                                        <input type="checkbox" id="txttaglbl" name="txttag" dirname="abcv" value="Tags" class="fieldnamecls">
+                                        <label for="txttag">Tags</label><br>
+                                        <input type="checkbox" id="txtamountclaimedlbl" name="txtamountclaimed" dirname="abcv" value="Amount Claimed" class="fieldnamecls">
+                                        <label for="txtamountclaimed">Amount Claimed</label><br>
+                                        <input type="checkbox" id="CreateNoticelbl" name="CreateNotice" dirname="abcv" value="Add Received Notice" class="fieldnamecls">
+                                        <label for="CreateNotice">Add Received Notice</label><br>
+                                    </div>
+                                </div>
+                           
+                        </div>
+                        <div id="ocrorignalimage" class="tabcontent">
+                            <div id="ocrimgdiv">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="myModalnoticesubjectname" class="modal fade" role="dialog" data-backdrop="static">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" id="closemodels" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">
+                        Create Notice Subject
+                    </h4>
+                </div>
+                <div class="modal-body " style="height:505px; overflow-y:scroll;background:white;">
+                    <form>
+                        <div class="row">
+                            <div class="col-lg-12" style="overflow-x:auto">
+                                <div class="row">
+                                    <div class="col-md-12 inputbg" style="height: 39px !important;padding: 4px 0px 0px 0px !important;">
+                                        <div class="form-group form-horizontal">
+                                            <input type="hidden" value="" id="hiddensubjectid" />
+                                            <label class="control-label col-md-3"> Status Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                            <div class="col-md-6">
+                                                <input class="form-control inputFormat" maxlength="50" style="margin-bottom:5px;" type="text" id="subjectname" placeholder="Enter Name">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="button" class="sbtbtn" id="btnSubject" style="padding: 4px 8px 5px 8px;">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-panel table-responsive" style="margin-top:10px;">
+                                    <table id="tblSubjectTaskType" class="table" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <th style="width:10%"><div class="thbg">Sl.NO </div></th>
+                                                <th><div class="thbg"> Status Name</div></th>
+                                                <th><div class="thbg">Action</div></th>
+                                            </tr>
+                                        </tbody>
+                                        <tbody id="tblsubjectdetailbidy"></tbody>
+                                    </table>
+                                    <div style="text-align: center; display: none;" id="subjectstatuss">No Subject Found</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="myOCRModalContent">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <a href="#" class="close" data-dismiss="modal">&times;</a>
+                        <h3 class="modal-title">OCR Copy</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="ocr_doc_panel1 col-md-12" style="border-top:1px solid rgb(0,0,0)">
+                                    <div id="divOCRContentresponse" class="col-md-12"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="myModalnoticestatus" class="modal fade" role="dialog" data-backdrop="static">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" id="closemodels" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">
+                        Create Notice Status
+                    </h4>
+                </div>
+                <div class="modal-body " style="height:505px; overflow-y:scroll;background:white;">
+                    <form>
+                        <div class="row">
+                            <div class="col-lg-12" style="overflow-x:auto">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group form-horizontal">
+                                            <input type="hidden" value="" id="hiddensubjectid" />
+                                            <label class="control-label col-md-3"> Status Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                            <div class="col-md-6">
+                                                <input class="form-control" style="margin-bottom:5px;" type="text" id="statusname" placeholder="Enter Name">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="button" class="sbtbtn" id="btnStatussubmit" style="padding: 4px 8px 5px 8px;">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-panel table-responsive" style="margin-top:10px;">
+                                    <table id="tblSubjectTaskType" class="table" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <th style="width:10%">Sl.NO </th>
+                                                <th>Status Name</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </tbody>
+                                        <tbody id="tblcustomnotiststus"></tbody>
+                                    </table>
+                                    <div style="text-align: center; display: none;" id="subjectstatuss">No Subject Found</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div id="myModalcontacttype" class="modal fade" role="dialog" data-backdrop="static">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" id="closemodels" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">
+                        Create  Contact
+                    </h4>
+                </div>
+                <div class="modal-body " style="height:505px; overflow-y:scroll;background:white;">
+                    <form id="contacttypereset">
+                        <div class="row">
+                            <div class="col-lg-12" style="overflow-x:auto">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="formLabel colorDark"><span class="control-label col-md-12"> Contact Type <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                        <div class="col-md-12">
+                                            <select class="form-control selctInputFormat" name="ccontacttype" required id="ccustcontacttype">
+                                                <option value="" selected>Please Select </option>
+                                                <option value="Individual">Individual </option>
+                                                <option value="SoleProprietorship">Sole Proprietorship</option>
+                                                <option value="PartnershipFirm">Partnership Firm</option>
+                                                <option value="CompanyLLC">Company LLC</option>
+                                                <option value="CompanyLLP">Company LLP</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group col-md-12">
+                                            <label class="formLabel colorDark"><span class="control-label col-md-12"> First Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                            <input type="text" class="form-control inputFormat" id="cusfname" required />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group col-md-12">
+                                            <label class="formLabel colorDark"><span class="control-label col-md-12"> Last Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                            <input type="text" class="form-control inputFormat" id="cuslname" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group col-md-12">
+                                            <label class="formLabel colorDark"><span class="control-label col-md-12"> Mobile No <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                            <input type="text" class="form-control inputFormat" onkeypress="return isNumberKey(event)" id="cusmobileno" maxlength="10" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group col-md-12">
+                                            <label class="formLabel colorDark"><span class="control-label col-md-12"> Email <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                            <input type="text" class="form-control inputFormat" id="cusemailid" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group col-md-12">
+                                            <label class="formLabel colorDark"><span class="control-label col-md-12"> Country <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                            <select class="form-control selctInputFormat" name="custcocountry" required id="custcocountry">
+                                                <option value="">Please select</option>
+                                                <option value="1">India</option>
+                                                <option value="2">Bangladesh</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group col-md-12">
+                                            <label class="formLabel colorDark"><span class="control-label col-md-12"> State <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                            <select class="form-control selctInputFormat" name="custmstate" required id="custmstate"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group col-md-12">
+                                            <label class="formLabel colorDark"><span class="control-label col-md-12"> City <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                            <select class="form-control selctInputFormat" name="custmstate" required id="custcity"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group col-md-12">
+                                            <label class="formLabel colorDark"><span class="control-label col-md-12"> Pin No <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                                            <input type="text" class="form-control inputFormat" onkeypress="return isNumberKey(event)" required id="cuspinno" maxlength="6" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group col-md-12">
+                                            <label class="formLabel colorDark"><span class="control-label col-md-12"> Orgnization</span></label>
+                                            <input type="text" class="form-control inputFormat" id="custorgnization" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="sbtbtn pull-right" id="btnContactypeSubject">Save</button>
+                                    </div>
+                                </div>
+                                <div class="table-panel table-responsive" style="margin-top:10px;">
+                                    <table id="tblSubjectTaskType" class="table" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <th style="width:10%">Sl.NO </th>
+                                                <th>Contact Type</th>
+                                                <th>First Name</th>
+                                                <th>Last Name</th>
+                                                <th>Mobile</th>
+                                                <th>Email</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </tbody>
+                                        <tbody id="tblcustomecontatype"></tbody>
+                                    </table>
+                                    <div style="text-align: center;" id="customecontauss"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var newfilesize = 20480;
+            function googleTranslateElementInit() {
+                new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'bn,en,gu,hi,kn,ml,mr,pa,ta,te,ur,ne', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL }, 'google_translate_element');
+            }
+        </script>
+        <script>
+            function exportHTML() {
+                var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+                    "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+                    "xmlns='https://www.w3.org/TR/REC-html40'>" +
+                    "<head><meta charset='utf-8'><title>OCR DOCS</title></head><body>";
+                var footer = "</body></html>";
+                var sourceHTML = header + document.getElementById("divOCRContent").innerHTML + footer;
+                var source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+                var fileDownload = document.createElement("a");
+                document.body.appendChild(fileDownload);
+                fileDownload.href = source;
+                fileDownload.download = 'ocrdocs.doc';
+                fileDownload.click();
+                document.body.removeChild(fileDownload);
+            }
+        </script>
+        <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        <script src="~/Scripts/Notice/AddReceivedNotice.js?4.1"></script>
+        <script src="~/Scripts/Notice/commonocr.js?1.8"></script>

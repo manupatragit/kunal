@@ -1,0 +1,2097 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+@{
+    var _dashhscfield = Convert.ToString(Session["hscfield"]);
+    if (_dashhscfield.ToString() == "display:unset")
+    {
+        _dashhscfield = "display:block";
+    }
+}
+@{
+    Session["IPRDACustomization"] = @ViewBag.IPRDACustomtype;
+}
+@{
+    Session["IOCLCustomization"] = @ViewBag.IOCLCustomtype;
+
+}
+<script>
+    var iprdaType = "@Session["IPRDACustomization"]";
+    var ioclType = "@Session["IOCLCustomization"]";
+</script>
+@*<style>
+        .has-items {
+            top: -110px !important;
+            height: 134px !important;
+            overflow-y: SCROLL !important;
+        }
+    </style>*@
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+
+    .add {
+        color: #000000;
+        font-size: 14px;
+        border: 1px solid #d5d7da;
+        border-radius: 0 7px 7px 0px;
+        padding: 9px 11px 9px 11px;
+        text-align: center;
+        margin: 0 0 0 -2px;
+        display: flex;
+        gap: 2px;
+        align-items: center;
+        font-weight: 600;
+    }
+
+    .selectize-input {
+        padding: 3px 5px 0 0 !important;
+    }
+
+    .spacer-h {
+        min-height: 70px;
+    }
+
+    .selectize-input > input {
+        font-size: 16px !important;
+        width: 100% !important;
+    }
+
+    .form-grouph {
+        height: 80px;
+    }
+
+
+    .inputFormatTextArea {
+        border-radius: 7px !important;
+        height: 72px !important;
+        margin-top: 0px !important;
+        padding: 7px 10px !important;
+        border: 1px solid #d5d7da !important;
+        background: #ffffff !important;
+        font-size: 16px !important;
+        font-weight: 400 !important;
+    }
+
+    .selectize-control.multi .selectize-input.has-items {
+        max-height: 100px;
+        overflow-y: auto;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+</style>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+@*<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;700&display=swap" rel="stylesheet">*@
+<script src="~/Scripts/Firm/Pages/EditCase.js?5.8" type="text/javascript" language="javascript"></script>
+<script src="~/Scripts/Firm/Pages/CaseFilingDates.js?1.3" type="text/javascript" language="javascript"></script>
+<script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+<link href="~/Manupanel/jquerydatetimepicker/jquery.datetimepicker.css" rel="stylesheet" />
+<script src="~/Manupanel/jquerydatetimepicker/jquery.js"></script>
+<script src="~/Manupanel/jquerydatetimepicker/jquery.datetimepicker.js"></script>
+<script src="~/Content/multipleselect/selectize.js"></script>
+<link href="~/Content/multipleselect/dist/css/selectize.bootstrap2.css" rel="stylesheet" />
+<link href="~/Content/multipleselect/dist/css/jquery.magicsearch.min.css" rel="stylesheet" />
+<script>
+    var roleids = "@Session["sessionroleid"]";
+    $(document).on('keypress', '#OppositePartyCounselphone,#fCourtfee', function (event) {
+        var regex = new RegExp("^[0-9]+$");
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (!regex.test(key)) {
+            event.preventDefault();
+            return false;
+        }
+    });
+</script>
+<script>
+    $(document).on('click', 'div .clientdefault .selectize-input div.item', function (e) {
+        var select = $('#clientto').selectize();
+        var selectSizeControl = select[0].selectize;
+        // 1. Get the value
+        var selectedValue = $(this).attr("data-value");
+        // 2. Remove the option
+        select[0].selectize.removeItem(selectedValue);
+        select[0].selectize.refreshItems();
+        select[0].selectize.refreshOptions();
+        $(".div.selectize-input div.item").css("padding", "7px 10px");
+    });
+    $(document).on('click', 'div .userdefault .selectize-input div.item', function (e) {
+        var select = $('#assignto').selectize();
+        var selectSizeControl = select[0].selectize;
+        // 1. Get the value
+        var selectedValue = $(this).attr("data-value");
+        // 2. Remove the option
+        select[0].selectize.removeItem(selectedValue);
+        select[0].selectize.refreshItems();
+        select[0].selectize.refreshOptions();
+        $(".div.selectize-input div.item").css("padding", "7px 10px");
+    });
+</script>
+<script>
+    var type = 8;
+    var filesize =@ViewBag.filesize;
+    var token = "@ViewBag.token";
+    var userid = "@Session["sessionuserid"]";
+    var userroleid = "@role";
+       var IndusindCustomization= "@ViewBag.IndusindCustomtype";
+</script>
+<style>
+    #content .radio-inline, .checkbox-inline {
+        padding-left: 0px;
+        margin-left: 10px;
+        display: block !important;
+        padding-top: 3px;
+    }
+    /*Adding some css for looks good*/
+    span.error {
+        display: block;
+        visibility: hidden;
+    }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <a class="goback" id="goBack" href="/@Session["firmcode"]/firm/StandardCaseList"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+            <p class="ctitle"> Edit Matter <a href="#"><img src="~/newassets/img/info-circle.png" style="margin:-7px 0 0 0;" /></a></p>
+        </div>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1" style="justify-content: flex-end; padding: 3px 14px 0px;">
+                    <div class="table-header">
+                        <form id="updatematterform" enctype="multipart/form-data" autocomplete="new-text" @*onsubmit="return validateform()"*@>
+                            <input type="hidden" id="fshortcasemap">
+                            <input type="hidden" id="fcheckclient">
+                            <input type="hidden" id="clientids">
+                            <input type="hidden" id="hdncaseId">
+                            <input type="hidden" id="ExtrapartyId">
+
+                            <div class="row devider">
+                                <div class="col-md-4">
+                                    <label>
+                                        Select Category<span class="required " aria-required="true"><b> *</b> </span>
+                                    </label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <table cellspacin="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="20px"><input type="radio" id="fselectusertype" name="fselectusertype" class="fselectusertype" value="user" checked=""></td>
+                                                        <td><label for="fselectusertype" style="margin-bottom: 0; font-size: 16px; color: #717680; font-weight: 400;">Individual</label></td>
+                                                        <td width="20px">&nbsp;</td>
+                                                        <td width="20px" align="left"><input type="radio" id="fselectusertype1" class="fselectusertype" class="fselectusertype" name="fselectusertype" value="company"></td>
+                                                        <td><label for="fselectusertype" style="margin-bottom: 0; font-size: 16px; color: #717680; font-weight: 400;">Company</label></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row devider">
+                                <div class="col-md-4 form-grouph">
+                                    <label>Client Information</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div id="findividualName" class=" form-grouph col-md-6">
+                                            <label id="Firstnameuser">First Name </label>
+                                            <input type="text"  id="fsidebindcaseclient" name="fsidebindcaseclient" class="form-control inputFormat" autocomplete="new-text" placeholder="Client's first name" />
+                                        </div>
+                                        <div class=" form-grouph col-md-6">
+                                            <label id="lblLastname">Last Name </label>
+                                            <input type="text" autocomplete="new-text" id="lsidebindcaseclient" name="lsidebindcaseclient" class="form-control inputFormat" placeholder="Client's last name">
+                                        </div>
+                                        <div id="divClientcontact" class="form-grouph col-md-6" style="display:none">
+                                            <label class="formLabel colorDark" id="mandtorylead" style="display:none;">Client Contact Lead<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                            <label class="formLabel colorDark" id="nonmandtorylead">Client Contact Lead</label>
+                                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="fcaseclientcontact" name="fcaseclientcontact">
+                                                <option value="" selected="">Select</option>
+                                            </select>
+                                        </div>
+                                        <div class=" form-grouph col-md-6" id="divClientTeammamber" style="display:none">
+                                            <label>Team Members</label>
+                                            <select class="clientdefault form-control InputFormat" id="clientto"
+                                                    multiple="multiple" name="clientto" placeholder="Client's team members"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<div class="form-group col-md-4">
+             <label class="formLabel colorDark" id="lblmiddlename">Middle Name</label>
+             <input type="text" autocomplete="new-text" id="msidebindcaseclient" name="msidebindcaseclient"      class="form-control inputFormat">
+            </div>*@
+                            </div>
+                            <div class="row devider">
+                                <div class="col-md-4 form-grouph">
+                                    <label>
+                                        Matter Information<span class="required " aria-required="true"><b> *</b> </span>
+                                    </label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="form-grouph col-md-6">
+                                            <label>Matter Type <span class="required" aria-required="true"><b>*</b> </span></label>
+                                            <select class="form-control selctInputFormat" style="background-color: white !important;" id="fmattertype" name="fmattertype" disabled required></select>
+                                        </div>
+                                        <div class="form-grouph col-md-6" style="display:none;" id="divcnrno">
+                                            <label>CNR Number</label>
+                                            <input class="form-control form-control-sm inputFormat" id="fcasecnr" name="fcasecnr" type="text" maxlength="16" />
+                                        </div>
+                                        <div class="form-grouph col-md-6" style="display:none;" id="fdisputemattertypediv">
+                                            <label>Resolution Type <span class="required" aria-required="true"><b>*</b> </span></label>
+                                            <select class="form-control selctInputFormat" id="fdisputemattertype" name="fdisputemattertype"></select>
+                                        </div>
+                                        <div class="form-grouph col-md-6" style="display:none;" id="fmattertypeotherdiv">
+                                            <label>Other Name<span class="required" aria-required="true"><b>*</b> </span></label>
+                                            <input type="text" id="fmattertypeother" name="fmattertypeother" class="form-control inputFormat">
+                                        </div>
+                                        <div class="form-grouph col-md-6" style="display:none;" id="divfcasetype">
+                                            <label style="display:block;">Case Type </label>
+                                            <div class="inputFormat">
+                                                <input type="radio" id="rdOriginal" name="rdcasetype" value="Original" checked />&nbsp;Original&nbsp;&nbsp;&nbsp;
+                                                <input type="radio" id="rdAppeal" name="rdcasetype" value="Appeal" />&nbsp;Appeal&nbsp;&nbsp;&nbsp;
+                                                <input type="radio" id="rdApplication" name="rdcasetype" value="Application" />&nbsp;Application
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="divcasetypeoption" style="display:none;">
+                                        <div class="form-group col-md-6">
+                                            <label>Certified Copy Applied on</label>
+                                            <input type="date" id="CertifiedCopyAppliedon" onkeypress="return false;" name="CertifiedCopyAppliedon" class="form-control form-control-sm inputFormat" max="" />
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label>Certified Copy Received on </label>
+                                            <input type="date" id="CertifiedCopyReceivedon" onkeypress="return false;" name="CertifiedCopyReceivedon" class="form-control form-control-sm inputFormat" max="" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-grouph col-md-6">
+                                            <label>Matter Name <span class="required" aria-required="true"><b>*</b> </span></label>
+                                            <input type="text" autocomplete="new-text" onfocus="$(this).removeAttr('readonly');" readonly id="fsideCasename" name="fsideCasename" class="form-control inputFormat" maxlength="200" required placeholder="Enter matter name" />
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label title="Add date on which matter filed in court Click + for adding return date ">Matter Filing Date </label>
+                                            <input class="form-control inputFormat" type="date" id="fcasefilingcdate" onkeypress="return false;" style="width: 78%;float:left;border-right: none;border-radius: 7px 0px 0px 7px;" />
+                                            <a href="#" data-toggle="modal" data-target="#caseFillingDates" class="add" title="Add Matter Filing Date"><span><img src="~/newassets/img/plus-icon-black.png" /></span> Add</a>
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label>Internal Status </label>
+                                            <select class="form-control selctInputFormat" id="fcasestatus" name="fcasestatus"></select>
+                                            <select class="form-control selctInputFormat" id="fdisposedoption" name="fdisposedoption" style="display:none;"></select>
+                                        </div>
+                                        <div class="form-grouph col-md-6" style="display:block;" id="divcaseinternalreference">
+                                            <label>Matter-Case Internal Number</label>
+                                            <input class="form-control inputFormat" id="fcasenumberinternal" name="fcasenumberinternal" type="text" maxlength="50" placeholder="Eg:125-45892678" />
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label>Matter-Case External Number</label>
+                                            <input class="form-control inputFormat" id="fcasenumber" name="fcasenumber" type="text" maxlength="50" placeholder="Eg:125-45892678" />
+                                        </div>
+                                        <div class="form-grouph col-md-6" id="firmcaseteamleaddiv">
+                                            <label>Matter Team Lead </label>
+                                            <select class="form-control selctInputFormat" id="fcaseteamlead" name="fcaseteamlead">
+                                                <option value="" selected="">Select User</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-grouph col-md-6" style="display:block;" id="divfcourt">
+                                            <label>Court </label>
+                                            <select class="form-control selctInputFormat" id="fcourt" required>
+                                                <option value="" selected>Select Court</option>
+                                                <option value="Supreme Court">Supreme Court</option>
+                                                <option value="High Court">High Court</option>
+                                                <option value="District Court">District Court</option>
+                                                <option value="Tribunals">Tribunals</option>
+                                                <option value="Add a Court">Add a Court</option>
+                                                <option value="Revenue Court">Revenue Court</option>
+                                                <option value="Rera Court">Rera Court</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-grouph col-md-6" id="fothercourtdiv" style="display:none;">
+                                            <label>Court Name</label>
+                                            <input type="text" id="fothercourt" name="fothercourt" class="form-control inputFormat" placeholder="Enter court name" />
+                                        </div>
+                                        <div class="form-grouph col-md-6" id="divsubjecttype">
+                                            <label>Subject Type </label>
+                                            <select class="form-control selctInputFormat" id="fcasecasetype" name="fcasecasetype"></select>
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label id="lblopenDate" title="Date on which matter is Started in myKase">Open Date</label>
+                                            <input class="form-control inputFormat" type="date" id="fcaseodate" onkeypress="return false;" name="fcaseodate" />
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label id="lblcloseDate" title="Date on which matter is Closed in myKase">Close Date</label>
+                                            <input class="form-control inputFormat" type="date" id="fcasecdate" onkeypress="return false;" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-grouph col-md-6" style="display:block; height:100px;" id="divcasedescription">
+                                            <label>Matter Description</label>
+                                            <textarea class="form-control inputFormatTextArea" name="fcasedetails" rows="3" id="fcasedetails" maxlength="8000" placeholder="Add description here"></textarea>
+                                        </div>
+                                        <div class="form-grouph col-md-6" style="height:100px;">
+                                            <label>Notes</label>
+                                            <textarea class="form-control inputFormatTextArea" id="fcasenotes" name="fcasenotes" rows="3" maxlength="8000" placeholder="Add matter notes"></textarea>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            <div class="row devider">
+                                <div class="col-md-4 form-grouph">
+                                    <label>Other Party Details</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="form-grouph col-md-6">
+                                            <label>Name</label>
+                                            <input type="text" class="form-control inputFormat" placeholder="Enter party name" id="fName" name="fName" maxlength="50" />
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label>Email</label>
+                                            <input type="text" class="form-control inputFormat" placeholder="Enter party email" id="fEmail" name="fEmail" maxlength="50" />
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label>Phone</label>
+                                            <input type="text" class="form-control inputFormat" placeholder="Enter party phone" id="fPhone" name="fPhone" maxlength="10" />
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label>Type</label>
+                                            <input type="text" class="form-control inputFormat" placeholder="Enter party type" id="fType" name="fType" maxlength="50" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="row devider">
+                                <div class="col-md-4 form-grouph">
+                                    <label>Financial Information</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row" id="divVSCF">
+                                        <div class="form-grouph col-md-6">
+                                            <label>Court Fee in (Rs)</label>
+                                            <input type="text" id="fCourtfee" name="fCourtfee" class="form-control inputFormat" maxlength="10" placeholder="Enter amount" />
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label>Valuation of Suit</label>
+                                            <input type="text" id="fValuationofSuit" name="fValuationofSuit" class="form-control inputFormat" maxlength="50" placeholder="Enter here" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row devider">
+                                <div class="col-md-4 form-grouph">
+                                    <label>Counsel Details</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="form-grouph col-md-6">
+                                            <label>Counsel Name </label>
+                                            <input type="text" autocomplete="off" id="OppositePartyCounselname" name="OppositePartyCounselname" class="form-control inputFormat" maxlength="50" placeholder="Enter counsel name" />
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label>Counsel Phone </label>
+                                            <input type="text" autocomplete="off" id="OppositePartyCounselphone" name="OppositePartyCounselphone" maxlength="16" class="form-control inputFormat" placeholder="Enter phone number" />
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label>Counsel Email</label>
+                                            <input type="text" autocomplete="off" id="OppositePartyCounselemail" name="OppositePartyCounselemail" class="form-control inputFormat" maxlength="50" placeholder="Enter email id" />
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row devider">
+                                <div class="col-md-4 form-grouph">
+                                    <label>Member Details</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="form-grouph col-md-6">
+                                            <label>Member Type </label>
+                                            <select id="teamtypeedit" required class="form-control selctInputFormat">
+                                                <option value="1">Admin</option>
+                                                <option value="2">Users</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-grouph col-md-6">
+                                            <label>
+                                                Add Members <span class="required" aria-required="true" style="color:red">
+                                                    <b>*</b>
+                                                </span>
+                                            </label>
+                                            @Html.DropDownList("assignto", new SelectList(ViewBag.Users, "val", "label"), "Please select", new
+                                    {
+                                        @id =
+                                    "assignto",
+                                        @class = "userdefault  form-control InputFormat",
+                                        @multiple = "multiple",
+                                        @required = "required"
+                                    })
+                                            <span id="clearmember" class="glyphicon glyphicon-refresh" title="Reset Members"
+                                                  style="cursor: pointer;float: right;margin-top: -28px;margin-right: 10px;"></span>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (@ViewBag.IPRDACustomtype == "IPRDACustomtype")
+                            {
+                                <div class="row devider">
+                                    <div class="col-md-4 form-grouph">
+                                        <label>Company Information</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="form-grouph col-md-6">
+                                                <label>Company Advocate</label>
+                                                <input type="text" autocomplete="off" id="compAdvocate" name="compAdvocate" class="form-control inputFormat" maxlength="100" placeholder="Enter Advocate name" />
+
+                                            </div>
+                                            <div class="form-grouph col-md-6">
+                                                <label>Company Department</label>
+                                                <select id="compDepart" class="form-control selctInputFormat">
+                                                    <option value="" disabled selected>Select Department</option>
+                                                    <option value="Administration">Administration</option>
+                                                    <option value="Building Permission">Building Permission</option>
+                                                    <option value="Planning">Planning</option>
+                                                    <option value="Land & Estate">Land & Estate</option>
+                                                    <option value="Accounts & Finance">Accounts & Finance</option>
+                                                    <option value="Engineering 1">Engineering 1</option>
+                                                    <option value="Engineering 2">Engineering 2</option>
+                                                    <option value="Illegal Construction Demolition">Illegal Construction Demolition</option>
+                                                    <option value="Fire">Fire</option>
+                                                    <option value="Sky Sign">Sky Sign</option>
+                                                    <option value="Arbitration">Arbitration</option>
+                                                    <option value="I.T.">I.T.</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                            @if (@ViewBag.IOCLCustomtype == "IOCLCustomtype")
+                            {
+                                <div class="row devider">
+                                    <div class="col-md-4 form-grouph">
+                                        <label>Company Information</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="form-grouph col-md-6">
+                                                <label>Company Advocate</label>
+                                                <input type="text" autocomplete="off" id="compAdvocate" name="compAdvocate" class="form-control inputFormat" maxlength="100" placeholder="Enter Advocate name" />
+
+                                            </div>
+                                            <div class="form-grouph col-md-6">
+                                                <label>Company Department</label>
+                                                <select id="compDepart" class="form-control selctInputFormat">
+                                                    <option value="" disabled selected>Select Department</option>
+                                                    <option value="Administration">Administration</option>
+                                                    <option value="Building Permission">Building Permission</option>
+                                                    <option value="Planning">Planning</option>
+                                                    <option value="Land & Estate">Land & Estate</option>
+                                                    <option value="Accounts & Finance">Accounts & Finance</option>
+                                                    <option value="Engineering 1">Engineering 1</option>
+                                                    <option value="Engineering 2">Engineering 2</option>
+                                                    <option value="Illegal Construction Demolition">Illegal Construction Demolition</option>
+                                                    <option value="Fire">Fire</option>
+                                                    <option value="Sky Sign">Sky Sign</option>
+                                                    <option value="Arbitration">Arbitration</option>
+                                                    <option value="I.T.">I.T.</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                            <div class="row devider">
+                                <div class="col-md-4 form-grouph">
+                                    <label>Custom Fields</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div id="content">
+                                        </div>
+                                        <div class="" id="hidecf" style="display:none">
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary pull-right" id="savematter" style="margin:13px 0px 0 13px;">Update</button>
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="row" id="divcasetypeoption" style="display:none;">
+    <div class="form-group col-md-6">
+        <label class="formLabel colorDark">Certified Copy Applied on</label>
+        <input type="date" id="CertifiedCopyAppliedon" onkeypress="return false;" name="CertifiedCopyAppliedon" class="form-control form-control-sm inputFormat" max="" />
+    </div>
+    <div class="form-group col-md-6">
+        <label class="formLabel colorDark">Certified Copy Received on </label>
+        <input type="date" id="CertifiedCopyReceivedon" onkeypress="return false;" name="CertifiedCopyReceivedon" class="form-control form-control-sm inputFormat" max="" />
+    </div>
+</div>
+@*<section class="wrapper" style="margin:unset !important">
+        <form id="updatematterform" enctype="multipart/form-data" autocomplete="off">
+            <div class="container-main">
+                <input type="hidden" id="fshortcasemap">
+                <input type="hidden" id="fcheckclient">
+                <input type="hidden" id="clientids">
+                <input type="hidden" id="hdncaseId">
+                <h2 class="title">
+                    edit matter
+                    <div id="modalopenpartynamediv" style="float:right;">
+                        <button type="button" class="sbtbtn pull-right" style="margin-right:10px;margin-top:-3px;display:none;" id="modalopenpartyname">Search cases By party Name</button>
+                    </div>
+                </h2>
+                <div class="ec_bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <table cellspacin="0" cellpadding="0">
+                                        <tbody>
+                                            <tr>
+                                                <td width="20px"><input type="radio" id="fselectusertype" name="fselectusertype" class="fselectusertype" value="user" checked=""></td>
+                                                <td><label class="formLabel colorDark" for="fselectusertype">Individual</label></td>
+                                                <td width="20px">&nbsp;</td>
+                                                <td width="20px" align="left"><input type="radio" id="fselectusertype1" name="fselectusertype" class="fselectusertype" value="company"></td>
+                                                <td><label class="formLabel colorDark" l for="fselectusertype1">Company</label></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label class="formLabel colorDark" id="Firstnameuser">First Name </label>
+                                    <input type="text" onfocus="$(this).removeAttr('readonly');" id="fsidebindcaseclient" name="fsidebindcaseclient" class="form-control inputFormat" autocomplete="new-text">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="formLabel colorDark" id="lblmiddlename">Middle Name</label>
+                                    <input type="text" autocomplete="new-text" id="msidebindcaseclient" name="msidebindcaseclient" class="form-control inputFormat">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="formLabel colorDark" id="lblLastname">Last Name </label>
+                                    <input type="text" autocomplete="new-text" id="lsidebindcaseclient" name="lsidebindcaseclient" class="form-control inputFormat">
+                                </div>
+                                <div class="form-group col-md-4" id="divClientcontact">
+                                    <label class="formLabel colorDark" id="mandtorylead" style="display:none;">Client Contact Lead<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <label class="formLabel colorDark" id="nonmandtorylead">Client Contact Lead</label>
+                                    <select class="form-control selctInputFormat" style="background-color: white !important;" id="fcaseclientcontact" name="fcaseclientcontact">
+                                        <option value="" selected="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Matter Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <input type="text" id="fsideCasename" name="fsideCasename" maxlength="200" class="form-control inputFormat" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Matter Type <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" id="fmattertype" name="fmattertype" disabled required></select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <select class="form-control form-control-sm selctInputFormat" id="fdisputemattertype" name="fdisputemattertype" style="display:none; background-color: white !important;"></select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <input type="text" id="fmattertypeother" name="fmattertypeother" class="form-control inputFormat" " style="display:none;">
+                                </div>
+                            </div>
+                            <div class="row" id="divmatteroption" style="display:none;">
+                                <div class="form-group col-md-6">
+                                    <label class="formLabel colorDark">Police Station</label>
+                                    <input type="text" id="matterpolicstation" name="matterpolicstation" value="" maxlength="50" class="form-control inputFormat" autocomplete="off" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="formLabel colorDark">FIR No.</label>
+                                    <input type="text" id="matterfirno" name="matterfirno" value="" maxlength="50" class="form-control inputFormat" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="row" style="display:block;" id="divfcasetype">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Case Type </label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="radio" id="rdOriginal" name="rdcasetype" value="Original" />&nbsp;Original
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="radio" id="rdAppeal" name="rdcasetype" value="Appeal" />&nbsp;Appeal
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="radio" id="rdApplication" name="rdcasetype" value="Application" />&nbsp;Application
+                                </div>
+                            </div>
+                            <div class="row" id="divcasetypeoption" style="display:none;">
+                                <div class="form-group col-md-6">
+                                    <label class="formLabel colorDark">Certified Copy Applied on</label>
+                                    <input type="date" id="CertifiedCopyAppliedon" name="CertifiedCopyAppliedon" class="form-control form-control-sm inputFormat" max="" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="formLabel colorDark">Certified Copy Received on </label>
+                                    <input type="date" id="CertifiedCopyReceivedon" name="CertifiedCopyReceivedon" class="form-control form-control-sm inputFormat" max="" />
+                                </div>
+                            </div>
+                            <div class="row" style="display:block;margin-top:5px;" id="divsubjecttype">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Subject Type </label>
+                                    <select class="form-control selctInputFormat" style="background-color: white !important;" id="fcasecasetype" name="fcasecasetype"></select>
+                                </div>
+                            </div>
+                            <div class="row" style="display:block;" id="divcasedescription">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Matter DESCRIPTION</label>
+                                    <textarea class="form-control form-control-sm inputFormatTextArea" name="fcasedetails" rows="3" id="fcasedetails" maxlength="8000" style="height: 40px !important; background-color: white !important;"></textarea>
+                                </div>
+                            </div>
+                            <div class="row" style="display:block;" id="divVSCF">
+                                <div class="form-group col-md-6">
+                                    <label class="formLabel colorDark">Valuation of Suit</label>
+                                    <input type="text" id="fValuationofSuit" name="fValuationofSuit" class="form-control inputFormat" maxlength="50">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="formLabel colorDark">Court Fee</label>
+                                    <input type="text" id="fCourtfee" name="fCourtfee" class="form-control inputFormat" maxlength="10">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12"><label>Counsel Details</label></div>
+                                <div class="form-group col-md-4">
+                                    <label class="formLabel colorDark">Name </label>
+                                    <input type="text" onfocus="$(this).removeAttr('readonly');" readonly autocomplete="new-text" id="OppositePartyCounselname" name="OppositePartyCounselname" class="form-control inputFormat">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="formLabel colorDark">Email</label>
+                                    <input type="text" onfocus="$(this).removeAttr('readonly');" readonly autocomplete="new-text" id="OppositePartyCounselemail" name="OppositePartyCounselemail" class="form-control inputFormat">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="formLabel colorDark">Phone </label>
+                                    <input type="text" onfocus="$(this).removeAttr('readonly');" readonly autocomplete="new-text" id="OppositePartyCounselphone" maxlength="16" name="OppositePartyCounselphone" class="form-control inputFormat">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Notes</label>
+                                    <textarea class="form-control form-control-sm inputFormatTextArea" id="fcasenotes" name="fcasenotes" rows="3" maxlength="8000" style="height: 40px !important; background-color: white !important;"></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-4" id="divMatterdetais">
+                                    <label class="formLabel colorDark" id="lblmatterdetails">Other Party Details</label>
+                                    <a href="#" data-toggle="modal" data-target="#letigationDetails" id="fmmatterDetails" class="pull-right"><b><span class="glyphicon glyphicon-plus"></span></b></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row" style="display:block;" id="divcaseinternalreference">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Matter-Case Internal Number</label>
+                                    <input class="form-control form-control-sm inputFormat" id="fcasenumberinternal" name="fcasenumberinternal" type="text" maxlength="50" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Matter-Case External Number</label>
+                                    <input class="form-control form-control-sm inputFormat" id="fcasenumber" name="fcasenumber" type="text" maxlength="50" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12" style="display:block;" id="divcnrno">
+                                    <label class="formLabel colorDark">CNR Number</label>
+                                    <input class="form-control form-control-sm inputFormat" id="fcasecnr" name="fcasecnr" type="text" maxlength="16" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12" id="firmcaseteamleaddiv">
+                                    <label class="formLabel colorDark">Matter Team Lead </label>
+                                    <select class="form-control selctInputFormat" style="background-color: white !important;" id="fcaseteamlead" name="fcaseteamlead">
+                                        <option value="" selected="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row" style="display:none;">
+                                <div class="form-group col-md-4">
+                                    <label class="formLabel colorDark">Court Fee Paid </label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="radio" id="rdcourtfeepaidyes" name="rdcfeepaid" value="Yes" />&nbsp;YES
+                                </div>
+                                <div class="form-group col-md-4"><input type="radio" name="rdcfeepaid" id="rdcourtfeepaidno" value="No" />&nbsp;NO</div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Client Number</label>
+                                    <input class="form-control form-control-sm inputFormat" id="clientno" name="clientno" type="text" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Matter Filing Date </label>
+                                    <input class="form-control form-control-sm inputFormat" type="date" id="fcasefilingcdate" style="width:90%;float:left" onkeypress="return false;" />
+                                    <a href="javascript:void()" class="pull-right" data-toggle="modal" data-target="#caseFillingDates"><b><i class="glyphicon glyphicon-plus" title="Add Matter Filing Date"></i></b></a>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Internal Status </label>
+                                    <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" id="fcasestatus" name="fcasestatus"></select>
+                                    <select class="form-control form-control-sm" id="fdisposedoption" name="fdisposedoption" style="display:none; background-color: white !important;"></select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12" id="divfcourt" style="display:none">
+                                    <label class="formLabel colorDark">Court </label>
+                                    <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" id="fcourt">
+                                        <option value="" selected>Select</option>
+                                        <option value="Supreme Court">Supreme Court</option>
+                                        <option value="High Court">High Court</option>
+                                        <option value="District Court">District Court</option>
+                                        <option value="Tribunals">Tribunals</option>
+                                        <option value="Add a Court">Add a Court</option>
+                                        <option value="Revenue Court">Revenue Court</option>
+                                        <option value="Rera Court">Rera Court</option>
+                                    </select>
+                                    <input type="text" id="fothercourt" name="fothercourt" style="display:none" class="form-control inputFormat">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Open Date</label>
+                                    <input class="form-control form-control-sm inputFormat" type="date" id="fcaseodate" name="fcaseodate" onkeypress="return false;" />
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Close Date</label>
+                                    <input class="form-control form-control-sm inputFormat" type="date" id="fcasecdate" onkeypress="return false;" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12" id="divAddCaseforLiveUpdate" style="display:none;">
+                                    <button type="button" class="sbtbtn" data-toggle="modal" id="opencasewatchmodel" data-target="#casewatchmodel">
+                                        <span class="glyphicon glyphicon-plus"></span>  Add Matter for Live Update
+                                    </button>
+                                </div>
+                                <div class="form-group col-md-8" id="divAdduserforLiveUpdate" style="display:none;margin-top:2px;">
+                                    <button type="button" style="width:100%;" class="sbtbtn" id="opencasewatchusermodal" data-toggle="modal" data-target="#casewatchmodelalert">
+                                        <span class="glyphicon glyphicon-plus"></span>  Add User for Live Update
+                                    </button>
+                                </div>
+                                <div class="form-group col-md-4" id="divRemoveCaseForLiveupdate" style="display:none;margin-top: 3px;padding: 0 0;">
+                                    <button type="button" class="sbtbtn" id="RemoveCaseForLiveupdate" style="padding: 5px 15px;" title="Remove Matter from Live Tracking">
+                                        <span class="glyphicon glyphicon-ban-circle" align="center">  </span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark" style="display:none">Documents</label>
+                                    <div style="padding-top:5px;display:none">
+                                        <div class="btn-group ">
+                                            <span style="cursor:pointer;padding:0 5px 0 0" title="upload Attachment" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Attachments <span class="glyphicon glyphicon-chevron-down" style="font-size: 8px;padding:0 0 0 5px;"></span>
+                                            </span>
+                                            <ul class="dropdown-menu settingaction" style="width:200px;">
+                                                <li> <input type="file" multiple id="attachmentcase" name="attachmentcase" style="border-bottom:none !important;" class="form-control inputFormat"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                        </div>
+                    </div>
+                    <div class="row" id="fcommoncaseloginpanel" style="display:none">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">UserId <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <input type="text" id="fcasesideuserid" onfocus="$(this).removeAttr('readonly');" maxlength="30" class="form-control inputFormat">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Password <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <input type="password" id="fcasesidepassword" onfocus="$(this).removeAttr('readonly');" minlength="8" maxlength="20" class="form-control inputFormat">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="formLabel colorDark">Confirm Password <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <input type="password" id="fcasesidecpassword" onfocus="$(this).removeAttr('readonly');" minlength="8" maxlength="20" class="form-control inputFormat">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h2 class="title spacertitle spacerdmar10" style="display:none">statute of limitation</h2>
+                    <div class=" form-group " style="display:none">
+                        <table class="table table-striped table-bordered">
+                            <tr>
+                                <td width="21%">
+                                    <label class="formLabel colorDark">Statute Name</label>
+                                    <input class="form-control form-control-sm inputFormat" id="statutename" type="text">
+                                    <span class="error">this field is required.</span>
+                                </td>
+                                <td width="21%">
+                                    <label class="formLabel colorDark">LIMITATION DATE</label>
+                                    <input class="form-control form-control-sm inputFormat" id="limitdate" type="date" onkeypress="return false;">
+                                    <span class="error">this field is required.</span>
+                                </td>
+                                <td width="21%">
+                                    <label class="formLabel colorDark">Users</label>
+                                    <select class="form-control form-control-sm selctInputFormat" style="background-color: white !important;" id="statuteuser">
+                                        <option value="">Select Users</option>
+                                    </select>
+                                    <span class="error">this field is required.</span>
+                                </td>
+                                <td width="11%">
+                                    <label class="formLabel colorDark">Reminder</label>
+                                    <input class="form-control form-control-sm inputFormat" onkeypress="return isNumberKey(event)" placeholder="days" id="statutedays" type="text">
+                                    <span class="error">this field is required.</span>
+                                </td>
+                                <td align="center" width="10%">
+                                    <label class="formLabel colorDark">DATE SATISFIED</label>
+                                    <input class="form-control form-control-sm inputFormat" name="" type="checkbox" id="datesatisfied" style="margin-top:12px !important;">
+                                </td>
+                                <td align="center" width="6%">
+                                    <btn class="btn btn-success btn-sm" id="UpdateSTATUTE" style="margin-top: 9px;" onclick="fn_UpdateStatute();">Add</btn>
+                                    <input class="form-control form-control-sm inputFormat" name="" type="hidden" id="hdnStatuteId" value="">
+                                </td>
+                            </tr>
+                        </table>
+                        <div id="editStatuteItems" class="tablecontainer table-panel table-responsive" style=" display:none;">
+                            <table id="table1" class="dataTable ">
+                                <thead><tr><th><div class="thbg">STATUTE NAME</div></th><th><div class="thbg">LIMITATION DATE</div></th><th><div class="thbg">REMINDER</div></th><th><div class="thbg">DATE SATISFIED</div></th><th><div class="thbg"></div></th><th><div class="thbg"></div></th></tr></thead>
+                                <tbody id="binddata"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <h2 class="title" style="padding:0">team</h2>
+                    <div style="margin-right: 0px !important; margin-left: 0px !important;" class="row">
+                        <div class="col-md-4 g-r-border" style="height: 130px;">
+                            <h3 class="subtitle">
+                                Client
+                                <span data-toggle="collapse" data-target="#demo3">
+                                    <img src="/newassets/images/info_icon.png" style="cursor:pointer" />
+                                </span>
+                            </h3>
+                            <div id="demo3" class="collapse caseinfo" style="border: 1px solid rgb(143, 213, 0); padding: 4px; width: 360px;top:-53px;position: absolute">
+                                Against one Company, there may be multiple individuals listed as contacts.
+                                Names of all the individuals from the Company are listed.
+                                Select the name/s who will be liaising on the Matter
+                            </div>
+                            <div class="form-group">
+                                <select class="clientdefault  form-control InputFormat" style="background-color: white !important;" id="clientto" multiple="multiple" name="clientto" placeholder="Please select"></select>
+                                <label class="formLabel colorDark">Add Members</label>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h3 class="subtitle">
+                                internal team
+                                <span data-toggle="collapse" data-target="#demo1">
+                                    <img src="~/newassets/images/info_icon.png" style="cursor:pointer" />
+                                </span>
+                            </h3>
+                            <div id="demo1" class="collapse caseinfo" style="top:-145px">
+                                For assigning Internal team members for the Matter<br>
+                                • Select the Member Type - Admin / Partner / Users<br>
+                                • USERS denotes independent User who are not assigned under any partner<br>
+                                • When you select a Partner name, all the Users under the Partner are listed, including the Partner<br>
+                                The list of users under the selected Member type is listed in ADD MEMBERS.<br>
+                                • Select names to be assigned to the Matter<br>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <select id="teamtypeedit" required class="form-control selctInputFormat"
+                                                style="background-color: white !important;">
+                                            <option value="1">Admin</option>
+                                            <option value="2">Users</option>
+                                        </select>
+                                        <label class="formLabel colorDark">Member Type </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        @Html.DropDownList("assignto", new SelectList(ViewBag.Users, "val", "label"), "Please select", new
+                                        {
+                                            @id =
+                                        "assignto",
+                                            @class = "userdefault  form-control InputFormat",
+                                            @multiple = "multiple",
+                                            @required = "required"
+                                        })
+                                        <span id="clearmember" class="glyphicon glyphicon-refresh" title="reset members"
+                                              style="cursor: pointer;float: right;margin-top: -20px;margin-right: -15px;"></span>
+                                        <label class="formLabel colorDark">
+                                            Add Members <span class="required" aria-required="true"
+                                                              style="color:red"><b>*</b></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row" id="content">
+                    </div>
+                    <div class="row" id="hidecf" style="display:none">
+                    </div>
+                    <br>
+                    <div class="row  pull-right">
+                        <div class="col-md-12">
+                            <button type="submit" class="sbtbtn" id="savematter">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>*@
+
+<div class="modal fade" id="letigationDetails" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Other Party Details</h4>
+            </div>
+            <div class="modal-body">
+                <div class="ec_bg">
+                    <div class="col-md-12">
+                        <form enctype="multipart/form-data" action="#">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th><div class="thbg">Name</div></th>
+                                        <th><div class="thbg">Email</div></th>
+                                        <th><div class="thbg">Phone</div></th>
+                                        <th><div class="thbg">Type</div></th>
+                                        <th><div class="thbg"></div></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody_letigationDetails" style="font-size:12px;word-break:break-all;">
+                                    <tr>
+                                        <td><input type="text" class="form-control" placeholder="Name" id="fName" name="fName" /></td>
+                                        <td><input type="text" class="form-control" placeholder="Email" id="fEmail" name="fEmail" /></td>
+                                        <td><input type="text" class="form-control" placeholder="Phone" id="fPhone" name="fPhone" /></td>
+                                        <td><input type="text" class="form-control" placeholder="Type" id="fType" name="fType" /></td>
+                                        <td>
+                                            <button type="button" id="case_btnsave1" class="sbtbtn" onclick="fn_litigation_btnsave();"><i class="fa fa-floppy-o"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="caseFillingDates" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Matter Filling Dates</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="padding:auto 0px;">
+                        <form enctype="multipart/form-data" action="#">
+                            <h5>Provision to add multiple dates: Submission in Court & Close dates </h5>
+                            <table class="table-panel">
+                                <thead>
+                                    <tr>
+                                        <th><div class="thbg">Submit Date<span class="required " aria-required="true"><b> *</b> </span></div></th>
+                                        <th><div class="thbg">Close Date<span class="required " aria-required="true"><b> *</b> </span></div></th>
+                                        <th><div class="thbg"></div></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody_casefillingdates"></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td><input type="date" class="form-control inputFormat" placeholder="Submit Date" id="submitDate" name="submitDate" onkeypress="return false" /></td>
+                                        <td><input type="date" class="form-control inputFormat" placeholder="Return Date" id="returnDate" name="returnDates" onkeypress="return false" /></td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary" id="c_btnsave">Save</button>
+                                            <button type="button" id="c_btnupdate" style="border: none;background: transparent;
+                                                margin: 0;padding: 0;">
+                                                <img src="~/newassets/img/date-icon.png" title="Update Matter Filing Date" width="34" />
+                                            </button>
+                                            <button type="button" id="c_btncancel" style="border: none;background: transparent; margin: 0;padding: 0;"><img src="~/newassets/img/close-icon.png" title="Close" width="34" /></button>
+                                            <input type="hidden" id="hdnid" />
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Custom Field
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger alert-dismissable validpanel">
+                            <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12" id="addcustomf">
+                                        <form role="form" id="form2">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-4">Custom Field Name <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" value="" maxlength="50" id="txtcustomFieldName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group" style="margin-top:12px;">
+                                                <label class="control-label col-md-4">Custom Field Type <span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                                                <div class="col-md-8">
+                                                    <select class="form-control" id="ctype">
+                                                        <option value="0">-Select Any-</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div id="common">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4" id="listid">List options</label>
+                                                    <div class="col-md-8">
+                                                        <input class="form-control" data-val="true" id="txtcustomFieldvalue" />
+                                                        <p style="clear:both">(Add the options you would like to have in the drop down list list, separate values with a comma.)</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group" style="clear:both; margin-top:12px;">
+                                                <label class="control-label col-md-4">Is Required :</label>
+                                                <div class="col-md-8">
+                                                    <label class="switch">
+                                                        <input type="checkbox" id="chkRequired" name="assign" value="1">
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" id="addfield">Add Field</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closemodal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalpartename" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:80%!important">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" id="closemodels22" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">
+                Search By PartyName
+            </h4>
+        </div>
+        <div class="modal-body  partynamebody " id="" style="height:505px; overflow-y:scroll;background:white;">
+        </div>
+    </div>
+</div>
+<div id="casewatchmodel" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Matter Details for Live Update
+                </h4>
+            </div>
+            <div class="ec_bg">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="control-label ">Select Court Type </label>
+                                </div>
+                                <div class="col-md-8">
+                                    <select name="divSCHCDistrict" id="divSCHCDistrict" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divSCHCDistrictdisplay();">
+                                        <option selected="selected" value="">--Select Court--</option>
+                                        <option value="1">Supreme Court</option>
+                                        <option value="2">High Court</option>
+                                        <option value="3">District Court</option>
+                                        <option value="4">Tribunals</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="HighCourt" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Select Court Name </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpcourtname" id="drpcourtname" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divdisplay();"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="DistrictCourt" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">&nbsp; </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpcourtnameDC" id="drpcourtnameDC" class="form-control selctInputFormat" style="background-color: white !important;" onchange="divdrpcourtnameDC();"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">&nbsp; </label>
+                                    </div>
+                                    <div class="col-md-8" id="divDistrict">
+                                        <select name="drpdistrictcourtname" id="drpdistrictcourtname" style="display:none; background-color: white !important;" class="form-control selctInputFormat" onchange="divdistrictchange();"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">&nbsp; </label>
+                                    </div>
+                                    <div class="col-md-8" id="divcourtcomplexestb">
+                                        <select name="drpcourtcomplexestb" id="drpcourtcomplexestb" style="display:none; background-color: white !important;" class="form-control selctInputFormat" onchange="drpcourtcompestbchange();">
+                                            <option value="" selected="selected">Please Select</option>
+                                            <option value="0">Court Complex</option>
+                                            <option value="1">Court Establishment</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">&nbsp;</label>
+                                    </div>
+                                    <div class="col-md-8" id="divcompestbcourt">
+                                        <select name="drpcompestbcourt" id="drpcompestbcourt" style="display:none; background-color: white !important;" class="form-control selctInputFormat" onchange="drpcompestbcourtchange();"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12" id="lbldistrictname" style="display:none; margin: -5px 22px 13px 0; overflow: hidden;">
+                                </div>
+                                <div class="col-md-12" id="lblcourtname" style="display:none; margin: -5px 22px 13px 0; overflow: hidden;">
+                                </div>
+                                <div id="Court" style="display:none;margin: -5px 22px 13px 0; overflow: hidden;">
+                                </div>
+                            </div>
+                            <div id="divMP" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Select Bench <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="divMPBench" id="divMPBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivMP();">
+                                            <option value="">--Select Bench / Type--</option>
+                                            <option value="01">Jabalpur</option>
+                                            <option value="02">Indore</option>
+                                            <option value="03">Gwalior</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divMHGoa" style="display:none;">
+                                <div class="rowl">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Select Court</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpGoa" id="drpGoa" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddiv();">
+                                            <option selected="selected" value="">--Select--</option>
+                                            <option value="Goa">Goa</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divMH" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Bench<span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpbench" id="drpbench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="fillside();"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Side <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpside" id="drpside" class="form-control selctInputFormat" style="background-color: white !important;" onchange="fillCasetype();"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Stamp/Register <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpstampregister" id="drpstampregister" class="form-control selctInputFormat" style="background-color: white !important;">
+                                            <option value="R">Register</option>
+                                            <option value="S">Stamp</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divTN" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Select Bench <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="divTNBench" id="divTNBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivTN();">
+                                            <option value="">--Select Bench--</option>
+                                            <option value="0">Madras</option>
+                                            <option value="1">Madurai</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divKA" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Bench <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpKAbench" id="drpKAbench" class="form-control selctInputFormat" style="background-color: white !important;">
+                                            <option value="B">Bengaluru Bench</option>
+                                            <option value="D">Dharwad Bench</option>
+                                            <option value="K">Kalaburagi Bench</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divNC" style="display:none;">
+                                <div class="row">
+                                    <div id="divTCCD" style="display:none;">
+                                        <div class="col-md-3">
+                                            <label class="control-label">CaseType / Diary <span class="required" aria-required="true">*</span></label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <select name="divTCDT" id="divTCDT" class="form-control selctInputFormat" onchange="hiddivTCDT();">
+                                                <option value="0">Case Type</option>
+                                                <option value="1">Diary</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Bench <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpNCBench" id="drpNCBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivNC();"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divncdrcstate" style=" display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label "> State <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpncdrcstate" id="drpncdrcstate" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivNCDRCDistrict();"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divncdrcDistrict" style=" display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label "> District Forum <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpncdrcDistrict" id="drpncdrcDistrict" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divRH" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Select Bench <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="divRHBench" id="divRHBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivRH();">
+                                            <option value="">--Select Bench--</option>
+                                            <option value="0">Jaipur</option>
+                                            <option value="1">Jodhpur</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divJK" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Select Bench <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="divJKBench" id="divJKBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivJK();">
+                                            <option value="">--Select Bench--</option>
+                                            <option value="0">Jammu</option>
+                                            <option value="1">Srinagar</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divBH" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Select Bench <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="divBHBench" id="divBHBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivBH();">
+                                            <option value="">--Select Type--</option>
+                                            <option value="0">Civil</option>
+                                            <option value="1">Criminal</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divMP" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Select Bench <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="divMPBench" id="divMPBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivMP();">
+                                            <option value="">--Select Bench / Type--</option>
+                                            <option value="01">Jabalpur</option>
+                                            <option value="02">Indore</option>
+                                            <option value="03">Gwalior</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divSCDE" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">CaseType / Diary</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="divSCDECD" id="divSCDECD" class="form-control selctInputFormat" style="background-color : white !important;" onchange="hiddivSCDE();">
+                                            <option value="0">Casetype</option>
+                                            <option value="1">Diary</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divUP" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Select Bench</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="divUPBench" id="divUPBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivUP();">
+                                            <option value="">Select Bench / Type</option>
+                                            <option value="0">Allahabad</option>
+                                            <option value="1">Lucknow</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divGH" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Select Bench</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="divGHBench" id="divGHBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivGH();">
+                                            <option value="">Select Bench / Type</option>
+                                            <option value="0">Gauhati</option>
+                                            <option value="1">Kohima</option>
+                                            <option value="2">Aizawl</option>
+                                            <option value="3">Itanagar</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" id="divWB" style="display:none">
+                                <div class="col-md-3">
+                                    <label class="control-label ">Select Bench <span class="required" aria-required="true">*</span></label>
+                                </div>
+                                <div class="col-md-8">
+                                    <select name="divWBBench" id="divWBBench" class="form-control selctInputFormat" style="background-color: white !important;" onchange="hiddivWB();">
+                                        <option value="">Select Bench / Type</option>
+                                        <option value="0">Original Side</option>
+                                        <option value="1">Appellate Side</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="savebtn" style="display:none;">
+                                <div class="row" id="divcasetype">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Matter Type <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div id="divcasetype" class="col-md-8">
+                                        <select name="drptype" id="drptype" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                                    </div>
+                                </div>
+                                <div class="row" id="divcaseno">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Matter Number <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div id="divcaseno" class="col-md-8">
+                                        <input type="text" class="inputFormat form-control" autocomplete="off" name="txtno" id="txtno" maxlength="500" style="margin-bottom:10px !important" />
+                                    </div>
+                                </div>
+                                <div id="divdiaryno" class="form-group " style="display:none;">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label class="control-label ">Diary Number</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control inputFormat" name="txtDiaryNo" id="txtDiaryNo" maxlength="500" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label ">Matter Year <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="drpYear" id="drpYear" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                                    </div>
+                                </div>
+                                <div class="row" id="divsuffix" style="margin-bottom:5px">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Suffix </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control InputFormat" placeholder="Add Suffix" name="txtsuffix" id="txtsuffix" maxlength="10">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="raw" id=divcustomcourtsection style="display:none;">
+                                <div>
+                                    <div class="row" style="margin-bottom:10px">
+                                        <div id="divcasename" class="col-md-3">
+                                            <label id="lblCasename" class="control-label"> Case Name <span class="required" aria-required="true">*</span> </label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control inputFormat" name="txtcasename" id="txtcasename" maxlength="1000" />
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-bottom:10px">
+                                        <div id="divcustomadvocate" class="col-md-3">
+                                            <label id="Label2" class="control-label"> Advocate</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control InputFormat" name="txtcustomadvocate" id="txtcustomadvocate" maxlength="200" />
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-bottom:10px">
+                                        <div id="divnexthearingdate" class="col-md-3">
+                                            <label id="Label1" class="control-label">Next Hearing / Disposed Date <span class="required" aria-required="true">*</span> </label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input placeholder="Select Date" class="form-control InputFormat" name="dtnhearingdate" id="dtnhearingdate" type="date" value="" />
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-bottom:10px">
+                                        <div id="divcustomstatus" class="col-md-3">
+                                            <label id="lblcustomstatus" class="control-label"> Status</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control InputFormat" name="txtcustomstatus" id="txtcustomstatus" maxlength="200" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="cnrdivdata" style="display:none;clear:both">
+                                <div style="text-align:center">
+                                    OR
+                                </div>
+                                <div class="form-group form-horizontal">
+                                    <center><label class="control-label" id="lbllinkedcase" style="font-weight:bold;"><b>LINK CASES FOR HIGH COURT TO DISTRICT COURT</b></label></center>
+                                </div>
+                                <div class="row" style="margin-bottom: 10px !important">
+                                    <div class="col-md-3">
+                                        <label class="control-label">CNR No.</label>
+                                    </div>
+                                    <div class="col-md-8" id="divdcourtcnr">
+                                        <input type="text" name="drpdcourtcnr" maxlength="16" id="drpdcourtcnr" class="form-control inputFormat" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="RevenueCourtDiv" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Select Court Name <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="RevenueCourt" id="RevenueCourt" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueMandal(this.value);"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Select Mandal <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="RevenueMandal" id="RevenueMandal" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueJanpad(this.value);"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Select Janpad <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="RevenueJanpad" id="RevenueJanpad" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueTehsil(this.value);"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Select Tahsil <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="RevenueTahsil" id="RevenueTahsil" class="form-control selctInputFormat" style="background-color: white !important;" onchange="BindRevenueCourtnameByTahsil(this.value);"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Select Revenue Court <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="RevenueCourtName" id="RevenueCourtName" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Matter Number <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="inputFormat form-control" autocomplete="off" name="Revenuetxtno" id="Revenuetxtno" maxlength="500" style="margin-bottom:10px !important">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Matter Year <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="RevenueYear" id="RevenueYear" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                                    </div>
+                                </div>
+                                <div style="text-align:center"> Or </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Computerized Case No. </label>
+                                    </div>
+                                    <div class="col-md-8" style="margin-bottom:6px;">
+                                        <input type="text" name="RevenueRefNo" maxlength="16" id="RevenueRefNo" class="form-control inputFormat" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="ReraCourtDiv" style="display:none;">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Select Court Name <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="divReraCourt" id="divReraCourt" class="form-control selctInputFormat" style="background-color: white !important;" onchange="fn_ReracaseType(this.value);">
+                                            <option selected="selected" value="">Select Court Name</option>
+                                            <option value="HRRA">Haryana</option>
+                                            <option value="MHRERA">Maharastra</option>
+                                            <option value="UPRA">Uttar Pradesh</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="divreracasetype" style="display:none;">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label class="control-label">Case/Appeal Authority <span class="required" aria-required="true">*</span> </label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <select name="reracasetype" id="reracasetype" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="divReraCaseno">
+                                        <div class="col-md-3">
+                                            <label class="control-label">Case/Appeal No <span class="required" aria-required="true">*</span> </label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input type="number" name="reracasno" id="reracasno" maxlength="10" size="10" class="form-control InputFormat" placeholder="Case/Appeal No" />
+                                        </div>
+                                    </div>
+                                </div>
+                                </br>
+                                <div class="row" id="divRefNo" style="display:none;">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Case/Appeal No <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" name="reraRefNo" id="reraRefNo" maxlength="20" class="form-control InputFormat" placeholder="Case/Appeal No" />
+                                    </div>
+                                </div>
+                                <div class="row" id="divreracaseyear" style="display:none;">
+                                    <div class="col-md-3">
+                                        <label class="control-label">Case Year <span class="required" aria-required="true">*</span> </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select name="reracaseyear" id="reracaseyear" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                                    </div>
+                                </div>
+                                </br>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="control-label ">Other Details</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <textarea id="casedetails" class="inputFormatTextArea" value="" style="margin: 0px; width: 357px; height: 40px;" maxlength="10000"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: none !important">
+                <button type="button" class="sbtbtn" id="resetcasewatch" onclick="resetcasewatch()">Reset</button>
+                <button type="button" class="sbtbtn" data-dismiss="modal" id="closemodal">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="casewatchmodelalert" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    User Details for Live Update
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="col-md-12 ec_bg">
+                            <div class="form-group ">
+                                <label style="margin-top: 10px" class="control-label col-md-4">Select Users</label>
+                                <div class="col-md-6">
+                                    <select name="UsersCasewatchAlert" id="UsersCasewatchAlert" class="form-control selctInputFormat" style="background-color: white !important;"></select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="sbtbtn" id="savecasewatchuser">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 table-panel table-responsive" style="overflow-x:scroll;margin-top:5px;">
+                            <table class="table ">
+                                <thead>
+                                    <tr> <th><div class="thbg">Sl NO.</div></th><th><div class="thbg">UserName</div></th><th><div class="thbg">Email</div></th><th><div class="thbg">Mobile</div></th><th><div class="thbg">Action</div></th></tr>
+                                </thead>
+                                <tbody id="bindcasewatchalertuser"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: none !important">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $('#assignto').selectize({
+        //maxItems: 3
+    });
+    $('#clientto').selectize({
+        //maxItems: 3
+    });
+    //selectize.setValue(dataarray)
+</script>
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+<script type="text/javascript">
+    var nusername = "";
+    var npassword = "";
+    var usertype = "";
+    $('.hspass').hide();
+    $('#fsidebindcaseclient').on('keyup', function () {
+        /* your code here */
+        var txtlength = $("#fsidebindcaseclient").val().length;
+        if (txtlength > 0) {
+            $('#mandtorylead').show();
+            $('#nonmandtorylead').hide();
+        }
+        else {
+            $('#nonmandtorylead').show();
+            $('#mandtorylead').hide();
+            $("#fshortcasemap").val("");
+            $("#fcheckclient").val("");
+            $("#fcommoncaseloginpanel").hide();
+            $("#fcasesideuserid").val("");
+            $("#fcasesidepassword").val("");
+            $("#fcasesidecpassword").val("");
+            $("#fcaseclientcontact").find('option').remove().end().append('<option value="">Client Contact</option>');
+            var $select = $("#clientto").selectize();
+            var selectize = $select[0].selectize;
+            selectize.clear();
+            selectize.clearOptions();
+        }
+    });
+    $(".fselectusertype").change(function () {
+
+        $("#fshortcasemap").val("");
+        $("#fcheckclient").val("");
+        $('#fsidebindcaseclient').val("");
+        $("#fcommoncaseloginpanel").hide();
+        $("#fcasesideuserid").val("");
+        $("#fcasesidepassword").val("");
+        $("#fcasesidecpassword").val("");
+        $("#fcaseclientcontact").find('option').remove().end().append('<option value="">Client Contact</option>');
+        var $select = $("#clientto").selectize();
+        var selectize = $select[0].selectize;
+        selectize.clear();
+        selectize.clearOptions();
+    });
+    $('#fsidebindcaseclient').on('keyup', function () {
+        //code to be executed
+        $("#fcommoncaseloginpanel").hide();
+        usertype = $("input[name='fselectusertype']:checked").val();
+    }).on('keydown', function (e) {
+        $("#fclientname").val("");
+        if (e.keyCode == 8)
+            $("#fcasesideuserid").val("");
+        $("#fcasesidepassword").val("");
+        $("#fcasesidecpassword").val("");
+    });
+
+</script>
+<script>
+    $('#assignto').selectize({
+        //maxItems: 3
+    });
+    var $select = $("#assignto").selectize();
+    if (token != "") {
+        setTimeout(function () {
+            var formData = new FormData();
+            formData.append("token", token);
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/api/callApi/caseAssignUser", // Controller/View
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        var dataarray = [];
+                        $.each(response.Data, function (i, b) {
+                            try {
+                                var selectize = $select[0].selectize;
+                                if (b.val != "00000000-0000-0000-0000-000000000000") {
+                                    selectize.addOption({ value: b.val, text: b["label"] });
+                                    var selecteduser = b.val;
+                                    dataarray.push(selecteduser)
+                                }
+                            }
+                            catch (er) {
+                                alert(er.message);
+                            }
+                            selectize.setValue(dataarray)
+                        });
+                    },
+                    failure: function (response) {
+                        alert(data.responseText);
+                    },
+                    error: function (response) {
+                        alert(data.responseText);
+                    }
+                });
+        }, 1000);
+        var $select1 = $("#clientto").selectize();
+    }
+    else {
+    }
+</script>
+<script type="text/javascript">
+    var nusername = "";
+    var npassword = "";
+    var usertype = "";
+    $('.hspass').hide();
+    $('#fsidebindcaseclient').on('keyup', function () {
+        /* your code here */
+        var txtlength = $("#fsidebindcaseclient").val().length;
+        if (txtlength > 0) {
+        }
+        else {
+            $("#fshortcasemap").val("");
+            $("#fcheckclient").val("");
+            $("#fcommoncaseloginpanel").hide();
+            $("#fcasesideuserid").val("");
+            $("#fcasesidepassword").val("");
+            $("#fcasesidecpassword").val("");
+            $("#fcaseclientcontact").find('option').remove().end().append('<option value="">Select</option>');
+            var $select = $("#clientto").selectize();
+            var selectize = $select[0].selectize;
+            selectize.clear();
+            selectize.clearOptions();
+        }
+    });
+    $(".fselectusertype").change(function () {
+        $("#fshortcasemap").val("");
+        $("#fcheckclient").val("");
+        $('#fsidebindcaseclient').val("");
+        $("#fcommoncaseloginpanel").hide();
+        $("#fcasesideuserid").val("");
+        $("#fcasesidepassword").val("");
+        $("#fcasesidecpassword").val("");
+        $("#fcaseclientcontact").find('option').remove().end().append('<option value="">Select</option>');
+        var $select = $("#clientto").selectize();
+        var selectize = $select[0].selectize;
+        selectize.clear();
+        selectize.clearOptions();
+    });
+    $('#fsidebindcaseclient').on('keyup', function () {
+        //code to be executed
+        $("#fcommoncaseloginpanel").hide();
+        usertype = $("input[name='fselectusertype']:checked").val();
+    }).on('keydown', function (e) {
+        $("#fclientname").val("");
+        if (e.keyCode == 8)
+            $("#fcasesideuserid").val("");
+        $("#fcasesidepassword").val("");
+        $("#fcasesidecpassword").val("");
+    });
+    $(function () {
+        $("#fsidebindcaseclient").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/CaseClientCompanyFilterUser',
+                    data: "{ 'prefix': '" + request + "','type': '" + usertype + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var fname = item.fnamelabel;
+                            var mname = item.mnamelabel;
+                            var lname = item.lnamelabel;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            map[name] = { id: id, name: name, fname: fname, mname: mname, lname: lname, utype: utype, isclient: isclient, CompanyID: CompanyID };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#msidebindcaseclient").val(map[item].mname);
+                $("#lsidebindcaseclient").val(map[item].lname);
+                $("#fcheckclient").val(map[item].isclient);
+                $("#fshortcasemap").val(map[item].id);
+                if (String(map[item].isclient) == "0") {
+                    usertypes = $("input[name='fselectusertype']:checked").val();
+                    if (usertype == "user") {
+                        if (packmodules == "2" || packmodules == "3") {
+                            $("#fcommoncaseloginpanel").show();
+                        }
+                        else {
+                            $("#fcommoncaseloginpanel").hide();
+                        }
+                    }
+                    else {
+                        $("#fcommoncaseloginpanel").hide();
+                    }
+                }
+                else {
+                    $("#fcommoncaseloginpanel").hide();
+                }
+                if (map[item].utype == "Company") {
+                    requestid = map[item].CompanyID;
+                    var formData = new FormData();
+                    formData.append("prefix", requestid)
+                    $("#fcaseclientcontact").find('option').remove().end().append('<option value="">Select</option>');
+                    $.ajax({
+                        url: '/api/CallApi/loadcompanycontacts',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        type: 'POST',
+                        success: function (response) {
+                            var $select = $("#clientto").selectize();
+                            var selectize = $select[0].selectize;
+                            selectize.clear();
+                            selectize.clearOptions();
+                            var obj = JSON.parse(response.Data);
+                            $.each(obj, function (i, a) {
+                                var option = '<option value="' + a.val + '" >  ' + a["label"] + '</option>';
+                                $("#fcaseclientcontact").append(option);
+                                selectize.addOption({ value: a.val, text: a["label"] });
+                            }); //End of foreach Loop
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                }
+                return map[item].fname;
+            }
+        });
+    });
+    $("#clearmember").click(function () {
+        var $select = $("#assignto").selectize();
+        var selectize = $select[0].selectize;
+        selectize.clear();
+        selectize.clearOptions();
+    });
+    $("#teamtypeedit").change(function () {
+        var $select = $("#assignto").selectize();
+        var selectize = $select[0].selectize;
+        selectize.clearOptions();
+        var useridytpe = $("#teamtypeedit").val();
+        $.ajax({
+            async: true,
+            url: '/Firm/CaseFilterUser',
+            data: "{ 'useridytpe': '" + useridytpe + "'}",
+            dataType: "json",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                $.each(response, function (i, a) {
+                    var $select = $("#assignto").selectize();
+                    var selectize = $select[0].selectize;
+                    selectize.addOption({ value: a.val, text: a["label"] });
+                }); //End of foreach Loop
+            },
+            error: function (response) {
+                alert(response.responseText);
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,784 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+}
+
+<!-- Page Content -->
+<script src="~/Scripts/Employee/Pages/Profile.js"></script>
+<script src="~/Scripts/Firm/Pages/ChangePassword.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<link href="~/Manupanel/ckeditor/samples/css/sampltes.css" rel="stylesheet" />
+<link href="~/Manupanel/ckeditor/samples/toolbarconfigurator/lib/codemirror/neod.css" rel="stylesheet" />
+<style>
+    .section-header {
+        padding: 14px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+        background: #F9FAFB;
+        border-bottom: 1px solid #e9eaeb;
+    }
+
+    .section-content {
+        padding: 10px 20px;
+        display: none;
+    }
+
+
+
+    .upload-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .upload-box input[type="file"] {
+            width: auto;
+        }
+    
+    .upload-box button {
+        padding: 8px 12px;
+        background: #0b3b66;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .toggle-icon {
+        font-size: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .rotate {
+        transform: rotate(180deg);
+    }
+
+    .avatar-container {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin: 10px;
+    }
+
+    .avatar-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid #0369A1;
+        object-fit: cover;
+    }
+
+    .edit-icon {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background: white;
+        border-radius: 3px;
+        padding: 2px 2px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }
+
+    .form-group {
+        height: 70px;
+    }
+
+    .switch {
+        margin: 2px 0 0 7px;
+    }
+
+    form {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+<script>
+    function preview_image(event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var output = document.getElementById('output_image');
+            output.src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+    function toggleSection(header) {
+        const allSections = document.querySelectorAll('.section-content');
+        const allIcons = document.querySelectorAll('.toggle-icon');
+
+        const content = header.nextElementSibling;
+        const icon = header.querySelector('.toggle-icon');
+
+        allSections.forEach(sec => {
+            if (sec !== content) sec.style.display = 'none';
+        });
+
+        allIcons.forEach(ic => {
+            if (ic !== icon) ic.classList.remove('rotate');
+        });
+
+        const isOpen = content.style.display === 'block';
+        content.style.display = isOpen ? 'none' : 'block';
+        icon.classList.toggle('rotate', !isOpen);
+    }
+    $(document).ready(function () {
+        Loadstructure();
+        function Loadstructure() {
+            $("#designation").html('');
+            var option7 = '<option value="" > Select</option>';
+            $("#designation").append(option7);
+            var formData = new FormData();
+            $.ajax({
+                async: true,
+                url: '/api/CallApi/LoadFirmStructureAll',
+                data: formData,
+                contentType: false,
+                processData: false,
+                type: 'POST',
+                success: function (response) {
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        var obj = JSON.parse(response.Data);
+                    }
+                    else {
+                        //alert("not found");
+                    }
+                    $.each(obj, function (i, a) {
+                        //alert(a.SType);
+                        if (a.SType == "Designation") {
+                            var option = '<option value="' + a.Id + '" > ' + a.Name + '</option>';
+                            $("#designation").append(option);
+                        }
+                    });
+                    //console.log(response);
+                },
+                failure: function (response) {
+                    alert(data.responseText);
+                },
+                error: function (response) {
+                    alert(data.responseText);
+                }
+            });
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const firstHeader = document.querySelector('.section-header');
+            if (firstHeader) {
+                toggleSection(firstHeader);
+            }
+        });
+        //$('form[id="saveclient"]').validate({
+        //    submitHandler: function (form) {
+        //        debugger;
+        //        name = $("#name").val();
+        //        email = $("#email").val();
+        //        landline = $("#landline").val();
+        //        mobile = $("#mobile").val();
+        //        address = $("#address").val();
+        //        country = $("#country").val(),
+        //            fstate = $("#state").val();
+        //        fcity = $("#city").val();
+        //        id = $("#hidid").val();
+        //        if (country != "India") {
+        //            fstate = $("#ostate").val();
+        //            fcity = $("#ocity").val();
+        //        }
+        //        if (country == "India") {
+        //            fstate = $("#state").val();
+        //            fcity = $("#city").val();
+        //        }
+        //        if (fstate == "") {
+        //            new PNotify({
+        //                title: 'Warning!',
+        //                text: 'Please Fill State',
+        //                type: 'error',
+        //                delay: 3000
+        //            });
+        //            return false;
+        //        }
+        //        if (fcity == "") {
+        //            new PNotify({
+        //                title: 'Warning!',
+        //                text: 'Please Fill City',
+        //                type: 'error',
+        //                delay: 3000
+        //            });
+        //            return false;
+        //        }
+        //        var formData = new FormData();
+        //        var totalFiles = document.getElementById("attachment").files.length;
+        //        for (var i = 0; i < totalFiles; i++) {
+        //            var file = document.getElementById("attachment").files[i];
+        //            formData.append("FileUpload", file);
+        //        }
+        //        formData.append("name", EncodeText(name));
+        //        formData.append("email", EncodeText(email));
+        //        formData.append("landline", EncodeText(landline));
+        //        formData.append("mobile", EncodeText(mobile));
+        //        formData.append("address", EncodeText(address));
+        //        formData.append("country", EncodeText(country));
+        //        formData.append("state", EncodeText(fstate));
+        //        formData.append("city", EncodeText(fcity));
+        //        formData.append("id", EncodeText(id));
+        //        $.ajax(
+        //            {
+        //                type: "POST",
+        //                url: "/api/WorkFlowNewApi/SaveProfile", // Controller/View
+        //                data: formData,
+        //                contentType: false,
+        //                processData: false,
+        //                success: function (data) {
+        //                    var datas = JSON.stringify(data);
+        //                    new PNotify({
+        //                        title: 'Success!',
+        //                        text: ' Updated Successfully',
+        //                        type: 'success',
+        //                        delay: 3000
+        //                    });
+        //                },
+        //                failure: function (data) {
+        //                    alert(data.responseText);
+        //                },
+        //                error: function (data) {
+        //                    alert(data.responseText);
+        //                }
+        //            });
+        //    }
+        //});
+        //openloader();
+        $.ajax({
+            async: true,
+            url: '/api/WorkFlowNewApi/ClientDetail',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    var obj = JSON.parse(response.Data);
+                }
+                else {
+                    //alert("not found");
+                }
+                var it = 2;
+                var bclass = '';
+                var bdata = '';
+                $.each(obj, function (i, val) {
+                    $("#fname").val(val.cfname);
+                    $("#mname").val(val.cmname);
+                    $("#lname").val(val.clname);
+                    if (val.Designation != null) {
+                        $('#designation option[value="' + val.Designation + '"]').attr("selected", true);
+                    }
+                    $("#email").val(val.cemail);
+                    $("#mobile").val(val.cmobile);
+                    $("#landline").val(val.clandline);
+                    $("#address").val(val.caddress);
+                    $("#copin").val(val.Pin);
+                    $("#name").val(val.cfname);
+                    if (val.country == null) {
+                        option11 = '<option value="">Select</option>';
+                    }
+                    else {
+                        option11 = '<option value="' + val.country + '" selected > ' + val.country + ' </option>';
+                    }
+                    $("#country").append(option11);
+                    if (val.cstate != null) {
+                        var option = '<option value="' + val.cstate + '" selected > ' + val.cstate + ' </option>';
+                        $("#state").append(option);
+                    }
+                    if (val.ccity != null) {
+                        var option1 = '<option value="' + val.ccity + '" selected > ' + val.ccity + ' </option>';
+                        $("#city").append(option1);
+                    }
+                    $("#hidid").val(val.Id);
+                    if (val.cphoto != null) {
+                        $('#output_image').attr('src', val.cphoto);
+                    }
+                    else {
+                        $('#output_image').attr('src', "/PanelDesign/images/Default_User_pic_new.png");
+                    }
+                    if (val.IsTwoFactor == "1") {
+                        $("#twostep").prop("checked", true);
+                    }
+                    else {
+                        $("#twostep").prop("checked", false);
+                    }
+                    $("#aadharno").val(val.AadharCardNo);
+                    $("#gstno").val(val.GSTINNo);
+                    $("#panno").val(val.PANNo);
+                    closeloader();
+                });
+            },
+            error: function () {
+                alert('Error!');
+            }
+        });
+        $("#twostep").click(function () {
+            if ($("#twostep:checked").prop('checked')) {
+                cp = "1"
+            }
+            else {
+                cp = "0";
+            }
+            var formData = new FormData();
+            formData.append("authenticate", EncodeText(cp));
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/TwoFactorAuthentication",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (String(cp) == "1") {
+                        alert("Two step authentication enabled successfully.");
+                    }
+                    else if (String(cp) == "0") {
+                        alert("Two step authentication disabled successfully.");
+                    }
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        });
+
+    });
+</script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Profile Details</p>
+        </div>
+    </div>
+</section>
+<!-- General Info -->
+<section id="table">
+    <div class="container-main">
+        <div class="table" style="margin:0;">
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    General Information
+                    <span class="toggle-icon"><img src="~/newassets/img/arrow.png" /></span>
+                </div>
+                <div class="section-content">
+                    <form id="saveclient" enctype="multipart/form-data">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="avatar-container">
+                                    @*<img src="~/PanelDesign/images/Default_User_pic_new.png" alt="User" class="avatar-img" id="output_image">
+        <label for="avatar-upload" class="edit-icon"><img src="~/newassets/img/editmatter.png" /></label>
+        <input type="file" id="avatar-upload" onchange="preview_image(event)" class="default inputbg" name="attachment"  style="display:none;" accept="image/*">*@
+                                    <img src="~/PanelDesign/images/Default_User_pic_new.png" alt="User" class="avatar-img" id="output_image">
+                                    <label for="attachment" class="edit-icon"><img src="~/newassets/img/editmatter.png" /></label>
+                                    <input type="file" id="attachment" accept="image/*" style="display: none" onchange="preview_image(event)">
+                                    @*<input type="file" id="avatar-upload" accept="image/*" style="display: none" onchange="preview_image(event)">*@
+                                </div>
+                                <hr>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input type="hidden" id="hidid" />
+                                    <label>First Name <span class="required" aria-required="true"><b>*</b> </span></label>
+                                    <input class="form-control inputFormat" id="fname" name="fname" required type="text" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Middle Name</label>
+                                    <input class="form-control inputFormat" id="mname" name="mname" type="text" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Last Name <span class="required" aria-required="true"><b>*</b> </span></label>
+                                    <input class="form-control inputFormat" id="lname" name="lname" required type="text" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Designation</label>
+                                    <select id="designation" class="form-control selctInputFormat" autocomplete="new-text">
+                                        <option value=""> Select</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Mobile Number <span class="required" aria-required="true"><b>*</b> </span></label>
+                                    <input class="form-control inputFormat" maxlength="10" minlength="10" onkeypress="return isNumberKey(event)" id="mobile" required name="mobile" type="text">
+                                    <label id="lblmobile-error"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Email Id <span class="required" aria-required="true"><b>*</b> </span></label>
+                                    <input class="form-control inputFormat" id="email" required name="email" type="email">
+                                    <label id="lblemail-error"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Landline Number</label>
+                                    <input class="form-control inputFormat" maxlength="16" onkeypress="return restrictAlphabetsfax(event)" id="landline" name="landline" type="text">
+                                    <label id="lbllandline-error"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="display:none">
+                                <div class="form-group">
+                                    <label>Aadhar No.</label>
+                                    <input class="form-control inputFormat" id="aadharno" name="aadharno" type="text" maxlength="12" onkeypress="return isNumberKey(event)">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <input class="form-control inputFormat" id="address" name="address" type="text" maxlength="200">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Pin </label>
+                                    <input class="form-control inputFormat" onkeypress="return isNumberKey(event)" id="pin" name="copin" type="text" maxlength="6" minlength="6">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Country <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <select class="form-control selctInputFormat" name="country" id="country" disabled></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>State </label>
+                                    <select class="form-control selctInputFormat" name="state" id="state" disabled>
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Çity </label>
+                                    <select class="form-control selctInputFormat" name="city" id="city" disabled>
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="display:none">
+                                <div class="form-group">
+                                    <label>GSTIN No </label>
+                                    <input class="form-control inputFormat" id="gstno" name="gstin" type="text" maxlength="20">
+                                    <label id="lblgstin-error" class="errors"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="display:none">
+                                <div id="pandiv">
+                                    <div class="form-group">
+                                        <label>Pan No </label>
+                                        <input class="form-control inputFormat" id="panno" name="panno" type="text" maxlength="15">
+                                        <label id="lblpanno-error" class="errors"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <ol style="list-style: none; margin-top: 25px;">
+                                        <li style="float:left;">
+                                            <span>
+                                                Two Step Authentication:
+                                            </span>
+                                        </li>
+                                        <li style="float: left; margin:-2px 0 0 5px;">
+                                            <label class="switch">
+                                                <input type="checkbox" id="twostep" name="twostep" value="1" onchange="cTrig('check3')">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <div class="form-actions hidden-print">
+                                        <button type="submit" id="update" style="margin:25px 0 0 0;" class="btn btn-primary pull-right" value="Update">Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Change Password -->
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    Change Password
+                    <span class="toggle-icon"><img src="~/newassets/img/arrow.png" /></span>
+                </div>
+                <div class="section-content">
+                    <form method="post" id="frmpass" enctype="multipart/form-data">
+                        <!-- Start About boxes -->
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Old Password <span class="required" aria-required="true">*</span></label>
+
+                                    <input class="form-control  inputFormat" minlength="8" maxlength="30" name="oldpass" type="password" id="oldpass" autocomplete="off" required="" onfocus="$(this).removeAttr('readonly');" readonly>
+                                    @if (HttpContext.Current.Request.UserAgent.ToLower().Contains("MSIE") || HttpContext.Current.Request.UserAgent.ToLower().Contains("edge")) //IF IE > 10
+                                    {
+                                    }
+                                    else
+                                    {
+                                        <span id="hideeye" toggle="#oldpass" class="fa fa-fw fa-eye-slash field-icon toggle-password1" style="float: right; position: relative; right: 9px; top: -26px; z-index: 1000;">  </span>
+
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>New Password <span class="required" aria-required="true">*</span></label>
+                                    <input class="form-control  inputFormat" minlength="8" maxlength="30" name="newpass" type="password" id="newpass" autocomplete="off" required="" onfocus="$(this).removeAttr('readonly');" readonly />
+
+                                    @if (HttpContext.Current.Request.UserAgent.ToLower().Contains("MSIE") || HttpContext.Current.Request.UserAgent.ToLower().Contains("edge")) //IF IE > 10
+                                    {
+                                    }
+                                    else
+                                    {
+                                        <span id="hideeye" toggle="#newpass" class="fa fa-fw fa-eye-slash field-icon toggle-password1" style="float: right; position: relative; right: 9px; top: -26px; z-index: 1000;"></span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Confirm Password <span class="required" aria-required="true">*</span></label>
+                                    <input class="form-control inputFormat" minlength="8" maxlength="30" name="conpass" type="password" id="conpass" autocomplete="off" required="" onfocus="$(this).removeAttr('readonly');" readonly />
+                                    @if (HttpContext.Current.Request.UserAgent.ToLower().Contains("MSIE") || HttpContext.Current.Request.UserAgent.ToLower().Contains("edge")) //IF IE > 10
+                                    {
+                                    }
+                                    else
+                                    {
+                                        <span id="hideeye" toggle="#conpass" class="fa fa-fw fa-eye-slash field-icon toggle-password1" style="float: right; position: relative; right: 9px; top: -26px; z-index: 1000;"></span>
+
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" id="btnsave" class="btn btn-primary pull-right" value="Save" style="width: 100%; margin: 20px 0 0 0;">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@*<section class="wrapper" style="margin:unset !important">
+        <div class="container-main showcontent" id="showcontent">
+            <div>
+                <h2 class="title">Profile</h2>
+                <section class="content">
+                    <div id="page-wrapper">
+                        <div class="container-fluid showcontent" id="showcontent">
+                            <div class="box">
+                                <div class="box-header">
+                                    <ul class="btn_panel no-margin " style="padding:0;" id="sectiontemp">
+                                        <li style="margin-bottom: 20px !important;">
+                                            <span>
+                                                Two Step Authentication:
+                                            </span>
+                                        </li>
+                                        <li style="margin-top: -5px;margin-left:10px;">
+                                            <label class="switch">
+                                                <input type="checkbox" id="twostep" name="twostep" value="1" onchange="cTrig('check3')">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="clear:both">
+                        <form class="ec_bg" id="saveclient" enctype="multipart/form-data">
+                            <div class="col-md-10">
+                                <div style="margin-bottom: 10px" class="row">
+                                    <div class="col-md-4">
+                                        <div class="row">
+                                            <div class="form-group col-md-12">
+                                                <label class="formLabel colorDark">FIRST NAME </label>
+                                                <input readonly class="form-control form-control-sm inputFormat" id="fname" name="fname" required type="text">
+                                                <input type="hidden" id="hidid" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="row">
+                                            <div class="form-group col-md-12">
+                                                <label class="formLabel colorDark">MIDDLE NAME</label>
+                                                <input readonly class="form-control form-control-sm inputFormat" id="mname" name="mname" type="text">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="row">
+                                            <div class="form-group col-md-12">
+                                                <label class="formLabel colorDark">LAST NAME </label>
+                                                <input readonly class="form-control form-control-sm inputFormat" id="lname" name="lname" required type="text">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 10px" class="row">
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark">DESIGNATION</label>
+                                        <select id="designation" class="form-control selctInputFormat" required="" autocomplete="new-text" readonly>
+                                            <option value=""> Select</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4" style="display:none;">
+                                        <label class="formLabel colorDark"> Client Name </label>
+                                        <input autofocus="" class="form-control form-control-sm inputFormat" placeholder="" type="text" value="" name="name" id="name" disabled required="">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark"> Email </label>
+                                        <input autofocus="" class="form-control form-control-sm inputFormat" placeholder="" type="text" value="" name="email" id="email" disabled />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark"> Mobile</label>
+                                        <input class="form-control form-control-sm inputFormat" onkeypress="return restrictAlphabets(event)" placeholder="" type="text" name="mobile" disabled value="" id="mobile">
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 10px" class="row">
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark">Land Line </label>
+                                        <input class="form-control form-control-sm inputFormat" vplaceholder="" name="landline" type="text" value="" id="landline" disabled>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark"> Address </label>
+                                        <input class="form-control form-control-sm inputFormat" placeholder="" type="text" value="" id="address" disabled>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark">Pin </label>
+                                        <input readonly class="form-control form-control-sm inputFormat" required onkeypress="return isNumberKey(event)" id="copin" name="copin" type="text" maxlength="6">
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 10px" class="row">
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark"> Country</label>
+                                        <select class="form-control selctInputFormat" name="country" id="country" disabled></select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark">State </label>
+                                        <select nname="state" id="state" class="form-control selctInputFormat" disabled></select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark"> City </label>
+                                        <select class="form-control selctInputFormat" name="city" id="city" disabled readonly></select>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 10px" class="row">
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark">AADHAR CARD NO</label>
+                                        <input readonly class="form-control form-control-sm inputFormat" placeholder="" type="text" value="" id="aadharno">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark">GSTIN NO </label>
+                                        <input readonly class="form-control form-control-sm inputFormat" placeholder="" type="text" value="" id="gstno">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="formLabel colorDark">PAN NO </label>
+                                        <input readonly class="form-control form-control-sm inputFormat" " placeholder="" type="text" value="" id="panno">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="row">
+                                    <div class="fileupload-new thumbnail"> <img src="~/PanelDesign/images/Default_User_pic_new.png" alt="" id="output_image"> </div>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="col-md-12">
+                                    <button id="update" class="sbtbtn save">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>*@
+@*<script>
+
+    var fcode = localStorage.getItem("FirmCode");
+    jQuery('#update').click(function (e) {
+        validnavigation = true;
+        window.onbeforeunload = null;
+        var url = "/client/ProfileUpdate";
+        window.location = encodeURI("/" + fcode + url);
+    });
+</script>*@
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<div id="myOverlay" class="overlay" style="display:block !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+

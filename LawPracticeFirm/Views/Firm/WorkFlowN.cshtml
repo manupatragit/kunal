@@ -1,0 +1,389 @@
+﻿@{
+    ViewBag.Title = "WorkFlowN";
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<!-- Page Content -->
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Scripts/Firm/Pages/WorkFlowN.js"></script>
+<script>
+    var type = '@ViewBag.type'
+    function OpenURL(strid) {
+        if (strid == "1") {
+            var fcode = localStorage.getItem("FirmCode");
+            var url = '/' + fcode + '/Firm/CreateCustomForm';
+        }
+        if (strid == "2") {
+            var fcode = localStorage.getItem("FirmCode");
+            var url = '/' + fcode + '/Firm/EditCustomForm/13';
+        }
+        if (strid == "3") {
+            var fcode = localStorage.getItem("FirmCode");
+            var url = '/' + fcode + '/Firm/customform';
+        }
+        if (strid == "4") {
+            var fcode = localStorage.getItem("FirmCode");
+            var url = '/' + fcode + '/Firm/customform';
+        }
+        window.open(url, '_self');
+    }
+    $(document).on("change", "#formtype", function () {
+        var optval = $("#formtype :selected").text();
+        var option = '<option value="' + optval + '" > ' + optval + '</option>';
+        $("#actionstgform1").empty();
+        $("#actionstgform2").empty();
+        $("#actionstgform3").empty();
+        $("#actionstgform4").empty();
+        $("#actionstgform1").append(option);
+        $("#actionstgform2").append(option);
+        $("#actionstgform3").append(option);
+        $("#actionstgform4").append(option);
+    });
+    $(document).on("change", "#drptask1", function () {
+        var strval = $("#drptask1").val();
+        if (strval > 0) {
+            loadTaskStage();
+        }
+        else {
+            $("#divstage1").hide();
+            $("#divstage2").hide();
+            $("#divstage3").hide();
+            $("#divstage4").hide();
+            $("#totstage1").val("0");
+        }
+    });
+@*Load task stage*@
+    function loadTaskStage() {
+        var formData = new FormData();
+        var strstg = "";
+    $.ajax(
+        {
+            type: "POST",
+            url: "/api/WorkFlowNewApi/TaskStage", // Controller/View
+            dataType: 'json',
+            data: formData,
+            headers: { drptskid: $("#drptask1").val() },
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                }
+                else {
+                    alert("not found");
+                }
+                $.each(response.Data, function (i, a) {
+                    strstg += a.StageId + ","
+                }); //End of foreach Loop
+                if (strstg.length > 1) {
+                    strstg = strstg.substring(0, strstg.length - 1);
+                    $("#totstage1").val(strstg);
+                    $("#divstage1").hide();
+                    $("#divstage2").hide();
+                    $("#divstage3").hide();
+                    $("#divstage4").hide();
+                    var strstgarr = $("#totstage1").val().split(",");
+                    for (var i = 1; i <= strstgarr.length; i++) {
+                        $("#divstage" + i).show();
+                    }
+                }
+            },
+            failure: function (data) {
+                alert(data.responseText);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+        });
+    }
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">New Workflow</li>
+        </ol>
+        <h1><span class="fa fa-cubes"></span> New WorkFlow</h1>
+    </section>
+    <section class="content">
+        <form id="saveworkflow" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend>WorkFlow</legend>
+                        <div class="additionalContactFields">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" for="AssignedToGuids">Workflow Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </label>
+                                    <div class="col-md-12">
+                                        <input class="form-control" placeholder="Add Name" type="text" name="wfname" value="" id="wfname" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-8" for="AssignedToGuids">Workflow Description</label>
+                                    <div class="col-md-12">
+                                        <input class="form-control" placeholder="Add description" type="text" name="wfdesc" value="" id="wfdesc">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:none">
+                                    <label class="control-label col-md-8" for="AssignedToGuids">Workflow Permissions </label>
+                                    <div class="col-md-12">
+                                        <select id="drpuser" class="form-control">
+                                            <option value="0">None</option>
+                                            <option value="1">Share this workflow with all users</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row" style="display:none">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend>WorkFlow Events</legend>
+                        <div class="additionalContactFields">
+                            <div class="addtxt">
+                                <div class="row" id="div1">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4" for="AssignedToGuids">Event Subject <span class="required" aria-required="true" style="color:red"><b>*</b> </span>  </label>
+                                            <div class="col-md-12">
+                                                <input class="form-control" placeholder="Add Subject" type="text" name="wfevtname1" value="event" id="wfevtname1">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-8" for="AssignedToGuids">Event Description </label>
+                                            <div class="col-md-12">
+                                                <input class="form-control" placeholder="Add description" type="text" name="wfevtdesc1" value="EVENEDATA" id="wfevtdesc1">
+                                            </div>
+                                        </div>
+                                        <div class="form-group" style="display:none">
+                                            <div class="col-md-12">
+                                                <img src="~/Content/img/delete.gif" height="20" width="20" style="vertical-align:middle" />
+                                                <a href="#" class="btn" placeholder="Add description" type="text" name="wfevtdel1" value="" id="wfevtdel1" onclick="deleteevt('1')">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                </fieldset>
+            </div>
+            <div class="row" style="display:none">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="">
+                                <div class="form-actions hidden-print">
+                                    <div class="btn-group">
+                                        <input type="submit" id="addEvent" class="btn btn-primary save" value="ADD EVENT">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend>WorkFlow Tasks</legend>
+                        <div class="additionalContactFields form-section-secondary">
+                            <div class="addtsk">
+                                <div class="row" id="divtsk1">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4" for="AssignedToGuids">Task Subject <span class="required" aria-required="true" style="color:red"><b>*</b> </span>  </label>
+                                            <div class="col-md-12">
+                                                <input class="form-control" placeholder="Add Subject" type="text" name="wftskname1" value="" id="wftskname1" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-8" for="AssignedToGuids">Task Description </label>
+                                            <div class="col-md-12">
+                                                <input class="form-control" placeholder="Add description" type="text" name="wftskdesc1" value="" id="wftskdesc1">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-8" for="AssignedToGuids">Due Date <span class="required" aria-required="true" style="color:red"><b>*</b> </span>  </label>
+                                            <div class="col-md-12">
+                                                <input class="form-control" name="duedt1" type="date" placeholder="Date/Time" id="duedt1" required />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4" for="AssignedToGuids">Task  <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </label>
+                                            <div class="col-md-12">
+                                                <select id="drptask1" name="drptask1" class="form-control" required></select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" style="display:none">
+                                            <label class="control-label col-md-4" for="AssignedToGuids">Task Type </label>
+                                            <div class="col-md-12">
+                                                <select id="drptype1" name="drptype1" class="form-control"></select>
+                                                <input type="hidden" id="totstage1" name="totstage1" value="0" />
+                                            </div>
+                                        </div>
+                                        <div id="divstage1" style="display:none">
+                                            <div class="form-group">
+                                                <fieldset>
+                                                    <legend>
+                                                        <label for="AssignedToGuids">Stage 1 </label>
+                                                    </legend>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-4">Select Form <span class="required" aria-required="true" style="color:red"><b>*</b> </span>  </label>
+                                                        <div class="col-md-12">
+                                                            <select class="form-control pull-left viewc" name="formtype" style="float:unset !important" tempname="user" id="formtype" required>
+                                                                <option value="" selected>Select Form</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-4">ASSIGN TO<span class="required" aria-required="true">*</span></label>
+                                                        <div class="col-md-12">
+                                                            <select id="drpuserlist1" name="drpuserlist1" style="float:unset !important" class="form-control" required></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-8" for="AssignedToGuids">Due Date <span class="required" aria-required="true" style="color:red"><b>*</b> </span>  </label>
+                                                        <div class="col-md-12">
+                                                            <input class="form-control" name="duedts1" type="date" placeholder="Date/Time" id="duedts1" required />
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div> <div id="divstage2" style="display:none">
+                                            <div class="form-group">
+                                                <fieldset>
+                                                    <legend>
+                                                        <label for="AssignedToGuids">Stage 2 </label>
+                                                    </legend>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-4">Selected Form </label>
+                                                        <div class="col-md-12">
+                                                            <select class="form-control pull-left viewc" name="actionstgform1" style="float:unset !important" tempname="user" id="actionstgform1" disabled></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-8">Permission <span class="required" aria-required="true" style="color:red"><b>*</b></label>
+                                                        <div class="col-md-12">
+                                                            <select id="drpuserlist2" name="drpuserlist2" style="float:unset !important" class="form-control" required></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-8" for="AssignedToGuids">Due Date <span class="required" aria-required="true" style="color:red"><b>*</b> </span>  </label>
+                                                        <div class="col-md-12">
+                                                            <input class="form-control" name="duedts2" type="date" placeholder="Date/Time" id="duedts2" required />
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div> <div id="divstage3" style="display:none">
+                                            <div class="form-group">
+                                                <fieldset>
+                                                    <legend>
+                                                        <label>Stage 3 </label>
+                                                    </legend>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-4">Selected Form </label>
+                                                        <div class="col-md-12">
+                                                            <select class="form-control pull-left viewc" style="float:unset !important" name="actionstgform2" tempname="user" id="actionstgform2" disabled></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-8">Download Data <span class="required" aria-required="true" style="color:red"><b>*</b></label>
+                                                        <div class="col-md-12">
+                                                            <select id="drpuserlist3" name="drpuserlist3" style="float:unset !important" class="form-control" required></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-8" for="AssignedToGuids">Due Date <span class="required" aria-required="true" style="color:red"><b>*</b> </span>  </label>
+                                                        <div class="col-md-12">
+                                                            <input class="form-control" name="duedts3" type="date" placeholder="Date/Time" id="duedts3" required />
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                        <div id="divstage4" style="display:none">
+                                            <div class="form-group">
+                                                <fieldset>
+                                                    <legend>
+                                                        <label>Stage 4 </label>
+                                                    </legend>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-4">Selected Form  </label>
+                                                        <div class="col-md-12">
+                                                            <select class="form-control pull-left viewc" style="float:unset !important" name="actionstgform3" tempname="user" id="actionstgform3" disabled></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-8">Email Data <span class="required" aria-required="true" style="color:red"><b>*</b> </label>
+                                                        <div class="col-md-12">
+                                                            <select id="drpuserlist4" style="float:unset !important" name="drpuserlist4" class="form-control" required></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="control-label col-md-8" for="AssignedToGuids">Due Date <span class="required" aria-required="true" style="color:red"><b>*</b> </span>  </label>
+                                                        <div class="col-md-12">
+                                                            <input class="form-control" name="duedts4" type="date" placeholder="Date/Time" id="duedts4" required />
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" style="display:none">
+                                            <div class="col-md-12">
+                                                <img src="~/Content/img/delete.gif" height="20" width="20" style="vertical-align:middle" />
+                                                <a href="#" class="btn" placeholder="Add description" type="text" name="wftskdel1" value="" id="wfevtdel1" onclick="deletetsk('1')">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="display:none">
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="">
+                                            <div class="form-actions hidden-print">
+                                                <div class="btn-group">
+                                                    <input type="submit" id="addTask" class="btn btn-primary save" value="ADD TasK">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                </fieldset>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="">
+                                <div class="form-actions hidden-print">
+                                    <div class="btn-group">
+                                        <input type="submit" id="addSave" class="btn btn-primary save" value="Save">
+                                        <input type="hidden" id="hidtaskid" name="hidtaskid" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <script>
+        </script>
+    </section>
+</aside>

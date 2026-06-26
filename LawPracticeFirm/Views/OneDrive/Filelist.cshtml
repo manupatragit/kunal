@@ -1,0 +1,515 @@
+﻿@using QueryStringEDAES;
+@{
+    /**/
+    ViewBag.Title = "CreateUser";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script>
+    var roleid = "@role";
+    var filesize =@ViewBag.filesize;
+</script>
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<!-- DataTables Responsive CSS -->
+<link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet">
+<style>
+    .paginate_disabled_previous {
+        padding: 0 20px 0 0;
+    }
+
+    output {
+        text-align: left;
+    }
+
+    .upload {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+    }
+
+        .upload + label {
+            width: 200px;
+            height: 40px;
+            font-size: 1em;
+            font-weight: 500;
+            color: black;
+            line-height: 2.6em;
+            text-transform: uppercase;
+            text-align: center;
+            background-color: #ccc;
+            display: inline-block;
+            border-radius: 10px;
+            box-shadow: 0px 3px 0px #ccc;
+            transition: 150ms;
+        }
+
+            .upload:focus + label,
+            .upload + label:hover {
+                background-color: #ccc;
+                box-shadow: 0px 5px 0px #ccc;
+                cursor: pointer;
+            }
+
+        .upload:focus + label {
+            outline: 1px dotted #000;
+            outline: -webkit-focus-ring-color auto 5px;
+        }
+</style>
+<style>
+    .dropbtn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .dropbtn:hover, .dropbtn:focus {
+            background-color: #3e8e41;
+        }
+
+    #searchdata {
+        border-box: box-sizing;
+        background-image: url('searchicon.png');
+        background-position: 14px 12px;
+        background-repeat: no-repeat;
+        font-size: 16px;
+        padding: 14px 20px 12px 45px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #myInput:focus {
+        outline: 3px solid #ddd;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        overflow: auto;
+        border: 1px solid #ddd;
+        z-index: 1;
+    }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+    .dropdown a:hover {
+        background-color: #ddd;
+    }
+
+    .show {
+        display: block;
+    }
+</style>
+<style>
+    #frameWrap {
+        position: relative;
+        height: 490px;
+        width: 100%;
+        border: 1px solid #777777;
+        background: #f0f0f0;
+        box-shadow: 0px 0px 10px #777777;
+    }
+
+    #docframe {
+        height: 490px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    #loader12 {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: url('//upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Phi_fenomeni.gif/50px-Phi_fenomeni.gif') 50% 50% no-repeat rgb(249,249,249);
+    }
+</style>
+<style>
+    #frameWrap1 {
+        position: relative;
+        height: 490px;
+        width: 100%;
+        border: 1px solid #777777;
+        background: #f0f0f0;
+        box-shadow: 0px 0px 10px #777777;
+    }
+
+    #otherdocframe {
+        height: 490px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    #loader121 {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: url('//upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Phi_fenomeni.gif/50px-Phi_fenomeni.gif') 50% 50% no-repeat rgb(249,249,249);
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $(".modal").on("hidden.bs.modal", function () {
+            $("#list").text("");
+            $(this).find('form').trigger('reset');
+        });
+        $(document).on("click", "#resercreatefiles", function () {
+            $("#list").text("");
+            $(".modal").find('form').trigger('reset');
+        });
+        //Do stuff here
+    });
+    function goForward() {
+        window.history.forward();
+    }
+    function goBack() {
+        window.history.back();
+    }
+</script>
+<script src="~/Scripts/Firm/Pages/Onedrive.js"></script>
+<section class="wrapper">
+    <div class="container">
+        <div class="row">
+            <section class="content-header">
+                <!-- Content Header (Page header) -->
+                <p class="ctitle">OneDrive</p>
+            </section>
+            <section class="content">
+                <div id="page-wrapper">
+                    <div class="container-fluid showcontent" id="showcontent">
+                        <div class="box">
+                            <div class="box-header" style="padding:5px;">
+                                <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp">
+                                    <li title="Go to root" style="margin-top: 3px;">
+                                        <a href="/@Session["firmcode"]/Onedrive/Filelist" style="height:34px;" class="sbtbtn"><span class="glyphicon glyphicon-folder-open"></span></a>
+                                    </li>
+                                    <li title="Previous">
+                                        <button class="sbtbtn" onclick="goBackward()"><span class="glyphicon glyphicon-chevron-left"></span> Previous</button>
+                                    </li>
+                                    <li title="Next" style="margin-left:5px;">
+                                        <button class="sbtbtn" onclick="goForward()"> Next <span class="glyphicon glyphicon-chevron-right"></span></button>
+                                    </li>
+                                    <li>
+                                        <button class="sbtbtn" style="margin-top:0px;" data-toggle="modal" id="myModal12" title="Create Folder"><span class="glyphicon glyphicon-plus"></span> Create</button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="sbtbtn" data-toggle="modal" id="myModal1file"> <span class="glyphicon glyphicon-cloud"> </span> Upload File</button>
+                                    </li>
+                                    <li>
+                                        <button type="submit" class="sbtbtn" value="Disconnect" form="disconnect-form">Disconnect</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    @{
+                        var parent = QueryAES.UrlDecode(Request.QueryString["ftoken"]);
+                    }
+                    @using (Html.BeginForm("Disconnect", "OneDrive", FormMethod.Post, new { id = "disconnect-form" }))
+                    {
+                        @Html.AntiForgeryToken();
+                    }
+                    <div style="clear:both">
+                        <script>
+                            function goForward() {
+                                window.history.forward();
+                            }
+                            function goBackward() {
+                                window.history.back();
+                            }
+                        </script>
+                    </div>
+                    <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+                    Root: <strong>@ViewBag.dirpath</strong>
+                    <div class=" table-responsive" style="clear:both">
+                        <table id="example" class="dataTable table ">
+                            <thead>
+                                <tr>
+                                    <th width="10%"><div class="thbg">Sl No. </div></th>
+                                    <th width="30%"><div class="thbg">Folders/Files Name </div></th>
+                                    <th width="10%"><div class="thbg">Date</div></th>
+                                    <th width="15%" align="center"><div class="thbg">Action</div> </th>
+                                </tr>
+                            </thead>
+                            <tbody id="dirbound">
+                                @{
+                                    int sno = 0;
+                                    var chkd = "";
+                                }
+                                @if (ViewBag.filelist != null)
+                                {
+                                    foreach (var person in ViewBag.filelist)
+                                    {
+                                        sno = sno + 1;
+                                        <tr>
+                                            <td>@sno</td>
+                                            @if (person.Type == "Folder")
+                                            {
+                                                <td title="click here to open folder"><a href="/@Session["firmcode"]/Onedrive/Filelist?status=true&&dtoken=@person.driveid&ftoken=@person.Id"><span class="glyphicon glyphicon-folder-open" style="color:orange"></span> &nbsp; &nbsp; @person.Name</a></td>
+                                                <td>
+                                                    @String.Format("{0:d}", Convert.ToDateTime(person.Create_date).ToString("dd MMM yyyy hh:mm:ss"))
+                                                </td>
+                                                <td></td>
+                                            }
+                                            else
+                                            {
+                                                var filename = person.Name;
+                                                var ficon = "";
+                                                var icolor = "";
+                                                var ftype = filename.Substring(filename.LastIndexOf('.') + 1);
+                                                ftype = ftype.ToUpper();
+                                                if (ftype == "DOC" || ftype == "DOCX")
+                                                {
+                                                    ficon = "fa fa-file-word-o";
+                                                    icolor = "#1860a3";
+                                                }
+                                                else if (ftype == "PPT" || ftype == "PPTX")
+                                                {
+                                                    ficon = "fa fa-file-powerpoint-o";
+                                                    icolor = "orange";
+                                                }
+                                                else if (ftype == "PDF")
+                                                {
+                                                    ficon = "fa fa-file-pdf-o";
+                                                    icolor = "red";
+                                                }
+                                                else if (ftype == "ZIP")
+                                                {
+                                                    ficon = "fa fa-file-archive-o";
+                                                    icolor = "orange";
+                                                }
+                                                else if (ftype == "PNG" || ftype == "JPG" || ftype == "JPEG")
+                                                {
+                                                    ficon = "fa fa-file-photo-o";
+                                                    icolor = "#1860a3";
+                                                }
+                                                else if (ftype == "CSV" || ftype == "XLSX" || ftype == "XLS")
+                                                {
+                                                    ficon = "fa fa-file-excel-o";
+                                                    icolor = "green";
+                                                }
+                                                else if (ftype == "TXT")
+                                                {
+                                                    ficon = "fa fa-file-code-o";
+                                                    icolor = "skyblue";
+                                                }
+                                                else
+                                                {
+                                                    ficon = "fa fa-file";
+                                                    icolor = "black";
+                                                }
+                                                <td><span class="@ficon" style="color:@icolor"></span>&nbsp;&nbsp; @person.Name</td>
+                                                <td>@String.Format("{0:d}", Convert.ToDateTime(person.Create_date).ToString("hh MMM yyyy hh:mm:ss"))</td>
+                                                <td> <a href="@person.downloadurl" title="click here to download file">Download</a></td>
+                                            }
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    @using System.Globalization;
+                    @using system;
+                    @{
+                        DateTime utcdate = DateTime.ParseExact("04-27-2020 03:24:02", "M-dd-yyyy hh:mm:ss", CultureInfo.InvariantCulture);
+                        var istdate = TimeZoneInfo.ConvertTimeFromUtc(utcdate,
+                        TimeZoneInfo.FindSystemTimeZoneById("India Standard Time"));
+                    }
+                    <div id="tfooter">
+                        <div class="pagination-wrap flex">
+                        </div>
+                    </div>
+                    <div class="box-footer clearfix">
+                        <ul class="pagination pagination-sm no-margin pull-right"></ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+<script>
+    $('#example').DataTable({
+        "pagingType": "full_numbers"
+    });
+</script>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+        <center> <div style="margin-top:-80px;"><span id="overlaycontent"></span> <span id="overlaytime"></span></div></center>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<div id="myModal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Create Folder
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger alert-dismissable validpanel">
+                            <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                            . <a href="#" class="alert-link">Alert Link</a>.
+                        </div>
+                        <div class="ec_bg">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form role="form" id="foldercreate">
+                                            <div class="form-group form-horizontal row">
+                                                <label class="control-label col-md-3">Folder Name<span class="required" aria-required="true" style="color:red"><b>*</b></span></label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control inputFormat" type="text" value="" id="cdir"><span style="color:red">(@@\/:*?"<>|.) is not allowed.</span>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" id="CreateDir">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal1" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Upload  Files
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="ec_bg">
+                    <div class="col-md-12">
+                        <form id="fileupload" name="fileupload">
+                            <div class="form-group form-horizontal row">
+                                <label class="control-label col-md-3">File <span class="required" aria-required="true">*</span></label>
+                                <div class="col-md-8">
+                                    <div id="dropContainer" style="border:1px solid #ccc;width:100%;">
+                                        <center>
+                                            <h3><span class="glyphicon glyphicon-cloud" style="color:#ccc"> </span><span style="color:#ccc">Drag and Drop Files here</span></h3>
+                                            <input type="file" id="attachment" class="inputFormat" multiple required @*class="upload"*@>
+                                            <output id="list"></output>
+                                        </center>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="createfiles"> Upload File</button>
+                    <button type="button" class="btn btn-secondary" id="resercreatefiles"> Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" name="hiddenpath" value="@parent" id="hiddenpath">
+<script>
+    dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
+        evt.preventDefault();
+    };
+    dropContainer.ondrop = function (evt) {
+        // pretty simple -- but not for IE :(
+        var files1 = evt.dataTransfer.files;
+        var output = [];
+        for (var i = 0, f; f = files1[i]; i++) {
+            output.push('<tr><td class="">', f.name, ' </td><td> ',
+                f.size, ' bytes',
+                '</td></tr>');
+        }
+        document.getElementById('list').innerHTML = '<table id="" style="font-size:13px;" class=" table table-striped"><tr><th style="background:#ccc;color:black;font-weight:normal">File Name</th><th style="background:#ccc;color:black;font-weight:normal">Size</th></tr>' + output.join('') + '</table>';
+        attachment.files = evt.dataTransfer.files;
+        evt.preventDefault();
+    };
+</script>
+<script>
+    $(document).on("click", "#myModal12", function () {
+        $(".validpanel").css("display", "none");
+        $('#myModal').modal({ show: true });
+    });
+    $(document).on("click", "#myModal1file", function () {
+        $('#myModal1').modal({ show: true });
+    });
+</script>

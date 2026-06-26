@@ -1,0 +1,385 @@
+﻿@{
+    Layout = null;
+}
+<!-- Page Content -->
+<script>
+    var emailcasedno = localStorage.getItem('emailcasedno');
+    var emailcourt = localStorage.getItem('emailcourt');
+    var emailcasename = localStorage.getItem('emailcasename');
+    var emailadv = localStorage.getItem('emailadv');
+    var emaildspdate = localStorage.getItem('emaildspdate');
+    var emailstatus = localStorage.getItem('emailstatus');
+    $("#csdno").html(emailcasedno);
+    $("#cscourt").html(emailcourt);
+    $("#cscase").html(emailcasename);
+    $("#csadv").html(emailadv);
+    $("#csdsp").html(emaildspdate);
+    $("#cssts").html(emailstatus);
+    $("#emailsubject").val("Order Detail of " + emailcasedno);
+</script>
+<script src="~/Scripts/Firm/Pages/MultipleEmailValid.js"></script>
+<script>
+    var token = "@ViewBag.token"
+    var caseid = "@ViewBag.caseid"
+    var pcaseid="@ViewBag.pcaseid"
+                    CaseordersCaseWatch();
+                    function CaseordersCaseWatch() {
+                        var formData = new FormData();
+                        formData.append("id", token);
+                        formData.append("caseid", caseid);
+                        formData.append("pcaseid", pcaseid);
+                        //read assign using list
+                        qty1 = 0;
+                        var html = '';
+                         $.ajax({
+                            async: true,
+                            type: "POST",
+                             url: "/firm/CNRListCaseOrders",
+                            dataType: 'json',
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response == "") {
+                                    $("#nocaseorder").append("No orders found.");
+                                    return false;
+                                }
+                                else {
+                                    $.each(response, function (i, a) {
+                                            html += '<tr  scope="row">';
+                                        html += '<td>' + a.Order_Date + '</td>';
+                                        if (a.Filename != "/") {
+                                            if (a.Filepath != "") {
+                                                html += '<td><a href="/DownloadFile.ashx?module=caseorder&ftoken=' + a.Filepath + '" download="' + a.Filename + '" target="_blank"> Open Order</a></td>';
+                                                html += '<td  title="Email matter order"><button id="emailorder" class="btn btn-success" FileName="' + a.Filename + '"  casetoken="' + caseid + '" ftoken="' + a.Filepath + '"><span class="glyphicon glyphicon-envelope"></span></button></td>';
+                                            }
+                                            else {
+                                                html += '<td></td>';
+                                                html += '<td></td>';
+                                            }
+                                                }
+                                            else {
+                                                html += '<td></td>';
+                                                html += '<td></td>';
+                                        }
+                                            html += '</tr>';
+                                    });
+                                    $("#bindcaseorder").append(html);
+                                }
+                            }, //End of AJAX Success function
+                            failure: function (response) {
+                                alert(data.responseText);
+                            }, //End of AJAX failure function
+                            error: function (response) {
+                                alert(data.responseText);
+                            } //End of AJAX error function
+                        });
+    }
+    setTimeout(function () { CaseordershistoryCaseWatch(); ListCaseOrdershistoryForList();}, 3000);
+
+    function CaseordershistoryCaseWatch() {
+        var formData = new FormData();
+        formData.append("id", token);
+        formData.append("caseid", caseid);
+        formData.append("pcaseid", pcaseid);
+        //read assign using list
+        qty1 = 0;
+        var html = '';
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/firm/CNRListCaseOrdersHistory",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response == "") {
+                    $("#bindcaseorderhistory").html("");
+                    $("#nocaseorderhistory").html("No data available.");
+                    $("#casehistrydive").hide();
+                    return false;
+                }
+                else {
+                    $("#casehistrydive").show();
+                    $.each(response, function (i, a) {
+                        html += '<tr  scope="row">';
+                        html += '<td>' + a.JudgeName + '</td>';
+                        if (a.vLocalFile != "") {
+                            html += '<td><a href="' + a.vLocalFile + '" target="_blank"> ' + a.BusinessDate + '</a></td>';
+                        }
+                        else {
+                            html += '<td>' + a.BusinessDate + '</td>';
+                        }
+                        html += '<td>' + a.Hearing + '</td>';
+                        html += '<td>' + a.Purpose + '</td>';
+                        html += '</tr>';
+                    });
+                    $("#bindcaseorderhistory").append(html);
+                }
+            }, //End of AJAX Success function
+            failure: function (response) {
+                alert(data.responseText);
+            }, //End of AJAX failure function
+            error: function (response) {
+                alert(data.responseText);
+            } //End of AJAX error function
+        });
+    }
+    //Listing Details
+    function ListCaseOrdershistoryForList() {
+        var formData = new FormData();
+        formData.append("id", token);
+        formData.append("caseid", caseid);
+        formData.append("pcaseid", pcaseid);
+        //read assign using list
+        qty1 = 0;
+        var html = '';
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/firm/CNRListCaseOrdersHistoryList",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response == "") {
+                    $("#bindcaseorderhistoryList").html("");
+                    $("#nocaseorderhistoryList").html("No data available.");
+                    $("#casehistrylistdive").hide();
+                    return false;
+                }
+                else {
+                    $("#casehistrylistdive").show();
+                    $.each(response, function (i, a) {
+                        html += '<tr  scope="row">';
+                        html += '<td>' + a.Order_Date + '</td>';
+                        html += '<td>' + a.Purpose + '</td>';
+                        if (a.vLocalFile != "") {
+                            html += '<td><a href="' + a.vLocalFile + '" target="_blank" class="glyphicon glyphicon-folder-open"  style="cursor:pointer;"></a></td>';
+                        }
+                        else {
+                            html += '<td></td>';
+                        }
+                        html += '</tr>';
+                    });
+                    $("#bindcaseorderhistoryList").append(html);
+                }
+            }, //End of AJAX Success function
+            failure: function (response) {
+                alert(data.responseText);
+            }, //End of AJAX failure function
+            error: function (response) {
+                alert(data.responseText);
+            } //End of AJAX error function
+        });
+    }
+    $(document).on("click", "#emailorder", function () {
+        var flname = $(this).attr("filename");
+        $("#attach").val("Attached document");
+        $("#hidftoken").val($(this).attr("ftoken"));
+        $("#hidctoken").val($(this).attr("casetoken"));
+            $('#test2').modal({
+                backdrop: 'static',
+                keyboard: false });
+    });
+    $(document).on("click", "#cemailorder", function () {
+        $("#test2").modal('hide');
+    });
+    try {
+        $("#senddocs").click(function () {
+            var formdata1 = new FormData();
+            var emailto = $("#emailto").val();
+            if (emailto == "") {
+                alert("Please enter the E-mail Id.");
+                return false;
+            }
+            else {
+                if (emailto != "") {
+                    var emailArray = emailto.split(",");
+                    for (i = 0; i <= (emailArray.length - 1); i++) {
+                        if (checkEmail(emailArray[i])) {
+                            vEmails = "true";
+                        } else {
+                            vEmails = "false";
+                            new PNotify({
+                                title: 'Warning!',
+                                text: ' Invalid email format!',
+                                type: 'error',
+                                delay: 3000
+                            });
+                        }
+                    }
+                }
+            }
+            if (vEmails == "" || vEmails == "true") {
+                formdata1.append("email", emailto);
+                formdata1.append("casetoken", $("#hidctoken").val());
+                formdata1.append("ftoken", $("#hidftoken").val());
+                formdata1.append("mailfilename", $("#attach").val());
+                formdata1.append("mailbody", EncodeText($("#emailbody").html()));
+                formdata1.append("mailsubject", EncodeText($("#emailsubject").val()));
+                $.ajax({
+                    async: true,
+                    url: '/firm/Sendcaseorderfile',
+                    data: formdata1,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (response) {
+                        new PNotify({
+                            title: 'Success!',
+                            text: ' Matter order has been sent Successfully',
+                            type: 'success',
+                            delay: 3000
+                        });
+                        $("#emailto").val("");
+                    },
+                    error: function () {
+                      //  alert('Error!');
+                    }
+                });
+            }
+        });
+    }
+    catch (er) {
+    }
+</script>
+<div class="modal-header btn-primary">
+    <button type="button" class="close" id="closemodel" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Matter Details
+    </h4>
+</div>
+<div class="modal-body " style="height:500px; overflow-y:scroll;">
+    <!-- Main content -->
+    <div id="content">
+        <div class="row">
+            <ul></ul>
+            <table id="questionLIst" class="table " cellspacing="0" width="100%">
+                <thead style="color:#fff; text-align:center;">
+                    <tr>
+                        <th scope="col"><div class="thbg">Order Date</div></th>
+                        <th scope="col"><div class="thbg">Order</div></th>
+                        <th scope="col"><div class="thbg">Action</div></th>
+                    </tr>
+                </thead>
+                <tbody style="text-align:center;" id="bindcaseorder"></tbody>
+            </table>
+            <center> <div id="nocaseorder"> </div></center>
+        </div>
+        <div id="casehistrydive">
+            <h4 class="modal-title">
+                Case History
+            </h4>
+            <div class="table-panel table-responsive">
+                <table id="" class=" table " cellspacing="0" width="100%" style="font-size:13px;">
+                    <thead>
+                        <tr>
+                            <th scope="col"><div class="thbg">Judge Name</div></th>
+                            <th scope="col"><div class="thbg">Business Date</div></th>
+                            <th scope="col"><div class="thbg">Hearing</div></th>
+                            <th scope="col"><div class="thbg">Purpose</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="bindcaseorderhistory"></tbody>
+                </table>
+                <center> <div id="nocaseorderhistory"> </div></center>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-actions ">
+                <div class="modal-footer">
+                    <button type="button" id="closemodels" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.content -->
+</div>
+<div id="test2" class="modal fade" role="dialog" data-backdrop="static" style="clear:both;">
+    <div class="modal-dialog" style="max-width:500px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" id="cemailorder">&times;</button>
+                <h4 class="modal-title">
+                    Email Matter Order
+                </h4>
+            </div>
+            <div class="modal-body" sstyle="height:550px; overflow-y:scroll;">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="ec_bg">
+                                    <div class="col-lg-12">
+                                        <div class="form-group form-horizontal row">
+                                            <label class="control-label col-md-4">To <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-8">
+                                                <input class="form-control inputFormat " name="subject" type="text" id="emailto" placeholder="Email Id" required="">
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal row">
+                                            <label class="control-label col-md-4">Subject <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-8">
+                                                <input class="form-control inputFormat" name="subject" type="text" id="emailsubject" placeholder="Subject" required="" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-horizontal row">
+                                            <label class="control-label col-md-4">Attachment <span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-8">
+                                                <input class="form-control inputFormat" name="subject" type="text" id="attach" placeholder="Attachment" required="" disabled>
+                                            </div>
+                                        </div>
+                                        <div id="emailbody" style="clear: both;padding: 10px 0 0 0;">
+                                            <table width="100%" cellpadding="0" cellspacing="0" style="background:unset !important; font-size:12px;">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" width="30%">
+                                                            Matter / Diary No.:
+                                                        </td>
+                                                        <td align="left"><span id="csdno"></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="left"> Court:</td>
+                                                        <td align="left"><span id="cscourt"></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="left">Matter Name:</td>
+                                                        <td align="left"><span id="cscase"></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="left">Advocate:</td>
+                                                        <td align="left"><span id="csadv"></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Status:</td>
+                                                        <td><span id="cssts"></span></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="form-group form-horizontal" style="padding:10px 0 0 0;">
+                                            <button type="button" class="sbtbtn pull-right" id="senddocs">SEND</button>
+                                        </div>
+                                        <input type="hidden" id="hidftoken">
+                                        <input type="hidden" id="hidctoken">
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,1133 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script>
+    var roleids = "@Session["sessionroleid"]";
+    var isDelete = "@ViewBag.IsDelete";
+    var IsCreate = "@ViewBag.IsCreate";
+    var IsViewAll = "@Session["IsViewAll"]";
+    var iscompanyindv="@ViewBag.iscompanyindv";
+    var userid = "@Session["sessionuserid"]";
+    var type = 11;
+</script>
+<script src="~/Scripts/Firm/Pages/StandardContactslist.js?4.2"></script>
+<script>
+    $(document).ready(function () {
+        $("#iscomorindividual").val(iscompanyindv);
+        $(".toggle-passwordnew").click(function () {
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $(this).attr("toggle");
+            if ($(input).attr("type") == "password") {
+                $(input).attr("type", "text");
+            } else {
+                $(input).attr("type", "password");
+            }
+        });
+    });
+</script>
+<style>
+    .glyphicon-pencil, .glyphicon-trash {
+        color: black !important;
+    }
+
+    .settingaction {
+        margin-left: -50px !important;
+    }
+</style>
+
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"><h2 id="dynamiciprheader"></h2></p> <input type="text" id="searchdata" style="display:none">
+        </div>
+        <div class="tabs-and-filters">
+            <div class="button-group">
+                <a href="#" title="Tracker List" id="allContacttab" class="button-group-base">All </a>
+                <a href="#" class="button-group-base1" title="My List" id="CompanyContab">Company</a>
+                <a href="#" title="Search Result" class="button-group-base2" id="IndContacttab">Individual</a>
+            </div>
+            <div style="display:inline-flex">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="wrapper">
+    <div class="container-main">
+        <div class="">
+            <h2 class="title">Contacts List </h2>
+            <div class="content-header " style="margin-bottom: 27px;">
+                <ul class="btn_panel" style="padding:0;" id="sectiontemp">
+                    <li>
+                        <select id="Clistctype" name="Clistctype" class=" dropdown-toggle form-control selctInputFormat" style="background-color: #ebebeb">
+                            <option value="all" selected>All </option>
+                            <option value="Client">Client </option>
+                            <option value="Prospect">Prospect </option>
+                            <option value="Vendor">Vendor </option>
+                        </select>
+                    </li>
+                    <li><input type="text" class="form-control selctInputFormat" style="background:#ebebeb !important;" placeholder="Search" id="searchdata" />
+                    <li>
+                        <button type="button" id="searchdatas" class="sbtbtn" style="margin-top:3px">
+                            <span class="glyphicon glyphicon-search" style="margin-left:-3px;"></span>
+                        </button>
+                    </li>
+                    <li style="margin-top:3px;">
+                        <span class="sbtbtn" id="clearnewseach" title="Click here to reset search" style="display: none;">x</span>
+                    </li>
+                    <li class="pull-right">
+                        <select id="iscomorindividual" name="iscomorindividual" class=" dropdown-toggle form-control selctInputFormat" style="background-color: #ebebeb">
+                            <option value="" selected>All </option>
+                            <option value="1">Company </option>
+                            <option value="0">Individual</option>
+                        </select>
+                    </li>
+                    <li class="pull-right">
+                        Category:
+                    </li>
+                </ul>
+            </div>
+            <br>
+            <br>
+            <div id="Propectdiv" style="display:none;">
+                <div id="pupdatePanel" class="table-panel table-responsive" style="overflow-x:auto;">
+                </div>
+                <div><center><span id="pdatastatus">No result found</span></center></div>
+                <div class="table-panel">
+                    <div class="settingpanel">
+                        <div class="col-md-6">
+                            <div style="float: left;padding: 0 10px 0 0;">
+                                <ul>
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                Customize Field
+                                            </a>
+                                            <ul class="dropdown-menu settingshowhide " id="bd">
+                                                <li><input type="checkbox" class="shcheckbox1" name="pfname" checked><a href="#" class="dropdown-item">First Name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="plname" checked><a href="#" class="dropdown-item">Last Name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="pmobno" checked><a href="#" class="dropdown-item">Mobile</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="pContactType"> <a href="#" class="dropdown-item">Contact Type</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="pcemail" checked><a href="#" class="dropdown-item">Email</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="pPtype"><a href="#" class="dropdown-item">Propspect Type</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="psource"><a href="#" class="dropdown-item">Source/Reference</a></li>
+                                                <li class="iscompanyindicidualclass"><input type="checkbox" class="shcheckbox1" name="pcompanyname" checked><a href="#" class="dropdown-item">Company Name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="pcity" checked><a href="#" class="dropdown-item">City</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="CompanyStructure"><a href="#" class="dropdown-item">Company Structure</a></li>
+                                                <li>
+                                                    <p style="cursor:pointer;color:#069;" id="btn_more" class="dropdown-item btn_more">
+                                                        more
+                                                    </p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="ptfooter">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="pull-right">
+                                @if (role.ToString() == "1")
+                                {
+                                    <li title="Create new Contact"><a class="sbtbtn" href="/@Session["firmcode"]/firm/createcontacts">new contact</a> </li>
+                                }
+                                else
+                                {
+                                    if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                                    {
+                                        <li title="Create new Contact"><a class="sbtbtn" href="/@Session["firmcode"]/firm/createcontacts">new contact</a> </li>
+                                    }
+                                }
+                                <li><span>|</span></li>
+                                <li>
+                                    <div class="btn-group dropup">
+                                        <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action Selected
+                                        </a>
+                                        <ul class="dropdown-menu settingaction">
+                                            @if (role.ToString() == "1")
+                                            {
+                                                <li><a href="javascript:void()" id="excel" title="Export to Excel"> Export to Excel</a></li>
+                                                <li>
+                                                    <a href="javascript:void()" id="pdf" title="Export data to PDF">Export to PDF</a>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                if (Convert.ToInt32(ViewBag.export) == 1)
+                                                {
+                                                    <li><a href="javascript:void()" id="excel" title="Export to Excel"> Export to Excel</a></li>
+                                                    <li>
+                                                        <a href="javascript:void()" id="pdf" title="Export data to PDF">Export to PDF</a>
+                                                    </li>
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="clientdiv" style="display:none">
+                <div id="cupdatePanel" class="table-panel table-responsive" style="overflow-x:auto;">
+                </div>
+                <div><center><span id="cdatastatus">No result found</span></center></div>
+                <div class="table-panel">
+                    <div class=" settingpanel">
+                        <div class="col-md-6">
+                            <div style="float: left;padding: 0 10px 0 0;">
+                                <ul>
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                Customize Field
+                                            </a>
+                                            <ul class="dropdown-menu settingshowhide">
+                                                <li><input type="checkbox" class="shcheckbox1" name="IsCompany" checked><a href="#" class="dropdown-item">Client Type</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="cufname" checked><a href="#" class="dropdown-item">First Name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="clname" checked><a href="#" class="dropdown-item">Last Name</a></li>
+                                                <li class="iscompanyindicidualclass"><input type="checkbox" class="shcheckbox1" name="companyname" checked><a href="#" class="dropdown-item">Company Name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="mobno" checked><a href="#" class="dropdown-item">Mobile</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="ContactType"> <a href="#" class="dropdown-item"> Contact Type</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="ccemail" checked><a href="#" class="dropdown-item">Email</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="userid" checked><a href="#" class="dropdown-item">UserId</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="cstatus" checked><a href="#" class="dropdown-item">Status</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="CompanyStructure"><a href="#" class="dropdown-item">Company Structure</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="createdby"><a href="#" class="dropdown-item">Created By</a></li>
+                                                <li>
+                                                    <p style="cursor:pointer;color:#069;" id="btn_more" class="dropdown-item btn_more">
+                                                        more
+                                                    </p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="ctfooter">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="pull-right">
+                                @if (role.ToString() == "1")
+                                {
+                                    <li title="Create new Contact"><a class="sbtbtn" href="/@Session["firmcode"]/firm/createcontacts">new contact</a> </li>
+                                }
+                                else
+                                {
+                                    if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                                    {
+                                        <li title="Create new Contact"><a class="sbtbtn" href="/@Session["firmcode"]/firm/createcontacts">new contact</a> </li>
+                                    }
+                                }
+                                @if (role.ToString() == "1")
+                                {
+                                    <li><span>|</span></li>
+                                    <li><span data-toggle="modal" class="sbtbtn" data-target="#myModaldocs1" id="btnShare" style="cursor:pointer" title="Email contacts"> Share </span></li>
+                                }
+                                else
+                                {
+                                    if (Convert.ToInt32(ViewBag.share) == 1)
+                                    {
+                                        <li><span>|</span></li>
+                                        <li><span data-toggle="modal" class="sbtbtn" data-target="#myModaldocs1" id="btnShare" style="cursor:pointer" title="Email contacts"> Share </span></li>
+                                    }
+                                }
+                                <li><span>|</span></li>
+                                <li>
+                                    <div class="btn-group dropup">
+                                        <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action Selected
+                                        </a>
+                                        <ul class="dropdown-menu settingaction">
+                                            @if (role.ToString() == "1")
+                                            {
+                                                <li><a href="javascript:void()" id="enable" title="Activate Client"> Enable</a></li>
+                                                <li><a href="javascript:void()" id="disable" title="Deactivate Client">  Disable</a></li>
+                                            }
+                                            else
+                                            {
+                                                if (Convert.ToInt32(ViewBag.enable) == 1)
+                                                {
+                                                    <li><a href="javascript:void()" id="enable" title="Activate Client"> Enable</a></li>
+                                                    <li><a href="javascript:void()" id="disable" title="Deactivate Client">  Disable</a></li>
+                                                }
+                                            }
+                                            @*<li><a href="javascript:void()" id="syncrqst" title="Save data sync request"> Data Sync Request</a></li>*@
+                                            @if (role.ToString() == "1")
+                                            {
+                                                <li><a href="javascript:void()" id="cexcel" title="Export to Excel"> Export to Excel</a></li>
+                                                <li><a href="javascript:void()" id="cpdf" title="Export data to PDF">Export to PDF</a></li>
+                                            }
+                                            else
+                                            {
+                                                if (Convert.ToInt32(ViewBag.export) == 1)
+                                                {
+                                                    <li><a href="javascript:void()" id="cexcel" title="Export to Excel"> Export to Excel</a></li>
+                                                    <li><a href="javascript:void()" id="cpdf" title="Export data to PDF"> Export to PDF</a></li>
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="otherdiv" style="display:none">
+                <div id="oupdatePanel" class="table-panel table-responsive" style="overflow-x:auto;">
+                </div>
+                <div><center><span id="odatastatus">No result found</span></center></div>
+                <div class="table-panel">
+                    <div class=" settingpanel">
+                        <div class="col-md-6">
+                            <div style="float: left;padding: 0 10px 0 0;">
+                                <ul>
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                Customize Field
+                                            </a>
+                                            <ul class="dropdown-menu settingshowhide" id="od">
+                                                <li><input type="checkbox" class="shcheckbox1" name="ofname" checked><a href="#">First Name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="olname" checked><a href="#">Last Name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="omobno" checked><a href="#">Mobile</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="oContactType" =""><a href="#" class="dropdown-item">Contact Type</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="ocemail" checked><a href="#" class="dropdown-item">Email</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="ocadd1"><a href="#" class="dropdown-item">Address</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="ocweb"><a href="#" class="dropdown-item">Website</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="odesignation"><a href="#" class="dropdown-item">Designation </a></li>
+                                                <li class="iscompanyindicidualclass"><input type="checkbox" class="shcheckbox1" name="ocompanyname" checked><a href="#" class="dropdown-item">Company Name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="ocity" checked><a href="#" class="dropdown-item">City</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="ocreatedby" checked><a href="#" class="dropdown-item">Created By</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="CompanyStructureother" checked><a href="#" class="dropdown-item">Company Structure</a></li>
+                                                <li>
+                                                    <p style="cursor:pointer;color:#069;" id="btn_more" class="dropdown-item btn_more">
+                                                        more
+                                                    </p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="otfooter">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="pull-right">
+                                @if (role.ToString() == "1")
+                                {
+                                    <li title="Create new Contact"><a href="/@Session["firmcode"]/firm/createcontacts">new contact</a> </li>
+                                }
+                                else
+                                {
+                                    if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                                    {
+                                        <li title="Create new Contact"><a href="/@Session["firmcode"]/firm/createcontacts">new contact</a> </li>
+                                    }
+                                }
+                                <li><span>|</span></li>
+                                <li>
+                                    <div class="btn-group dropup">
+                                        <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action Selected
+                                        </a>
+                                        <ul class="dropdown-menu settingaction">
+                                            @if (role.ToString() == "1")
+                                            {
+                                                <li><a href="javascript:void()" id="oexcel" title="Export to Excel"> Export to Excel</a></li>
+                                                <li><a href="javascript:void()" id="opdf" title="Export data to PDF"> Export to PDF</a></li>
+                                            }
+                                            else
+                                            {
+                                                if (Convert.ToInt32(ViewBag.export) == 1)
+                                                {
+                                                    <li><a href="javascript:void()" id="oexcel" title="Export to Excel"> Export to Excel</a></li>
+                                                    <li><a href="javascript:void()" id="opdf" title="Export data to PDF">Export to PDF</a></li>
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="allcontactsdiv">
+                <div id="allupdatePanel" class="table-panel table-responsive" style="overflow-x:auto;">
+                </div>
+                <div><center><span id="alldatastatus">No result found</span></center></div>
+                <div class="table-panel">
+                    <div class=" settingpanel">
+                        <div class="col-md-6">
+                            <div style="float: left;padding: 0 10px 0 0;">
+                                <ul>
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                Customize Field
+                                            </a>
+                                            <ul class="dropdown-menu settingshowhide" id="odal">
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="olclienttype"><a href="#">Client Type</a></li>
+                                                <li class="iscompanyindicidualclass"><input type="checkbox" class="shcheckbox1" name="ocompanynameal" checked><a href="#" class="dropdown-item">Company Name</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="ocityal"><a href="#" class="dropdown-item">City</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="oContactTypeal" checked><a href="#" class="dropdown-item">Contact Type</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="ofnameal" checked><a href="#">First Name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="olnameal" checked><a href="#">Last Name</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="omobnoal" checked><a href="#">Mobile Number</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="ocstatus"><a href="#">Status</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="ocuserid"><a href="#">Userid</a></li>
+                                                <li><input type="checkbox" class="shcheckbox1" name="ocemail" checked><a href="#" class="dropdown-item">Email ID</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="ostateal"><a href="#" class="dropdown-item">State</a></li>
+                                                <li style="display:none"><input type="checkbox" class="shcheckbox1" name="ocreatedbyal"><a href="#" class="dropdown-item">Created By</a></li>
+                                                @*<li><input type="checkbox" class="shcheckbox1" name="ocwebal"><a href="#" class="dropdown-item">Website</a></li>
+                                                    <li><input type="checkbox" class="shcheckbox1" name="ocadd1al"><a href="#" class="dropdown-item">Address</a></li>
+                                                    <li><input type="checkbox" class="shcheckbox1" name="odesignational"><a href="#" class="dropdown-item">Designation </a></li>
+                                                    <li><input type="checkbox" class="shcheckbox1" name="oinfoal"><a href="#" class="dropdown-item">Add. Info</a></li>
+                                                    <li><input type="checkbox" class="shcheckbox1" name="opinal"><a href="#" class="dropdown-item">PIN</a></li>
+                                                    <li><input type="checkbox" class="shcheckbox1" name="ocountryal"><a href="#" class="dropdown-item">Country</a></li>
+                                                    <li><input type="checkbox" class="shcheckbox1" name="alldocs"><a href="#" class="dropdown-item">Documents</a></li>*@
+                                                <li>
+                                                    <p style="cursor:pointer;color:#069;" id="btn_more" class="dropdown-item btn_more">
+                                                        more
+                                                    </p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="alfooter">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="pull-right">
+                                @if (role.ToString() == "1")
+                                {
+                                    <li title="Create new Contact"><a class="sbtbtn" href="/@Session["firmcode"]/firm/createcontacts">new contact</a> </li>
+                                }
+                                else
+                                {
+                                    if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+                                    {
+                                        <li title="Create new Contact"><a class="sbtbtn" href="/@Session["firmcode"]/firm/createcontacts">new contact</a> </li>
+                                    }
+                                }
+                                <li><span>|</span></li>
+                                <li>
+                                    <div class="btn-group dropup">
+                                        <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action Selected
+                                        </a>
+                                        <ul class="dropdown-menu settingaction">
+                                            @if (role.ToString() == "1")
+                                            {
+                                                <li><a href="javascript:void()" id="ocallexcel" title="Export to Excel"> Export to Excel</a></li>
+                                                <li><a href="javascript:void()" id="ocallpdf" title="Export data to PDF">Export to PDF</a></li>
+                                                <li><a href="javascript:void()" id="resetcf" title="Reset Custom Fields">Reset Custom Fields</a></li>
+                                                <li><a href="javascript:void()" id="cfHistory" title="Custom Field History">Custom Field History</a></li>
+                                            }
+                                            else
+                                            {
+                                                if (Convert.ToInt32(ViewBag.export) == 1)
+                                                {
+                                                    <li><a href="javascript:void()" id="ocallexcel" title="Export to Excel">Export to Excel</a></li>
+                                                    <li><a href="javascript:void()" id="ocallpdf" title="Export data to PDF">Export to PDF</a></li>
+                                                }
+                                            }
+                                            @if (role.ToString() == "1")
+                                            {
+                                                <li><a href="/@Session["firmcode"]/firm/ClientMultipleAddress" title="Client Multiple Address">Client Multiple Address</a></li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script>
+    function sortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("cexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function psortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("pexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function osortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("oexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function asortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("alexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<div id="myModaldocs1" class="modal fade" role="dialog" style="z-index:2000;">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" id="closesharebox" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <span id="spanhead"> Email contacts</span>
+                </h4>
+            </div>
+            <div class="minebody modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-3">Enter Email ID<span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                            <div class="col-md-8">
+                                                <input type="email" class="form-control" id="shareemail" title="Enter Email id with Comma Separated (,) in case of Multiple recipients." />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-actions">
+                                            <div class="modal-footer">
+                                                <button type="button" id="sharedocs" class="sbtbtn save" value="Save">Send</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalccc" class="modal fade myModalcpd" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <input type="hidden" id="cltoken">
+        <div class="modal-content myModalccc">
+            <div class="modal-header btn-primary">
+                <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Create Client Credentials
+                </h4>
+            </div>
+            <div class="modal-body ">
+                <!-- Main content -->
+                <form method="post" class="ec_bg" id="frmpass" enctype="multipart/form-data">
+                    <!-- Start About boxes -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <fieldset style="background: #ebebeb;">
+                                <div class="row" style="margin-bottom: 10px">
+                                    <div class="col-md-4">
+                                        <label class="control-label text-right">User Id <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div style="float:left;width:95%">
+                                            <input class="form-control inputFormat" onfocus="$(this).removeAttr('readonly');" name="clusername" type="text" maxlength="30" id="clusername" required="">
+                                            <span id="useriderror" style="color:red"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-bottom: 10px">
+                                    <div class="col-md-4">
+                                        <label class="control-label  text-right">Password <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div style="float:left;width:95%">
+                                            <input class="form-control inputFormat" onfocus="$(this).removeAttr('readonly');" name="clnpassword" minlength="8" maxlength="30" type="password" id="clnpassword" autocomplete="off" title="Password must be minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character" required="">
+                                        </div>
+                                        <div style="float:right;position:relative;right:15px;margin-top:5px;">
+                                            <span id="hideeye" toggle="#clnpassword" class="fa fa-fw fa-eye-slash field-icon toggle-passwordnew" style="color:#676767;margin-top: 0px; margin-right: -15px"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="control-label text-right">Confirm Password <span class="required" aria-required="true">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div style="float:left;width:95%">
+                                            <input class="form-control inputFormat" onfocus="$(this).removeAttr('readonly');" minlength="8" name="clcpassword" type="password" id="clcpassword" autocomplete="off" maxlength="30" title="Password must be minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character" required="">
+                                        </div>
+                                        <div style="float:right;position:relative;right:15px;margin-top:5px;">
+                                            <span id="hideeye" toggle="#clcpassword" class="fa fa-fw fa-eye-slash field-icon toggle-passwordnew" style="color:#676767;margin-top: 0px; margin-right: -15px"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-actions">
+                                <div class="modal-footer" style="border-top: none !important;">
+                                    <p style="text-align: justify; font-size: 11px; margin-top: -3%;">Password must be minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character</p>
+                                    <button type="button" id="chngclpwd" class="sbtbtn" value="Save">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.content -->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="myModalcfHistory" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog " style="width:60%;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Contact Custom Field History
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form method="post" class="ec_bg" role="form" id="editfile">
+                                            <div class="form-group ">
+                                                <label class="control-label col-md-3">Select Custom Field Version</label>
+                                                <div class="col-md-4">
+                                                    <select class="form-control selctInputFormat" style="background-color: white !important; " id="cfversion"></select>
+                                                </div>
+                                                <div class="col-md-5" style="margin-top:1px;">
+                                                    <button type="button" class="sbtbtn" id="CFHistoryData">Find</button>
+                                                    <button type="button" class="sbtbtn" id="ExporttoExcelCFHistory" title="Export To Excel" style="display:none">Export To Excel</button>
+                                                </div>
+                                                <div class="table-panel table-responsive">
+                                                    <table id="example" class="table table-striped table-bordered" style="overflow-x:scroll;">
+                                                        <thead id="cfheadrow">
+                                                        </thead>
+                                                        <tbody id="cfbindcasedata"></tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="table-panel" id="footerhead" style="display:none">
+                                                    <div class="row settingpanel">
+                                                        <div class="col-md-12">
+                                                            <div style="float: left;padding: 0 10px 0 0;">
+                                                                <ul>
+                                                                    <li>
+                                                                        <div class="btn-group dropup">
+                                                                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                                <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                                                customize field
+                                                                            </a>
+                                                                            <ul class="dropdown-menu settingshowhide" id="cfod" style="width:255px;height:97px!important;"></ul>
+                                                                        </div>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div id="cfcasetfooter">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /.row (nested) -->
+                                </div>
+                                <!-- /.panel-body -->
+                            </div>
+                            <!-- /.panel -->
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalcompanydetails" class="modal fade myModalcpd" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:981px;">
+        <input type="hidden" id="cltokencompany">
+        <input type="hidden" id="companys">
+        <div class="modal-content myModalcompanydetails">
+            <div class="modal-header btn-primary">
+                <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="companyname" style="text-align: center"> Company Details </h4>
+            </div>
+            <!-- Main content -->
+            <form method="post" id="frmcompanydetails" enctype="multipart/form-data">
+                <!-- Start About boxes -->
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-12">
+                        <div id="clientdiv" style="width:100%;overflow-y:scroll;padding:10px;">
+                            <div id="cupdatePanelforcompany" class="table-panel table-responsive">
+                            </div>
+                        </div>
+                        <div class="table-panel">
+                            <div class="row settingpanelforcompany">
+                                <div class="col-md-7">
+                                    <div style="float: left;padding: 0 10px 0 0;">
+                                        <ul>
+                                            <li>
+                                                <div class="btn-group dropup">
+                                                    <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                        Customize Field
+                                                    </a>
+                                                    <ul class="dropdown-menu settingshowhide" style="height: 150px !important;">
+                                                        <li><input type="checkbox" class="shcheckbox1" name="cufnamec" checked><a href="#" class="dropdown-item">First Name</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="clnamec" checked><a href="#" class="dropdown-item">Last Name</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="mobnoc" checked><a href="#" class="dropdown-item">Mobile</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="ContactTypec"> <a href="#" class="dropdown-item"> Contact Type</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="ccemailc" checked><a href="#" class="dropdown-item">Email</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="useridc" checked><a href="#" class="dropdown-item">UserId</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="landlinec"><a href="#" class="dropdown-item">Landline</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="cadd1c"><a href="#" class="dropdown-item">Address</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="cstatusc" checked><a href="#" class="dropdown-item">Status</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="designationc"><a href="#" class="dropdown-item">Designation</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="countryc"><a href="#" class="dropdown-item">Country</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="statec"><a href="#" class="dropdown-item">State</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="cityc"> <a href="#" class="dropdown-item">City</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="pinc"><a href="#" class="dropdown-item">PIN</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="GSTNoc"><a href="#" class="dropdown-item">GSTNo</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="PANNoc"><a href="#" class="dropdown-item">PANNo</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="AadharNoc"> <a href="#" class="dropdown-item">AadharNo</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="CompanyStructurec"><a href="#" class="dropdown-item">Company Structure</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="createdbyc"><a href="#" class="dropdown-item">Created By</a></li>
+                                                        <li><input type="checkbox" class="shcheckbox1" name="clientdocsc"><a href="#" class="dropdown-item">Documents</a></li>
+                                                        <li>
+                                                            <p style="cursor:pointer;color:#069;" id="btn_more" class="dropdown-item btn_more">
+                                                                more
+                                                            </p>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div id="ctfooterforcompany">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.content -->
+            </form>
+        </div>
+    </div>
+</div>

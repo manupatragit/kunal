@@ -1,0 +1,1429 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Case Details</title>
+    <style>
+        .table-panel th,
+        .table-panel td {
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
+        .ai-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%; 
+        }
+
+        #aiHistoryList {
+            max-height: 75px; 
+            overflow-y: auto; 
+            border-bottom: 1px solid #eee;
+            margin-top: -9px;
+        }
+
+        .summary-card {
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+
+        .summary-date {
+            flex-shrink: 0;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .summary-content {
+            flex: 1; /* fill remaining space */
+            overflow-y: auto; /* scroll content */
+            padding-right: 5px;
+        }
+
+        .container-main {
+            max-width: 100%;
+            height: 100vh;
+            margin: auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 0 0 3px #e6e6e6;
+            padding: 10px;
+            position: relative;
+        }
+
+        .ai-header {
+            text-align: right;
+            padding: 8px 12px;
+        }
+
+        .history-btn {
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .ai-view {
+            display: none;
+            height: 100%;
+        }
+
+            .ai-view.active {
+                display: block;
+            }
+
+        .ai-title {
+            text-align: center;
+            margin: 40px 0 30px;
+        }
+
+        .ai-tools-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding: 0 100px;
+        }
+
+            .ai-tools-grid button {
+                padding: 15px;
+                border: 1px solid #6b4eff;
+                border-radius: 36px;
+                background: #fff;
+                cursor: pointer;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            }
+
+        .tab-header {
+            display: flex !important;
+            border-bottom: 1px solid #ddd !important;
+            margin-bottom: 10px !important;
+        }
+
+        .tab-item {
+            padding: 10px !important;
+            cursor: pointer !important;
+            font-size: 13px !important;
+        }
+
+            .tab-item.active {
+                border-bottom: 2px solid #6b4eff !important;
+                font-weight: bold !important;
+            }
+
+        .tab-content {
+            display: none !important;
+        }
+
+            .tab-content.active {
+                display: block !important;
+            }
+
+        .table-panel th, .table-panel td {
+            padding: 8px !important;
+            border-bottom: 1px solid #eee !important;
+            font-size: 12px !important;
+        }
+
+        .ai-wrapper {
+            display: flex;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .ai-left {
+            width: 75%;
+        }
+
+        .ai-right {
+            flex: 1;
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        @@media (max-width: 900px) {
+            .ai-wrapper {
+                flex-direction: column;
+            }
+
+            .ai-left {
+                width: 100%;
+            }
+        }
+
+        #aiResultContainer {
+            margin-top: 15px;
+            max-height: 100%;
+            overflow-y: auto;
+            padding-right: 8px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #aiResultContent {
+            line-height: 1.6;
+            font-size: 14px;
+            max-height: 60vh;
+        }
+
+        #aiResultContainer::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #aiResultContainer::-webkit-scrollbar-thumb {
+            background-color: #bdbdbd;
+            border-radius: 4px;
+        }
+
+        #generateSummaryButton:not(:disabled):hover,
+        #generateChronologyButton:not(:disabled):hover,
+        #btnTranslate:not(:disabled):hover,
+        #btnAskAI:not(:disabled):hover {
+            background-color: #e9f2ff;
+            color: #0d6efd;
+            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.25);
+            transform: translateY(-2px);
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        #generateSummaryButton,
+        #generateChronologyButton,
+        #btnTranslate,
+        #btnAskAI {
+            transition: all 0.2s ease-in-out;
+        }
+
+            #generateSummaryButton:disabled,
+            #generateChronologyButton:disabled,
+            #btnTranslate:disabled,
+            #btnAskAI:disabled {
+                background-color: #f5f5f5;
+                color: #9aa0a6;
+                box-shadow: none;
+                cursor: not-allowed;
+            }
+
+        #toggleHistory {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+            color: #0d6efd;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            user-select: none;
+        }
+
+            #toggleHistory:not(.disabled):hover {
+                background-color: #e9f2ff;
+                box-shadow: 0 4px 10px rgba(13, 110, 253, 0.25);
+                transform: translateY(-2px);
+            }
+
+            #toggleHistory:not(.disabled):active {
+                transform: translateY(0);
+                box-shadow: 0 2px 6px rgba(13, 110, 253, 0.2);
+            }
+
+            #toggleHistory.disabled {
+                background-color: #f5f5f5;
+                color: #9aa0a6;
+                cursor: not-allowed;
+                box-shadow: none;
+                pointer-events: none;
+            }
+
+        .toggle-arrow {
+            width: 12px;
+            height: 12px;
+        }
+
+        .ai-right {
+            width: 59%;
+            flex: 0 0 59%;
+        }
+
+        .ai-left {
+            width: 40%;
+            flex: 0 0 40%;
+        }
+
+        /* ===== Translate View Only ===== */
+        #translateView {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            max-width: 600px;
+        }
+
+            /* Title */
+            #translateView h3 {
+                font-size: 20px;
+                font-weight: 600;
+                color: #1f2937;
+                margin-bottom: 6px;
+            }
+
+            /* Subtitle */
+            #translateView p {
+                font-size: 14px;
+                color: #6b7280;
+                margin-bottom: 18px;
+            }
+
+            /* Label */
+            #translateView label {
+                display: block;
+                font-size: 14px;
+                font-weight: 500;
+                color: #374151;
+                margin-bottom: 6px;
+            }
+
+            /* Dropdown */
+            #translateView select {
+                width: 100%;
+                max-width: 320px;
+                padding: 6px 6px;
+                font-size: 14px;
+                border-radius: 10px;
+                border: 1px solid #d1d5db;
+                background-color: #ffffff;
+                transition: all 0.2s ease;
+            }
+
+                #translateView select:focus {
+                    outline: none;
+                    border-color: #6366f1;
+                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+                }
+
+            /* Buttons container */
+            #translateView .translate-actions {
+                margin-top: 18px;
+            }
+
+        /* Translate button */
+        #btnTranslateNow {
+            background: #0C4A6E;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+            #btnTranslateNow:hover {
+                opacity: 0.9;
+            }
+
+        /* Back button */
+        #btnBackToTools {
+            background: #e5e7eb !important;
+            color: #374151 !important;
+            border: none !important;
+            padding: 10px 18px !important;
+            font-size: 14px !important;
+            border-radius: 10px !important;
+            cursor: pointer !important;
+        }
+
+            #btnBackToTools:hover {
+                background: #d1d5db !important;
+            }
+
+        .table-panel {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
+
+            .table-panel thead {
+                display: table !important;
+                width: 100% !important;
+                table-layout: fixed !important;
+            }
+
+            .table-panel tbody {
+                display: block !important;
+                max-height: 50vh !important; /* Set height limit */
+                overflow-y: auto !important;
+                width: 100% !important;
+            }
+
+                .table-panel tbody tr {
+                    display: table !important;
+                    width: 100% !important;
+                    table-layout: fixed !important;
+                }
+
+            /* Optional styling */
+            .table-panel th,
+            .table-panel td {
+                padding: 8px !important;
+            }
+
+        .history-item {
+            padding: 5px;
+            border-bottom: 1px solid #eaeaea;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+            .history-item:hover {
+                background: #f4f6f9;
+            }
+
+            .history-item.active {
+                background: #e8f0fe;
+                font-weight: 600;
+            }
+
+        .summary-card {
+            padding: 15px;
+            background: #fff;
+            border-radius: 6px;
+        }
+
+        .summary-content {
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .summary-card {
+            height: 65vh !important; /* total card height */
+            overflow: hidden !important;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 8px !important;
+            padding: 12px !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .summary-date {
+            margin-bottom: 8px !important;
+            font-weight: 600 !important;
+        }
+
+        .summary-content {
+            flex: 1 !important; /* take remaining space */
+            overflow-y: auto !important; /* show vertical scroll */
+            word-break: break-word !important;
+            white-space: pre-wrap !important; /* preserve line breaks */
+            padding-right: 4px !important; /* avoid scrollbar overlap */
+        }
+
+        /* Reset styles coming from API HTML */
+        .translation-wrapper,
+        .translation-wrapper * {
+            box-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            background: transparent !important;
+            max-width: 100% !important;
+        }
+
+        /* Keep content readable */
+        .translation-wrapper {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+            /* Prevent tables from breaking layout */
+            .translation-wrapper table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+
+            .translation-wrapper td,
+            .translation-wrapper th {
+                padding: 4px 6px;
+                border: none !important;
+            }
+
+
+        .ai-chat-modal {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            z-index: 9999;
+        }
+
+        .ai-chat-box {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-chat-header {
+            background: #0C4A6E;
+            color: #fff;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-chat-body {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        .ai-chat-footer {
+            display: flex;
+            border-top: 1px solid #eee;
+        }
+
+            .ai-chat-footer input {
+                flex: 1;
+                border: none;
+                padding: 10px;
+                outline: none;
+            }
+
+            .ai-chat-footer button {
+                background: #0C4A6E;
+                color: #fff;
+                border: none;
+                padding: 0 15px;
+                cursor: pointer;
+            }
+
+        .ai-msg {
+            margin-bottom: 8px;
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+
+        .ai-user {
+            background: #e8f0ff;
+            text-align: right;
+        }
+
+        .ai-bot {
+            background: #f1f1f1;
+        }
+
+        #aiResultContent table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #aiResultContent th,
+        #aiResultContent td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        #aiResultContent th {
+            background: #f5f5f5;
+        }
+
+    </style>
+
+</head>
+<body>
+    <section class="ai-wrapper">
+
+        <!-- LEFT HEADER SECTION -->
+        <section id="header" class="ai-left">
+            <div class="container-main">
+                <div class="text-left">
+                    <p class="ctitle" style="margin-bottom:20px;">Court Orders</p>
+                </div>
+                <div class="upload-buttons" style="padding-top:7px;display: flex;gap: 10px;justify-content: end;margin-top: -50px;">
+                    <label title="No file chosen" class="upload-btn browsetaskfile browsetaskfile1" id="browsefileocrTab1" module="aiTools" style="width: 145px; cursor: pointer; border: 1px solid #ccc; padding: 6px 10px; border-radius: 4px;" onclick="openMyKasePicker(event)">
+                        <i class="fa fa-upload me-1"></i> <span> MyKase Drive</span>
+                    </label>
+                    <input type="file" id="attachmentDriveTab1" class="postedFile" accept=".pdf,.jpeg,.jpg,.png,.gif,.bmp,.webp,.tiff,.tif" style="display:none;" onchange="fileValidationTab1()" />
+                </div>
+                <div id="fileListAITools" style="margin-top:10px;"></div>
+                <div>
+                    <h4>Matter Name:</h4>
+                    <span id="mname"></span>
+                </div>
+
+                <div id="nocaseorderstatus" style="margin-top:10px;color:#999;"></div>
+
+                <table class="table-panel" style="width:100%;margin-top:15px;">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Order Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bindcaseorder"></tbody>
+                </table>
+
+                <center>
+                    <div class="notfound" id="Custdatastatus" style="display: none;">
+                        <img src="~/newassets/img/not-found.png" />
+                        <h4><span id="dtNotFound">No Data Found</span></h4>
+                    </div>
+                </center>
+                <div id="OrderData"></div>
+                <div id="DisputeLandDetails"></div>
+            </div>
+        </section>
+
+        <!-- RIGHT CONTENT SECTION -->
+        <section class="ai-right container-main">
+
+            <!-- Header -->
+            <div class="ai-header">
+                <span id="toggleHistory" class="history-btn">
+                    History
+                    <img src="/newassets/img/next-arrow.png" alt="arrow" class="history-arrow" style="width:12px;height:12px;">
+                </span>
+            </div>
+
+            <!-- TOOLS VIEW -->
+            <div id="aiToolsView" class="ai-view active">
+                <h2 class="ai-title" id="titleAITools">Welcome to AI Tools</h2>
+
+                <div class="ai-tools-grid">
+                    <button id="generateSummaryButton">Generate Summary <br /><span style="width: 8px; height: 8px; background: #ff4d4f; border-radius: 50%; display: inline-block; margin-left: 15px;"></span><span> 2 Credits</span></button>
+                    <button id="generateChronologyButton">Generate Chronology <br /><span style="width: 8px; height: 8px; background: #ff4d4f; border-radius: 50%; display: inline-block; margin-left: 15px;"></span><span> 5 Credits</span></button>
+                    <button id="btnTranslate">Translate <br /><span style="width: 8px; height: 8px; background: #ff4d4f; border-radius: 50%; display: inline-block; margin-left: 15px;"></span><span> 15 Credits</span></button>
+                    <button id="btnAskAI">Ask AI <br /><span style="width: 8px; height: 8px; background: #ff4d4f; border-radius: 50%; display: inline-block; margin-left: 15px;"></span><span> 5 Credits</span></button>
+                </div>
+                <!-- Translation View -->
+                <div id="translateView" style="display:none; margin-top:20px;">
+                    <h3>Translation</h3>
+                    <p>Convert any language to English.</p>
+
+                    <label for="srcLang">Select Source Language</label>
+                    <select id="srcLang" name="sourceLang" class="form-control" style="width:300px;">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                        <option value="ta">Tamil</option>
+                        <option value="gu">Gujarati</option>
+                        <option value="mr">Marathi</option>
+                        <option value="bn">Bengali</option>
+                        <option value="kn">Kannada</option>
+                        <option value="ml">Malayalam</option>
+                        <option value="te">Telugu</option>
+                        <option value="or">Odia</option>
+                        <option value="pa">Punjabi</option>
+                        <option value="as">Assamese</option>
+                        <option value="ur">Urdu</option>
+                        <option value="sa">Sanskrit</option>
+                        <option value="ar">Arabic</option>
+                        <option value="zh">Chinese</option>
+                        <option value="fr">French</option>
+                        <option value="ru">Russian</option>
+                        <option value="es">Spanish</option>
+                        <option value="pt">Portuguese</option>
+                        <option value="ja">Japanese</option>
+                    </select>
+
+                    <div class="translate-actions">
+                        <button id="btnTranslateNow">Translate</button>
+                        <button id="btnBackToTools">Back</button>
+                    </div>
+                </div>
+                <!-- Ask AI View -->
+                <div id="askAIModal" class="ai-chat-modal" style="display:none;">
+                    <div class="ai-chat-box">
+                        <div class="ai-chat-header">
+                            <span>Ask AI</span>
+                            <button id="closeAskAI">×</button>
+                        </div>
+
+                        <div id="aiChatBody" class="ai-chat-body">
+                            <div class="ai-msg ai-bot">Hi! Ask your question about the selected order.</div>
+                        </div>
+
+                        <div class="ai-chat-footer">
+                            <input type="text" id="aiQueryInput" placeholder="Type your question..." />
+                            <button id="sendAIQuery">Send</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="aiResultContainer" style="display:none; margin-top:20px;">
+                    <div id="aiResultContent" class="ai-result-content"></div>
+                </div>
+            </div>
+
+            <!-- HISTORY VIEW -->
+            <div id="aiHistoryView" class="ai-view">
+
+                <!-- Tabs -->
+                <div class="tab-header">
+                    <div class="tab-item active" data-tab="summaryLog" data-type="summary" onclick="openPopUpForSummary()">
+                        Summaries <span id="summaryResultCount"></span>
+                    </div>
+                    <div class="tab-item" data-tab="chronologyLog" data-type="chronology" onclick="openPopUpForChronology()">
+                        Chronologies <span id="chronologyResultCount"></span>
+                    </div>
+                    <div class="tab-item" data-tab="translationLog" data-type="translation" onclick="showTranslationHistory()">
+                        Translations <span id="translationResultCount"></span>
+                    </div>
+                </div>
+
+                <!-- History Wrapper (hidden by default) -->
+                <div id="aiHistoryWrapper" style="display:none;">
+                    <aside class="ai-history-panel">
+                        <h4 class="history-title">
+                            <i class="bi bi-clock-history"></i>
+                            <span id="historyTitle">History</span>
+                        </h4>
+
+                        <div id="aiHistoryList"></div>
+
+                        <p id="noHistoryMessage">No history available...</p>
+                    </aside>
+                </div>
+
+                <!-- Tab Contents -->
+                <div id="summaryLog" class="tab-content active"></div>
+                <div id="chronologyLog" class="tab-content"></div>
+                <div id="translationLog" class="tab-content"></div>
+
+            </div>
+
+
+        </section>
+
+    </section>
+
+    <div id="test2" class="modal fade" role="dialog" data-backdrop="static" style="clear:both;">
+        <div class="modal-dialog" style="max-width:500px;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header btn-primary">
+                    <button type="button" class="close" id="cemailorder">&times;</button>
+                    <h4 class="ctitle">
+                        Email Matter Order
+                    </h4>
+                </div>
+                <div class="modal-body" sstyle="height:450px;">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div style="padding:0 10px;">
+                                        <div>
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-4" style="background: #f5f5f5;padding: 3px 9px; font-weight:400 !important;">To <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control inputFormat " name="subject" type="text" id="emailto" placeholder="Email Id" required="" style="border-radius: 0 !important;border: 1px solid #ededed !important;height: 25px !important;">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-4" style="background: #f5f5f5;padding: 3px 9px; font-weight:400 !important;">Subject <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control inputFormat" name="subject" type="text" id="emailsubject" placeholder="Subject" required="" disabled style="border-radius: 0 !important;border: 1px solid #ededed !important;height: 25px !important;">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-4" style="background: #f5f5f5;padding: 3px 9px; font-weight:400 !important;">Attachment <span class="required" aria-required="true">*</span></label>
+                                                <div class="col-md-8">
+                                                    <input class="form-control inputFormat" name="subject" type="text" id="attach" placeholder="Attachment" required="" disabled style="border-radius: 0 !important;border: 1px solid #ededed !important;height: 25px !important;">
+                                                </div>
+                                            </div>
+                                            <div id="emailbody" style="clear: both;padding: 10px 0 0 0;">
+                                                <div class="form-group row">
+                                                    <label class="control-label col-md-4" style="padding: 3px 9px; font-weight:400 !important;">Matter/ Diary No. <span style="float:right;">:</span></label>
+                                                    <div class="col-md-8">
+                                                        <span id="csdno"></span>
+
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="control-label col-md-4" style="padding: 3px 9px; font-weight:400 !						important;">Court <span style="float:right;">:</span></label>
+                                                    <div class="col-md-8">
+                                                        <span id="cscourt"></span>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label class="control-label col-md-4" style="padding: 3px 9px; font-weight:400 !									important;">Matter Name <span style="float:right;">:</span></label>
+                                                    <div class="col-md-8">
+                                                        <span id="cscase"></span>
+
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="control-label col-md-4" style="padding: 3px 9px; font-weight:400 !									important;">Advocate <span style="float:right;">:</span></label>
+                                                    <div class="col-md-8">
+                                                        <span id="csadv"></span>
+
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="control-label col-md-4" style="padding: 3px 9px; font-weight:400 !									important;">Status <span style="float:right;">:</span></label>
+                                                    <div class="col-md-8">
+                                                        <span id="cssts"></span>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="form-group form-horizontal" style=" display: flex; justify-content: end;">
+
+                                                <button type="button" class="btn btn-primary" id="senddocs">Send</button>
+
+                                            </div>
+                                            <input type="hidden" id="hidftoken">
+                                            <input type="hidden" id="hidctoken">
+                                            <!-- /.row (nested) -->
+                                        </div>
+                                        <!-- /.panel-body -->
+                                    </div>
+                                    <!-- /.panel -->
+                                </div>
+                                <!-- /.col-lg-12 -->
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var emailcasedno = localStorage.getItem('emailcasedno');
+        var emailcourt = localStorage.getItem('emailcourt');
+        var emailcasename = localStorage.getItem('emailcasename');
+        var emailadv = localStorage.getItem('emailadv');
+        var emaildspdate = localStorage.getItem('emaildspdate');
+        var emailstatus = localStorage.getItem('emailstatus');
+        $("#csdno").html(emailcasedno);
+        $("#cscourt").html(emailcourt);
+        $("#cscase").html(emailcasename);
+        $("#csadv").html(emailadv);
+        $("#csdsp").html(emaildspdate);
+        $("#cssts").html(emailstatus);
+        $("#emailsubject").val("Order Detail of " + emailcasedno);
+    </script>
+    <!-- ----------- ORDER SUMMARY TAB ----------- -->
+    <!--<section id="orderSummaryTab" class="tab-content active">
+        <div class="container-main">
+            <div class="table">
+                <div class="card-header">
+                    <div class="content1">
+
+                        <div class="table-header">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="tablearea">
+                    <div class="tablecontainer">
+                        <table id="example" class="table-panel">
+                            <thead>
+                                <tr id="headrow">
+                                    <th class="casecasename">
+                                        <div class="thbg" style="width:265px; position: relative;">
+                                            <div style="float:left;width:100%; overflow:hidden;">
+                                                <input type="text" id="casefiltercasenamesummary" placeholder="Matter Name" style="width:100%; padding-right:35px; box-sizing:border-box;white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            </div>
+                                            <div style="float:left;">
+                                                <span class="glyphicon glyphicon-search" id="searchdatassummary" style="margin:5px 0 0 0px;float:right;cursor:pointer;"></span>
+                                                <span class="" id="clearnewsearchcasesummary" title="Click here to reset search" style="display:none;font-size:15px;color:black; font-weight:400;cursor:pointer;">x</span>
+                                            </div>
+                                        </div>
+                                    </th>-->
+    @*<th class="c1 casestartdate" style="min-width:155px;" title="Court">
+            <div class="thbg">
+                Court
+            </div>
+        </th>*@
+    <!--<th class="c13 casecourtname">
+                        <div class="thbg">
+                            <select class="form-control" id="casefiltercourtSummary" style="min-width:155px;" title="Court">
+                                <option value="" selected="">Court</option>
+                                <option value="Supreme Court">Supreme Court</option>
+                                <option value="High Court">High Court</option>
+                                <option value="District Court">District Court</option>
+                                <option value="Tribunals">Tribunals</option>
+                                <option value="Add a Court">Add a Court</option>
+                                <option value="Revenue Court">Revenue Court</option>
+                                <option value="Rera Court">Rera Court</option>
+                            </select>
+                        </div>
+                    </th>
+                    <th class="c1 casestartdate" style="min-width:155px;" title="Court Name">
+                        <div class="thbg">
+                            Court Name
+                        </div>
+                    </th>
+                    <th class="c1 casestartdate" style="min-width:155px;" title="Court Case No">
+                        <div class="thbg" style="width:165px; position: relative;">
+                            <div style="float:left;width:100%; overflow:hidden;">
+                                <input type="text" id="casefiltermtrnosummary" placeholder="Court Case No" style="width:100%; padding-right:35px; box-sizing:border-box;white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            </div>
+                            <div style="float:left;">
+                                <span class="glyphicon glyphicon-search" id="searchdatasmtrnosummary" style="margin:5px 0 0 0px;float:right;cursor:pointer;"></span>
+                                <span class="" id="clearnewsearchmtrnosummary" title="Click here to reset search" style="display:none;font-size:15px;color:black; font-weight:400;cursor:pointer;">x</span>
+                            </div>
+                        </div>
+                    </th>
+                    <th class="c1 casestartdate" style="min-width:155px;" title="Orders">
+                        <div class="thbg">
+                            View Orders
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="bindcasedataSummary"></tbody>
+        </table>
+
+    </div>
+
+    <div class="pagination" id="mtrPaginationSummary">
+        <div class="pagination-button-group">
+            <div id="prev" class="pagination-button-group-base">
+                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+            </div>
+            <div id="pageNumbers" class="pagination-button-group-base1">-->
+    @*<div class="text">a</div>*@
+    @*<span id="pageNumbers" class="pages"></span>*@
+    <!--</div>
+
+            <div id="next" class="pagination-button-group-base8">
+                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+            </div>
+        </div>
+        <div class="text-and-supporting-text-parent">
+            <div class="input">
+                <div class="content">
+                    <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                </div>
+                <div class="help-icon">
+                </div>
+            </div>
+            <div class="text-and-supporting-text-group">
+                <div class="text-and-supporting-text">
+                    <div id="divGo" class="text9">Go</div>
+                </div>
+                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+            </div>
+        </div>
+    </div>
+    <!-- AI Summary Display Container -->
+    <!--<script src="~/Scripts/marked.min.js"></script>
+    <div id="aiSummaryContainer" style="display: none; border: 1px solid #ddd; padding: 15px 15px 15px 40px; background: #f9f9f9; border-radius: 5px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="/newassets/img/logo.png" alt="Logo" style="height: 45px;">
+                <h3 style="font-weight: 600; margin: 0;"></h3>
+            </div>
+            <span id="matterNameLabelSummary" style="font-size: 14px; color: #555;"></span>
+            <div style="display: flex; gap: 10px;">
+                <i title="Email" id="emailSummaryBtn" data-bs-toggle="modal" data-bs-target="#emailModal" class="bi bi-envelope cursor-pointer" style="cursor: pointer; font-size: 16px;"></i>
+                <i title="Print" id="printSummaryBtn" data-bs-toggle="modal" data-bs-target="#printModal" class="bi bi-printer cursor-pointer" style="cursor: pointer; font-size: 16px;"></i>-->
+    @*<img id="emailSummaryBtn" src="~/newassets/img/mail.svg" alt="Email Summary" title="Email Summary" style="height: 20px; cursor: pointer;">
+        <img id="printSummaryBtn" src="~/newassets/img/print.png" alt="Print Summary" title="Print Summary" style="height: 20px; cursor: pointer;">*@
+    @*</div>
+        </div>
+        <div id="aiSummaryContent"></div>
+        </div>
+        </div>
+
+        </div>
+        </div>
+        </section>*@
+    <!-- ----------- CHRONOLOGY TAB ----------- -->
+    <!--<section id="chronologyTab" class="tab-content">
+        <div class="container-main">
+            <div class="table">
+                <div class="card-header">
+                    <div class="content1">
+
+                        <div class="table-header">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="tablearea">
+                    <div class="tablecontainer">
+                        <table id="example" class="table-panel">
+                            <thead>
+                                <tr id="headrow">
+                                    <th class="casecasename">
+                                        <div class="thbg" style="width:265px;position: relative;" ">
+                                            <div style="float:left;width:100%; overflow:hidden;">
+                                                <input type="text" id="casefiltercasenameChronology" placeholder="Matter Name" style="width:100%; padding-right:35px; box-sizing:border-box;white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            </div>
+                                            <div style="float:left;">
+                                                <span class="glyphicon glyphicon-search" id="searchdataschronology" style="margin:5px 0 0 0px;float:right;cursor:pointer;"></span>
+                                                <span class="" id="clearnewsearchcasechronology" title="Click here to reset search" style="display:none;font-size:15px;color:black; font-weight:350;cursor:pointer;">x</span>
+                                            </div>
+                                        </div>
+                                    </th>-->
+    @*<th class="c1 casestartdate" style="min-width:155px;" title="Court">
+            <div class="thbg">
+                Court
+            </div>
+        </th>*@
+    <!--<th class="c13 casecourtname">
+                            <div class="thbg">
+                                <select class="form-control" id="casefiltercourtChronology" style="min-width:155px;" title="Court">
+                                    <option value="" selected="">Court</option>
+                                    <option value="Supreme Court">Supreme Court</option>
+                                    <option value="High Court">High Court</option>
+                                    <option value="District Court">District Court</option>
+                                    <option value="Tribunals">Tribunals</option>
+                                    <option value="Add a Court">Add a Court</option>
+                                    <option value="Revenue Court">Revenue Court</option>
+                                    <option value="Rera Court">Rera Court</option>
+                                </select>
+                            </div>
+                        </th>
+                        <th class="c1 casestartdate" style="min-width:155px;" title="Court Name">
+                            <div class="thbg">
+                                Court Name
+                            </div>
+                        </th>
+                        <th class="c1 casestartdate" style="min-width:155px;" title="Court Case No">
+                            <div class="thbg" style="width:165px; position: relative;">
+                                <div style="float:left;width:100%; overflow:hidden;">
+                                    <input type="text" id="casefiltermtrnochronology" placeholder="Court Case No" style="width:100%; padding-right:35px; box-sizing:border-box;white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                </div>
+                                <div style="float:left;">
+                                    <span class="glyphicon glyphicon-search" id="searchdatasmtrnochronology" style="margin:5px 0 0 0px;float:right;cursor:pointer;"></span>
+                                    <span class="" id="clearnewsearchmtrnochronology" title="Click here to reset search" style="display:none;font-size:15px;color:black; font-weight:400;cursor:pointer;">x</span>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="c1 casestartdate" style="min-width:155px;" title="Orders">
+                            <div class="thbg">
+                                View Orders
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="bindcasedataChronology"></tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+    <div class="pagination" id="mtrPagination">
+        <div class="pagination-button-group">
+            <div id="prevChronology" class="pagination-button-group-base">
+                <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+            </div>
+            <div id="pageNumbersChronology" class="pagination-button-group-base1">-->
+    @*<div class="text">a</div>*@
+    @*<span id="pageNumbers" class="pages"></span>*@
+    <!--</div>
+
+            <div id="nextChronology" class="pagination-button-group-base8">
+                <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+            </div>
+        </div>
+        <div class="text-and-supporting-text-parent">
+            <div class="input">
+                <div class="content">
+                    <input type="text" id="txtgopageChronology" name="query" placeholder="Page No.">
+                </div>
+                <div class="help-icon">
+                </div>
+            </div>
+            <div class="text-and-supporting-text-group">
+                <div class="text-and-supporting-text">
+                    <div id="divGoChronology" class="text9">Go</div>
+                </div>
+                <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- AI Summary Display Container -->
+    <!--<div id="aiChronologyContainer" style="display: none; border: 1px solid #ddd; padding: 15px 15px 15px 40px; background: #f9f9f9; border-radius: 5px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="/newassets/img/logo.png" alt="Logo" style="height: 45px;">
+                <h3 style="font-weight: 600; margin: 0;"></h3>
+            </div>
+            <span id="matterNameLabelChronology" style="font-size: 14px; color: #555;"></span>
+            <div style="display: flex; gap: 10px;">
+                <img id="emailChronologyBtn" src="~/newassets/img/mail-icon.png" alt="Email Chronology" title="Email Chronology" style="height: 36px; cursor: pointer;">
+                <img id="printChronologyBtn" src="~/newassets/img/print-icon.png" alt="Print Chronology" title="Print Chronology" style="height: 36px; cursor: pointer;">
+            </div>
+        </div>
+        <div id="aiChronologyContent"></div>
+    </div>-->
+    <!-- Remarks Section -->
+    <!--@*<div id="remarksSection" style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ccc;">
+                    <label for="chronologyRemarks" style="font-weight: bold; display: block; margin-bottom: 5px;">Remarks:</label>
+                    <textarea id="chronologyRemarks" style="width: 100%; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+                    <div style="margin-top: 10px; display: flex; gap: 10px;">
+                        <button id="saveRemarksBtn" class="btn btn-sm btn-success">Save</button>
+                        <button id="deleteRemarksBtn" class="btn btn-sm btn-danger">Delete</button>
+                    </div>
+                </div>*@
+        </div>
+    </div>-->
+    <!--<div id="aiChronologyRemarksTableContainer" style="margin-top: 30px;">
+        <h4 style="margin-bottom: 15px;">Genarted Chronologies</h4>
+        <table class="table-panel" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Matter Name</th>
+                    <th>Chronology</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody id="aiChronologyRemarksTableBody">-->
+    <!-- Dynamic rows will be inserted here -->
+    <!--</tbody>
+        </table>
+    </div>-->
+    <!--</section>-->
+    <!-- Order Summary Modal -->
+    <!--<div class="modal" id="orderSummaryModal" tabindex="-1" role="dialog" aria-labelledby="orderSummaryModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderSummaryModalLabel">Order Summary - </h5><h5 id="orderSummaryModalMatter"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Order Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bindcaseorderSummary">-->
+    <!-- Dynamically populated rows will go here -->
+    <!--</tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-footer" style="display: flex;justify-content: end;">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="generateSummaryButton" class="btn btn-primary" disabled>Generate Summary</button>
+                    </div>
+                </div>
+            </div>
+        </div>-->
+    <!-- Confirmation Modal -->
+    <!--<div class="modal fade" id="confirmDeleteSummaryModal" tabindex="-1" aria-labelledby="confirmDeleteSummaryLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content" style="margin-left: 70px; margin-top: 40%; width: 80%;">
+                            <div c
+                <div class="modal-footer" style="display: flex;justify-content: end;">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"></button>
+                    <button type="button" id="generateSummaryButton" class="btn btn-primary" disabled></button>
+                </div>
+            </div>
+        </div>
+    </div>-->
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmDeleteSummaryModal" tabindex="-1" aria-labelledby="confirmDeleteSummaryLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="margin-left: 70px; margin-top: 40%; width: 80%;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteSummaryLabel">Generating now will delete the previous summary. Do you want to continue??</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelSummaryModalBtn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmGenerateSummaryBtn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Chronology Modal -->
+    <div class="modal" id="orderChronologyModal" tabindex="-1" role="dialog" aria-labelledby="orderChronologyModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderChronologyModalLabel">Order Chronology</h5><h5 id="orderChronologyModalMatter"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Order Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bindcaseorderChronology">
+                                <!-- Dynamically populated rows will go here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer" style="display: flex;justify-content: end;">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="generateChronologyButton" class="btn btn-primary" disabled>Generate Chronology</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Email Modal -->
+    <div id="emailModalCustomSummary" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;justify-content: center;align-items: center;">
+        <div id="emailModalBox" style="background:#fff;border-radius:8px;width:400px;max-width:90%;max-height:90%;overflow-y:auto;box-shadow:0 5px 15px rgba(0,0,0,0.3);position:relative;">
+            <div id="emailModalHeader" style="background-color: #0d6efd; color: white; padding: 12px; font-weight: bold; display: flex ; justify-content: space-between; align-items: center;">
+                <h5 id="emailModalTitle" style="font-size:16px;margin:0;"><i class="bi bi-envelope-fill me-2"></i> Send Summary via Email</h5>
+                <button id="emailModalCloseBtn" onclick="closeEmailModal()" aria-label="Close" style="background:transparent;border:none;font-size:20px;cursor:pointer;color: white;">×</button>
+            </div>
+            <div id="emailModalBody" style=" padding: 20px; ">
+                <form id="emailFormCustom" novalidate>
+                    <div style="margin-bottom:15px;">
+                        <label for="recipientEmail" style="font-weight:600;font-weight:600;color: #414651;font-size: 14px;">Recipient Email <span style="color:red;">*</span></label>
+                        <input type="email" id="recipientEmail" placeholder="example@domain.com" required style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <label for="emailMessage" style="font-weight:600;font-weight:600;color: #414651;font-size: 14px;">Message</label>
+                        <textarea id="emailMessage" rows="4" placeholder="Add a short message (optional)..." style="height: 100px !important; width: 100%; padding: 8px !important; border: 1px solid #ccc !important; border-radius: 4px !important;background: #fafafa !important;"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div id="emailModalFooter" style="padding: 15px 20px; display: flex ; justify-content: space-between; background: #f5f5f5;;">
+                <button id="emailCancelBtn" onclick="closeEmailModal()" style="background-color: transparent; border: 1px solid #6c757d; color: #6c757d; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;"><i class="bi bi-x-circle me-1"></i> Cancel</button>
+                <button id="emailSendBtn" onclick="sendEmailModal()" style="background-color: #28a745; border: none; color: white; padding: 8px 24px; border-radius: 4px; cursor: pointer; font-weight: 600;"><i class="bi bi-send-fill me-1"></i> Send</button>
+            </div>
+        </div>
+    </div>
+    <!--<div id="emailModalCustomSummary" style="display: none;">
+        <div id="emailModalOverlay">
+            <div id="emailModalBox">-->
+    <!-- Modal Header -->
+    <!--<div id="emailModalHeader">
+        <h5 id="emailModalTitle" style="font-size: 16px;">
+            <i class="bi bi-envelope-fill me-2"></i> Send Summary via Email
+        </h5>
+        <button id="emailModalCloseBtn" onclick="closeEmailModal()" aria-label="Close">×</button>
+    </div>-->
+    <!-- Modal Body -->
+    <!--<div id="emailModalBody">
+        <form id="emailFormCustom" novalidate>
+            <div style="margin-bottom: 15px;">
+                <label for="recipientEmail" style="font-weight: 600;">Recipient Email <span style="color: red;">*</span></label>
+                <input type="email" id="recipientEmail" placeholder="example@domain.com" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="emailMessage" style="font-weight: 600;">Message</label>
+                <textarea id="emailMessage" rows="4" placeholder="Add a short message (optional)..." style="height: 100px !important;width: 100%;padding: 8px !important;border: 1px solid #ccc !important;border-radius: 4px !important;"></textarea>
+            </div>
+        </form>
+    </div>-->
+    <!-- Modal Footer -->
+    <!--<div id="emailModalFooter">
+                    <button id="emailCancelBtn" onclick="closeEmailModal()">
+                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    </button>
+                    <button id="emailSendBtn" onclick="sendEmailModal()">
+                        <i class="bi bi-send-fill me-1"></i> Send
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>-->
+
+    <div id="emailModalCustomChronology" style="display: none;">
+        <div id="emailModalOverlay">
+            <div id="emailModalBox">
+
+                <!-- Modal Header -->
+                <div id="emailModalHeader">
+                    <h5 id="emailModalTitle" style="font-size: 16px;">
+                        <i class="bi bi-envelope-fill me-2"></i> Send Chronology via Email
+                    </h5>
+                    <button id="emailModalCloseBtn" onclick="closeEmailModal()" aria-label="Close">×</button>
+                </div>
+
+                <!-- Modal Body -->
+                <div id="emailModalBody">
+                    <form id="emailFormCustom" novalidate>
+                        <div style="margin-bottom: 15px;">
+                            <label for="recipientEmail" style="font-weight: 600;">Recipient Email <span style="color: red;">*</span></label>
+                            <input type="email" id="recipientEmail" placeholder="example@domain.com" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label for="emailMessage" style="font-weight: 600;">Message</label>
+                            <textarea id="emailMessage" rows="4" placeholder="Add a short message (optional)..." style="height: 100px !important;width: 100%;padding: 8px !important;border: 1px solid #ccc !important;border-radius: 4px !important;"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modal Footer -->
+                <div id="emailModalFooter">
+                    <button id="emailCancelBtn" onclick="closeEmailModal()">
+                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    </button>
+                    <button id="emailSendBtn" onclick="sendEmailModal()">
+                        <i class="bi bi-send-fill me-1"></i> Send
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmDeleteChronologyModal" tabindex="-1" aria-labelledby="confirmDeleteChronologyLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="margin-left: 70px; margin-top: 40%; width: 80%;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteSummaryLabel">Generating now will delete the previous chronology. Do you want to continue??</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelChronologyModalBtn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmGenerateChronologyBtn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Open Order Notes Modal -->
+    <div id="myModalOrderNotes" class="modal fade myModal" role="dialog" data-backdrop="static">
+        <div class="modal-dialog" style="width:50%;height: 500px;">
+            <!-- Modal content-->
+            <div class="modal-content" style="margin-top: 15%;height: 100%;width: 70%;margin-left: 15%;">
+                <div class="modal-header btn-success">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">
+                        Order Notes
+                    </h4>
+                </div>
+                <div class="ec_bg" style="margin-top:10px;">
+                    <input type="hidden" value="" id="hdnOrderid" />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-3">
+                                <label class="control-label ">Order Notes Details</label>
+                            </div>
+                            <div class="col-md-8">
+                                <textarea id="Otherordertxt" class="inputFormatTextArea" value="" style="margin: 0px; width: 100%; height: 40px;" maxlength="10000"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style=" display: flex;justify-content: flex-end;padding: 15px;">
+                        <button type="submit" class="btn btn-primary" id="SaveOrderNotes">Save</button>
+
+
+                        <button class="sbtbtn pull-right" id="CancelOrderDetails" style="display:None">Cancel</button>
+                        <button class="sbtbtn pull-right" id="updateOrderDetails" style="display:None">Update</button>
+
+                    </div>
+                </div>
+                <div class="row" style="margin-top:20px">
+                    <div class="col-md-12">
+                        <table class="table-panel">
+                            <thead>
+                                <tr>
+                                    <td width="20%"><div class="thbg">Dates</div></td>
+                                    <td width="80%"><div class="thbg">Notes</div></td>
+                                </tr>
+                            </thead>
+                            <tbody id="orderdetailsContent"></tbody>
+                        </table>
+                        <p id="orderdetailsContentNA" style="text-align:center">No result found...</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myOverlaySummary" class="overlay" style="display:block;z-index: 9999;">
+        <div class="overlay-content">
+            <div class="spinner2">
+                <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myOverlayChronology" class="overlay" style="display:none;z-index: 9999;">
+        <div class="overlay-content">
+            <div class="spinner2">
+                <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="~/Scripts/marked.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/Employee/Pages/AIOrderSummary.js?2.3"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <script src="~/Scripts/Firm/Pages/chartGraph.js"></script>
+
+    <script>
+    window.AI_CONTEXT = {
+        userCaseId: '@(ViewBag.UserCaseId ?? "")',
+        masterCaseId: '@(ViewBag.MasterCaseId ?? "")',
+        matterName: '@(ViewBag.MatterName ?? "")',
+        IsRevenueCourt: '@(ViewBag.IsRevenueCourt ?? "0")',
+        IsReraCourt: '@(ViewBag.IsReraCourt ?? "0")'
+    };
+
+    const toggleBtn = document.getElementById("toggleHistory");
+    const toolsView = document.getElementById("aiToolsView");
+    const historyView = document.getElementById("aiHistoryView");
+
+    toggleBtn.addEventListener("click", () => {
+    const isHistory = historyView.classList.contains("active");
+
+    toolsView.classList.toggle("active", isHistory);
+    historyView.classList.toggle("active", !isHistory);
+
+        toggleBtn.innerHTML = isHistory ? `History <img src="/newassets/img/next-arrow.png" class="toggle-arrow" />` : `<img src="/newassets/img/pre-arrow.png" class="toggle-arrow" /> Back to AI Tools`;
+    });
+
+    /* Tabs inside history */
+    document.querySelectorAll(".tab-item").forEach(tab => {
+    tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab-item").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+    tab.classList.add("active");
+    document.getElementById(tab.dataset.tab).classList.add("active");
+    });
+    });
+
+    </script>
+</body>
+</html>
+

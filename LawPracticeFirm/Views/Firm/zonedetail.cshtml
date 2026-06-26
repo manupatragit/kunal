@@ -1,0 +1,310 @@
+﻿
+@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script>
+    var roleids = "@Session["sessionroleid"]";
+    var FirmIdss = "@Session["sessionfirmid"]";
+    var userid = "@Session["sessionuserid"]";
+</script>
+<script src="~/Scripts/Firm/Pages/zonedetail.js?0.1"></script>
+
+<script src="/CssJsfiles/js/bootstrap3-typeahead.min.js"></script>
+
+
+<!-- jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+<!-- Selectize JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+
+
+
+
+<style>
+    #opentrademarkdetails {
+        cursor: pointer;
+    }
+</style>
+
+<style>
+    .close-btn {
+        display: block;
+        width: 100px;
+        margin: 20px auto;
+        padding: 10px;
+        background-color: #5f6d7a;
+        color: white;
+        text-align: center;
+        border-radius: 80px;
+        text-decoration: none;
+    }
+
+    .submit-btn {
+        display: inline-block;
+        width: 100px;
+        margin: 20px auto;
+        padding: 10px;
+        background-color: lightgreen;
+        color: white;
+        text-align: center;
+        border-radius: 80px;
+        text-decoration: none;
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+
+    td.highlightEvent > a {
+        background: #a97516 !important;
+        color: #fff !important;
+    }
+
+    td.highlightTask > a {
+        background: #3aa0d4 !important;
+        color: #fff !important;
+    }
+
+
+    td.highlight > a {
+        background: #47a447 !important;
+        color: #fff !important;
+    }
+</style>
+
+<style>
+    .tile-container {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .tile {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+        .tile span {
+            margin-right: 10px;
+        }
+
+    .delete-btn {
+        background-color: #ff5c5c;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        padding: 5px;
+        cursor: pointer;
+    }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left" id="headerText">
+            <p class="ctitle">Create Zone</p>
+        </div>
+    </div>
+</section>
+<section id="header" style="margin:20px 0;">
+    <div class="container-main">
+        <form class="ec_bg" enctype="multipart/form-data" autocomplete="off" id="ZoneSubmit">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Zone Name <span class="required" aria-required="true"><b>*</b></span></label>
+                        <input type="text" id="zone" maxlength="100" placeholder="Enter the  zone" class="inputFormat" autofocus>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group" style="padding: 22px 0 0 0;">
+                        <button type="button" style="width:100%;" id="btnsubmit" class="btn btn-primary" onclick="SubmitZoneDetails()">Add</button>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group" style="padding: 22px 0 0 0;">
+                        <button type="button" style="width:100%;" id="btnclear" class="btn btn-secondary" onclick="clearZoneForm()">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="tablearea" style="margin:0;">
+                <div class="tablecontainer">
+                    <table class="table-panel">
+                        <thead>
+                            <tr>
+                                <th width="100px">
+                                    <div class="thbg" id="th1">
+                                        S No.
+                                    </div>
+                                </th>
+
+                                <th>
+                                    <div class="thbg" id="th2">
+                                        Zone Name
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="thbg" id="th3">
+                                        Court
+                                    </div>
+                                </th>
+
+                                <th width="175px">
+                                    <div class="thbg" id="th4">
+                                        Action
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="ZoneData"></tbody>
+
+                    </table>
+                </div>
+                <div id="ptfooter"></div>
+            </div>
+        </div>
+    </div>
+</section>
+@*Assign court to zone modal*@
+<div id="AppealModalInformation" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:500px;">
+        <div class="modal-content">
+
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="btnClose">&times;</button>
+                <h4 class="modal-title"><span id="spnTitle">Assign court</span></h4>
+            </div>
+
+
+            <div class="modal-body">
+                <form enctype="multipart/form-data" autocomplete="off" id="stfform">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+
+                                <label>Zone <span aria-required="true"><b>*</b> </span></label>
+                                <input type="text" id="zoneName" maxlength="200" placeholder="Enter the Zone" class="form-control InputFormat" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+                                <label>Court Type <span class="required " aria-required="true"><b> *</b> </span></label>
+                                <select type="text" id="divSCHCDistrict1" class="form-control selctInputFormat" onchange="AddCourtName1();">
+                                    <option value="">Select Option</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label>Court Name <span class="required " aria-required="true"><b> *</b> </span></label>
+                            <select class="form-control InputFormat" name="languageSelect[]" id="courtList" multiple></select>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:20px;">
+                        <div class="col-md-12 text-right">
+                            <a class="btn btn-primary" onclick="AssignCourtZoneWise()" style="cursor:pointer !important;">Submit</a>
+                            <div id="tileContainer" class="tile-container"></div>
+                        </div>
+                    </div>
+
+                </form>
+                
+            </div>
+        </div>
+
+    </div>
+</div>
+@*End Assign court to zone modal*@
+
+@*AssignUser to Zone start*@
+<div id="AssignUserToZone" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:500px;">
+        <div class="modal-content">
+
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" id="btnClose">&times;</button>
+                <h4 class="modal-title"><span id="spnTitle">Assign User</span></h4>
+            </div>
+            <div class="modal-body">
+                <form enctype="multipart/form-data" autocomplete="off" id="stfform">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Zone <span class="required " aria-required="true"><b> *</b> </span></label>
+                                <input type="text" id="zoneName1" maxlength="200" placeholder="Enter the Zone" class="form-control InputFormat" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row">
+            <div class="col-md-12">
+                <div class="form-group ">
+                    <label class="formLabel colorDark"><span class="control-label"> Court Type <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span></label>
+                    <select type="text" id="divSCHCDistrict1" class="form-control selctInputFormat" onchange="AddCourtName1();">
+                        <option value="">Select Option</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label>Team User <span class="required " aria-required="true"><b> *</b> </span></label>
+                            <select class="form-control InputFormat" name="languageSelect[]" id="teammemberss" multiple></select>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:20px;">
+                        <div class="col-md-12 form-group text-right">
+                            <a class="btn btn-primary" onclick="AssignUserToZone()" style="cursor:pointer;">Submit</a>
+                            <div id="tileContainerUser" class="tile-container"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+@*AssignUser to zone end*@
+
+
+

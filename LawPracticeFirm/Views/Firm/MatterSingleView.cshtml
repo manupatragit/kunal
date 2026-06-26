@@ -1,0 +1,326 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+@{
+    var id = ViewBag.token;
+}
+<script>
+    var id ="@id";
+       // alert(id);
+    var type = 8;
+</script>
+<script type='text/javascript'>
+    if (String(id) != "") {
+        localStorage.setItem("contacttoken", id);
+    }
+    if (String(id) == "") {
+        var urls = window.location.href;
+        url_redirect({
+            url: urls,
+            method: "post",
+            data: { "token": localStorage.getItem("contacttoken") }
+        });
+    }
+    function goodbye(e) {
+        localStorage.setItem("contacttoken", id);
+        if (!e) e = window.event;
+        //e.cancelBubble is supported by IE - this will kill the bubbling process.
+        e.cancelBubble = true;
+        //  e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
+        //e.stopPropagation works in Firefox.
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+    window.onbeforeunload = goodbye;
+</script>
+<script src="~/Scripts/Firm/Pages/MatterSingleView.js">
+    <script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script>
+    $(document).on("click", "#print1", function () {
+        window.print();
+    });
+</script>
+<style>
+    .changeview {
+        border: none;
+    }
+</style>
+<aside class="right-side">
+    <section class="content-header">
+        @{
+            var firmcode = Request.Url.Segments[1];
+        }
+        <input type="button" id="hide" style="display:none">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="/@firmcode/Firm/vmatter/matter">Case List</a></li>
+            <li class="active"> Case Details</li>
+        </ol>
+        <h1><span class="glyphicon glyphicon-briefcase"></span> Case Details</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="">
+                    <div class="box-header">
+                        &nbsp;&nbsp;&nbsp;<btn class="btn btn-warning pull-right " id="print1" title="Print" style="margin-left:15px;"><span class="glyphicon glyphicon-print"></span> Print</btn>
+                        <btn class="btn btn-success pull-right publish" id="menumatter"><span class="glyphicon glyphicon-pencil"></span> Edit</btn>
+                        &nbsp;&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Main content -->
+    <section class="content" id="PrinDivID">
+        <form id="savematterform">
+            <!-- Start About boxes -->
+            <div class="row" style="clear:both">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend>About</legend>
+                        <div class="form-group form-horizontal" style="display:none">
+                            <label class="control-label col-md-2"><b>Contact</b> </label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="mcontact"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Case Subject</b> </label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="casesubject"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Case Name </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="mname1"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>CNR No. </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="crnno1"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b> @Session["caclientlable"] Name </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="clientname"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Notes</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="mnotes4"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal" id="wccourtname" style="display:none">
+                            <label class="control-label col-md-2"><b>Court Name </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="ccourtname"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal" id="wccaseno" style="display:none">
+                            <label class="control-label col-md-2"><b><span id="tcasediary">Case No</span> </b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="ccaseno"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal" id="wcbenchname" style="display:none">
+                            <label class="control-label col-md-2"><b>Bench Name</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="cbenchname"></label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <!-- End About boxes -->
+            <!-- Start CUSTOM FIELDS boxes -->
+            <div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend>Custom Fields</legend>
+                        <div class="row">
+                            <div class="col-lg-6" id="content">
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <legend>Dates</legend>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Statute of Limitations</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="sol"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Open Date</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="odate"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Close Date</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="cdate"></label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <!-- End Dates boxes -->
+            <!-- Start Dates boxes -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-section-bordered">
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Assigned to</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="assignto"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal" style="display:none">
+                            <label class="control-label col-md-2"><b>Originating Attorney</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="orgaty"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Tags</b></label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="tags"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Status</b> </label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="cstatus"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Case Number</b> </label>
+                            <div class="col-md-4">
+                                <label class="control-label" id="mtrno"></label>
+                            </div>
+                        </div>
+                        <div class="form-group form-horizontal">
+                            <label class="control-label col-md-2"><b>Document</b> </label>
+                            <div class="col-md-4">
+                                <a href="#" id="alink" style="display:none">Attached File</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <!-- /.content -->
+    </form>
+</aside>
+<div id="myModal1" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels1" id="mymodels1">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog ">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header btn-primary">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            Custom Field
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="alert alert-danger alert-dismissable validpanel">
+                                    <button type="button" class="close" data-dismiss="alert" class="validpanel" aria-hidden="true">&times;</button>
+                                    . <a href="#" class="alert-link">Alert Link</a>.
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <form role="form" id="form2">
+                                                    <div class="form-group">
+                                                        <label>Custom Field Name</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                        <input class="form-control" type="text" value="" id="txtcustomFieldName">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Custom Field Type</label><span class="required" aria-required="true" style="color:red"><b>*</b></span>
+                                                        <select class="form-control" id="ctype">
+                                                            <option value="0">-Select Any-</option>
+                                                        </select>
+                                                    </div>
+                                                    <div id="common">
+                                                        <div class="form-group">
+                                                            <label id="listid">List options</label>
+                                                            <input class="form-control" data-val="true" id="txtcustomFieldvalue" />
+                                                            <p>(Add the options you would like to have in the drop down list list, separate values with a comma.)</p>
+                                                        </div>
+                                                        <div class="form-group">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group form-horizontal" style="margin-top:10px;">
+                                                        <label class="control-label col-xs-3">Is Required :</label>
+                                                        <div class="col-xs-8">
+                                                            <label class="switch">
+                                                                <input type="checkbox" id="chkRequired" name="assign" value="1">
+                                                                <span class="slider round"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <!-- /.row (nested) -->
+                                        </div>
+                                        <!-- /.panel-body -->
+                                    </div>
+                                    <!-- /.panel -->
+                                </div>
+                                <!-- /.col-lg-12 -->
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success" id="addfield">Add Field</button>
+                        <button type="reset" class="btn btn-default">Reset</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+    </div>
+<!-- /.container-fluid -->
+    </div>
+<!-- /#page-wrapper -->
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,306 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script type="text/javascript">
+    var jQuery1 = jQuery.noConflict(true);
+</script>
+<script type="text/javascript" src="~/Manupanel/Gantt/lib/date.js"></script>
+<script type="text/javascript" src="~/Manupanel/Gantt/jquery.ganttView.js"></script>
+<script type="text/javascript" src="~/Manupanel/Gantt/data.js"></script>
+<script>
+    var dates = new Date();
+    var startmonthcalendar = dates.getMonth();
+    var startyearcalendar = 2021;
+    var startdatecalendar = 01;
+    jQuery1(document).ready(function () {
+        jQuery1(".calgaint").click(function () {
+            jQuery1(".calgaint").removeClass("active");
+            jQuery1(this).addClass("active");
+            var dataval = $(this).attr("val");
+            var date = new Date(dataval);
+            var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            startmonthcalendar = date.getMonth();
+            $("#eventMessage").html("");
+            BindGanttData(firstDay, lastDay);
+        });
+        function openload() {
+            $("#myOverlay").css("display", "block");
+        }
+        function closeload() {
+            $("#myOverlay").css("display", "none");
+        }
+        function convert(str) {
+            var date = new Date(str),
+                mnth = ("0" + (date.getMonth() + 1)).slice(-2),
+                day = ("0" + date.getDate()).slice(-2);
+            return [date.getFullYear(), mnth, day].join("-");
+        }
+        var date = new Date("2021/01/01");
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        BindGanttData(firstDay, lastDay);
+        function BindGanttData(firstDay, lastDay) {
+            var formdata = new FormData();
+            formdata.append("firstDay", convert(firstDay));
+            formdata.append("lastDay", convert(lastDay));
+            //read assign using list
+            openload();
+            var sct1 = jQuery1.ajax({
+                async: true,
+                type: "POST",
+                url: "/Firm/LoadGanttDataNew",
+                dataType: 'json',
+                data: formdata,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(JSON.stringify(response));
+                    var ganttData23 = JSON.stringify(response);
+                    ganttData2 = response;
+                    closeload();
+                    if (ganttData2 != "") {
+                        localStorage.setItem("gaintvalue", "gdfd");
+                        $("#ganttChart").html("");
+                        loadgaint();
+                    }
+                    else {
+                        $("#ganttChart").html("No result found.");
+                    }
+                }, //End of AJAX Success function
+                failure: function (response) {
+                    alert(data.responseText);
+                }, //End of AJAX failure function
+                error: function (response) {
+                    alert(data.responseText);
+                } //End of AJAX error function
+            });
+        }
+    });
+    setInterval(function () {
+        var itemtmp = localStorage.getItem("gaintvalue");
+        if (itemtmp != "") {
+            loadgaint();
+            localStorage.setItem("gaintvalue", "");
+        }
+    }, 3000);
+    function loadgaint() {
+        $("#ganttChart").html("");
+        $("#ganttChart").ganttView({
+            data: ganttData,
+            showWeekends: false,
+            slideWidth: 900,
+            behavior: {
+                onClick: function (data) {
+                    var msg = "You clicked on an event: { start: " + data.start.toString("M/d/yyyy") + ", end: " + data.end.toString("M/d/yyyy") + " }";
+                    $("#eventMessage").text(msg);
+                },
+                onResize: function (data) {
+                    var msg = "You resized an event: { start: " + data.start.toString("M/d/yyyy") + ", end: " + data.end.toString("M/d/yyyy") + " }";
+                    $("#eventMessage").text(msg);
+                },
+                onDrag: function (data) {
+                    var msg = "You dragged an event: { start: " + data.start.toString("M/d/yyyy") + ", end: " + data.end.toString("M/d/yyyy") + " }";
+                    $("#eventMessage").text(msg);
+                }
+            }
+        });
+        $("#ganttChart").ganttView("setSlideWidth", 600);
+    }
+</script>
+<link rel="stylesheet" href="~/Manupanel/Gantt/reset.css" />
+<link rel="stylesheet" href="~/Manupanel/Gantt/jquery.ganttView.css" type="text/css" />
+<style type="text/css">
+    .ganttview {
+        width: unset !important;
+    }
+
+    .calgaint {
+        color: #000000;
+        font-weight: 500;
+        padding: 8px 8px 8px 8px;
+        border-bottom: none !important;
+        border-top: none !important;
+        font-size: 12px;
+        background: #BBDDF2 !important;
+        white-space: nowrap;
+        /* cursor: pointer; */
+    }
+
+    .calgaintlbl {
+        color: #000000;
+        font-weight: 500;
+        padding: 8px 8px 8px 8px;
+        border-bottom: none !important;
+        border-top: none !important;
+        font-size: 12px;
+        background: #BBDDF2 !important;
+        white-space: nowrap;
+    }
+
+    .calgaint:hover {
+        background: #a9c7da !important;
+        /* cursor: pointer; */
+    }
+
+    .gainttable td {
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .ganttview-slide-container {
+        width: unset !important;
+    }
+
+    .gainttable .active {
+        background: #4CAF50 !important;
+        color: white;
+    }
+
+    div.ganttview-hzheader-month {
+        background: #dddddd;
+        background: -moz-linear-gradient(top, #dddddd 0%, #f4f4f4 53%, #dddddd 100%);
+        background: -webkit-linear-gradient(top, #dddddd 0%,#f4f4f4 53%,#dddddd 100%);
+        background: linear-gradient(to bottom, #dddddd 0%,#f4f4f4 53%,#dddddd 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dddddd', endColorstr='#dddddd',GradientType=0 );
+        border-right: 1px solid #9a9a9a;
+        font-size: 12px;
+        color: #000;
+    }
+
+    .ganttview-vtheader-series {
+        text-align: right;
+    }
+
+    div.ganttview-block-text {
+        font-size: 12px;
+        color: #000;
+    }
+
+    div.ganttview {
+        border-top: 1px solid #999;
+        border-left: 1px solid #999;
+        border-right: 1px solid #999;
+        border-bottom: 1px solid #8fd500;
+    }
+
+    div.ganttview-block-container {
+        margin: 3px 0 0 0;
+    }
+
+    div.ganttview-grid-row-cell {
+        border-right: 1px solid #e6e6e6;
+        border-top: 1px solid #e6e6e6;
+    }
+
+    div.ganttview-vtheader {
+        padding-top: 41px;
+        margin-top: unset;
+        width: 240px;
+        overflow: hidden;
+        background: #dddddd;
+        background: -moz-linear-gradient(top, #dddddd 0%, #f4f4f4 53%, #dddddd 100%);
+        background: -webkit-linear-gradient(top, #dddddd 0%,#f4f4f4 53%,#dddddd 100%);
+        background: linear-gradient(to bottom, #dddddd 0%,#f4f4f4 53%,#dddddd 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dddddd', endColorstr='#dddddd',GradientType=0 );
+    }
+
+    div.ganttview-hzheader-day {
+        font-weight: bold;
+    }
+
+    div.ganttview-hzheader-month {
+        font-weight: bold;
+    }
+</style>
+<section class="wrapper">
+    <div class="container">
+        <div class="">
+            <h2 class="title"> Task Gantt Chart </h2>
+            <section class="content">
+                <div id="page-wrapper">
+                    <div class="container-fluid showcontent" id="showcontent">
+                        <br>
+                        <table class="gainttable">
+                            <tr>
+                                <td width="241" style="cursor:default !important"><p class="calgaintlbl">Task</p></td>
+                                <td><p class="calgaint active" val="2021/01/01">Jan</p></td>
+                                <td><p class="calgaint" val="2021/02/01">Feb</p></td>
+                                <td><p class="calgaint" val="2021/03/01">Mar</p></td>
+                                <td><p class="calgaint" val="2021/04/01">Apr<p></td>
+                                <td><p class="calgaint" val="2021/05/01">May<p></td>
+                                <td><p class="calgaint" val="2021/06/01">June<p></td>
+                                <td><p class="calgaint" val="2021/07/01">July</p></td>
+                                <td><p class="calgaint" val="2021/08/01">Aug</p></td>
+                                <td><p class="calgaint" val="2021/09/01">Sep</p></td>
+                                <td><p class="calgaint" val="2021/10/01">Oct</p></td>
+                                <td><p class="calgaint" val="2021/11/01">Nov</p></td>
+                                <td><p class="calgaint" val="2021/12/01">Dec</p></td>
+                            </tr>
+                            <tr>
+                                <td colspan="13">
+                                    <div id="ganttChart" style="width:1045px"></div>
+                                    <br /><br />
+                                    <div id="eventMessage" style="font-weight:bold;"></div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>

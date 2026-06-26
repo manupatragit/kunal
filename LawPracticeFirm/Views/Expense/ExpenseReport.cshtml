@@ -1,0 +1,961 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    var firmcode121 = Session["FirmCode"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    <script>
+      var LoggeduserId = "@ViewBag.LoggeduserId";
+    </script>
+}
+<script>
+     var isDelete = "@ViewBag.IsDelete";
+     var IsCreate = "@ViewBag.IsCreate";
+    var roleids = "@Session["sessionroleid"]";
+    //from ICICI bank
+     var FIrmIds = "@Session["sessionfirmid"]";
+     var filesize =@ViewBag.filesize;
+    var Isexpnsespecialrights = "@ViewBag.ExpeseRights";
+</script>
+<script src="~/Scripts/Firm/Pages/ExpenseReport.js?7.1" type="text/javascript" language="javascript"></script>
+<style>
+    .glyphicon-pencil, .glyphicon-trash, .fa-download {
+        color: black !important;
+    }
+
+    .badge-success {
+        color: #fff;
+        background-color: #28a745;
+    }
+
+    .badge-danger {
+        color: #fff;
+        /*background-color: #dc3545;*/
+    }
+
+    .table-panel th {
+        color: #717680 !important;
+    }
+</style>
+<style>
+    .upload_window .postedFile {
+        outline: none;
+    }
+
+    .upload_window h6 {
+        margin-bottom: 5px;
+        color: #075985;
+    }
+
+    .upload_window button {
+        display: flex;
+        font-size: 11.5px;
+        font-weight: 500;
+        height: 20px;
+        align-items: center;
+    }
+
+    .upload_window input:focus {
+        outline: none;
+        border: none;
+        box-shadow: none;
+    }
+
+    .upload_window .browsetaskfile1 {
+        display: flex;
+        gap: 5px;
+        border: 1px solid #ccc;
+        padding: 2px;
+        border-radius: 3px;
+        align-items: center;
+        text-transform: capitalize;
+    }
+    .upload-text {
+        font-size: 14px !important;
+        color: #535862;
+        margin-bottom: 1px !important;
+        font-weight: 400 !important;
+    }
+
+    .upload-subtext {
+        font-size: 11px !important;
+        color: #535862;
+        font-weight: 400 !important;
+        margin-bottom: 3px !important;
+    }
+
+    .upload-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .upload-btn {
+        padding: 8px 16px !important;
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px !important;
+    }
+    .table_action .dropdown-menu {
+        right: -2px;
+        left: unset;
+    }
+</style>
+
+<section id="main_wrapper_form" class="wrapper">
+    <div class="container-main">
+        <section id="header">
+            <div class="container-main" style="display:flex; justify-content:space-between;">
+                <div class="text-left">
+                    <p class="ctitle"> List of Expenses </p>
+                </div>
+                <div>
+                    <a href="#" id="CreateExpensebtn" title="Add new Expense" class="button4" style="border: 0" ;><span><img src="/newassets/img/plus-icon.png"></span>Create Expense</a>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="expense_total_card_wrapper">
+                <div class="card" id="sumdiv">
+                    <h6>Total Amount </h6>
+                    <span id="totalamount">0</span>
+                </div>
+
+                <div class="card" id="sumdiv">
+                    <h6>Total Amount Made </h6>
+                    <span id="totalpaidamount">0</span>
+                </div>
+
+                <div class="card" id="sumdiv">
+                    <h6>Pending Amount </h6>
+                    <span id="totalalanceamount">0</span>
+                </div>
+            </div>
+        </section>
+
+
+        <div class="progress" style="display:none">
+            <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                0%
+            </div>
+        </div>
+        <div id="progressBarstatus" style="text-align:center; margin-top: -15px;display:none">
+            Please wait document is uploading....
+        </div>
+        <div id="table_view_Status" class="table-responsive">
+            <div class="card-header">
+                <div class="content1" style="padding:15px 0; justify-content:space-between; ">
+                    <div class="left_input" style="display:flex; gap:20px;">
+                        <label style="margin:10px 0 0 0;">From</label>
+                        <input class="form-control inputFormat" id="datefrom" onkeypress="return false;" type="date" placeholder="yyyy-mm-dd">
+                        <label style="margin:10px 0 0 0;">To</label>
+                        <input class="form-control inputFormat" id="dateto" onkeypress="return false;" type="date" placeholder="yyyy-mm-dd">
+                        <button type="button" class="btn btn-secondary" id="Cancelsearchdatas" style="1px solid gray!important;display:none">Clear</button>
+                        <button type="button" class="btn btn-primary" id="searchdatas" style="border:0px;">Search</button>
+                    </div>
+                    <div class="table-header">
+                        <div class="actions3">
+
+                            <div class="menuexport" style="position:relative; cursor:pointer;">
+                                <div class="dropdown-toggle button9" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                    <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+                                </div>
+                                <ul class="dropdown-menu settingaction">
+                                    @if (role.ToString() == "1")
+                                    {
+                                        <li><a href="javascript:void();" id="expenseexcel" title="Export to Excel"> Export to Excel</a></li>
+                                        <li><a href="javascript:void();" id="expensepdf" title="Export data to PDF">Export to PDF</a></li>
+                                        @*<li><a href="javascript:void();" id="ChangeExepnseStatus" title="Expense Status">Expense Status</a></li>*@
+                                    }
+                                    else
+                                    {
+                                        if (Convert.ToInt32(ViewBag.ExpeseRights) == 1)
+                                        {
+                                            <li><a href="javascript:void();" id="expenseexcel" title="Export to Excel"> Export to Excel</a></li>
+                                            <li><a href="javascript:void();" id="expensepdf" title="Export data to PDF">Export to PDF</a></li>
+                                            @*<li><a href="javascript:void();" id="ChangeExepnseStatus" title="Expense Status">Expense Status</a></li>*@
+                                        }
+                                        else if (Convert.ToInt32(ViewBag.export) == 1)
+                                        {
+                                            <li><a href="javascript:void();" id="expenseexcel" title="Export to Excel"> Export to Excel</a></li>
+                                            <li><a href="javascript:void();" id="expensepdf" title="Export data to PDF">Export to PDF</a></li>
+                                            @*<li><a href="javascript:void();" id="ChangeExepnseStatus" title="Expense Status">Expense Status</a></li>*@
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div class="button13" title="Column Selection">
+                                <img class="plus-icon" alt="" src="/newassets/img/change_circle.svg">
+
+                                <div class="text-padding">
+                                    <div class="text1">
+                                        <a href="javascript:void()" id="ChangeExepnseStatus" title="Expense Status"> Change Status</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="button13" id="ColumnSelectionopen" title="Column Selection">
+                                <img class="plus-icon" alt="" src="/newassets/img/settings-icon.png">
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()"> Customize</a></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="overflow-x:scroll;">
+                <table class="table-panel" id="cexample">
+                    <thead>
+                        <tr>
+                            <th width="3%"><div class="thbg"><input name="chkSelectAll" type="checkbox" value="" id="chkSelectAll" title="Select All"></div></th>
+                            <th class="eDate" width="10%" title="Date on which expense incurred"><div class="thbg">Date of Expense</div></th>
+                            <th class="eCaseName" width="11%" title="Matter for which expense incurred">
+                                <div class="thbg">
+                                    <div style="float:left;width:80%">
+                                        <input type="text" id="expensefiltercasename" placeholder="Matter Name" class="form-control pull-left" style="width:120px;">
+                                    </div>
+                                    <div style="float:left;width:20%">
+                                        
+                                        <span class="glyphicon glyphicon-search" id="searchdatas" style="margin:5px 0 0 -14px;float:right"></span>
+                                        <span class="" id="clearnewsearchcase" title="Click here to reset search" style="display:none;font-size:15px;color:black:font-weight:350;cursor:pointer;">x</span>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="eCategory" width="10%" title="Expense type">
+                                <div class="thbg">
+                                    <select class="form-control" id="ddlCategoryFilter">
+                                        <option value="">Category</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="Retainername" width="11%">
+                                <div class="thbg">
+                                    <div style="float:left;width:80%">
+                                        <input type="text" id="filterretainerName" placeholder="Retainer Name" class="form-control pull-left" style="width:120px;">
+                                    </div>
+                                    <div style="float:left;width:20%">
+                                        <span class="glyphicon glyphicon-search" id="searretainerName" style="margin:5px 0 0 -14px;float:right"></span>
+                                        <span class="" id="clearretainerName" title="Click here to reset search" style="display:none;color:black;font-size:15px;font-weight:350;cursor:pointer;">x</span>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="eTotalPayment" width="5%" title="Amount of expense"><div class="thbg">Amount</div></th>
+                            <th class="ePayReceived" title="Payment Received">
+                                <div class="thbg" style="width: auto !important;">
+                                    Payment Made
+                                </div>
+                            </th>
+                            <th class="eTotal" width="5%" title="Balance amount of expense"><div class="thbg">Balance Amount</div></th>
+                            <th class="eDescription" width="15%" title="Description">
+                                <div class="thbg">
+                                    <div style="float:left;width:80%">
+                                        <input type="text" id="expensefilterdescription" placeholder="Description" class="form-control pull-left" style="width:120px;">
+                                    </div>
+                                    <div style="float:left;width:20%">
+                                        <span class="glyphicon glyphicon-search" id="searchdescription" style="margin:5px 0 0 -14px;float:right"></span>
+                                        <span class="" id="clearnewsearchdescription" title="Click here to reset search" style="display:none; font-size:15px; color:black; font-weight:350; cursor:pointer;">x</span>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="eexpstatus" title="Expense Status" style="min-width:148px">
+                                <div class="thbg" style="width: auto !important;">
+                                    <select class="form-control" id="ddlExpenseStatusFilter">
+                                        <option value="">Expense Status</option>
+                                        <option value="1">Paid</option>
+                                        <option value="0">Unpaid</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="eClientName" width="12%" title="Client for whom expense incurred" style="min-width:100px;"><div class="thbg"><select id="filterclientexpense" class="form-control col_b" style="width:100% !important"></select></div></th>
+                            <th class="eExpenseType" width="12%" title="Billable or Non billable expense" style="min-width:132px;">
+                                <div class="thbg">
+                                    <select class="form-control" id="ddlExpenseTypeFilter">
+                                        <option value=""> Expense Type</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="eCurrency" width="10%" title="Expense Currency" style="min-width:100px">
+                                <div class="thbg">
+                                    <select class="form-control" id="ddlCurrencyFilter">
+                                        <option value="">Currency</option>
+                                        <option value="1">INR</option>
+                                        <option value="2">USD</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="eDueDate" title="Due Date">
+                                <div class="thbg" style="width: auto !important;">
+                                    Due Date
+                                </div>
+                            </th>
+                            <th class="createdby" width="10%" title="User name"><div class="thbg">Created by</div></th>
+                            <th class="eReceipt" width="10%" title="Attach supporting if applicable"><div class="thbg">Receipt</div></th>
+                            <th class="createdfor" style="min-width:148px" title="User on whose behalf expense entry made">
+                                <div class="thbg">
+                                    <select class="form-control" id="ddlExpenseCreatedForFilter">
+                                        <option value="">Created for</option>
+
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="eCreatedOn" width="10%" title="Date on which entry of expense made"><div class="thbg">Date</div></th>
+                            <th class="eEditedOn" width="10%" title="Expense edited date"><div class="thbg">Edit Date</div></th>
+                            <th class="ReceiptDate" width="10%"><div class="thbg">Receipt Date</div></th>
+                            <th width="4%" title="Edit / Delete" style="min-width:100px;"><div class="thbg">Action</div></th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="bindexpense"></tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+                <center>
+                    <div class="notfound" id="pdatastatus" style="display: none">
+                        <img src="~/newassets/img/not-found.png" />
+                        <h4><span id="dtNotFound">No Data Found</span></h4>
+                    </div>
+                </center>
+                @*<div style="float:left;width:41%;margin-bottom:5px;">
+            &nbsp;
+        </div>
+        <div style="float:left;width:9%;border:1px solid #ccc" id="sumdiv">
+            <span id="totalamount" style="margin-left:20px">0</span>
+        </div>
+        <div style="float:left;width:0%;margin-bottom:5px;">
+            &nbsp;
+        </div>
+        <div style="float:left;width:9%;border:1px solid #ccc" id="sumdiv">
+            <span id="totalpaidamount" style="margin-left:20px">0</span>
+        </div>
+        <div style="float:left;width:0%;margin-bottom:5px;">
+            &nbsp;
+        </div>
+        <div style="float:left;width:9%;border:1px solid #ccc" id="sumdiv">
+            <span id="totalalanceamount" style="margin-left:20px">0</span>
+        </div>*@
+            </div>
+            <div class="pagination" id="Expensepagination">
+                <div class="pagination-button-group">
+                    <div id="prev" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumbers" class="pagination-button-group-base1">
+                    </div>
+
+                    <div id="next" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="page-btn">Result <span id="idexpensecount" style="font-weight: bold;"></span></div>
+                    <div class="input">
+                        <div class="content">
+
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+@* new create expense page start *@
+
+<main id="createExpense_page" class="wrapper" style="display:none;">
+
+    <section id="header">
+        <div class="container-main">
+            <div class="text-left">
+                <a class="goback" id="goBack" href="/@firmcode121/Expense/ExpenseReport"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+                <p class="ctitle" id="editText"> </p>
+            </div>
+        </div>
+    </section>
+    <section class="main-content" style="margin-top:15px;">
+        <div class="mid-section ec_bg" style="overflow: inherit; min-height: 100px;">
+            <div class="row report_row">
+                <div class="col-md-4">
+                    <label>Client Details<span class="required " aria-required="true"><b> *</b> </span></label>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Client Name@*<span class="required " aria-required="true"><b> *</b> </span>*@</label>
+                        <input type="text" id="ddlExpenceClient" name="ddlExpenceClient" class="form-control  inputFormat" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Matter Name@*<span class="required " aria-required="true"><b> *</b> </span>*@</label>
+                        <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpenceCase" name="ddlExpUser"></select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <hr />
+                </div>
+            </div>
+            <div class="row report_row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Expense Details<span class="required " aria-required="true"><b> *</b> </span></label>
+                    </div>
+                </div>
+                <div class="col-md-8" style="">
+                    <div class="row report_row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Expense Date<span class="required " aria-required="true"><b> *</b> </span></label>
+                                <input type="date" id="txtdate" onkeydown="return false" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Select Category<span class="required " aria-required="true"><b> *</b> </span></label>
+                                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlCategory">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Currency<span class="required " aria-required="true"><b> *</b> </span></label>
+                                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlCurrency">
+                                    <option value="">Select</option>
+                                    <option value="1" selected>INR</option>
+                                    <option value="2">USD</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Amount<span class="required " aria-required="true"><b> *</b> </span></label>
+                                <input type="text" id="txtTotal" class="form-control inputFormat" @*onkeyup="fnCalculate();"*@>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Expense Type </label>
+                                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpenseType">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Receipt Date</label>
+                                <input type="date" id="txtReceiptDate" class="form-control inputFormat" title="" style="background-color: white !important;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Retainer Name</label>
+                                <input type="text" id="txtretainername" class="form-control inputFormat" title="" style="background-color: white !important;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Created For </label>
+                                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpenceTeamMember">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Due Date </label>
+                                <input type="date" id="txtduedate" class="form-control inputFormat" title="" style="background-color: white !important;">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group" style="display:flex; justify-content:space-between; border:1px solid #ccc; border-radius: 5px; padding:12px;">
+                                <div>
+                                    <label>Attach Receipt/Invoice</label>
+                                   @* <p>Add File (Only jpg and pdf file format allowed)</p>*@
+                                </div>
+
+                                <button class="btn btn-secondary" id="upload_files" data-toggle="modal" data-target="#exampleModalCenter" style="height: 40px; display: flex; gap: 5px; align-items:center;">
+                                    <img src="~/newassets/img/upload-cloud.svg" alt="Alternate Text" />Upload Document
+                                </button>
+
+                                @* upload modal started *@
+
+                                <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 450px;" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLongTitle">Choose File</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: absolute; top: 5px; right: 10px;">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="dragUpload" id="dropContainer" style="border:none; margin:15px 0;">
+                                                    <div class="upload-icon"> <img src="/newassets/img/upload-cloud.svg"> </div>
+                                                    <p class="upload-text">Choose a file or drag and drop</p>
+                                                    @*<p class="upload-subtext">SVG, PNG, JPG or GIF (max. 800x400px)</p>*@
+                                                    <div class="upload-buttons" style="padding-top:7px;">
+                                                        <label for="postedFile" class="upload-btn">Local Drive</label>
+                                                        <label title="No file chosen" class="upload-btn browsetaskfile browsetaskfile1" id="browsefileexpense" module="expense">
+                                                            MyKase Drive
+                                                        </label>
+                                                        <input type="file" class="postedFile" id="postedFile" name="postedFile" multiple placeholder="Add receipts..." style="display:none;" />
+                                                    </div>
+                                                    <div id="fileListTMApplication" style="margin-top:10px;"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Expense Description</label>
+                                <textarea name="" id="txtDescription" class="form-control" style="min-height: 100px; border: 1px solid #ccc !important; border-radius: 4px !important; padding: 5px !important; font-weight: 500 !important;" maxlength="2000" autocomplete="new-text" placeholder="Add message here"></textarea>
+                                <span style="text-align: right; display: block; font-size: 12px; color: gray;">0/2000</span>
+                            </div>
+                        </div>
+                        <div class="col-md-12 text-right">
+                            <button type="button" class="btn btn-secondary"> Clear All  </button>
+                            <button type="button" id="AddExpense" class="btn btn-primary" style="cursor:pointer" title="save">Add Expense</button>
+                            <input type="hidden" value="" id="hdnExpenseid" />
+                        </div>
+
+                    </div>
+
+                </div>
+                
+            </div>
+
+            </div>
+
+    </section>
+
+</main>
+
+@* new create expense page end *@
+
+<script>
+    $(document).ready(function () {
+        $("#ColumnSelectionopen").click(function () {
+            $("#myModalCustomizedcolumn").modal('show'); // Opens the modal
+        });
+
+        $(document).click(function (event) {
+            if ($(event.target).is(".myModal")) {
+                $("#myModalCustomizedcolumn").modal('hide'); // Closes the modal
+            }
+        });
+    });
+</script>
+@* modal started *@
+<div id="myModalCustomizedcolumn" class="modal right fade myModal" role="dialog" data-backdrop="static" aria-hidden="false" style="display: none;">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="margin-top:15px;">
+                        <ul>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDate" checked><a href="#" class="dropdown-item">Date of Expense</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCaseName" checked><a href="#" class="dropdown-item">Matter Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eClientName"> <a href="#" class="dropdown-item">Client Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eExpenseType"><a href="#" class="dropdown-item">Expense Type</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCategory" checked><a href="#" class="dropdown-item">Category</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCurrency"><a href="#" class="dropdown-item">Currency</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDescription" checked><a href="#" class="dropdown-item">Description</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDueDate"><a href="#" class="dropdown-item">Due Date</a></li>
+                            <li style="display:none"><input type="checkbox" class="shcheckbox1 chkdhide" name="ePriceRate"><a href="#" class="dropdown-item">Price/Rate</a></li>
+                            <li style="display:none"><input type="checkbox" class="shcheckbox1 chkdhide" name="eUnit"><a href="#" class="dropdown-item">Unit</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eTotalPayment" checked><a href="#" class="dropdown-item">Amount</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eTotal" checked><a href="#" class="dropdown-item">Balance Amount</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ePayReceived" checked><a href="#" class="dropdown-item">Payment Made</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eexpstatus" checked><a href="#" class="dropdown-item">Expense Status</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eReceipt"><a href="#" class="dropdown-item">Receipt</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="createdby"><a href="#" class="dropdown-item">Created by</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="createdfor"><a href="#" class="dropdown-item">Created for</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCreatedOn"><a href="#" class="dropdown-item">Date</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eEditedOn"><a href="#" class="dropdown-item">Edit Date</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="ReceiptDate"><a href="#" class="dropdown-item">Receipt Date</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="Retainername" checked><a href="#" class="dropdown-item">Retainer Name</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<input type="hidden" id="exclienthide">
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div id="myModalcategory" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-header btn-primary">
+            <button type="button" class="close" id="closemodels" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">
+                Expense Category
+            </h4>
+        </div>
+        <div class="modal-body " style="height:505px; overflow-y:scroll;background:white;">
+            <form id="fileupload" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-lg-12" style="overflow-x:auto">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group form-horizontal">
+                                    <label class="control-label col-md-3">Category Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></label>
+                                    <div class="col-md-6">
+                                        <input class="form-control" style="margin-bottom:5px;" type="text" id="txtName" placeholder="Enter Category Name" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="sbtbtn" id="btnAdd" style="padding: 4px 8px 5px 8px;">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-panel table-responsive" style="margin-top:10px;">
+                            <table id="tblCustomers" class="table table-striped table-bordered" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <th style="width:10%">Sl.NO </th>
+                                    <th>Category Name</th>
+                                    <th>Action</th>
+                                </tr>
+                                <tbody id="assignuserdata"></tbody>
+                            </table>
+                            <div style="text-align:center" id="categorystatus">No Category found.</div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="myModalpayment" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:90%">
+        <div class="modal-content ">
+            <div class="modal-header">
+
+                <div class="container-main">
+                    <div class="text-left">
+                        @*<a class="goback" id="goBack" href="#"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>*@
+                        <h5 class="ctitle" style="margin-top: 0;">Payment Details</h5>
+                    </div>
+                    <button type="button" style="position: absolute; top: 10px; right: 15px;" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+
+            </div>
+            <div class="modal-body mymodelspay" id="mymodelspay">
+            </div>
+        </div>
+        <!-- Modal content-->
+    </div>
+</div>
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("cexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 1; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function psortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("pexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function osortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("oexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    $("#filteruserdocument").append("<option value=''>Select</option>");
+</script>
+
+<script>
+    //  let createExpense = document.getElementById("CreateExpensebtn");
+    //  let goBack = document.getElementById("goBack");
+    //  let editExpenseData1 = document.getElementById("EditExpenseData1");
+    //  let mainWrapperForm = document.getElementById("main_wrapper_form");
+    //  let createExpensePage = document.getElementById("createExpense_page");
+
+
+    //  createExpense.addEventListener('click', function () {
+    //      mainWrapperForm.style.display = "none";
+    //      createExpensePage.style.display = "block";
+
+
+    //  });
+
+    //  goBack.addEventListener('click', function () {
+    //   createExpensePage.style.display = "none";
+    //   mainWrapperForm.style.display = "block";
+    //});
+
+    //editExpenseData1.addEventListener('click', function () {
+    //    mainWrapperForm.style.display = "none";
+    //    createExpensePage.style.display = "block";
+
+    //});
+    $(document).ready(function () {
+        $("#upload_files").click(function () {
+            $("#exampleModalCenter").modal("show");
+        });
+
+        $("#CreateExpensebtn").click(function () {
+            $("#createExpense_page").show();
+            $("#main_wrapper_form").hide();
+            $("#editText").text("Create Expense");
+
+        });
+
+        $("#goBack").click(function () {
+            $("#createExpense_page").hide();
+            $("#main_wrapper_form").show();
+            $("#editText").text("Create Expense");
+
+        });
+
+    });
+
+
+</script>
+
+@*<script>
+        document.getElementById("uploadBtn").addEventListener("click", function () {
+            document.getElementById("postedFile").click();
+        });
+    </script>*@

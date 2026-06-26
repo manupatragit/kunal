@@ -1,0 +1,1598 @@
+﻿@{
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+@{
+    var firmcode = Session["FirmCode"];
+}
+
+<script>
+    var TOTALLIMIT1 = 20480;
+    var TOTALLIMITMSG1 = "Total File size should not be more than 20 MB";
+    var file1 = "";
+    var file2 = "";
+
+    let selectedfilesComp = [];
+
+    let selectedMKFiles = []; 
+
+
+    $(document).ready(function () {
+        $("#days").attr("min", new Date().toISOString().substring(0, 10));
+        function openload() {
+            $("#myOverlay").css("display", "block");
+        }
+        function closeload() {
+            $("#myOverlay").css("display", "none");
+        }
+        $("#attachmentone").change(function () {
+            var formData = new FormData();
+
+            var fileInput = document.getElementById("attachmentone");
+            var file = fileInput.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                alert("File size must not exceed 5 MB.");
+                NewFileCompare();
+                return false;
+            }
+            var attachmentonefiles = document.getElementById("attachmentone").files.length;
+
+            if (attachmentonefiles == 0) {
+                alert("Please select the file to be uploaded.");
+            }
+            else {
+                var tempsize = 0;
+                var tottempsize = 0;
+                for (var i = 0; i < attachmentonefiles; i++) {
+                    var file = document.getElementById("attachmentone").files[i];
+                    var filename = file.name;
+                    filext1 = filename.split('.').pop();
+                    if (filename.length > 100) {
+                        alert("The name of the file cannot exceed the limit of 100 characters. Please check file name: " + filename);
+                        $("#attachmenttwo").val("");
+                        return false;
+                    }
+                    var Extresponse = browsecomparedoc(filename);
+                    if (String(Extresponse) == "false") {
+                        return false;
+                    }
+                    formData.append("FileUpload", file);
+                    try {
+                        //var fileUpload = document.getElementById("attachment");
+                        if (typeof (file) != "undefined") {
+                            size = parseFloat(file.size / 1024).toFixed(2);
+                            tottempsize = parseFloat(tottempsize) + parseFloat(size);
+                            tempsize = parseFloat(size);
+                        }
+                    }
+                    catch (err) {
+                        //alert(err.message);
+                    }
+                    tempsize = tempsize.toFixed(2);
+                }
+                if (tottempsize > parseFloat(TOTALLIMIT1)) {
+                    alert(TOTALLIMITMSG1);
+                    $("#attachmentone").val('');
+                    return false;
+                }
+                openload();
+                $.ajax({
+                    async: true,
+                    type: "POST",
+                    url: "/Compare/UploadFile1",
+                    dataType: 'json',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        // alert(data.Result);
+                        if (data.Result != null) {
+                            var path = data.Result;
+                            if (data.Result == "FileAttachExceed") {
+                                alert("Sorry! You have added more than 1 file. Pls remove some file(s)");
+                                closeload();
+                                return false;
+                            }
+                            else if (data.Result == "NoFileAttach") {
+                                alert("Please select the file to be uploaded.");
+                                closeload();
+                                return false;
+                            }
+                            //var returnpath = "https://view.officeapps.live.com/op/view.aspx?src=" + path;
+                            //if (filext1.toLowerCase() == "doc" || filext1.toLowerCase() == "docx") {
+                            //    $('#frmFileone').attr('src', returnpath);
+                            //}
+                            //else {
+                            /*  $('#frmFileone').attr('value', path);*/
+                            $('#frmFileoneLocal').attr('value', path);
+                            /*}*/
+                            // $('#frmFileone').attr('src', path)
+                            file1 = path;
+                            closeload();
+                        }
+                        else {
+                            closeload();
+                        }
+                    },
+                    error: function (data) {
+                        closeload();
+                    }
+                });
+            }
+        });
+        $("#attachmenttwo").change(function () {
+            var formData = new FormData();
+
+            var fileInput = document.getElementById("attachmenttwo");
+
+            var file = fileInput.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                alert("File size must not exceed 5 MB.");
+                NewFileCompare();
+                return false;
+            }
+
+            var attachmentonefiles = document.getElementById("attachmenttwo").files.length;
+
+            if (attachmentonefiles == 0) {
+                alert("Please select the file to be uploaded.");
+            }
+            else {
+                var tempsize = 0;
+                var tottempsize = 0;
+                for (var i = 0; i < attachmentonefiles; i++) {
+                    var file = document.getElementById("attachmenttwo").files[i];
+                    var filename = file.name;
+                    filext2 = filename.split('.').pop();
+                    if (filename.length > 100) {
+                        alert("The name of the file cannot exceed the limit of 100 characters. Please check file name: " + filename);
+                        $("#attachmenttwo").val("");
+                        return false;
+                    }
+                    var Extresponse = browsecomparedoc(filename);
+                    if (String(Extresponse) == "false") {
+                        return false;
+                    }
+                    formData.append("FileUpload", file);
+                    try {
+                        //var fileUpload = document.getElementById("attachment");
+                        if (typeof (file) != "undefined") {
+                            size = parseFloat(file.size / 1024).toFixed(2);
+                            tottempsize = parseFloat(tottempsize) + parseFloat(size);
+                            tempsize = parseFloat(size);
+                        }
+                    }
+                    catch (err) {
+                        //alert(err.message);
+                    }
+                    tempsize = tempsize.toFixed(2);
+                }
+                if (tottempsize > parseFloat(TOTALLIMIT1)) {
+                    alert(TOTALLIMITMSG1);
+                    $("#attachmenttwo").val('');
+                    return false;
+                }
+                openload();
+                $.ajax({
+                    async: true,
+                    type: "POST",
+                    url: "/Compare/UploadFile1",
+                    dataType: 'json',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        // alert(data.Result);
+                        if (data.Result != null) {
+                            var path = data.Result;
+                            if (data.Result == "FileAttachExceed") {
+                                alert("Sorry! You have added more than 1 file. Pls remove some file(s)");
+                                closeload();
+                                return false;
+                            }
+                            else if (data.Result == "NoFileAttach") {
+                                alert("Please select the file to be uploaded.");
+                                closeload();
+                                return false;
+                            }
+                            //var returnpath = "https://view.officeapps.live.com/op/view.aspx?src=" + path;
+                            //if (filext2.toLowerCase() == "doc" || filext2.toLowerCase() == "docx") {
+                            //    $('#frmFiletwo').attr('src', returnpath);
+                            //}
+                            //else {
+                            $('#frmFiletwoLocal').attr('value', path);
+                            // $('#frmFiletwo').attr('src', path);
+                            /*}*/
+                            // $('#frmFiletwo').attr('src', path)
+                            file1 = path;
+                            closeload();
+                        }
+                        else {
+                            closeload();
+                        }
+                    },
+                    error: function (data) {
+                        closeload();
+                    }
+                });
+            }
+        });
+        function RemoveFile(path) {
+            var formData = new FormData();
+            formData.append("filepath", EncodeText(path));
+            $.ajax({
+                async: true,
+                url: '/api/WorkFlowNewApi/RemoveBrowseDocumentfile',
+                data: formData,
+                contentType: false,
+                processData: false,
+                type: 'POST',
+                success: function (response) {
+                    if (response.Status == true) {
+                        // var datas = JSON.stringify(response);
+                    }
+                    else {
+                        //closeload();
+                        //alert("not found");
+                    }
+                },
+                error: function () {
+                    // closeload();
+                    alert('Error!');
+                }
+            });
+        }
+
+        //$("#frmFileone").on("load", function () {
+
+        //    let url = $(this).attr("src");
+        //    if (url) {
+        //        let fileName = url.split("/").pop();
+        //        $("#selectedFileNameMKDrive_one").text(fileName);
+        //        document.getElementById('selectedFileNameMKDrive_one').style.display = 'block';
+
+        //        //reset filename and filepath
+        //        document.getElementById('selectedFileName_one').textContent = '';
+        //        document.getElementById('selectedFileName_one').style.display = 'none';
+        //        $('#frmFileoneLocal').attr('value', '');
+        //    }
+        //});
+
+        //$("#frmFiletwo").on("load", function () {
+        //    //document.getElementById('selectedFileName_one').textContent = '';
+        //    //document.getElementById('selectedFileName_one').style.display = 'none';
+
+
+        //    let url = $(this).attr("src");
+        //    if (url) {
+        //        let fileName = url.split("/").pop();
+        //        $("#selectedFileNameMKDrive_two").text(fileName);
+        //        document.getElementById('selectedFileNameMKDrive_two').style.display = 'block';
+        //        //reset filename and filepath
+        //        document.getElementById('selectedFileName_two').textContent = '';
+        //        document.getElementById('selectedFileName_two').style.display = 'none';
+        //        $('#frmFiletwoLocal').attr('value', '');
+        //    }
+        //});
+
+
+        $("#frmFileone").on("load", function () {
+            const url = $(this).attr("src");
+            if (!url) return;
+
+            const fileName = extractFileNameFromIframeSrc(url);
+
+         
+            renderDriveFileUI("#selectedFileName_one", fileName);
+
+          
+            $("#selectedFileNameMKDrive_one").hide();
+
+          
+            $("#attachmentone").val("");
+            selectedfilesComp = []; 
+        });
+
+        $("#frmFiletwo").on("load", function () {
+            const url = $(this).attr("src");
+            if (!url) return;
+
+            const fileName = extractFileNameFromIframeSrc(url);
+
+          
+            renderDriveFileUI("#selectedFileName_two", fileName);
+
+            $("#selectedFileNameMKDrive_two").hide();
+
+            $("#attachmenttwo").val("");
+            selectedfilesComp = [];
+        });
+
+
+
+    });
+
+
+    function showConfirm(title, message) {
+        return new Promise((resolve) => {
+            $("#confirmTitle").text(title || "Confirmation");
+            $("#confirmMessage").text(message || "Are you sure?");
+
+            // remove old handlers
+            $("#confirmYes").off("click");
+            $("#myModalConfirm").off("hidden.bs.modal");
+
+            // confirm clicked
+            $("#confirmYes").on("click", function () {
+                $("#myModalConfirm").modal("hide");
+                resolve(true);
+            });
+
+            // closed without confirm
+            $("#myModalConfirm").on("hidden.bs.modal", function () {
+                resolve(false);
+            });
+
+            // show modal
+            $("#myModalConfirm").modal("show");
+        });
+    }
+
+    function showAlert(title, message) {
+        $("#alertTitle").text(title || "Alert");
+        $("#alertMessage").text(message || "");
+
+        $("#myModalAlertconfirmation").modal("show");
+    }
+
+    async function CompareDocument() {
+        var savecheckbox = false;
+        let checkbox = document.getElementById("check1");
+        if (checkbox.checked) {
+            savecheckbox = true;
+            var expierydate = $('#days').val();
+            if (expierydate == '') {
+                /*alert("Please fill the Expery date")*/
+                showAlert("Validation Error", "Please fill the Expiry date!");
+                return false;
+                closeload();
+            }
+            else {
+                if ($('#name').val() == "") {
+                    showAlert("Validation Error", "Please enter name!");
+                    //alert("Please enter name");
+                    return false;
+                }
+
+                var origin = window.location.origin;
+
+                var path1 = '';
+                var path2 = '';
+
+                //const quotaValueForCompare = localStorage.getItem("quotaValueForCompare");
+                //if (quotaValueForCompare != null && quotaValueForCompare == 0) {
+                //    alert("Your Document Compare limit is 0!")
+                //    return false;
+                //}
+                let src3 = $('#frmFileone').attr("src");  // Base64 or Blob URL
+                let src4 = $('#frmFiletwo').attr("src");
+                const src1 = $('#frmFileoneLocal').attr("value");  // Base64 or Blob URL
+                const src2 = $('#frmFiletwoLocal').attr("value");
+
+                // Convert to Blob
+                var primaryFile = null;
+                var secondaryFile = null;
+                let src3ext = src3.split(".");
+                let src3extName = src3ext[src3ext.length - 1];
+                let src4ext = src4.split(".");
+                let src4extName = src4ext[src4ext.length - 1];
+
+                if ((src3extName.toLowerCase() == "doc" || src3extName.toLowerCase() == "docx")) {
+                    src3 = src3.split("src=")[1];
+
+                }
+                if ((src4extName.toLowerCase() == "doc" || src4extName.toLowerCase() == "docx")) {
+                    src4 = src4.split("src=")[1];
+                }
+
+                if (src3 != '') {
+                    debugger;
+                    console.log("src3", src3);
+                    const [blob1] = await Promise.all([
+                        fetch(src3).then(res => res.blob()),
+                    ]);
+                    let psrc3 = src3.split("/");
+                    let src3Name = psrc3[psrc3.length - 1];
+                    primaryFile = new File([blob1], src3Name);
+                    path1 = $('#frmFileone').attr("src");
+                }
+                if (src4 != '') {
+                    debugger;
+                    console.log("src4", src4);
+                    const [blob2] = await Promise.all([
+                        fetch(src4).then(res => res.blob())
+                    ]);
+                    let psrc4 = src4.split("/");
+                    let src4Name = psrc4[psrc4.length - 1];
+                    secondaryFile = new File([blob2], src4Name);
+                    path2 = $('#frmFiletwo').attr("src");
+                }
+                if ((src1 != '') && (src1 != undefined) && (src1 != null) && (src3 == '')) {
+                    debugger;
+                    primaryFile = $("#attachmentone")[0].files[0];
+                    path1 = $('#frmFileoneLocal').attr("value");
+                }
+                if ((src2 != '') && (src2 != undefined) && (src2 != null) && (src4 == '')) {
+                    debugger;
+                    secondaryFile = $("#attachmenttwo")[0].files[0];
+                    path2 = $('#frmFiletwoLocal').attr("value");
+                }
+                if ((primaryFile == null) || (secondaryFile == null)) {
+                    debugger;
+                    showAlert("Validation Error", "Please attach File!!");
+                    //alert("Please attach File!")
+                    return false;
+                }
+
+                //var kasepath1 = document.querySelector('#frmFileone').files[0];
+
+                //var kasepath2 = document.querySelector('#frmFiletwo').files[0];
+
+
+                if (primaryFile == null) {
+                    /*primaryFile = $("#frmFileone")[0].files[0];*/
+                    primaryFile = kasepath1;
+                }
+                if (secondaryFile == null) {
+                    /*secondaryFile = $("#frmFiletwo")[0].files[0];*/
+                    secondaryFile = kasepath2;
+                }
+
+                const formData = new FormData();
+                formData.append("filepath1", EncodeText(path1));
+                formData.append("filepath2", EncodeText(path2));
+                formData.append("name", EncodeText($('#name').val()));
+                formData.append("day", EncodeText($('#days').val()));
+                formData.append("primary", primaryFile);
+                formData.append("secondary", secondaryFile);
+                formData.append("savecheckbox", savecheckbox);
+
+                //formData.append("primary", blob1, "file1.pdf");
+                //formData.append("secondary", blob2, "file2.pdf");
+                //console.log("blob1", blob1);
+                //console.log("blob2", blob2);
+                openload();
+                var straj = $.ajax({
+                    async: true,
+                    type: "POST",
+                    url: "/Compare/NewCompareDocuments",
+                    /*  url: "/Compare/CompareDocuments",*/
+                    dataType: 'json',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data.Result == '0') {
+                            showAlert("Validation Error", "You Cannot Save the data please exceed you Limit!");
+                            //alert("You Cannot Save the data please exceed you Limit.")
+                            //closeload();
+                            //return false;
+
+                        }
+                        if (data.error && data.error != null) {
+                            showAlert("Validation Error", "please upload correct file!");
+                            //alert("please upload correct file");
+                            closeload();
+                            NewFileCompare();
+                            return false;
+
+                        }
+                        //if (data.Result == 'firstfileblank') {
+                        //    alert("first file is blank");
+                        //    closeload();
+                        //    NewFileCompare();
+                        //    return false;
+                        //}
+                        //if (data.Result == 'firstfileblank') {
+                        //    alert("first file is blank");
+                        //    closeload();
+                        //    NewFileCompare();
+                        //    return false;
+                        //}
+
+                        //
+                        var parsedData = JSON.parse(data);
+
+                        // console.log("parsedData", parsedData);
+                        if (parsedData && parsedData.status === "success") {
+                            if (parsedData.Result == 0) {
+                                showAlert("Validation Error", "You Cannot Save the data please exceed you Limit!");
+                                // alert("You Cannot Save the data please exceed you Limit.")
+                            }
+                            GetComapreResult(parsedData.session_id);
+                            closeload();
+                        }
+                        else {
+                            closeload();
+                        }
+                    },
+                    error: function (data) {
+                        closeload();
+                    }
+                });
+            }
+
+        }
+        else {
+
+            if ($('#name').val() == "") {
+                showAlert("Validation Error", "Please enter name!");
+                return false;
+            }
+
+            var origin = window.location.origin;
+
+            var path1 = $('#frmFileoneLocal').attr("value");
+            var path2 = $('#frmFiletwoLocal').attr("value");
+
+            //const quotaValueForCompare = localStorage.getItem("quotaValueForCompare");
+            //if (quotaValueForCompare != null && quotaValueForCompare == 0) {
+            //    alert("Your Document Compare limit is 0!")
+            //    return false;
+            //}
+            let src3 = $('#frmFileone').attr("src");  // Base64 or Blob URL
+            let src4 = $('#frmFiletwo').attr("src");
+            console.log("mkfile1", src3);
+            console.log("mkfile1", src4);
+            const src1 = $('#frmFileoneLocal').attr("value");  // Base64 or Blob URL
+            const src2 = $('#frmFiletwoLocal').attr("value");
+
+            
+            // Convert to Blob
+            var primaryFile = null;
+            var secondaryFile = null;
+            let src3ext = src3.split(".");
+            let src3extName = src3ext[src3ext.length - 1];
+            let src4ext = src4.split(".");
+            let src4extName = src4ext[src4ext.length - 1];
+
+            if ((src3extName.toLowerCase() == "doc" || src3extName.toLowerCase() == "docx")) {
+                src3 = src3.split("src=")[1];
+
+            }
+            if ((src4extName.toLowerCase() == "doc" || src4extName.toLowerCase() == "docx")) {
+                src4 = src4.split("src=")[1];
+            }
+
+            console.log("MK1", src3);
+            console.log("MK2", src4);
+
+            console.log("local1", src1);
+            console.log("local2", src2);
+            if (src3 != '') {
+                debugger;
+
+                const [blob1] = await Promise.all([
+                    fetch(src3).then(res => res.blob()),
+                ]);
+                let psrc3 = src3.split("/");
+                let src3Name = psrc3[psrc3.length - 1];
+                primaryFile = new File([blob1], src3Name);
+            }
+            if (src4 != '') {
+                debugger;
+                const [blob2] = await Promise.all([
+                    fetch(src4).then(res => res.blob())
+                ]);
+                let psrc4 = src4.split("/");
+                let src4Name = psrc4[psrc4.length - 1];
+                secondaryFile = new File([blob2], src4Name);
+            }
+            if ((src1 != '') && (src1 != undefined) && (src1 != null) && (src3 == '')) {
+                debugger;
+                primaryFile = $("#attachmentone")[0].files[0];
+            }
+            if ((src2 != '') && (src2 != undefined) && (src2 != null) && (src4 == '')) {
+                debugger;
+                secondaryFile = $("#attachmenttwo")[0].files[0];
+            }
+            if ((primaryFile == null) || (secondaryFile == null)) {
+                debugger;
+                alert("Please attach File!")
+                return false;
+            }
+
+            //var kasepath1 = document.querySelector('#frmFileone').files[0];
+
+            //var kasepath2 = document.querySelector('#frmFiletwo').files[0];
+
+
+            if (primaryFile == null) {
+                /*primaryFile = $("#frmFileone")[0].files[0];*/
+                primaryFile = kasepath1;
+            }
+            if (secondaryFile == null) {
+                /*secondaryFile = $("#frmFiletwo")[0].files[0];*/
+                secondaryFile = kasepath2;
+            }
+
+            const formData = new FormData();
+            formData.append("filepath1", EncodeText(path1));
+            formData.append("filepath2", EncodeText(path2));
+            formData.append("name", EncodeText($('#name').val()));
+            formData.append("day", '');
+            formData.append("primary", primaryFile);
+            formData.append("secondary", secondaryFile);
+            //formData.append("primary", blob1, "file1.pdf");
+            //formData.append("secondary", blob2, "file2.pdf");
+            //console.log("blob1", blob1);
+            //console.log("blob2", blob2);
+            openload();
+            var straj = $.ajax({
+                async: true,
+                type: "POST",
+                url: "/Compare/NewCompareDocuments",
+                /*  url: "/Compare/CompareDocuments",*/
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    //if (data.Result == '0') {
+                    //    alert("Your Document Compare limit is 0!")
+                    //    closeload();
+                    //    return false;
+
+                    //}
+                    if (data.error && data.error != null) {
+                        showAlert("Validation Error", "please upload correct file!");
+                        //alert("please upload correct file");
+                        closeload();
+                        NewFileCompare();
+                        return false;
+
+                    }
+                    //if (data.Result == 'firstfileblank') {
+                    //    alert("first file is blank");
+                    //    closeload();
+                    //    NewFileCompare();
+                    //    return false;
+                    //}
+                    //if (data.Result == 'firstfileblank') {
+                    //    alert("first file is blank");
+                    //    closeload();
+                    //    NewFileCompare();
+                    //    return false;
+                    //}
+
+                    //
+                    var parsedData = JSON.parse(data);
+
+                    // console.log("parsedData", parsedData);
+                    if (parsedData && parsedData.status === "success") {
+                        GetComapreResult(parsedData.session_id);
+                        closeload();
+                    }
+                    else {
+                        closeload();
+                    }
+                },
+                error: function (data) {
+                    closeload();
+                }
+            });
+        }
+
+
+        //$.when(straj).then(function (data, textStatus, jqXHR) {
+        //    // RemoveFile();
+        //});
+
+    }
+
+    function GetComapreResult(session_id) {
+        openload();
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/Compare/GetCompareDocumentsResult",
+            dataType: 'json',
+            data: JSON.stringify(session_id),
+            contentType: "application/json; charset=utf-8",
+            processData: false,
+            success: function (parsedData) {
+
+                comparisonData = parsedData;
+                console.log(parsedData)
+                renderComparison(comparisonData);
+                closeload();
+            },
+            error: function () {
+                closeload();
+            }
+        });
+    }
+    let comparisonData = null;
+
+    function renderComparison() {
+        document.getElementById('comparisonContainer').style.display = 'flex';
+
+        renderPageStructure('primary');
+        renderPageStructure('secondary');
+
+        const p1 = waitForImagesToLoad(document.getElementById('primaryContent'));
+        const p2 = waitForImagesToLoad(document.getElementById('secondaryContent'));
+
+        Promise.all([p1, p2]).then(() => {
+            drawAllWordBoxes();
+        }).catch(err => {
+            console.error("Error loading document images:", err);
+            resetApp();
+            showError("A problem occurred rendering the documents. Please try again.");
+        });
+    }
+
+    function renderPageStructure(side) {
+        const container = document.getElementById(`${side}Content`);
+        container.innerHTML = '';
+        const images = comparisonData[`${side}_images`] || [];
+        images.forEach((src, i) => {
+            const page = document.createElement('div');
+            page.className = 'document-page';
+            page.dataset.page = i;
+            const img = document.createElement('img');
+            img.src = src;
+            page.appendChild(img);
+            container.appendChild(page);
+        });
+    }
+
+    function waitForImagesToLoad(container) {
+        const images = Array.from(container.getElementsByTagName('img'));
+        const promises = images.map(img =>
+            new Promise((resolve, reject) => {
+                if (img.complete && img.naturalHeight !== 0) resolve();
+                else {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                }
+            })
+        );
+        return Promise.all(promises);
+    }
+
+    function drawAllWordBoxes() {
+        if (!comparisonData) return;
+        drawWordBoxesForSide('primary');
+        drawWordBoxesForSide('secondary');
+    }
+    function drawWordBoxesForSide(side) {
+        const container = document.getElementById(`${side}Content`);
+        container.querySelectorAll('.highlight-box').forEach(box => box.remove());
+
+        // Ensure word_map works both ways
+        if (comparisonData && comparisonData.word_map) {
+            for (const [key, value] of Object.entries(comparisonData.word_map)) {
+                if (value && !comparisonData.word_map[value]) {
+                    comparisonData.word_map[value] = key;
+                }
+            }
+        }
+        const wordsByPage = (comparisonData[`${side}_words`] || []).reduce((acc, w) => {
+            (acc[w.page] = acc[w.page] || []).push(w);
+            return acc;
+        }, {});
+        for (const pageIndex in wordsByPage) {
+            const page = container.querySelector(`.document-page[data-page="${pageIndex}"]`);
+            if (!page) continue;
+
+            const img = page.querySelector('img');
+            if (!img || img.naturalWidth === 0) continue;
+
+            const scale = img.width / img.naturalWidth;
+
+            wordsByPage[pageIndex].forEach(w => {
+                const [x0, y0, x1, y1] = w.bbox;
+                const box = document.createElement('div');
+
+                const hasMatch = !!comparisonData.word_map[w.id];
+
+                // Add base highlight class depending on match state
+                if (!hasMatch) {
+                    box.className = `highlight-box unmatched-${side}`;
+                } else {
+                    box.className = `highlight-box state-${w.state}`;
+                }
+
+                box.dataset.id = w.id;
+                box.style.left = `${x0 * scale}px`;
+                box.style.top = `${y0 * scale}px`;
+                box.style.width = `${(x1 - x0) * scale}px`;
+                box.style.height = `${(y1 - y0) * scale}px`;
+
+                // Attach click handler for matched words only
+                if (hasMatch) {
+                    box.addEventListener('click', handleWordClick);
+                }
+
+                page.appendChild(box);
+            });
+        }
+    }
+
+    function handleWordClick(event) {
+        const clickedBox = event.target.closest('.highlight-box');
+        if (!clickedBox || !comparisonData) return;
+
+        // Clear previous highlights and animations
+        document.querySelectorAll('.clicked, .clicked-target').forEach(el => {
+            el.classList.remove('clicked', 'clicked-target');
+        });
+
+        const clickedId = clickedBox.dataset.id;
+        const mappedId = comparisonData.word_map[clickedId];
+
+        // Highlight the box that was clicked
+        clickedBox.classList.add('clicked');
+
+        // If a corresponding word exists in the other document...
+        if (mappedId) {
+            const targetBox = document.querySelector(`.highlight-box[data-id="${mappedId}"]`);
+            if (targetBox) {
+                // Highlight the target box as well
+                targetBox.classList.add('clicked');
+
+                // Add the animation class to make it "pulse"
+                targetBox.classList.add('clicked-target');
+
+                // Scroll the target into view
+                targetBox.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
+                // Remove the animation class after it finishes so it can be re-triggered
+                setTimeout(() => {
+                    targetBox.classList.remove('clicked-target');
+                }, 1000); // Must match the animation duration in CSS
+            }
+        }
+    }
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (document.getElementById('comparisonContainer').style.display === 'flex') {
+                drawAllWordBoxes();
+            }
+        }, 150);
+    });
+
+
+
+
+
+
+
+
+
+
+
+    function RemoveFile() {
+        var formData = new FormData();
+        formData.append("filepath1", EncodeText(file1));
+        formData.append("filepath2", EncodeText(file2));
+        $.ajax({
+            async: true,
+            url: '/Compare/RemoveBrowseDocumentfile',
+            data: formData,
+            contentType: false,
+            processData: false,
+            type: 'POST',
+            success: function (response) {
+                if (response.Status == true) {
+                    // var datas = JSON.stringify(response);
+                }
+                else {
+                    //closeload();
+                    //alert("not found");
+                }
+            },
+            error: function () {
+                // closeload();
+                alert('Error!');
+            }
+        });
+    }
+    function NewFileCompare() {
+        //$('#frm1').show();
+        //$('#frm2').show();
+        //document.getElementById("frmFileoneLocal").value = "";
+        //document.getElementById("frmFiletwoLocal").value = "";
+
+        $('#frmFileoneLocal').attr('value', '');
+        $('#frmFiletwoLocal').attr('value', '');
+
+        $('#frmFileoneLocal').replaceWith($('#frmFileoneLocal').clone());
+        $('#frmFiletwoLocal').replaceWith($('#frmFiletwoLocal').clone());
+
+        $('#frm1').hide();
+        $('#frm2').hide();
+        $('#frm3').hide();
+        $('#frmFileone').attr('src', "");
+        $('#frmFiletwo').attr('src', "");
+        $('#frmFileoneLocal').val('');
+        $('#frmFiletwoLocal').val('');
+        $('#name,#days').val("");
+        $("#attachmentone").val('');
+        $("#attachmenttwo").val('');
+        $('#comparisonContainer').hide();
+
+        document.getElementById('attachmentone').value = '';
+        document.getElementById('attachmenttwo').value = '';
+        /*   $('#compExpierydate').hide();*/
+
+        // Reset file names
+        document.getElementById('selectedFileName_one').textContent = '';
+        document.getElementById('selectedFileName_one').style.display = 'none';
+        document.getElementById('selectedFileName_two').textContent = '';
+        document.getElementById('selectedFileName_two').style.display = 'none';
+
+        document.getElementById('selectedFileNameMKDrive_one').textContent = '';
+        document.getElementById('selectedFileNameMKDrive_one').style.display = 'none';
+        document.getElementById('selectedFileNameMKDrive_two').textContent = '';
+        document.getElementById('selectedFileNameMKDrive_two').style.display = 'none';
+    }
+    function openload() {
+        $('#myOverlay').css("display", "block");
+    }
+    function closeload() {
+        $('#myOverlay').css("display", "none");
+    }
+
+
+
+
+
+    
+    $(document).on('click', '.remove-file-mk', function () {
+        const index = $(this).data('index');
+        const fileIdRemove = $(this).attr('fileid');
+
+        selectedMKFiles.splice(index, 1);
+        console.log("selectedMKFiles", selectedMKFiles);
+
+        // re-render (same function)
+        fileValidationMK(selectedMKFiles, fileIdRemove);
+    });
+
+
+    function fileValidation(input, fileId) {
+        selectedfilesComp = [];
+        var fileCount = input.files.length;
+        if (fileCount > 0) {
+            $("#taskattachtitle").attr("title", "Document Attached");
+        }
+        else {
+            $("#taskattachtitle").attr("title", "upload Attachment");
+        }
+
+        const files = input.files;
+        selectedfilesComp = [...selectedfilesComp, ...files];
+        displayFiles(fileId);
+        this.value = '';
+        //const file = input.files[0];
+        //const idSuffix = input.id === "attachmentone" ? "_one" : "_two";
+        //const idSuffixMyKaseDrive = input.id === "browsefilecompareattachone" ? "_one" : "_two";
+        //if (idSuffix == '_one') {
+        //    $('#frmFileone').attr('src', "");
+        //    document.getElementById('selectedFileNameMKDrive_one').textContent = '';
+        //    document.getElementById('selectedFileNameMKDrive_one').style.display = 'none';
+        //}
+        //if (idSuffix == '_two') {
+        //    $('#frmFiletwo').attr('src', "");
+        //    document.getElementById('selectedFileNameMKDrive_two').textContent = '';
+        //    document.getElementById('selectedFileNameMKDrive_two').style.display = 'none';
+        //}
+        //console.log("id1", $('#browsefilecompareattachone').val());
+        //console.log("id2", idSuffixMyKaseDrive);
+
+        //const uploadIconContainer = document.getElementById(
+        //    'uploadIconContainer' + (idSuffix ? idSuffix : idSuffixMyKaseDrive)
+        //);
+        //const fileNameDisplay = document.getElementById(
+        //    'selectedFileName' + (idSuffix ? idSuffix : idSuffixMyKaseDrive)
+        //);
+
+
+
+
+
+        //if (file) {
+        //    // ✅ Check file size (5 MB limit)
+        //    //if (file.size > 5 * 1024 * 1024) {
+        //    //    alert("File size must not exceed 5 MB.");
+        //    //    //input.value = ""; // clear file input
+        //    //    fileNameDisplay.style.display = 'none';
+        //    //    uploadIconContainer.innerHTML = `<img id="uploadIcon" src="/newassets/img/upload-cloud.svg">`;
+        //    //    return false;
+        //    //}
+
+        //    uploadIconContainer.innerHTML = `<img id="uploadIcon" src="/newassets/img/upload-cloud.svg">`;
+        //    fileNameDisplay.textContent = file.name;
+        //    fileNameDisplay.style.display = 'block';
+        //} else {
+        //    uploadIconContainer.innerHTML = `<img id="uploadIcon" src="/newassets/img/upload-cloud.svg">`;
+        //    fileNameDisplay.style.display = 'none';
+        //}
+    }
+
+
+    function fileValidationMK(filesFromMK, fileId) {
+
+        selectedMKFiles = filesFromMK;
+
+
+        const fileList = $(fileId);
+        fileList.empty();
+        console.log("fileList", fileList);
+
+        selectedMKFiles.slice(0, 5).forEach((f, index) => {
+            const fileItem = $(`
+  <div class="file-item">
+    <span class="file-name">${f.name}</span>
+    <span class="remove-file-mk" data-index="${index}" fileid="${fileId}"
+          style="cursor:pointer;color:red;margin-left:10px;">✖</span>
+  </div>
+`);
+            fileList.append(fileItem);
+        });
+
+        updateMKaseHidden(fileId);
+    }
+
+    $(document).on('click', '.remove-file', function () {
+        const index = $(this).data('index');
+        const fileIdRemove = $(this).attr('fileid');
+        
+        // this is div id like "#selectedFileName_one"
+        selectedfilesComp.splice(index, 1);
+        console.log("fileIdRemove", fileIdRemove);
+        displayFiles(fileIdRemove); // re-render and update input
+    });
+
+    function displayFiles(fileId) {
+        const fileList = $(fileId);
+        fileList.empty();
+
+        selectedfilesComp.slice(0, 5).forEach((file, index) => {
+            const fileItem = $(`
+      <div class="file-item">
+        <span class="file-name">${file.name}</span>
+        <span class="remove-file" data-index="${index}" fileid="${fileId}"
+              style="cursor:pointer;color:red;margin-left:10px;">✖</span>
+      </div>
+    `);
+            fileList.append(fileItem);
+        });
+
+        updateFileInputs(fileId);
+        console.log("last", fileList);
+    }
+
+
+    function updateMKaseHidden(fileId) {
+        let divId = fileId;
+        if (divId.startsWith('#')) divId = divId.substring(1);
+
+        let hiddenId = '';
+        if (divId === 'selectedFileName_one') {
+            $('#frmFileoneLocal').attr("");
+            $('#frmFileoneLocal').val("");
+            hiddenId = 'selectedMKIds_one';
+        } 
+        if (divId === 'selectedFileName_two') {
+            hiddenId = 'selectedMKIds_two';
+            $('#frmFiletwoLocal').attr("");
+            $('#frmFiletwoLocal').val("");
+        }
+        console.log("divId", divId);
+        if (!hiddenId) return;
+
+        document.getElementById(hiddenId).value = selectedMKFiles.map(x => x.id).join(',');
+    }
+
+    
+
+
+
+
+
+    //$(document).on('click', '#browsefilecompareattachone', function (e) {
+    //    e.preventDefault(); // stops triggering attachmentone input
+    //});
+
+    // ✅ Extract correct filename even if iframe src is office viewer (src=...)
+    function extractFileNameFromIframeSrc(url) {
+        if (!url) return "";
+
+        // Office viewer case: ...view.aspx?src=ENCODED_URL
+        if (url.toLowerCase().includes("src=")) {
+            try {
+                const srcPart = url.split("src=")[1];
+                const decoded = decodeURIComponent(srcPart);
+                return decoded.split("/").pop().split("?")[0];
+            } catch (e) { }
+        }
+
+        // Normal case
+        return url.split("/").pop().split("?")[0];
+    }
+
+    // ✅ Render "same as local" UI in the SAME div (#selectedFileName_one / #selectedFileName_two)
+    function renderDriveFileUI(targetDiv, fileName) {
+        const $box = $(targetDiv);
+        $box.empty();
+        console.log("$box", $box);
+        if (!fileName) return;
+
+        $box.append(`
+        <div class="file-item">
+            <span class="file-name">${fileName}</span>
+            <span class="remove-drive-file" data-target="${targetDiv}"
+                  style="cursor:pointer;color:red;margin-left:10px;">✖</span>
+        </div>
+    `);
+    }
+
+    // ✅ When user removes drive file, clear iframe + hidden + UI
+    $(document).on("click", ".remove-drive-file", function () {
+        const targetDiv = $(this).data("target");
+
+        if (targetDiv === "#selectedFileName_one") {
+            $("#frmFileone").attr("src", "");
+            //$("#frmFileoneLocal").attr("value", "");
+            $("#selectedMKIds_one").val("");   // if you use it
+            //$("#attachmentone").val("");       // clear local input too
+            $(targetDiv).empty();
+            $('#frmFileone').attr(""); 
+        }
+
+        if (targetDiv === "#selectedFileName_two") {
+            $("#frmFiletwo").attr("src", "");
+           // $("#frmFiletwoLocal").attr("value", "");
+            $("#selectedMKIds_two").val("");   // if you use it
+            //$("#attachmenttwo").val("");
+            $(targetDiv).empty(); // Base64 or Blob URL
+            $('#frmFiletwo').attr("");
+        }
+    });
+
+    function updateFileInputs(fileId) {
+        console.log("inside func", fileId);
+
+        let inputId = fileId;
+        console.log("inputId", inputId);
+
+        if (inputId.startsWith('#')) inputId = inputId.substring(1);
+
+        // ✅ mapping: div -> input (ONLY change needed for MyKase and Local to behave same)
+        if (inputId === 'selectedFileName_one') inputId = 'attachmentone';
+        if (inputId === 'selectedFileName_two') inputId = 'attachmenttwo';
+        console.log("inputId", inputId);
+        const inputEl = document.getElementById(inputId);
+        if (!inputEl) return;
+        console.log("inputEl", inputEl);
+
+        const dt = new DataTransfer();
+        selectedfilesComp.forEach(file => dt.items.add(file));
+        console.log("selectedfilesComp", selectedfilesComp);
+
+        inputEl.files = dt.files;
+    }
+
+</script>
+
+<section id="header" class="compareDoc">
+    <div class="container-main">
+        <div class="text-left">
+            <h2 class="ctitle" id="dynamiciprheader" style="margin-top: 0px; margin-bottom: 20px;">Compare Documents</h2>
+        </div>
+    </div>
+</section>
+<section id="nav" style="border-bottom: 1px solid #E9EAEB; overflow: hidden;">
+    <div class="container-main">
+        <ul class="snav">
+            <li class="active"><a href="/@firmcode/Compare/CompareNewDoc" title="Compare Documents" id="comparenow">Compare Documents</a></li>
+            <li class=""><a href="/@firmcode/Compare/CompareDocList" class="tabstyle">History</a></li>
+        </ul>
+    </div>
+</section>
+
+<section class="compareDoc">
+    <div class="container-main">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Primary File</h5>
+                <div class="compare_screen">
+
+                    <div class="uploadSizes">
+                        <div class="dragUpload" style="border:none;">
+                            <div class="upload-icon" id="uploadIconContainer_one">
+                                <img id="uploadIcon" src="/newassets/img/upload-cloud.svg">
+                            </div>
+                            <p class="upload-text">Choose primary file</p>
+                            <p class="upload-subtext">PDF, DOC , DOCX (max. 5mb)</p>
+                            @*<p id="selectedFileName_one" style="display:none; font-size:13px; color:#333; margin-top:5px;"></p>*@
+                            <p id="selectedFileNameMKDrive_one" style="display:none; font-size:13px; color:#333; margin-top:5px;"></p>
+                            <div class="upload-buttons" style="padding-top:7px;">
+                                <label for="attachmentone" class="upload-btn">Local Drive</label>
+                                <label @*for="attachmentone"*@ title="No file chosen" class="upload-btn browsetaskfile browsetaskfile1" id="browsefilecompareattachone" module="compareattachone">
+                                    MyKase Drive
+                                </label>
+                                <input type="hidden" id="selectedMKIds_one" name="selectedMKIds_one" value="" />
+                                <input type="file" id="attachmentone" class="postedFile" accept=".pdf,.doc,.docx" onchange="fileValidation(this,'#selectedFileName_one')" style="display:none;">
+                            </div>
+                            <div id="selectedFileName_one" style="margin-top:10px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bd_container" id="frm1" style="display:none;">
+                    <div class="bd_docpanel">
+                        <iframe src="" frameborder="0" width="100%" height="100%" id="frmFileone"></iframe>
+                        @*<div src="" frameborder="0" width="100%" height="100%" id="frmFileone"></div>*@
+                        <input type="file" id="frmFileoneLocal" accept=".pdf,.doc,.docx" hidden />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h5>Secondary File</h5>
+                <div class="compare_screen">
+
+                    <div class="uploadSizes">
+                        <div class="dragUpload" style="border:none;">
+                            <div class="upload-icon" id="uploadIconContainer_two">
+                                <img id="uploadIcon" src="/newassets/img/upload-cloud.svg">
+                            </div>
+                            <p class="upload-text">Choose secondary file</p>
+                            <p class="upload-subtext">PDF, DOC , DOCX (max. 5mb)</p>
+                            @*<p id="selectedFileName_two" style="display:none; font-size:13px; color:#333; margin-top:5px;"></p>*@
+                            <p id="selectedFileNameMKDrive_two" style="display:none; font-size:13px; color:#333; margin-top:5px;"></p>
+                            <div class="upload-buttons" style="padding-top:7px;">
+                                <label for="attachmenttwo" class="upload-btn">Local Drive</label>
+
+                                <label title="No file chosen" class="upload-btn browsetaskfile browsetaskfile1" id="browsefilecompareattachtwo" module="compareattachtwo">
+                                    MyKase Drive
+                                </label>
+                                <input type="hidden" id="selectedMKIds_one" name="selectedMKIds_one" value="" />
+                                <input type="file" id="attachmenttwo" class="postedFile" accept=".pdf,.doc,.docx" onchange="fileValidation(this,'#selectedFileName_two')" style="display:none;">
+                            </div>
+                            <div id="selectedFileName_two" style="margin-top:10px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bd_container" id="frm2" style="display:none;">
+                    <div class="bd_docpanel">
+                        <iframe src="" frameborder="0" width="100%" height="100%" id="frmFiletwo"></iframe>
+                        @*<div src="" frameborder="0" width="100%" height="100%" id="frmFiletwo"></div>*@
+                        <input type="file" id="frmFiletwoLocal" accept=".pdf,.doc,.docx" hidden />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="comparedoc" style="margin: 20px 0 0;">
+            <div class="container-main">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="myfile">File name <span aria-required="true" class="required"><b>*</b> </span> </label>
+                            <input class="form-control inputFormat" type="text" id="name" name="name" placeholder="Add File to History">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group" id="compExpierydate">
+                            <label for="myfile">Expiry Date</label>
+                            <input type="date" id="days" class="form-control inputFormat" onkeydown="return false" min="2021-07-12" placeholder="DD/MM/YY">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label style="margin-top: 35px;">
+                                <input type="checkbox" id="check1" name="check1">
+                                Save
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="myModalConfirm" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" style="width:400px;">
+                    <div class="modal-content">
+                        <div class="modal-header btn-primary">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" id="confirmTitle">Confirmation</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p id="confirmMessage">Are you sure?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" id="confirmYes">Yes</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="myModalAlertconfirmation" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+                <div class="modal-dialog" style="width:480px;">
+                    <div class="modal-content">
+                        <div class="modal-header btn-success">
+                            <button type="button" class="close" data-dismiss="modal">×</button>
+                            <h4 class="modal-title">
+                                <img src="/newassets/img/icon1.png" style="margin:-10px 0px 0 -12px">
+                            </h4>
+                        </div>
+                        <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                            <h4 id="alertTitle">Message</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p id="alertMessage" style="padding: 0 0 18px 0;"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </section>
+
+        <div class="button_div pull-right">
+            <button type="button" title="Reset the Documents" id="btnNewCompare" class="btn btn-primary" onclick="NewFileCompare()">
+                Reset
+            </button>
+            <button type="button" id="btncompare" class="btn btn-primary" title="Compare Documents" onclick="CompareDocument()">
+                Compare Document
+            </button>
+
+        </div>
+        @*<div class="mainConvert_view" id="frm3" style="display: none; border: 1px solid #E9EAEB; clear: both; border-radius: 12px; padding: 5px 0; ">
+                <iframe src="" frameborder="0" width="100%" height="100%" id="frmcompare"></iframe>
+            </div>*@
+
+        <div class="comparison-container" id="comparisonContainer">
+            <div class="comparison-header" style="background: #fafafa; box-shadow: none;margin-top:0px">
+                <div class="row mb-2" style="font-size: 18px; margin-bottom: 10px;">
+                    <div class="col-md-12 text-center">
+                        <strong>Comparison View</strong>
+                    </div>
+                </div>
+                <div>
+                    <div class="row" style="width: 100%; font-size: 16px; border-top: 1px solid gray; margin: 0; padding: 3px;">
+                        <div class="col-md-6" style="display: flex;justify-content: center;">Primary</div>
+                        <div class="col-md-6" style="display: flex;justify-content: center;">Secondary</div>
+                    </div>
+                </div>
+
+                @*<button onclick="resetApp()">← Back</button>*@
+                @*<h2>Comparison View</h2>*@
+
+            </div>
+            <div class="comparison-body" id="comparisonBody">
+                <div class="document-panel">
+                    @*<div class="document-header">Primary</div>*@
+                    <div class="document-content" id="primaryContent"></div>
+                </div>
+                <div class="document-panel">
+                    @*<div class="document-header">Secondary</div>*@
+                    <div class="document-content" id="secondaryContent"></div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</section>
+
+
+
+
+
+
+<div id="myModalCustomizedcolumn" class="modal right fade myModal in" role="dialog" data-backdrop="static" aria-hidden="false">
+    <div class="modal-dialog" style="width:400px; height: 100vh; padding:2px 0;">
+        <!-- Modal content-->
+        <div class="modal-content">
+
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <div class="modaltitle">
+                    <h4><img src="/newassets/img/customize-icon.png"> Customise Field</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 mt-10" style="overflow-y:scroll; max-height:750px;">
+
+                        <ul id="EColli">
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDate" checked><a href="#" class="dropdown-item">Date</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="vCompName" checked><a href="#" class="dropdown-item">Compared File Name</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="vFCompURL" checked> <a href="#" class="dropdown-item">Status</a></li>
+                            <li><input type="checkbox" class="shcheckbox1 chkdhide" name="dexpiryDate" checked><a href="#" class="dropdown-item">Expiry Date</a></li>
+                        </ul>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+
+    .comparison-container {
+        display: none;
+        width: 100%;
+        height: 100vh;
+        flex-direction: column;
+    }
+
+    .comparison-header {
+        background: #eceff1;
+        color: rgb(0, 0, 0);
+        padding: 0px 6px;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: #37474f 2px 2px 7px 1px;
+    }
+
+    .comparison-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        margin: 10px 0px;
+    }
+
+    .document-panel {
+        flex: 1;
+        overflow-y: auto;
+        border-right: 2px solid #ddd;
+        background: #fafafa;
+    }
+
+        .document-panel:last-child {
+            border-right: none;
+        }
+
+    .document-header {
+        text-align: center;
+        background: #eceff1;
+        padding: 10px;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .document-content {
+        padding: 20px;
+    }
+
+    .document-page {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+        .document-page img {
+            width: 100%;
+            border: 1px solid #bbb;
+            background: white;
+        }
+
+    .highlight-box {
+        position: absolute;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: border-color 0.1s, background-color 0.1s;
+    }
+
+        .highlight-box.state-equal:hover {
+            background-color: rgba(41, 121, 255, 0.1);
+        }
+
+    .state-deleted {
+        background-color: var(--deleted-bg);
+    }
+
+    .state-inserted {
+        background-color: var(--inserted-bg);
+    }
+
+    .clicked {
+        border: 2px solid var(--clicked-border) !important;
+        background-color: rgba(41, 121, 255, 0.2) !important;
+        z-index: 5;
+    }
+
+    .clicked-target {
+        animation: pulse 1s;
+    }
+
+    @@keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(41, 121, 255, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 10px 15px rgba(41, 121, 255, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(41, 121, 255, 0);
+        }
+    }
+
+    .highlight-box.unmatched-primary {
+        background-color: rgba(255, 182, 193, 0.4); /* lightgreen with transparency */
+    }
+    /* Unmatched secondary = light red */
+    .highlight-box.unmatched-secondary {
+        background-color: rgba(144, 238, 144, 0.4);
+        /* lightpink with transparency */
+    }
+</style>

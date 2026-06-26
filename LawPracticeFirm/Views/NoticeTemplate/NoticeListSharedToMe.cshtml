@@ -1,0 +1,208 @@
+﻿@{
+    /**/
+    var role = Session["sessionroleid"];
+    var userid = Session["sessionuserid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else if (role.ToString() == "3")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+<script>
+      var userid = "@userid";
+    var roleid = "@role";
+    var NoticeId="@ViewBag.NoticeId";
+</script>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>
+    <section class="wrapper">
+        <div class="container-main">
+            <h2 class="title">Notice List</h2>
+            <div>
+                <div class="row" style="margin-bottom:10px;">
+                    <div class="col-md-6">
+                        <input class="inputbg" type="text" id="myInput" onkeyup="changePage(1)" placeholder="Search" title="Type in a name">
+                    </div>
+                    <div class="col-md-2"></div>
+                    <div class="col-md-4">
+                        <label>Incomplete</label> <input type="radio" value="Incomplete" checked name="statustype" class="notistatustype" />
+                        <label class="pipesapcls">|</label>
+                        <label>Complete</label> <input type="radio" value="Complete" name="statustype" class="notistatustype" />
+                        <label class="pipesapcls">|</label>
+                        @if (role.ToString() == "1" || role.ToString() == "2")
+                        {
+                            <button type="button" value="Send Multiple" class="sbtbtn" onclick="assignmodal()">Send Multiple</button>
+                        }
+                    </div>
+                </div>
+                <div class="table-panel table-responsive" style="padding:10px 0 0 0; overflow-x:auto;" data-example-id="hoverable-table">
+                    <div style="overflow-x:scroll;" id="bulknoticelistdiv">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+<div class="modal fade" id="AssignModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Send For Approval</h3>
+            </div>
+            <div class="modal-body" style="height:150px;">
+                <div class="ec_bg">
+                    <div>
+                        <label>Send to manager</label>
+                        <input type="radio" name="assignee" value="manager" class="assignto" />
+                        <label>Send to client</label>
+                        <input type="radio" name="assignee" value="client" class="assignto" />
+                    </div>
+                    <div>
+                        <select id="bindusr" class="form-control selctInputFormat" style="background-color: white !important"></select>
+                    </div>
+                    <br />
+                    <button type="button" id="assignnoticebtn" class="sbtbtn  pull-right" value="Send">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ViewLogModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice Logs</h3>
+            </div>
+            <div class="modal-body">
+                <table class="table ">
+                    <thead>
+                        <tr>
+                            <th><div class="thbg">Sender Name</div></th>
+                            <th><div class="thbg">Receiver Name</div></th>
+                            <th><div class="thbg">Notice Sent On</div></th>
+                            <th><div class="thbg">Status</div></th>
+                            <th><div class="thbg">Feedback</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="modlbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ReceivedReplyModal" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Add Received Reply</h3>
+            </div>
+            <div class="modal-body" style="height:200px;">
+                <form class="ec_bg">
+                    <input type="hidden" value="" id="hiddenreplynoticeid" />
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <span style="color:red">*</span><label>Reply Received Date</label>
+                            <input type="date" class="form-control inputFormat" id="txtreplyreciveddate" />
+                        </div>
+                        <div class="col-md-6">
+                            <span style="color:red">*</span><label>Reply Received Through</label>
+                            <textarea class="form-control inputFormatTextArea" id="txtreplyrecivedthrough"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <span style="color:red">*</span><label>Received Attachment</label>
+                            <input type="file" class="form-control inputFormat" id="replypostedFile" multiple />
+                        </div>
+                        <div class="col-md-6">
+                            <span style="color:red">*</span><label>Set reply date</label>
+                            <input type="date" class="form-control inputFormat" id="txtsetreplydate" />
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="margin-top:10px;">
+                        <button type="button" id="savereplytonotice" class="sbtbtn pull-right">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myDocumentModal" class="modal fade myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ActualclosurModal" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Closure</h3>
+            </div>
+            <div class="modal-body" style="height:135px;">
+                <form class="ec_bg" enctype="multipart/form-data" novalidate="novalidate">
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <span style="color:red">*</span><label>Close Date</label>
+                            <input type="date" class="form-control inputFormat" id="dateofclosure" />
+                        </div>
+                        <div class="col-md-6">
+                            <span style="color:red">*</span><label>Notice Status</label>
+                            <select id="ddlnoticestatus" class="form-control selctInputFormat" style="background-color: white !important">
+                                <option value="Settled">Settled</option>
+                                <option value="Convert to case">Convert to case</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12" style="margin-top:10px;">
+                            <button type="button" id="saveclosuedate" class="sbtbtn pull-right">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="NoticeStatusModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Notice Status</h3>
+            </div>
+            <div class="ec_bg" style="height:200px;">
+                <div class="col-lg-12">
+                    <label>Status :</label>
+                    <select class="form-control" id="notistatus">
+                        <option value="Approve">Approve</option>
+                        <option value="Reject">Reject</option>
+                    </select>
+                </div>
+                <div class="col-lg-12">
+                    <label>Feedback :</label><span style="color:red">*</span>
+                    <textarea class="form-control inputFormatTextArea" id="feedbacktext"></textarea>
+                </div>
+                <br />
+                <div class="col-lg-12" style="padding-top: 10px;">
+                    <button type="button" id="statusnoticebtn" class="sbtbtn" style="background-color:#007bff" value="Save">save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Notice/NoticeListSharedToMe.js?1.7"></script>

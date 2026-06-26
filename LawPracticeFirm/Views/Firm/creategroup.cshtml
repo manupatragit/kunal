@@ -1,0 +1,358 @@
+﻿@{
+    ViewBag.Title = "InvoiceSetting";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+}
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<link href="~/Manupanel/validation/screen.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<script src="~/Content/multipleselect/selectize.js"></script>
+<script src="~/Content/multipleselect/index.js"></script>
+<link href="~/Content/multipleselect/dist/css/selectize.bootstrap2.css" rel="stylesheet" />
+<link href="~/Content/multipleselect/dist/css/jquery.magicsearch.min.css" rel="stylesheet" />
+<script src="~/Scripts/Firm/Pages/CreateGroup.js"></script>
+<style>
+    .selectize-input {
+        border: none !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+        -webkit-border-radius: unset !important;
+        -moz-border-radius: unset !important;
+        border-radius: unset !important;
+        border-bottom: 1px solid #ccc !important;
+    }
+
+    .selectize-input {
+        width: 105%;
+    }
+
+    .selectize-dropdown {
+        position: relative;
+        top: 0 !important;
+    }
+
+    .selectize-control {
+        margin: 0 0 0 0;
+    }
+
+    .selectize-input {
+        width: 102%;
+    }
+</style>
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+<!-- Main content -->
+<section class="wrapper">
+    <div class="container">
+        <div class="row">
+            <h2 class="title"> Message Group</h2>
+            <section class="content">
+                <div class="col-lg-12">
+                    <div id="exTab1">
+                        <ul class="nav nav-pills">
+                            <li class="active">
+                                <a href="#4a1" data-toggle="tab">Create Group</a>
+                            </li>
+                            <li>
+                                <a href="#3a1" data-toggle="tab">Group List</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content clearfix">
+                            <div class="tab-pane active" id="4a1">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <fieldset>
+                                            <form id="savemessageform" enctype="multipart/form-data">
+                                                <div class="form-group form-horizontal">
+                                                    <label class="control-label col-xs-3">Group Name: <span class="required" aria-required="true">*</span></label>
+                                                    <div class="col-xs-8" style="padding: 0 0 7px 7px;">
+                                                        <input class="form-control form-control-sm" name="subject" type="text" id="groupname" placeholder="Group Name" required />
+                                                    </div>
+                                                </div>
+                                                <div class=" form-horizontal" style="width:100%;display:block">
+                                                    <label class="control-label col-xs-3" style="margin:0 0 0 -10px;">Select Users: <span class="required" aria-required="true">*</span> </label>
+                                                    <div class="col-xs-8">
+                                                        @Html.DropDownList("select-user", new SelectList(ViewBag.Fruits, "val", "label"), "Please select", new { @id = "select-user", @class = "demodefault ", @multiple = "multiple" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group form-horizontal" style="clear:both">
+                                                    <label class="control-label col-xs-3"></label>
+                                                    <div class="col-xs-8" style="padding: 0 0 0 7px;">
+                                                        <button type="submit" id="" class="sbtbtn" style=" margin:10px 0 0 0;" value="Save">Save</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane " id="3a1">
+                                <div class="row">
+                                    <div>
+                                        <div class="form-group form-horizontal" style="overflow-x:auto">
+                                            <div class="box">
+                                                <div class="box-header" style="padding:5px;">
+                                                    <ul class="btn_panel no-margin pull-right" style="padding:0;" id="sectiontemp">
+                                                        <li>
+                                                            <select class="form-control pull-left" name="state" id="maxRows" style="width:143px !important">
+                                                                <option value="5000">Show All Rows</option>
+                                                                <option value="10">10</option>
+                                                                <option value="15" selected>15</option>
+                                                                <option value="20">20</option>
+                                                                <option value="50">50</option>
+                                                                <option value="70">70</option>
+                                                                <option value="100">100</option>
+                                                            </select>
+                                                        </li>
+                                                        <li>
+                                                            <btn class="sbtbtn" onclick="tableToExcelnew('ocrlist', 'Message Group List')" title="Export to Excel"><span class="glyphicon glyphicon-save"></span> Excel</btn>
+                                                        </li>
+                                                        <li>
+                                                            <p style="float:left;padding:1px 1px 0 0">Search :</p>
+                                                        </li>
+                                                        <li>
+                                                            <input type="text" placeholder="Search.." id="searchdata" class="form-control" style="width:150px !important">
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="table-panel table-responsive" style="margin-top:30px;">
+                                                <table id="ocrlist" border="1px solid" class="dataTable table table-bordered table-striped" style="overflow-x:auto">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="70px;">Sl. No.</th>
+                                                            <th onclick="sortTable(1)" style="cursor:pointer" width="200px;">Group Name&nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                                            <th onclick="sortTable(2)" style="cursor:pointer" width="100px;">Group Users&nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                                            <th onclick="sortTable(3)" style="cursor:pointer" width="140px;">Created Date &nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                                            <th onclick="sortTable(4)" style="cursor:pointer" width="140px;">Created By &nbsp;&nbsp;&nbsp;<span class="fa fa-sort pull-right"></span></th>
+                                                            <th width="150px;">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="assignuserdata"></tbody>
+                                                </table>
+                                            </div>
+                                            <div><center><span id="datastatus"></span></center></div>
+                                            <div class="box-footer clearfix">
+                                                <ul class="pagination pagination-sm no-margin pull-right"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.row (nested) -->
+                </div>
+                <!-- /.content -->
+        </div>
+</section>
+        </div>
+    </div>
+</section>
+<div id="myModal5" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels5" id="mymodels5">
+        </div>
+    </div>
+</div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#searchdata").on("keyup", function () {
+            var value = $("#searchdata").val().toLowerCase();
+            $("#ocrlist tbody tr ").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
+<script>
+    /*					PAGINATION
+    - on change max rows select options fade out all rows gt option value mx = 5
+    - append pagination list as per numbers of rows / max rows option (20row/5= 4pages )
+    - each pagination li on click -> fade out all tr gt max rows * li num and (5*pagenum 2 = 10 rows)
+    - fade out all tr lt max rows * li num - max rows ((5*pagenum 2 = 10) - 5)
+    - fade in all tr between (maxRows*PageNum) and (maxRows*pageNum)- MaxRows
+    */
+    getPagination('#ocrlist');
+    function getPagination(table) {
+        $('#maxRows').on('change', function () {
+            $('.pagination').html('');						// reset pagination
+            var trnum = 0;									// reset tr counter
+            var maxRows = parseInt($(this).val());
+            //alert(maxRows);
+            // alert(maxRows);// get Max Rows from select option
+            var totalRows = $(table + ' tbody tr ').length;
+            // alert(totalRows);// numbers of rows
+            $('#ocrlist tbody tr').each(function () {			// each TR in  table and not the header
+                trnum++;
+                //alert(trnum);// Start Counter
+                if (trnum > maxRows) {						// if tr number gt maxRows
+                    $(this).hide();							// fade it out
+                } if (trnum <= maxRows) { $(this).show(); }// else fade in Important in case if it ..
+            });											//  was fade out to fade it in
+            if (totalRows > maxRows) {						// if tr total rows gt max rows option
+                var pagenum = Math.ceil(totalRows / maxRows);
+                // alert(pagenum);// ceil total(rows/maxrows) to get ..
+                //	numbers of pages
+                for (var i = 1; i <= pagenum;) {			// for each page append pagination li
+                    $('.pagination').append('<li data-page="' + i + '">\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <span>'+ i++ + '<span class="sr-only">(current)</span></span>\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </li>').show();
+                }											// end for i
+            } 												// end if row count > max rows
+            $('.pagination li:first-child').addClass('active'); // add active class to the first li
+            $('.pagination li').on('click', function () {		// on click each page
+                var pageNum = $(this).attr('data-page');
+                // alert(pageNum);// get it's number
+                var trIndex = 0;							// reset tr counter
+                $('.pagination li').removeClass('active');	// remove active class from all li
+                $(this).addClass('active');					// add active class to the clicked
+                $('#ocrlist tbody tr').each(function () {		// each tr in table not the header
+                    trIndex++;
+                    // alert(trIndex);
+                    // tr index counter
+                    // if tr index gt maxRows*pageNum or lt maxRows*pageNum-maxRows fade if out
+                    if (trIndex > (maxRows * pageNum) || trIndex <= ((maxRows * pageNum) - maxRows)) {
+                        $(this).hide();
+                    } else { $(this).show(); } 				//else fade in
+                }); 										// end of for each tr in table
+            });										// end of on click pagination list
+        });
+        // end of on select change
+        // END OF PAGINATION
+    }
+</script>
+<script>
+    function sortTable(n) {
+        try {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("ocrlist");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+        catch (er) {
+            //alert(er.message);
+        }
+    }
+</script>
+<script>
+    $('#select-user').selectize({
+        //maxItems: 3
+    });
+</script>

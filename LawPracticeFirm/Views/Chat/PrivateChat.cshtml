@@ -1,0 +1,85 @@
+﻿@{
+    ViewBag.Title = "TeamChat";
+    Layout = "~/Views/Shared/ChatPartial.cshtml";
+    var strteamid = Request.QueryString["tid"];
+    var strothuid = Request.QueryString["othuid"];
+    var strteamname = Request.QueryString["tnm"]==null ? "" : Request.QueryString["tnm"].ToString();// Convert.ToBase64String(QueryStringEDAES.QueryAES.EncryptAes(Request.QueryString["tnm"].ToString().Replace("_", " ")));
+    var struserid = Convert.ToBase64String(QueryStringEDAES.QueryAES.EncryptAes(Session["sessionuserid"].ToString()));
+    var strusername = Convert.ToBase64String(QueryStringEDAES.QueryAES.EncryptAes(ViewBag.UseName.Trim()));
+    var strfirmid = Convert.ToBase64String(QueryStringEDAES.QueryAES.EncryptAes(Session["sessionfirmid"].ToString()));
+    var strshortteamname = strteamname.Length > 50 ? strteamname.Substring(0, 50) + " ..." : strteamname;
+}
+<script src="~/Scripts/Firm/Pages/Chat.js?2.5"></script>
+<section class="wrapper">
+    <div class="container">
+        <div class="row">
+            <h2 style="text-align:center;font-size:16px;color:#069;">Private Chat - @strshortteamname.Replace("_", " ")</h2>
+            <table style="width:100%">
+                <tr>
+                    <td>
+                        @*<button type="button" class="btn btn-primary" onclick="SaveChat()">Save Chat</button>*@
+                    </td>
+                </tr>
+                <tr>
+                    @*<td width="40%" valign="top">
+                    <table id="example" class="table table-striped table-bordered" style="width:100%;">
+                        <thead>
+                            <tr><td>Team User</td><td style="display:none"></td></tr>
+                        </thead>
+                        <tbody id="binddata"></tbody>
+                    </table>
+                </td>*@
+                    <td>
+                        <iframe id="frmchat" src="" height="430px" width="100%" frameborder="0"></iframe>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</section>
+<div id="modalview" class="modal_a" style="display:none">
+    <div class="modal_a-content">
+        <img src="/NewDesign/images/v_btn.png" class="close_a" id="mclose" width="22px" height="22">
+        <iframe src="" id="frm" width="100%" height="550px" frameborder="0"></iframe>
+    </div>
+</div>
+<style>
+    .modal_a {
+        position: fixed;
+        z-index: 9999999999;
+        padding-top: 20px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.8);
+    }
+    .modal_a-content {
+        background-color: #fefefe;
+        margin: 0px auto 0;
+        padding: 10px 10px;
+        border: 1px solid #000;
+        border-radius: 5px;
+        width: 60%;
+        height: 600px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+    }
+    .close_a {
+        position: relative;
+        right: -20px;
+        top: -22px;
+        float: right;
+    }
+        .close_a:hover, .close_a:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+</style>
+<script>
+    var url = "https://c1.mykase.in/chat/PrivateChat?tid=@strteamid&uid=@struserid&unm=@HttpUtility.UrlEncode(strusername)&tnm=@strteamname&fid=@strfirmid";
+    $("#frmchat").attr("src", url);
+</script>

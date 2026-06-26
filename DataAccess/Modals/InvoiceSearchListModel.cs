@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DataAccess.Modals
+{
+    public class InvoiceSearchListModel
+    {
+        public string id { get; set; }
+        public Nullable<System.Guid> Firmid { get; set; }
+        public Nullable<System.Guid> userid { get; set; }
+        public string InvoiceNo { get; set; }
+        public Nullable<System.Guid> clientid { get; set; }
+        public string ClientName { get; set; }
+        public string CreatedBy { get; set; }
+        public long PaidAmt { get; set; }
+        public Nullable<System.DateTime> invdate { get; set; }
+        public Nullable<System.DateTime> Inovicedate { get; set; }
+        public Nullable<double> TotAmt { get; set; }
+        public Nullable<int> totRow { get; set; }
+        public Nullable<long> rownum { get; set; }
+        public string Invoicetype { get; set; }
+        public Nullable<System.DateTime> duedate { get; set; }
+        public int PaymentCount { get; set; }
+        public string ChequeStatus { get; set; }
+        public Nullable<int> IsInvoiceClientShared { get; set; }
+        public Nullable<int> IsCanceled { get; set; }
+        public int AmendCount { get; set; }
+        public string MatterName { get; set; }
+        public string ClientGSTNo { get; set; }
+        public string ClientPanNo { get; set; }
+        public string PaymentType { get; set; }
+        public string InvoiceStatus { get; set; }
+        public string ISubject { get; set; }
+        public string IReference { get; set; }
+        public string UserNameInvoice { get; set; }
+        public string matterid { get; set; }
+        public string OriginalInvoiceNo { get; set; }
+    }
+}

@@ -1,0 +1,487 @@
+﻿@{
+    ViewBag.Title = "AddContent";
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<i class="pp-icon-user"></i>
+<style>
+    .addc:nth-last-child(odd) {
+        color: green;
+    }
+
+    .addc:nth-last-child(even) {
+        color: green;
+    }
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        color: #000000;
+        background-color: #fafafa;
+    }
+
+    .nav-pills > li > a {
+        border-radius: 4px;
+        border: 1px solid #D5D7DA;
+    }
+
+    .nav > li > a {
+        position: relative;
+        display: block;
+        padding: 7px 15px;
+        color: #717680;
+    }
+
+    .nav-pills > li + li {
+        margin-left: -1px;
+    }
+    .thstyle {
+        background-color: #fafafa;
+        border-bottom: 1px solid #e5e7eb;
+        border-top: 1px solid #e5e7eb;
+        box-sizing: border-box;
+        height: 44px;
+        align-items: center;
+        padding-top: 13px;
+        font-size: 12px;
+        color: #717680;
+        font-weight: 600;
+        white-space: nowrap;
+        top: 0px;
+    }
+    hr {
+        margin-top: 10px;
+        margin-bottom: 0px;
+        border: 0;
+        border-bottom: 1px solid #eee;
+    }
+</style>
+<!-- Page Content -->
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<script src="~/Scripts/Firm/Pages/CreateInvoiceSeries.js?2.8"></script>
+<link rel="stylesheet" href="~/newassets/DragDropFormBuilder/css/jquery.ui.theme.css" />
+<script src="~/newassets/DragDropFormBuilder/js/jquery.ui.min.js"></script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <a class="goback" href="/@Session["firmcode"]/bill/InvoiceSetting"><img src="/newassets/img/backarrow.svg" alt="">Go Back</a>
+            <p class="ctitle"> Invoice Series</p>
+        </div>
+    </div>
+</section>
+<section>
+    <script>
+        $(document).ready(function () {
+            $("#searchdata").on("keyup", function () {
+                var value = $("#searchdata").val().toLowerCase();
+                $("#ocrlist tbody tr ").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+    <script language=Javascript>
+<!--
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode != 46 && charCode > 31
+                && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+        function ValidateAlpha() {
+            var x = document.getElementById("Value1").value;
+            var regex = /^[a-zA-Z0-9]*$/;
+            isValid = regex.test(x);
+            return isValid;
+        }
+        //-->
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#clearnewseach").click(function () {
+                $("#searchdata").val("").keyup();
+            });
+            $('#Value1').keyup(function () {
+                this.value = this.value.toLocaleUpperCase();
+            });
+            for (i = 2010; i <= 2030; i++) {
+                $('#year').append($('<option>',
+                    {
+                        value: i,
+                        text: i
+                    }));
+            }
+        });
+    </script>
+    <input type="hidden" id="srno">
+    <input type="hidden" id="seriescode">
+    <input type="hidden" id="FormatMonth">
+    <input type="hidden" id="FormatFYCY">
+    <input type="hidden" id="FormatOperator">
+    <input type="hidden" id="FormatSequence">
+    <input type="hidden" id="FormatPreview">
+    <input type="hidden" id="FormatSeriesArray">
+</section>
+<section id="table">
+    <form id="fileupload" enctype="multipart/form-data">
+        <div id="exTab1" class="container-main">
+            <ul class="nav nav-pills">
+                <li class="active">
+                    <a href="#4a1" data-toggle="tab" style="color: #414651; font-size:16px; line-height:24px">Create Invoice Series</a>
+                </li>
+                <li>
+                    <a href="#3a1" data-toggle="tab" style="font-size:16px; line-height:24px">View Invoice Series</a>
+                </li>
+            </ul>
+            <div class="table" style="margin:15px 0 0 0;">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="4a1" style="padding:15px;">
+                         <span id="textleadid" style="display:none"></span>
+                         <form id="saveleadcallform">
+                             <div class="row">
+                                 <div class="col-md-4">
+                                     <label>Create Invoice<span aria-required="true">*</span> </label>
+                                 </div>
+                                 <div class="col-md-8">
+                                     <div style="border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; border-radius:7px; margin:0 0 20px 0; ">
+                                         <div class="row">
+                                             <div class="col-md-12">
+                                                 <div class="thstyle col-md-4">Title</div>
+                                                 <div class="thstyle col-md-3">Format</div>
+                                                 <div class="thstyle col-md-3">Invoice Code</div>
+                                                 <div class="thstyle col-md-2">Sequence</div>
+
+                                             </div>
+                                         </div>
+                                         <div id="parentdiv" class="row" style="margin-top:12px;">
+                                             <div class="col-md-12">
+                                                 <div class="col-md-4">
+                                                     <input type="checkbox" id="chk1" value="1"> Prefix/Suffix
+                                                 </div>
+                                                 <div class="col-md-3">
+                                                     <select class="form-control selctInputFormat UpdateValue1" id="format1" data-id="1">
+                                                         <option value="Prefix" selected>Invoice Code</option>
+                                                         @*<option value="Suffix">Suffix</option>*@
+                                                     </select>
+                                                 </div>
+                                                 <div class="col-md-3">
+                                                     <input class="form-control InputFormat" id="Value1" required onkeypress="return ValidateAlpha()" minlength="4" maxlength="6" type="text" placeholder="Enter Value" />
+                                                 </div>
+                                                 <div class="col-md-2">
+                                                     <input type="number" id="Seq1" data-id="1" max="4" min="1" style="width: 70px;" value="1" class="form-control InputFormat">
+                                                 </div>
+                                                 <div class="col-md-12"><hr /></div>
+                                             </div>
+                                             <div class="col-md-12" style="margin-top:10px">
+                                                 <div class="col-md-4"><input type="checkbox" id="chk2" value="2"> Month</div>
+                                                 <div class="col-md-3">
+                                                     <select class="form-control selctInputFormat UpdateValue1" id="format2" data-id="2">
+                                                         <option value="" selected>Select</option>
+                                                         <option value="MMM">MMM</option>
+                                                         <option value="mm">mm</option>
+                                                     </select>
+                                                 </div>
+                                                 <div class="col-md-3"></div>
+                                                 <div class="col-md-2"><input type="number" id="Seq2" data-id="2" max="4" min="1" style="width: 70px;" value="1" class="form-control InputFormat"></div>
+                                                 <div class="col-md-12"><hr /></div>
+                                             </div>
+                                             <div class="col-md-12" style="margin-top:10px">
+                                                 <div class="col-md-4"><input type="checkbox" id="chk3" value="3"> FY/CY</div>
+                                                 <div class="col-md-3">
+                                                     <select class="form-control selctInputFormat UpdateValue1" id="format3" data-id="3">
+                                                         <option value="" selected>Select</option>
+                                                         <option value="CY">CY</option>
+                                                         <option value="FY">FY</option>
+                                                     </select>
+                                                 </div>
+                                                 <div class="col-md-3">
+                                                     <select class="form-control selctInputFormat" id="Value3" style="display:none">
+                                                         @*<option value="">Select  FY Type</option>*@
+                                                         <option value="FY" selected>FY</option>
+                                                         <option value="FYS">FY-Short</option>
+                                                         <option value="FYFS">FY-FirstShort</option>
+                                                         <option value="FYLS">FY-LastShort</option>
+                                                     </select>
+                                                 </div>
+                                                 <div class="col-md-2"><input type="number" id="Seq3" data-id="3" max="4" min="1" style="width: 70px;" value="1" class="form-control InputFormat"></div>
+                                                 <div class="col-md-12"><hr /></div>
+                                             </div>
+                                             <div class="col-md-12" style="margin-top:10px">
+                                                 <div class="col-md-4"><input type="checkbox" id="chk4" value="4" checked disabled> Increment Invoice Number</div>
+                                                 <div class="col-md-3"><input type="text" id="format4" onkeypress="return isNumberKey(event)" maxlength="10" class="form-control selctInputFormat UpdateValuetxt1" value="1"></div>
+                                                 <div class="col-md-3"></div>
+                                                 <div class="col-md-2"><input type="number" id="Seq4" data-id="4" max="4" min="1" style="width: 70px;" value="1" class="form-control InputFormat"></div>
+                                                 <div class="col-md-12"><hr /></div>
+                                             </div>
+                                             <div class="col-md-12" style="margin-top:10px">
+                                                 <div class="col-md-4"><input type="checkbox" id="chk5" value="5"> Operator</div>
+                                                 <div class="col-md-3">
+                                                     <select class="form-control selctInputFormat UpdateValue1" id="format5" data-id="5">
+                                                         <option value="" selected>Select</option>
+                                                         <option value="/">/</option>
+                                                         <option value="-">-</option>
+                                                     </select>
+                                                 </div>
+                                                 <div class="col-md-3"></div>
+                                                 <div class="col-md-12"><hr /></div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="row">
+                                 <div class="col-md-4">
+                                     <label>Invoice Series Preview<span aria-required="true">*</span> </label>
+                                 </div>
+                                 <div class="col-md-8">
+                                     <div style="border: 1px solid #e5e7eb; border-radius:7px; margin:0; padding:10px;">
+                                         <div class="row">
+                                             <div class="col-md-6">
+                                                 <label>
+                                                     Invoice Code Preview&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="Previewtext" style="font-size: 14px; padding: 5px 10px; border-radius: 4px; font-weight: 400; color: #535862 "></span>
+                                                 </label>
+                                                 <label id="Previewtext1" style="display:none"></label>
+                                             </div>
+                                             <div class="col-md-6 text-right">
+                                                 <button type="button" id="PreviewSeries" style="border: none; background: transparent; text-decoration: underline; font-size: 16px; color: #414651; line-height: 24px;">Check Preview</button>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <div class="col-md-12"><hr /></div>
+                             </div>
+                             <div class="row">
+                                     <div class="form-group pull-right" style="margin:20px 13px 20px 0px;">
+                                         <button class="btn btn-secondary">Clear All</button>
+                                         <button type="button" class="btn btn-primary" id="saveinvseries">Save</button>
+                                     </div>
+                             </div>
+                         
+                         </form>               
+                    </div>
+                    <div class="tab-pane" id="3a1">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="actions3" style="position: relative; margin: 15px 15px 15px 0px; float:right;">
+                                    <div class="dropdown-toggle button13" id="" type="button" data-toggle="dropdown" title="Export" aria-haspopup="true" aria-expanded="false">
+                                        <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+
+                                        <div class="text-padding">
+                                            <div class="text1"><a href="javascript:void()"> Export</a></div>
+                                        </div>
+                                    </div>
+                                    <ul class="dropdown-menu settingaction">
+                                        <li>
+                                            <a href="javascript:void()" onclick="tableToExcelnewBefore('ocrlist', 'InvoiceSeries List')" title="Export to Excel"> Export to Excel</a>
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-group form-horizontal">
+                                    
+                                    <div class="table-panel table-responsive">
+                                        <table id="ocrlist" class="dataTable table-panel">
+                                            <thead>
+                                                <tr>
+                                                    @*<th><div class="thbg">Sl. No.</div></th>*@
+                                                    <th>
+                                                        <div class="thbg">
+                                                            <div style="float: left; width: 100px;">
+                                                                <input type="text" placeholder="Search.." id="searchdata">
+                                                            </div>
+                                                            <div style="float:left;">
+                                                                <span class="glyphicon glyphicon-search" id="searchdatas" style="margin:5px 0 0 0px;    float:left; cursor:pointer;"></span>
+                                                                <span class="" id="clearnewseach" title="Click here to reset search" style="cursor: pointer; font-size:13px;"></span>
+                                                            </div>
+                                                        </div>
+                                                    </th>
+                                                    @*<th onclick="sortTable(2)">Year<span class="fa fa-sort pull-right"></span></th>*@
+                                                    <th onclick="sortTable(2)"><div class="thbg">Start Series </div></th>
+                                                    <th onclick="sortTable(3)"><div class="thbg">Created By </div></th>
+                                                    <th onclick="sortTable(4)"><div class="thbg">Date</div></th>
+                                                    <th><div class="thbg">Preview</div></th>
+                                                    <th width="6%"><div class="thbg">Action</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="assignuserdata"></tbody>
+                                        </table>
+                                    </div>
+                                    <div><center><span id="datastatus"></span></center></div>
+                                    <!--<div class="table-panel">
+                                        <div class="settingpanel">
+                                            <div class="col-md-6">
+                                                <div style="float: left;padding: 0 10px 0 0;">
+                                                    <ul>
+                                                        <li>
+                                                            <div class="btn-group dropup">-->
+                                                                @*<a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                customize field <span class="glyphicon glyphicon-chevron-down"></span>
+                                            </a>*@
+                                                                <!--<ul class="dropdown-menu settingshowhide" id="od"></ul>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div id="casetfooter">
+                                                    <div class="box-footer clearfix">
+                                                        <ul class="pagination pagination-sm no-margin pull-right"></ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                           
+                                        </div>
+                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</form>
+</section>
+<script>
+    function tableToExcelnewBefore(tableID, filename = '') {
+        const para = document.createElement("div");
+        //para.innerText = "This is a paragraph";
+        //para.style = "display:none";
+        para.id = "tempexport";
+        document.body.appendChild(para);
+        document.getElementById("tempexport").innerHTML = document.getElementById(tableID).outerHTML;
+        $('#tempexport table tr').find('td:eq(5),th:eq(5)').remove();
+        tableToExcelnew("tempexport", filename = '')
+        document.getElementById("tempexport").remove();
+    }
+    /*					PAGINATION
+    - on change max rows select options fade out all rows gt option value mx = 5
+    - append pagination list as per numbers of rows / max rows option (20row/5= 4pages )
+    - each pagination li on click -> fade out all tr gt max rows * li num and (5*pagenum 2 = 10 rows)
+    - fade out all tr lt max rows * li num - max rows ((5*pagenum 2 = 10) - 5)
+    - fade in all tr between (maxRows*PageNum) and (maxRows*pageNum)- MaxRows
+    */
+    getPagination('#ocrlist');
+    function getPagination(table) {
+        $('#maxRows').on('change', function () {
+            $('.pagination').html('');						// reset pagination
+            var trnum = 0;									// reset tr counter
+            var maxRows = parseInt($(this).val());
+            //alert(maxRows);
+            // alert(maxRows);// get Max Rows from select option
+            var totalRows = $(table + ' tbody tr ').length;
+            // alert(totalRows);// numbers of rows
+            $('#ocrlist tbody tr').each(function () {			// each TR in  table and not the header
+                trnum++;
+                //alert(trnum);// Start Counter
+                if (trnum > maxRows) {						// if tr number gt maxRows
+                    $(this).hide();							// fade it out
+                } if (trnum <= maxRows) { $(this).show(); }// else fade in Important in case if it ..
+            });											//  was fade out to fade it in
+            if (totalRows > maxRows) {						// if tr total rows gt max rows option
+                var pagenum = Math.ceil(totalRows / maxRows);
+                // alert(pagenum);// ceil total(rows/maxrows) to get ..
+                //	numbers of pages
+                for (var i = 1; i <= pagenum;) {			// for each page append pagination li
+                    $('.pagination').append('<li data-page="' + i + '">\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <span>'+ i++ + '<span class="sr-only">(current)</span></span>\
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </li>').show();
+                }											// end for i
+            } 												// end if row count > max rows
+            $('.pagination li:first-child').addClass('active'); // add active class to the first li
+            $('.pagination li').on('click', function () {		// on click each page
+                var pageNum = $(this).attr('data-page');
+                // alert(pageNum);// get it's number
+                var trIndex = 0;							// reset tr counter
+                $('.pagination li').removeClass('active');	// remove active class from all li
+                $(this).addClass('active');					// add active class to the clicked
+                $('#ocrlist tbody tr').each(function () {		// each tr in table not the header
+                    trIndex++;
+                    // alert(trIndex);
+                    // tr index counter
+                    // if tr index gt maxRows*pageNum or lt maxRows*pageNum-maxRows fade if out
+                    if (trIndex > (maxRows * pageNum) || trIndex <= ((maxRows * pageNum) - maxRows)) {
+                        $(this).hide();
+                    } else { $(this).show(); } 				//else fade in
+                }); 										// end of for each tr in table
+            });										// end of on click pagination list
+        });
+        // end of on select change
+        // END OF PAGINATION
+    }
+</script>
+<script>
+    function sortTable(n) {
+        //try {
+        //    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        //    table = document.getElementById("ocrlist");
+        //    switching = true;
+        //    //Set the sorting direction to ascending:
+        //    dir = "asc";
+        //    /*Make a loop that will continue until
+        //    no switching has been done:*/
+        //    while (switching) {
+        //        //start by saying: no switching is done:
+        //        switching = false;
+        //        rows = table.rows;
+        //        /*Loop through all table rows (except the
+        //        first, which contains table headers):*/
+        //        for (i = 1; i < (rows.length - 1); i++) {
+        //            //start by saying there should be no switching:
+        //            shouldSwitch = false;
+        //            /*Get the two elements you want to compare,
+        //            one from current row and one from the next:*/
+        //            x = rows[i].getElementsByTagName("TD")[n];
+        //            y = rows[i + 1].getElementsByTagName("TD")[n];
+        //            /*check if the two rows should switch place,
+        //            based on the direction, asc or desc:*/
+        //            if (dir == "asc") {
+        //                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+        //                    //if so, mark as a switch and break the loop:
+        //                    shouldSwitch = true;
+        //                    break;
+        //                }
+        //            } else if (dir == "desc") {
+        //                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+        //                    //if so, mark as a switch and break the loop:
+        //                    shouldSwitch = true;
+        //                    break;
+        //                }
+        //            }
+        //        }
+        //        if (shouldSwitch) {
+        //            /*If a switch has been marked, make the switch
+        //            and mark that a switch has been done:*/
+        //            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        //            switching = true;
+        //            //Each time a switch is done, increase this count by 1:
+        //            switchcount++;
+        //        } else {
+        //            /*If no switching has been done AND the direction is "asc",
+        //            set the direction to "desc" and run the while loop again.*/
+        //            if (switchcount == 0 && dir == "asc") {
+        //                dir = "desc";
+        //                switching = true;
+        //            }
+        //        }
+        //    }
+        //}
+        //catch (er) {
+        //    //alert(er.message);
+        //}
+    }
+</script>
+<!-- Modal -->
+<div id="myModal" class="modal fade myModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<!-- /.col-lg-12 -->
+<!-- /.container-fluid -->
+<!-- /#page-wrapper -->

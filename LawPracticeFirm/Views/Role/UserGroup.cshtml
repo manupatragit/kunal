@@ -1,0 +1,299 @@
+﻿
+@{
+    /**/
+
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+
+}
+<script src="~/Scripts/Firm/Pages/UserGroups.js?1.2" type="text/javascript" language="javascript"></script>
+<script>
+   var roleids = "@Session["sessionroleid"]";
+
+
+    var isDelete = "@ViewBag.IsDelete";
+    var IsCreate = "@ViewBag.IsCreate";
+    var IsViewAll = "@Session["IsViewAll"]";
+
+
+
+
+    var userid = "@Session["sessionuserid"]";
+    </script>
+
+    <section class="wrapper">
+
+        <div class="container showcontent" id="showcontent">
+            <div class="row">
+                <h2 class="title">Create Teams</h2>
+
+
+
+
+                <div class="table-panel table-responsive" data-example-id="hoverable-table" id="home">
+
+                    <table class="table table-striped table-bordered">
+
+                        <thead>
+                            <tr>
+                                <th width="30%">
+
+                                    <input type="text" id="txtgroupsearch" placeholder="Team Name" class="form-control pull-left" style="width:95%;">
+                                    <span class="glyphicon glyphicon-search pull-right" id="searchdatas"></span>
+                                </th>
+                                <th>Users</th>
+                                @*<th>Last Modified Date</th>*@
+                                <th>Created Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bindcasetask"></tbody>
+                    </table>
+                    <center><div id="dataescstatus"></div></center>
+
+
+
+                    <div class="table-panel">
+                        <div class="row settingpanel">
+                            <div class="col-md-6">
+
+                                <div style="float: left;padding: 0 10px 0 0;">
+                                    <ul>
+                                        <li>
+                                            <div class="btn-group dropup">
+                                                @*<a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span class="glyphicon glyphicon-cog" style="font-size:14px;color:black;padding:0 5px 0 0 "></span>
+                                                    customize field <span class="glyphicon glyphicon-chevron-down"></span>
+                                                </a>*@
+                                                <ul class="dropdown-menu settingshowhide" id="od"></ul>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div id="tfooter">
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="pull-right">
+
+                                    @if (role.ToString() == "1")
+                                    {
+
+
+                                        <li>
+                                            <a data-toggle="tab" href="#" id="addNewgroup"  title="Create Team"> New Team</a>
+                                        </li>
+
+
+
+
+                                    }
+                                    else
+                                    {
+
+                                        if (Convert.ToInt32(ViewBag.IsCreate) == 1)
+
+                                        {
+
+
+
+                                            <li>
+                                                <a data-toggle="tab" href="#" id="addNewgroup" title="Create Team"> New Team</a>
+                                            </li>
+
+
+
+                                        }
+                                    }
+
+                                    @*<li><span>|</span></li>*@
+                                    @*<li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Action Selected <span class="glyphicon glyphicon-chevron-down"></span>
+                                            </a>
+                                            <ul class="dropdown-menu settingaction"></ul>
+                                        </div>
+
+                                    </li>*@
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            @*Modal for Add/Edit*@
+            <div class="modal fade" id="modalNewgroup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header btn-primary">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                            <div id="divusergroupLabel"><h4 class="modal-title" id="myModalLabel">New Team</h4></div>
+
+                        </div>
+                        <div class="modal-body ">
+
+
+                            <!-- Main content -->
+
+                            <form id="resavetaskform" enctype="multipart/form-data" novalidate="novalidate">
+
+                                <!-- Start About boxes -->
+
+
+
+                                <div class="row">
+                                    <div class="col-md-12">
+
+
+
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-3">Team Name<span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-9">
+                                                <input id="txtnewgroupname" name="txtnewgroupname" type="text" maxlength="50" class="form-control" />
+                                            </div>
+                                        </div>
+                                        <br /><br />
+                                        <div class="form-group form-horizontal">
+                                            <label class="control-label col-md-3">User(s)<span class="required" aria-required="true">*</span></label>
+                                            <div class="col-md-9">
+                                                <a href="javascript:void()" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <label id="usergrouplabel" style="color: #7c7777;font-size: 12px;font-weight: 500;text-transform:unset">Select</label> <span class="glyphicon glyphicon-chevron-down" style="padding: 0 0 0 57px;"></span>
+                                                </a>
+                                                <ul class="dropdown-menu settingshowhide" id="rUsers" style="width:260px;"></ul>
+                                            </div>
+                                        </div>
+
+
+
+
+                                    </div>
+                                </div>
+
+
+
+                                <!-- /.content -->
+
+                                <input type="hidden" id="hidgroupid">
+                                <input type="hidden" id="hidIsClone">
+                                <div class="modal-footer">
+
+                                    <button type="button" class="sbtbtn" id="rSaveNewGroup">Save</button>
+                                    <button type="button" class="sbtbtn" id="groupcancel">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*End Modal for Add/Edit*@
+
+
+            @*End Modal for Show User details on UserCount*@
+            <div class="modal fade" id="modalUserCountView" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header btn-primary">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size:unset !important">&times;</span></button>
+                            <div id="divuserLabel"><h4 class="modal-title" id="myModalUserLabel">User(s) in Team</h4></div>
+
+                        </div>
+                        <div class="modal-body ">
+                            <!-- Main content -->
+                            <form id="resavetaskform" enctype="multipart/form-data" novalidate="novalidate">
+                                <!-- Start About boxes -->
+                                <div class="row">
+                                    <div class="col-md-12 table-panel table-responsive">
+                                        <table class="table table-striped table-bordered">
+
+                                            <thead>
+                                                <tr>
+                                                    <th>Team Name</th>
+                                                    <th>Email</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="bindUsercountdetails"></tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                                <!-- /.content -->
+
+                                <input type="hidden" id="hidgroupid">
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*End Modal for Show User details on UserCount*@
+
+    </section>
+
+
+
+
+
+
+    <div id="myOverlay" class="overlay">
+
+        <div class="overlay-content">
+		<div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+        </div>
+    </div>
+    <style>
+        .overlay {
+            height: 100%;
+            width: 100%;
+            display: none;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0, 0.7);
+        }
+
+        .overlay-content {
+            position: relative;
+            top: 46%;
+            width: 80%;
+            text-align: center;
+            margin-top: 30px;
+            margin: auto;
+            color: white;
+        }
+
+        .overlay .closebtn {
+            position: absolute;
+            top: 20px;
+            right: 45px;
+            font-size: 60px;
+            cursor: pointer;
+            color: white;
+        }
+
+            .overlay .closebtn:hover {
+                color: #ccc;
+            }
+    </style>
+
+
+
+
+
+

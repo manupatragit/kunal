@@ -1,0 +1,100 @@
+﻿@{
+    Layout = null;
+}
+<div class="box-body">
+    <ul class="todo-list">
+        @{
+            dynamic notification = Session["recentactivitymore"];
+            string QueryString = Request.Url.AbsolutePath;
+            string[] QueryArray = QueryString.Split('/');
+            var firm = QueryArray[1];
+            var linkpage = "";
+            var recentlabel1 = "";
+            var recentlabelmode = "";
+        }
+        @foreach (var std in notification)
+        {
+            if (std.ntype == "Matter")
+            {
+                linkpage = "/" + firm + "/firm/mattersingleview/";
+            }
+            else if (std.ntype == "Contact")
+            {
+                linkpage = "/" + firm + "/firm/Contactsingleview/";
+            }
+            else if (std.ntype == "File")
+            {
+                linkpage = "/" + firm + "/firm/DirectoryList/0";
+            }
+            else if (std.ntype == "Workflow")
+            {
+                linkpage = "/" + firm + "/firm/WorkFlowNUserActivity";
+            }
+            else if (std.ntype == "Call")
+            {
+                linkpage = "/" + firm + "/firm/Callsingleview/";
+            }
+            else if (std.ntype == "Note")
+            {
+                linkpage = "/" + firm + "/firm/notesingleview/";
+            }
+            else if (std.ntype == "Task")
+            {
+                linkpage = "/" + firm + "/firm/tasksingleview/";
+            }
+            else if (std.ntype == "Event")
+            {
+                linkpage = "/" + firm + "/firm/eventsingleview/";
+            }
+            else if (std.ntype == "Lead")
+            {
+                linkpage = "/" + firm + "/firm/LeadSingleView/";
+            }
+            else if (std.ntype == "User")
+            {
+                linkpage = "/" + firm + "/firm/UserList/";
+            }
+            else if (std.ntype == "TimeEntry")
+            {
+                linkpage = "/" + firm + "/firm/ViewTimer/";
+            }
+            else if (std.ntype == "CustomForm")
+            {
+                linkpage = "/" + firm + "/firm/ViewCustomForm/";
+            }
+            if (std.ntype == "Matter")
+            {
+                recentlabel1 = "Case";
+            }
+            else if (std.ntype == "CustomForm")
+            {
+                recentlabel1 = "Custom Form";
+            }
+            else if (std.ntype == "TimeEntry")
+            {
+                recentlabel1 = "Time Entry";
+            }
+            else
+            {
+                recentlabel1 = std.ntype;
+            }
+            if (std.nmode == "edit")
+            {
+                recentlabelmode = "You have edited";
+            }
+            else
+            {
+                recentlabelmode = "You have Created New";
+            }
+            if (std.ntype == "CustomForm" || std.ntype == "File" || std.ntype == "Workflow" || std.ntype == "User" || std.ntype == "TimeEntry")
+            {
+                <li class="recent"><span class="text">@recentlabelmode - <a href="@linkpage">@recentlabel1</a></span><small class="label label-info"><i class="fa fa-clock-o"></i> @String.Format("{0:dd-MMM-yyyy}", std.date_time)</small></li>
+            }
+            else
+            {
+                <li class="recent"><span class="text">@recentlabelmode - <a href="#" id="nlinkdata" data-link="@linkpage" data-val="@std.typeid">@recentlabel1</a></span><small class="label label-info"><i class="fa fa-clock-o"></i> @String.Format("{0:dd-MMM-yyyy}", std.date_time)</small></li>
+            }
+        }
+    </ul>
+</div><!-- /.box-body -->
+            </div><!-- /.box -->

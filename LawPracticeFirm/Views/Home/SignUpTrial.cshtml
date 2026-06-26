@@ -1,0 +1,529 @@
+﻿@*@{
+        ViewBag.Title = "Index";
+        Layout = "~/Views/Shared/_FirmWebSiteLayout.cshtml";
+    }*@
+@{
+    /**/
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_NewHomePartialHomeInner.cshtml";
+}
+@using System.Web.Configuration;
+@{
+    string BaseDomainURL = WebConfigurationManager.AppSettings["BaseDomainURL"].ToString();
+}
+<script src="~/Scripts/Firm/Pages/FirmRegistrationTrail.js?1.1"></script>
+<script>
+    function CheckUser() {
+        try {
+            var struser = $("#rusername").val();
+            if (struser == "") {
+                alert("Please enter username");
+                return false;
+            }
+            else {
+                $.ajax({
+                    async: true,
+                    url: '/api/WorkFlowNewApi/CheckUser',
+                    type: 'POST',
+                    headers: {
+                        'username': struser
+                    },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.Status == true) {
+                            if (response.Data == "0") {
+                                $("#lblmsg").css("color", "green").val("Available");
+                            }
+                            else {
+                                $("#lblmsg").css("color", "red").val("Not Available");
+                            }
+                        }
+                    },
+                    error: function () {
+                        alert('Error!');
+                    }
+                });
+            }
+        }
+        catch (err) {
+            alert(err.message);
+        }
+    }
+</script>
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<SCRIPT>
+    $(document).ready(function () {
+        try {
+            var ddlCountry = $('#country');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    $.each(d.Data, function (i, country) {
+                        ddlCountry.append($("<option selected></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                    ddlCountry.append($("<option value='' ></option>").val('').html('Please Select Country'));
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        var ddlState = $('#state');
+        ddlState.empty();
+        //bind direct state
+        $.ajax({
+            async: true,
+            url: '/api/EmployeeApi/BindStateDetails',
+            type: 'POST',
+            dataType: 'json',
+            headers: { CountryName: 'India' },
+            success: function (d) {
+                ddlState.empty();
+                // Clear the please wait
+                if (d.Data != "") {
+                    ddlState.append($("<option value='' selected></option>").val('').html('Select State'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                }
+                else {
+                }
+            },
+            error: function (d) {
+                alert(d.responseText);
+            }
+        });
+        //State details by country id
+        $("#country").change(function () {
+            var CountryId = $(this).val();
+            var ddlState = $('#state');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    // Clear the please wait
+                    if (d.Data != "") {
+                        ddlState.append($("<option value='' selected></option>").val('').html('Select State'));
+                        $.each(d.Data, function (i, states) {
+                            ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                        });
+                        $('#state').show();
+                        $('#city').show();
+                        $('#txtstate').hide();
+                        $('#txtcity').hide();
+                    }
+                    else {
+                        $('#txtstate').show();
+                        $('#state').hide();
+                        $('#txtcity').show();
+                        $('#city').hide();
+                    }
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#state").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#city');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select City Name'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+    });
+</SCRIPT>
+<style>
+    .firmpanel {
+        background: #ffffff;
+        padding: 20px;
+        overflow: hidden;
+    }
+</style>
+<link rel="manifest" href="/manifest.json">
+<style>
+    #menu-toggle1 {
+        z-index: 1;
+        font-size: 35px;
+        float: right;
+        border: 1px solid #fff;
+        color: #fff;
+        margin: 5px 0px;
+        padding: 2px 10px;
+        line-height: 0;
+    }
+
+    .sticky {
+        position: fixed;
+        width: 100%;
+        background: #00967f;
+        padding: 0px;
+        transition: all 0.5s;
+        z-index: 99999;
+    }
+
+    input[readonly] {
+        cursor: text !important;
+        background-color: #fff !important;
+    }
+
+    .form-control {
+        border-radius: unset !important;
+    }
+
+    .btn {
+        border-radius: unset !important;
+    }
+
+    #return-to-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgb(0, 0, 0);
+        background: rgba(0, 0, 0, 0.7);
+        width: 50px;
+        height: 50px;
+        display: block;
+        text-decoration: none;
+        -webkit-border-radius: 35px;
+        -moz-border-radius: 35px;
+        border-radius: 35px;
+        display: none;
+        -webkit-transition: all 0.3s linear;
+        -moz-transition: all 0.3s ease;
+        -ms-transition: all 0.3s ease;
+        -o-transition: all 0.3s ease;
+        transition: all 0.3s ease;
+        z-index: 900;
+    }
+
+        #return-to-top i {
+            color: #fff;
+            margin: 0;
+            position: relative;
+            left: 10px;
+            top: 5px;
+            font-size: 19px;
+            -webkit-transition: all 0.3s ease;
+            -moz-transition: all 0.3s ease;
+            -ms-transition: all 0.3s ease;
+            -o-transition: all 0.3s ease;
+            transition: all 0.3s ease;
+        }
+
+        #return-to-top:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+            #return-to-top:hover i {
+                color: #fff;
+                top: 5px;
+            }
+</style>
+<!-- ****************************** Privacy Policy ************************** -->
+<section id="frmreg" class="registraion">
+    <div class="container">
+        <h2> Trial Registration</h2>
+        <div class="wrapper">
+            <div>
+                <form id="saveuser" enctype="multipart/form-data">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <h3><span>Firm</span> Details</h3>
+                        <div class="row">
+                            <div class="col-lg-10 contact-details">
+                                <div class="row spacer20">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right">Registration Type <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <select autofocus="" class="form-control" placeholder="Registration Type" name="regtype" id="regtype" required>
+                                                    <option value="">Select</option>
+                                                    <option value="1">Lawyer</option>
+                                                    <option value="2">Lawfirm</option>
+                                                    <option value="3">Corporate</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right">Pack <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <select autofocus="" class="form-control" placeholder="Pack" name="pack" id="pack" required>
+                                                    <option value="">Select</option>
+                                                    <option value="1">Starter</option>
+                                                    <option value="2">Boutique</option>
+                                                    <option value="3">Enterprise</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right">Firm Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <input autofocus class="form-control" placeholder="Firm Name" type="text" value="" name="name" id="rname" maxlength="100" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right" for="Office"> Firm Title Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <input class="form-control" placeholder="Firm Title Name" type="text" value="" id="rtitle" maxlength="50" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right"> Admin Email <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <input autofocus class="form-control" placeholder="Admin Email" type="text" value="" name="email" id="remail" maxlength="50" required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right"> Secondary Email </span>
+                                            <div class="col-md-8">
+                                                <input type="email" nname="secondemail" placeholder="Secondary Email" id="secondemail" class="form-control" maxlength="50">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right" for="Office"> Address <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </span>
+                                            <div class="col-md-8">
+                                                <input class="form-control" placeholder="Address" type="text" value="" id="raddress" maxlength="200">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right"> Country <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <select class="form-control" name="country" id="country"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right"> State <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <select nname="state" id="state" class="form-control"></select>
+                                                <input type="text" id="txtstate" style="display:none" maxlength="20" required class="input100 form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right"> City<span class="required" aria-required="true" style="color:red"><b>*</b> </span> </span>
+                                            <div class="col-md-8">
+                                                <select nname="city" id="city" class="form-control"></select>
+                                                <input type="text" id="txtcity" style="display:none" maxlength="20" required class="input100 form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right"> Pin Code <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <input type="text" nname="pincode" placeholder="Pin Code" id="pincode" class="form-control" maxlength="6" onkeypress="return isNumberKey(event)">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right"> Landline No </span>
+                                            <div class="col-md-8">
+                                                <input type="text" nname="landlineno" onkeypress="return restrictAlphabetsfax(event)" placeholder="Landline No" id="landlineno" class="form-control" maxlength="16">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right" for="Home"> Mobile <span class="required" aria-required="true" style="color:red"><b>*</b> </span> </span>
+                                            <div class="col-md-8">
+                                                <div class="input-group">
+                                                    <input class="form-control" maxlength="10" placeholder="Mobile Number" type="text" name="contact" maxlength="20" value="" id="rcontact" required onkeypress="return isNumberKey(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right" for="">
+                                            </span>
+                                            <div class="col-md-8">
+                                                <div class="input-group">
+                                                    <button type="button" id="getotp" class="btn btn-success">SEND OTP</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" id="otpdiv" style="display:none">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right" for="Home"> Enter OTP </span>
+                                            <div class="col-md-8">
+                                                <div class="input-group">
+                                                    <input class="form-control" maxlength="6" placeholder="Enter OTP" style="width:150px;" type="text" value="" id="otpvalue" required onkeypress="return isNumberKey(event)">
+                                                    <span class="control-label col-md-4 text-right" for="">
+                                                        <button type="button" id="verifyotp" class="btn btn-primary">Verify</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group"> <span class="control-label col-md-6 text-right" id="otpdivmessage"> </span> </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                <div class="grid-container" style="display:none">
+                                                    @*
+                                                        <textarea name="textarea" cols="5" rows="5" class="jqte-test"></textarea>
+                                                    *@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group"> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <h3><span>Login</span> Details</h3>
+                        <div class="row">
+                            <div class="col-lg-10 contact-details">
+                                <div class="row spacer20">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-6 text-right">Firm Admin User Name <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <input class="form-control" readonly onfocus="$(this).removeAttr('readonly');" name="adminusername" type="text" id="adminusername" placeholder="Admin UserName" required maxlength="50" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right">Admin User Id <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <input class="form-control" readonly onfocus="$(this).removeAttr('readonly');" name="username" type="text" id="rusername" placeholder="Admin User Id" required maxlength="30" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right" for="">
+                                                <input type="text" id="lblmsg" name="lblmsg" style="border:none;font-weight:bold;color:red" readonly />
+                                            </span>
+                                            <div class="col-md-8">
+                                                <div class="input-group">
+                                                    <input type="button" class="btn btn-info" onclick="CheckUser();" value="Check Availability" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right">Password <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <input class="form-control" readonly onfocus="$(this).removeAttr('readonly');" minlength=8 name="password" minlength="8" type="password" title="It should have its upper, lower and special character" id="rpassword" autocomplete="off" placeholder="Password" required maxlength="30" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <span class="control-label col-md-4 text-right">Confirm Password <span class="required" aria-required="true" style="color:red"><b>*</b> </span></span>
+                                            <div class="col-md-8">
+                                                <input class="form-control" readonly onfocus="$(this).removeAttr('readonly');" minlength=8 name="cpassword" title="It should have its upper, lower and special character" type="password" id="rcpassword" autocomplete="off" placeholder="Confirm Password" required maxlength="30" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="col-md-8"> </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row spacer20">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="col-md-8">
+                                                <input type="button" id="btnsave" class="btn  btn-primary save firmregbtn" value="Submit" style="margin:0px;padding:0 31px; font-size:20px;margin-top: 10px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="col-md-4">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="otptemp">
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

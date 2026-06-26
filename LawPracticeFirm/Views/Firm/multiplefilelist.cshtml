@@ -1,0 +1,303 @@
+﻿@{
+    Layout = null;
+}
+<i class="pp-icon-user"></i>
+<!-- Page Content -->
+@{
+    var filetype = @ViewBag.type;
+    var fid = @ViewBag.data;
+    var mode = @ViewBag.mode;
+    var role = Session["sessionroleid"];
+}
+<style>
+    .glyphicon-download-alt {
+        color: black !important;
+    }
+    .modal .modal-dialog{
+        width:1120px !important;
+    }
+</style>
+<div class="modal-header btn-primary">
+    <button type="button" class="close" id="closetaskmodel" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Document Lists
+    </h4>
+</div>
+<div class="modal-body" style="min-height: 331px;">
+    <aside class="" style="margin-top:12px;">
+        <!-- /.box-header -->
+        <!-- /.panel-heading -->
+        <!-- Main content -->
+        <!-- Main content -->
+        <section>
+            <div id="contentdata" class="table-responsive" style="overflow-x:auto">
+                <table id="example123" class="table-panel">
+                    <thead>
+                        <tr>
+                            <th width="15%" class="Activity" style="text-align: left; "><div class="thbg">Sl. No.</div></th>
+                            <th class="Status" style="text-align:left; "><div class="thbg">File Name</div></th>
+                            <th class="Size" style="text-align: left; "><div class="thbg">File Size</div></th>
+                            <th style="text-align: center; padding-top: 12px;" class="Date"><div class="thbg">Download </div></th>
+                            <th style="text-align: center; padding-top: 12px;" class="action actiondelete"><div class="thbg">Action </div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="savefildedata">
+                        @{
+                            int qty = 0;
+                            string string1 = "";
+                            string string2 = "";
+                        }
+                        @foreach (var item in ViewBag.filedata)
+                        {
+                            qty = qty + 1;
+                            var dfilename = @item.filedocs;
+                            int idx = dfilename.LastIndexOf('.');
+                            if (idx != -1)
+                                string1 = dfilename.Substring(0, idx);
+                            string2 = dfilename.Substring(idx + 1);
+                            string1 = string1.Substring(0, string1.Length - 10);
+                            dfilename = string1 + "." + string2;
+                            var ftoken = "/DownloadFile.ashx?module=multiple&ftype=" + filetype + "&fid=" + fid + "&ftoken=" + item.filedocs;
+                            <tr>
+                                <td>@qty</td>
+                                <td>@dfilename</td>
+                                <td>@item.DocumentSize</td>
+                                <td style="display: flex;margin-left: 14px;"><a href="@ftoken"><img src="~/newassets/img/download.svg" width="25px" height="25px" /></a></td>
+                                @{
+                                    if (role.ToString() == "1")
+                                    {
+                                        <td style="" class="action "> <a href="#"><img src="~/newassets/img/delet_icon.svg" onclick='removefiledata("@item.fid",this)' id="removefile" data-val="@item.fid"></a> </td>
+                                    }
+                                    else if (ViewBag.loginuserid == item.userid.ToString())
+                                    {
+                                        <td style="" class="action "> <a href="#"> <img src="~/newassets/img/delet_icon.svg" onclick='removefiledata("@item.fid",this)' id="removefile" data-val="@item.fid"></a></td>
+                                    }
+                                    else
+                                    {
+                                        <td style="display: flex;margin-left: 14px;" class="action ">&nbsp;</td>
+                                    }
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @*<span class="filefound124"><center>No Document Found !</center></span>*@
+                <span class="filefound124">
+                    <center>
+                        <div class="notfound" id="filefound124" style="display:unset">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4>Data Not Found</h4>
+
+                        </div>
+                    </center>
+                </span>
+            </div>
+        </section>
+        <!-- /.content -->
+        <!-- /.content -->
+    </aside>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="modal-footer" style="margin-top:162px !important">
+                <button type="button" id="closemodels" class="btn btn-default" style="border:1px solid #ccc;" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+</div>
+
+<div id="myModalDocDeleteConfirmation" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:476px !important;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" id="btnCanPopup">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/delete-notice.png" style="margin:-10px 0px 0 -13px">
+                </h4>
+            </div>
+            <div class="modaltitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_deleteTraderequesr">Delete Document Request</h4>
+            </div>
+            <div class="modal-body">
+                @*<p id="msgRUSure">Are you sure you want to remove this document?</p>*@
+                <p id="msgRUSure">Once deleted, you will not be able to download the document. Are you sure you want to delete?</p>
+            </div>
+            <div class="footer_buttons modal-footer">
+                <button class="btn btn-secondary" id="btnCanPopup" >Cancel</button>
+                <button type="button" class="btn btn-primary" id="deleteTaskDocDetailsss">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("a").bind("click", function () {
+        validnavigation = true;
+        window.onbeforeunload = null;
+    })
+    function removefiledata1(dataid, r) {
+          try {
+              var result = confirm("Are you sure to remove this file?");
+              if (result) {
+                  var i = r.parentNode.parentNode.rowIndex;
+                  document.getElementById("example123").deleteRow(i);
+                  //Logic to delete the item
+                  $.ajax({
+                      async: true,
+                      type: "POST",
+                      url: "/api/CallApi/RemoveMultipleFile",
+                      headers: {
+                          'dataid': dataid,
+                          'ftype': '@ViewBag.type'
+                      },
+                      contentType: "application/json; charset=utf-8",
+                      dataType: "json",
+                      success: function (data1) {
+                          new PNotify({
+                              title: 'Success!',
+                              text: ' File removed Successfully',
+                              type: 'success',
+                              delay: 3000
+                          });
+                      },
+                      failure: function (data) {
+                          alert(data.responseText);
+                      },
+                      error: function (data) {
+                          alert(data.responseText);
+                      }
+                  });
+              }
+          }
+          catch (er) {
+              alert(er.message);
+          }
+        }
+    function removefiledata(dataid, r) {
+        //var i = r.parentNode.parentNode.rowIndex;
+        var i = r.closest("tr").rowIndex;
+        $('#deleteTaskDocDetailsss').attr('disabled', false);
+        //document.getElementById("example123").deleteRow(i);
+        $("#myModalDocDeleteConfirmation").modal();
+        $("#deleteTaskDocDetailsss").attr("dataid", dataid);
+        $("#deleteTaskDocDetailsss").attr("delRowId", i);
+    }
+    $(document).on('click', '#deleteTaskDocDetailsss', function () {
+        $("#deleteTaskDocDetailsss").attr("disabled", "disabled");
+        var r = $(this).attr("delRowId");
+        var dataid = $(this).attr("dataid");
+        fnRemoveFileData(dataid,r)
+    })
+    $(document).on('click', '#btnCanPopup', function () {
+        $("#myModalDocDeleteConfirmation").modal("hide");
+    });
+    
+    function fnRemoveFileData(dataid, i) {
+        try {
+            document.getElementById("example123").deleteRow(i);
+                  //Logic to delete the item
+                  $.ajax({
+                      async: true,
+                      type: "POST",
+                      url: "/api/CallApi/RemoveMultipleFile",
+                      headers: {
+                          'dataid': dataid,
+                          'ftype': '@ViewBag.type'
+                      },
+                      contentType: "application/json; charset=utf-8",
+                      dataType: "json",
+                      success: function (data1) {
+                          if (data1.Status == true) {
+                              new PNotify({
+                                  title: 'Success!',
+                                  text: ' File removed Successfully',
+                                  type: 'success',
+                                  delay: 3000
+                              });
+                              $("#myModalDocDeleteConfirmation").modal("hide");
+                          }
+                          
+                          
+                          //$("#filelinkcommu").trigger("click");
+                      },
+                      //failure: function (data) {
+                      //    alert(data.responseText);
+                      //},
+                      //error: function (data) {
+                      //    alert(data.responseText);
+                      //}
+                  });
+          }
+          catch (er) {
+              //alert(er.message);
+          }
+    }
+
+    $(document).ready(function () {
+        var modes = "@mode";
+        if (modes == "view") {
+        }
+        var rowCount1 = $('#example123 >tbody>tr').length;
+        if (String(rowCount1) == "0") {
+            $(".filefound124").css("display", "unset");
+        }
+        else {
+            $(".filefound124").css("display", "none");
+        }
+    });
+</script>
+<script>
+    function correctfilenamecasefile(strdatas) {
+        var strdata = "";
+        if (strdatas != null) {
+            strdata = String(strdatas).substring(String(strdatas).lastIndexOf("/") + 1);
+            return strdata;
+        }
+        else {
+            return strdatas;
+        }
+    }
+    var cwids = "@ViewBag.type";
+    if (cwids == "case") {
+         loadDocsCasefiles()
+    }
+    function loadDocsCasefiles() {
+    var html32 = '';
+        var leadid = cwids;
+    var formData = new FormData();
+        formData.append("caseid", "@fid");
+    //read assign using list
+        qty1 = @qty;
+    $.ajax({  async: true,
+    type: "POST",
+    url: "/api/CallApi/Loadcasefiles",
+    dataType: 'json',
+    data: formData,
+    contentType: false,
+    processData: false,
+    success: function (response1) {
+        var datas1 = JSON.stringify(response1);
+    var obj = JSON.parse(response1.Data);
+    $.each(obj, function (i, a) {
+    qty1 = qty1 + 1;
+        var ftoken = "/Azure/GetDownloadFile?filename=" + a.Filename + "&code=" + a.AzureFIleId + "";
+        html32 += '<tr><td>' + qty1 + '</td><td>' + correctfilenamecasefile(a.Filename) + '</td><td style="display: flex;margin-left: 14px;"><a name="' + ftoken + '" href="' + ftoken + '" download="' + correctfilenamecasefile(a.Filename) + '" title="Download File"><span class="glyphicon glyphicon-download-alt" title="Download File"></span></a></td></tr>';
+    });
+        $("#savefildedata").append(html32);
+    if (qty1==0) {
+        $(".filefound124").css("display", "block");
+    }
+    else {
+        $(".filefound124").css("display", "none");
+    }
+    },
+    failure: function (data) {
+    alert(data.responseText);
+    },
+    error: function (data) {
+    alert(data.responseText);
+    }
+    });
+    }
+</script>

@@ -1,0 +1,226 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+}
+<meta name="viewport" content="width=device-width" />
+<title>SetUserModuleRights</title>
+<script>
+    $(document).ready(function () {
+        $(document).on("click", "#select_all", function () {
+            $(".accessmodule").prop('checked', $(this).prop('checked'));
+        });
+        var tempcount = 0;
+        assignuser();
+        function assignuser() {
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/MatterApi/Assignuser",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        var obj = JSON.parse(response.Data);
+                        // alert(datas);
+                    }
+                    else {
+                        alert("not found");
+                    }
+                    $.each(obj, function (i, a) {
+                        // alert(a.Id);
+                        if (String(a.RoleId) == "2") {
+                            var option = '<option value="' + a["Id"] + '" >  ' + a["UserName"] + '</option>';
+                            $("#users").append(option);
+                        }
+                    }); //End of foreach Loop
+                }, //End of AJAX Success function
+                failure: function (response) {
+                    alert(data.responseText);
+                }, //End of AJAX failure function
+                error: function (response) {
+                    alert(data.responseText);
+                } //End of AJAX error function
+            });
+        }
+        $('#users').on('change', function () {
+            $("#paneldata").html("");
+            var value = this.value;
+            if (value != "") {
+                openloader();
+                loaddata();
+                $("#linkcontact").css("display", "block");
+            }
+            else {
+                $("#linkcontact").css("display", "none");
+            }
+        });
+        function loaddata() {
+            var html = '';
+            var q = 0;
+            var d1 = $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/UserAccesspagelist",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    html += '<div class="col-md-12"><input type="checkbox" id="select_all" style="margin-left:15px;"> Select All  <hr style="border=1px !important;margin-top:5px !important"></div>'
+                    html += '<div id="mydiv" class="col-md-12">'
+                    $.each(response.Data, function (i, a) {
+                        q = q + 1;
+                        html += '<div class="col-md-4">'
+                        html += '<div class="panel panel-default">'
+                        html += '<div class="panel-heading"><input  type="checkbox" class="accessmodule accessmodule' + a.Id + '" assignpageid="" pageid="' + a.Id + '" id="accessmodule' + q + '"  name="saveright"  order="' + q + '" checked> &nbsp;&nbsp;'
+                        if (a.PageGroup == null) {
+                            html += a.PageName;
+                        }
+                        else {
+                            html += a.PageGroup + '  <span style="color:#999;">&nbsp;&nbsp;  >  &nbsp;&nbsp;</span> ' + a.PageName + '';
+                        }
+                        html += '</div>'
+                        html += '</div>'
+                        html += '</div>'
+                    });
+                    tempcount = q;
+                    $("#paneldata").html(html);
+                },
+                failure: function (response) {
+                    alert(data.responseText);
+                },
+                error: function (response) {
+                    alert(data.responseText);
+                }
+            });
+            $.when(d1)
+                .then(function () {
+                    var formData = new FormData();
+                    formData.append("assignuser", $("#users").val());
+                    $.ajax({
+                        async: true,
+                        type: "POST",
+                        url: "/api/CallApi/UserwiseAccesspagelist",
+                        dataType: 'json',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            $.each(response.Data, function (i, a) {
+                                $(".accessmodule" + a.PageId).prop("checked", false);
+                                $(".accessmodule" + a.PageId).attr("assignpageid", a.Id);
+                            });
+                            closeloader();
+                        },
+                        failure: function (response) {
+                            alert(data.responseText);
+                            closeloader();
+                        },
+                        error: function (response) {
+                            alert(data.responseText);
+                            closeloader();
+                        }
+                    });
+                });
+        }
+        $("#linkcontact").click(function () {
+            var formData = new FormData();
+            formData.append("assignuser", $("#users").val());
+            var allVals = [];
+            var arr = [];
+            for (var s = 1; s <= tempcount; s++) {
+                if ($("input[type = 'checkbox']#accessmodule" + s).prop("checked") == true) {
+                    var teval = $("#accessmodule" + s).attr("pageid") + "|" + "0" + "|" + $("#accessmodule" + s).attr("assignpageid");
+                    arr.push(teval);
+                }
+                else {
+                    var teval = $("#accessmodule" + s).attr("pageid") + "|" + "1" + "|" + $("#accessmodule" + s).attr("assignpageid");
+                    arr.push(teval);
+                }
+            }
+            formData.append("data-val", arr);
+            openloader();
+            var timestart1 = Date.now();
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/CallApi/SaveAccesspage",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log("Time until: ", millisToMinutesAndSeconds(Date.now() - timestart1));
+                    alert("User rights has been saved successfully.");
+                    loaddata();
+                    location.reload();
+                    closeloader();
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                    closeloader();
+                }
+            });
+        });
+    });
+</script>
+<aside class="right-side">
+    <section class="content-header">
+        <!-- Content Header (Page header) -->
+        <ol class="breadcrumb">
+            <li><a href="/@Session["firmcode"]/firm/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active"> Users Module Access Rights</li>
+        </ol>
+        <h1><span class="glyphicon glyphicon-ok-sign"></span> Users Module Access Rights</h1>
+    </section>
+    <section class="content">
+        <div id="page-wrapper">
+            <div class="container-fluid showcontent" id="showcontent">
+                <div class="box">
+                    <div class="box-header" style="padding:5px;">
+                    </div>
+                </div>
+                <div class="tab-pane active " id="compose">
+                    <form id="sendmailform">
+                        <div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group form-horizontal">
+                                                    <label class="control-label col-md-2">Select Users :<span class="required" aria-required="true">*</span></label>
+                                                    <div class="col-md-4">
+                                                        <select id="users" class="form-control" style="float:unset !important">
+                                                            <option value="">Select</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group form-horizontal" id="paneldata">
+                                                </div>
+                                                <div class="col-md-12"><button type="button" id="linkcontact" style="display:none;margin-left:5px;" class="btn  btn-info"> <span class="glyphicon glyphicon-saved"></span> Save</button></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</aside>
+<div id="tokens"></div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>

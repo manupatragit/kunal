@@ -1,0 +1,492 @@
+﻿
+@{
+    ViewBag.Title = "Login";
+     Layout = "~/Views/Shared/_NewHomePartialHomeInner.cshtml";
+    
+}
+
+<style>
+    input {
+        cursor: text !important;
+        background-color: #fff !important;
+    }
+    </style>
+<script src="~/Scripts/Firm/Pages/FirmRegistration.js?2.3"></script>
+<script>
+
+
+    function CheckUser() {
+        try {
+            var struser = $("#rusername").val();
+            if (struser == "") {
+                alert("Please enter username");
+                return false;
+            }
+            else {
+                $.ajax({
+                    async: true,
+                    url: '/api/WorkFlowNewApi/CheckUser',
+                    type: 'POST',
+                    headers: {
+                        'username': struser
+                    },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.Status == true) {
+                            // var datas = JSON.stringify(response);
+                            if (response.Data == "0") {
+                                $("#lblmsg").css("color", "green").val("Available");
+                            }
+                            else {
+                                $("#lblmsg").css("color", "red").val("Not Available");
+                            }
+                        }
+                    },
+                    error: function () {
+                        alert('Error!');
+                    }
+                });
+            }
+        }
+        catch (err) {
+            alert(err.message);
+        }
+    }
+</script>
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<SCRIPT>
+    $(document).ready(function () {
+        try {
+
+            $(".toggle-passwordnew").click(function () {
+             
+                $(this).toggleClass("fa-eye fa-eye-slash").toggleClass("fa-eye fa-eye-slash");
+                var input = $(this).attr("toggle");
+              
+                if (input.attr("type") == "password") {
+                    input.attr("type", "text");
+                } else {
+                    input.attr("type", "password");
+                }
+            });
+            var ddlCountry = $('#country');
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCountryDetails',
+                type: 'POST',
+                dataType: 'json',
+                success: function (d) {
+                    //alert(JSON.stringify(d));
+                    $.each(d.Data, function (i, country) {
+                        //alert(i.CountryId);
+                        ddlCountry.append($("<option selected></option>").val(country.CountryName).html(country.CountryName));
+                    });
+                    ddlCountry.append($("<option value='' ></option>").val('').html('Please Select Country'));
+                },
+                error: function (d) {
+
+                    alert(d.responseText);
+                }
+            });
+        }
+        catch (err) {
+            alert(err.message);
+        }
+        var ddlState = $('#state');
+        ddlState.empty();
+        //bind direct state
+        $.ajax({
+            async: true,
+            url: '/api/EmployeeApi/BindStateDetails',
+            type: 'POST',
+            dataType: 'json',
+            headers: { CountryName: 'India' },
+            success: function (d) {
+                ddlState.empty();
+                if (d.Data != "") {
+                    ddlState.append($("<option value='' selected></option>").val('').html('Select State'));
+                    $.each(d.Data, function (i, states) {
+                        ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                    });
+                }
+                else {
+                }
+            },
+            error: function (d) {
+                alert(d.responseText);
+            }
+        });
+        //State details by country id
+        $("#country").change(function () {
+            // alert($(this).val());
+            var CountryId = $(this).val();
+            var ddlState = $('#state');
+            ddlState.empty();
+            ddlState.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindStateDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { CountryName: CountryId },
+                success: function (d) {
+                    ddlState.empty();
+                    if (d.Data != "") {
+                        ddlState.append($("<option value='' selected></option>").val('').html('Select State'));
+                        $.each(d.Data, function (i, states) {
+                            ddlState.append($("<option></option>").val(states.StateName).html(states.StateName));
+                        });
+                        $('#state').show();
+                        $('#city').show();
+                        $('#txtstate').hide();
+                        $('#txtcity').hide();
+                    }
+                    else {
+                        $('#txtstate').show();
+                        $('#state').hide();
+                        $('#txtcity').show();
+                        $('#city').hide();
+                    }
+                },
+                error: function (d) {
+                    alert(d.responseText);
+                }
+            });
+        });
+        //City Bind By satate id
+        $("#state").change(function () {
+            var StateId = $(this).val();
+            var ddlCity = $('#city');
+            ddlCity.append($("<option></option>").val('').html('Please wait ...'));
+            $.ajax({
+                async: true,
+                url: '/api/EmployeeApi/BindCityDetails',
+                type: 'POST',
+                dataType: 'json',
+                headers: { StateName: StateId },
+                success: function (d) {
+                    ddlCity.empty(); // Clear the plese wait
+                    ddlCity.append($("<option value'' selected></option>").val('').html('Select City Name'));
+                    $.each(d.Data, function (i, cities) {
+                        ddlCity.append($("<option></option>").val(cities.CityName).html(cities.CityName));
+                    });
+                },
+                error: function (d) {
+                    alert('Error!'); alert(d.responseText);
+                }
+            });
+        });
+    });
+</SCRIPT>
+<link rel="manifest" href="/manifest.json">
+<!-- ****************************** Privacy Policy ************************** -->
+<section class="inner-banner">
+    <div style="width: 90%; margin: 0 auto !important" >
+        <h2 class="inner_banner_head">registration </h2>
+    </div>
+</section>
+<form id="saveuser" method="post">
+    <div style="width: 90%; margin: 0 auto !important; padding-right: 20px !important;  padding-left: 20px !important; " class="ec_bg">
+    <section class="userinfo">
+        <div >
+            <div class="userinfoform">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">First Name<sup>*</sup></label>
+                                    <input class="form-control inputFormat" name="firstname" type="text" id="firstname" required maxlength="20">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Middle Name</label>
+                                    <input class="form-control inputFormat" name="middlename" type="text" id="middlename" maxlength="30">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Last Name</label>
+                                    <input class="form-control inputFormat" name="lastname" type="text" id="lastname" maxlength="30">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Designation</label>
+                                    <input class="form-control inputFormat" name="Designation" type="text" id="Designation" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Organisation Name<sup>*</sup>  </label>
+                                    <input class="form-control inputFormat" name="OrganisationName" type="text" id="OrganisationName" maxlength="50">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Organisation Type</label>
+                                    <select class="form-control selctInputFormat" style="background-color: white !important;"id="OrganisationType"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Organisation Size</label>
+                                    <select class="form-control selctInputFormat" style="background-color: white !important;"id="OrganisationSize"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Email<sup>*</sup></label>
+                                    <input class="form-control inputFormat" name="remail" type="text" id="remail" required maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Mobile<sup>*</sup></label>
+                                    <input class="form-control inputFormat" maxlength="10" type="text" name="contact" value="" id="rcontact" required onkeypress="return isNumberKey(event)">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Plan<sup>*</sup></label>
+                                    <select autofocus class="form-control selctInputFormat" style="background-color: white !important;" placeholder="Pack" name="pack" id="pack" required="">
+                                        <option value="">Select</option>
+                                        <option value="1">Starter</option>
+                                        <option value="2">Advance</option>
+                                        <option value="3">Enterprise</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="display:none;">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Registration Type<sup>*</sup></label>
+                                    <select autofocus class="form-control selctInputFormat" style="background-color: white !important;" placeholder="Registration Type" name="regtype" id="regtype"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <input type="hidden" id="otptemp">
+    <section id="frmreg">
+        <div class="userinfo-head">
+            <div >
+                <h2>firm details</h2>
+            </div>
+        </div>
+        <div >
+            <div class="userinfoform">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Address</label>
+                                    <input class="form-control inputFormat" type="text" value="" id="raddress" maxlength="200">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Country</label>
+                                    <select class="form-control selctInputFormat" style="background-color: white !important;" name="country" id="country"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">State</label>
+                                    <select nname="state" id="state" class="form-control selctInputFormat"></select>
+                                    <input type="text" id="txtstate" style="display:none" maxlength="20" required class="input100 form-control inputFormat" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+
+                                    <label class="formLabel colorDark" for="">City</label>
+                                    <select nname="city" id="city" class="form-control selctInputFormat"></select>
+                                    <input type="text" id="txtcity" style="display:none" maxlength="20" required class="input100 form-control inputFormat" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Pin</label>
+                                    <input type="text" nname="pincode" id="pincode" class="form-control inputFormat" maxlength="6" onkeypress="return isNumberKey(event)">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Admin Name<sup>*</sup> </label>
+                                    <input class="form-control inputFormat" readonly onfocus="$(this).removeAttr('readonly');" name="adminusername" type="text" id="adminusername" required maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for=""> Admin Email<sup>*</sup>   </label>
+                                    <input autofocus class="form-control inputFormat" type="text" value="" name="adminemail" id="adminemail" maxlength="50" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Admin Mobile<sup>*</sup></label>
+                                    <input autofocus class="form-control inputFormat" type="text" value="" name="adminmobile" id="adminmobile" maxlength="10" required>
+                                </div>
+                            </div>
+                            @*<div class="col-md-2">
+                                <div class="form-group" style="padding:30px 0 0 0;">
+                                    <button type="button" id="getotp" class="sbtbtn" style="width:140px;">Send OTP</button>
+                                </div>
+                            </div>
+                            <div class="col-md-3" id="otpdiv" style="display: none;">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Enter OTP<sup>*</sup></label>
+                                    <input class="form-control inputFormat" maxlength="6" type="text" value="" id="otpvalue" required="" onkeypress="return isNumberKey(event)">
+                                </div>
+                            </div>
+                            <div class="col-md-3" id="otpdiv1" style="display: none;">
+                                <div class="form-group" style="padding:30px 0 0 0;">
+                                    <button type="button" id="verifyotp" class="sbtbtn" style="width:140px;">Verify</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group"> <span class="control-label col-md-6 text-right" id="otpdivmessage"> </span> </div>
+                                </div>
+                            </div>*@
+                              <div class="col-md-4">
+                                <div class="form-group" >
+                                    <label class="formLabel colorDark" for="">Admin User Id<sup>*</sup></label>
+                                    <input id="rusername" class="form-control inputFormat" readonly onfocus="$(this).removeAttr('readonly');" name="rusername" type="text" required maxlength="30" oninput="this.value = this.value.replace(/[^a-zA-Z0-9_]/g, '')">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" style="padding:30px 0 0 0;">
+                                    <button type="button" class="sbtbtn" onclick="CheckUser();" style="width:140px;">Check Availability</button>
+                                    <input type="text" id="lblmsg" name="lblmsg" style="font-weight:bold !important; font-size:14px !important;" class="inputFormat"readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Password<sup>*</sup></label>
+                                    <div style="float:left;width:94%">
+                                        <input id="rpassword" class="form-control inputFormat" readonly onfocus="$(this).removeAttr('readonly');" minlength="10" name="rpassword" type="password" title="It should have its upper, lower and special character" autocomplete="off" required="" maxlength="30">
+                                    </div>
+                                        <div style="float:right;position:relative;right:3px;">
+                                            <span id="hideeye" toggle="#rpassword" class="fa fa-fw fa-eye-slash field-icon toggle-password" style="color:#676767;position:relative;z-index:1000;"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Confirm Password<sup>*</sup></label>
+                                    <div style="float:left;width:94%">
+                                        <input id="cpassword" class="form-control inputFormat" readonly onfocus="$(this).removeAttr('readonly');" minlength="10" name="cpassword" title="It should have its upper, lower and special character" type="password" autocomplete="off" required maxlength="30">
+                                     </div>
+                                        <div style="float:right;position:relative;right:3px;">
+                                            <span id="hideeye" toggle="#cpassword" class="fa fa-fw fa-eye-slash field-icon toggle-password" style="color:#676767;position:relative;z-index:1000;"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="userinfo-head">
+                        <h2 style="font-size:26px; padding:10px 0 10px 0; letter-spacing:-1px;">Secondary Contacts</h2>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Name</label>
+                                    <input class="form-control inputFormat" maxlength="30" type="text" id="secondaryname" name="secondaryname" value="" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Email</label>
+                                    <input autofocus class="form-control inputFormat" type="text" value="" name="secondaryemail" id="secondaryemail" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Mobile</label>
+                                    <input class="form-control inputFormat" maxlength="10" type="number" id="secondarymobile" name="secondarymobile" value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="formLabel colorDark" for="">Enter the captcha code</label>
+                                    <input type="text" name="txtcaptcha" id="txtcaptcha" placeholder="" class="form-control inputFormat" maxlength="6" />
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="padding-top: 20px">
+                                <div id="m_imgCaptcha" title="Captcha Code" style="color: #ffffff; font-size: 22px; background-image: url(/NewDesign/images/capcha_bg.png); width: 100px; height: 30px; margin: 0px 6px 0 0; float: left; text-align: center;">
+
+                                </div>
+                                <a style="display:block;" href="javascript:void;" onclick="fn_RefreshCaptcha();" id="RefreshCaptcha"> <img src="/NewDesign/images/capcha_rbtn.png" style="cursor:pointer; widht: 30px; height: 30px;" alt="reset" title="reset" /></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input name="chktnc" checked id="chktnc" type="checkbox" value="" style="float: left;margin: 0 6px 0 0px !important;">
+                                I have read and understood the <a href="/home/TermsConditions" target="_blank">terms & conditions</a> and accept the same.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group" style="padding:5px 0 0 0;">
+                                    <button type="button" id="btnsave" class="sbtbtn">Submit</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <input type="hidden" id="otptemp">
+    <input id="hdncaptcha" name="hdncaptcha" type="hidden" value="" />
+    </div>
+</form>

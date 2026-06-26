@@ -1,0 +1,415 @@
+﻿@{
+    ViewBag.Title = "Case List";
+    Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+}
+<script src="~/Manupanel/pnotify/pnotify.custom.min.js"></script>
+<link href="~/Manupanel/pnotify/pnotify.custom.min.css" rel="stylesheet" />
+<script src="~/Scripts/Firm/Pages/ClientMatterList.js?2.5" type="text/javascript"></script>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+</style>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <p class="ctitle"> Matters List</p> <input type="text" id="searchdata" style="display:none">
+        </div>
+        <div class="supporting-text"></div>
+    </div>
+</section>
+
+<section id="table">
+    <div class="container-main">
+        <div class="table">
+            <div class="card-header">
+                <div class="content1" style="justify-content: flex-end;">
+
+                    <div class="table-header">
+                        <div class="actions3" style="position:relative;">
+                            <div class="dropdown-toggle button13" id="menuexport" type="button" data-toggle="dropdown" title="Export">
+                                <img class="plus-icon" alt="" src="/newassets/img/upload-icon.png">
+
+                                <div class="text-padding">
+                                    <div class="text1"><a href="javascript:void()"> Export</a></div>
+                                </div>
+                            </div>
+                            <ul class="dropdown-menu action-more" role="menu" aria-labelledby="menuexport">
+                                <li>
+                                    <div id="oexcel" title="Export to Excel"><span style="padding: 0 5px 0 0;"><img src="/newassets/img/exportexl-icon.png"></span> Export to Excel</div>
+                                </li>
+                                <li>
+                                    <div title="Export to PDF" id="opdf"><span style="padding: 0 5px 0 0;"><img src="/newassets/img/exportpdf-icon.png"></span> Export to PDF</div>
+                                </li>
+                                <li>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="tablearea">
+                <div class="tablecontainer">
+                    <table id="example" class="table-panel">
+                        <thead>
+                            <tr>
+                                <th class="name"><div class="thbg">Open Date</div></th>
+                                <th class="name">
+                                    <div class="thbg">
+                                        <input type="text" id="casefiltercasename" placeholder="Matter Name" class="form-control pull-left" style="width:80%;">
+                                        <span class="glyphicon glyphicon-search" id="searchdatas"></span>
+                                        <span class="" id="clearnewsearchcase" title="Click here to reset search" style="display:none;font-size:15px;color:black;cursor:pointer;">x</span>
+                                    </div>
+                                </th>
+                                <th class="name">
+                                    <div class="thbg">
+                                        <select class="form-control" id="cdcfiltercourttype">
+                                            <option value="" selected="">Court</option>
+                                            <option value="Supreme Court">Supreme Court</option>
+                                            <option value="High Court">High Court</option>
+                                            <option value="District Court">District Court</option>
+                                            <option value="Tribunals">Tribunals</option>
+                                            <option value="Add a Court">Add a Court</option>
+                                            <option value="Revenue Court">Revenue Court</option>
+                                            <option value="Rera Court">Rera Court</option>
+                                        </select>
+                                    </div>
+                                </th>
+                                <th class="casecasedetails"><div class="thbg">Court Hearing</div></th>
+                                <th width="130px" class="name">
+                                    <div class="thbg">
+                                        <select class="form-control" id="cdcfilterstatustype"></select>
+                                    </div>
+                                </th>
+                                <th class="name"><div class="thbg">Team Members</div></th>
+                                <th class="name"><div class="thbg">Client Contact</div> </th>
+                                <th><div class="thbg">Close Date </div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="matterdata"></tbody>
+                    </table>
+                    <center>
+
+                        <div class="notfound" id="pdatastatus" style="display:none;">
+                            <img src="~/newassets/img/not-found.png" />
+                            <h4>No Matter list found</h4>
+                            <p>We found no matter list.</p>
+                        </div>
+                    </center>
+                </div>
+            </div>
+            <div class="pagination" id="divPagination">
+                <div class="pagination-button-group">
+                    <div id="prevs" class="pagination-button-group-base">
+                        <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                        <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                    </div>
+                    <div id="pageNumberss" class="pagination-button-group-base1">
+                    </div>
+                    <div id="nexts" class="pagination-button-group-base8">
+                        <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                        <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                    </div>
+                </div>
+                <div class="text-and-supporting-text-parent">
+                    <div class="input">
+                        <div class="content">
+                            <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                        </div>
+                        <div class="help-icon">
+                        </div>
+                    </div>
+                    <div class="text-and-supporting-text-group">
+                        <div class="text-and-supporting-text">
+                            <div id="divGo" class="text9">Go</div>
+                        </div>
+                        <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@*<section class="wrapper">
+    <div class="container-main">
+        <div>
+            <h2 class="ctitle" style="text-align:left;">Matters List</h2>
+            <section class="content">
+                <div id="page-wrapper">
+                    <div class="container-fluid showcontent" id="showcontent">
+                        <div class="box" style="margin:0 0 4px 0; overflow:hidden;">
+                            <div class="box-header">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="content">
+                <form id="frmtsklist">
+                    <section class="content-header">
+                        <div class="table-panel table-responsive">
+                            <table id="example" class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="name"><div class="thbg">Open Date</div></th>
+                                        <th class="name">
+                                            <div class="thbg">
+                                                <input type="text" id="casefiltercasename" placeholder="Matter Name" class="form-control pull-left" style="width:95%;">
+                                                <span class="glyphicon glyphicon-search" id="searchdatas"></span>
+                                                <span class="" id="clearnewsearchcase" title="Click here to reset search" style="display:none;font-size:15px;color:black:font-weight:350;cursor:pointer;">x</span>
+                                            </div>
+                                        </th>
+                                        <th class="name">
+                                            <div class="thbg">
+                                                <select class="form-control col_b" id="cdcfiltercourttype">
+                                                    <option value="" selected="">Court</option>
+                                                    <option value="Supreme Court">Supreme Court</option>
+                                                    <option value="High Court">High Court</option>
+                                                    <option value="District Court">District Court</option>
+                                                    <option value="Tribunals">Tribunals</option>
+                                                    <option value="Add a Court">Add a Court</option>
+                                                    <option value="Revenue Court">Revenue Court</option>
+                                                    <option value="Rera Court">Rera Court</option>
+                                                </select>
+                                            </div>
+                                        </th>
+                                        <th class="casecasedetails"><div class="thbg">Court Hearing</div></th>
+                                        <th class="name">
+                                            <div class="thbg">
+                                                <select class="form-control col_b" id="cdcfilterstatustype"></select>
+                                            </div>
+                                        </th>
+                                        <th class="name"><div class="thbg">Team Members</div></th>
+                                        <th class="name"><div class="thbg">Client Contact</div> </th>
+                                        <th><div class="thbg">Close Date </div></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="matterdata"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <div class="table-panel">
+                        <div class="settingpanel">
+                            <div class="col-md-6">
+
+                                <div id="ptfooter">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="pull-right">
+                                    <li>
+                                        <select class="form-control selectInputFormat" name="fstatus" id="fstatus" onchange="filtertable()" style="display:none; background-color: #ebebeb !important;
+    padding-right: 20px !important;
+    border-radius: 20px !important;
+    height: 30px !important;
+    margin-top: -5px !important;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    padding-left: 15px !important;
+    background: #ebebeb url(/newassets/images/selectbox_arrow.png) no-repeat right !important;
+    -webkit-appearance: none;
+    background-position-x: 99%;
+    margin-bottom: 10px !important;">
+                                            <option value="" selected>Status - All</option>
+                                        </select>
+                                    </li>
+                                    <li>
+                                        <div class="btn-group dropup">
+                                            <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -5px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Action Selected
+                                            </a>
+                                            <ul class="dropdown-menu settingaction">
+                                                <li><a href="javascript:void()" id="oexcel" title="Export to Excel">Export to Excel</a></li>
+                                                <li><a href="javascript:void()" id="opdf" title="Export data to PDF">Export to PDF</a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div id="myModal1" class="modal fade myModal" role="dialog" data-backdrop="static">
+                        <div class="modal-dialog modal-lg">
+                          
+                            <div class="modal-content mymodels" id="mymodels">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</section>*@
+<div id="tokens"></div>
+<div id="myOverlay" class="overlay" style="display:block !important">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalleadcall" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:994px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    Case: Time Spend list
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div id="exTab1">
+                                            <ul class="nav nav-pills">
+                                                <li class="pull-right">
+                                                    <a href="javascript:void()" id="cmexcel" title="Export to Excel"> Export to Excel</a>
+                                                    <a href="javascript:void()" id="cmpdf" title="Export data to PDF"> Export to PDF</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content clearfix">
+                                                <div class="tab-pane active" id="1a">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <fieldset>
+                                                                <div class="table-panel table-responsive">
+                                                                    <table id="Casetimetable" class="dataTable table" style="overflow-x:auto">
+                                                                        <tr>
+                                                                            <th width="15px;"><div class="thbg">S.No</div></th>
+                                                                            <th width="100px;"><div class="thbg">Case Name</div></th>
+                                                                            <th width="100px;"><div class="thbg">Time Spent</div></th>
+                                                                            <th width="140px;"><div class="thbg">Date</div></th>
+                                                                            <th width="200px;"><div class="thbg">Created By</div></th>
+                                                                        </tr>
+                                                                        <tbody id="assignuserdata"></tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span id="textcaseid" style="display:none"></span>
+                                            </div>
+                                        </div>
+                                        <!-- /.row (nested) -->
+                                    </div>
+                                    <!-- /.panel-body -->
+                                </div>
+                                <!-- /.panel -->
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var fcode = localStorage.getItem("FirmCode");
+    function OpenMatterDetail(strid) {
+        var url = "/Client/MatterSingleView/" + strid;
+        window.location = encodeURI("/" + fcode + url);
+    }
+</script>
+
+
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("example");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = $("#example").find("tbody tr");
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>

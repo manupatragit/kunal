@@ -1,0 +1,112 @@
+﻿@using QueryStringEDAES;
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+@using QueryStringEDAES;
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Clientcaselist</title>
+</head>
+<script>
+    var fcode = localStorage.getItem("FirmCode");
+    $(document).on("click", "#linkcase", function () {
+        window.location = encodeURI("/" + fcode + "/Employee/MatterSingleView/" + enctype($(this).attr("data-val")));
+    });
+</script>
+<style>
+    .datacenter {
+        float: right;
+        position: relative;
+        left: -50%; /* or right 50% */
+        text-align: left;
+    }
+</style>
+@{ var fcode2 = Request.Url.Segments[1]; }
+<body>
+    <div>
+        <table id="example1" style="overflow-x:auto;" class="dataTable table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th class="">S.No</th>
+                    <th class="">Case</th>
+                    <th class="">Status</th>
+                    <th class="">CNR No.</th>
+                    <th class="">Open Date</th>
+                    <th class="">Close Date</th>
+                    @*<th width="" class="" align="center">Document &nbsp;</th>*@
+                    <th>Case Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int qty = 0;
+                }
+                @foreach (var item in @ViewBag.clientcaselist)
+                {
+                    qty = qty + 1;
+                    <tr>
+                        <td>@qty</td>
+                        <td><a href="#" id="linkcase" data-val="@item.Id">@item.mname</a></td>
+                        <td class="cstatus">@item.cstatus</td>
+                        <td>@item.cnrno</td>
+                        <td>
+                            @{
+                                var opendate = "";
+                                // var closedate = "";
+                            }
+                            @if (item.odate == null)
+                            {
+                                opendate = "";
+                            }
+                            else
+                            {
+                                opendate = @String.Format("{0:dd-MMM-yyyy}", item.odate);
+                            }
+                            @opendate
+                        </td>
+                        <td>
+                            @{
+                                var closedate = "";
+                            }
+                            @if (item.cdate == null)
+                            {
+                                closedate = "";
+                            }
+                            else
+                            {
+                                closedate = @String.Format("{0:dd-MMM-yyyy}", item.cdate);
+                            }
+                            @closedate
+                        </td>
+                        <td>
+                            @{
+                                var fcode1 = Request.Url.Segments[1];
+                                var usercaseid = "";
+                                var btnclass = " ";
+                            }
+                            @if ((Convert.ToString(item.UserCaseid)) == "0")
+                            {
+                                btnclass = "";
+                                usercaseid = "";
+                            }
+                            else if (item.UserCaseid != null)
+                            {
+                                btnclass = "details";
+                                usercaseid = "<span class='glyphicon glyphicon-book'></span>";
+                            }
+                            else
+                            {
+                                btnclass = "";
+                                usercaseid = "";
+                            }
+                            <a href="/@fcode1/employee/CaseDetails?token=@QueryAES.EncryptStringAES(@item.UserCaseid.ToString())" class="@btnclass datacenter"> @Html.Raw(HttpUtility.HtmlDecode(usercaseid))</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

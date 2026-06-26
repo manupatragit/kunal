@@ -1,0 +1,609 @@
+﻿@{
+    Layout = null;
+    var role = Session["sessionroleid"];
+}
+<script src="~/Scripts/Firm/Pages/ExpenseCreated.js?v=2.5"></script>
+<section class="wrapper">
+    <div class="ec_bg">
+        <div class="row">
+            <div class="col-md-3">
+                <label class="formLabel colorDark">User</label>
+                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpenceTeamMemberCr">
+                    <option value="">Select</option>
+                </select>
+            </div>
+            <div class="col-md-3" style="display:none">
+                <label class="formLabel colorDark">CREATED BY</label>
+                @if (role.ToString() == "1")
+                {
+                    <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpUser" name="ddlExpUser"></select>
+                }
+                else
+                {
+                    <span style="display:none" id="ddlExpUser" name="ddlExpUser"></span>
+                }
+            </div>
+            <div class="col-md-3">
+                <label class="formLabel colorDark">Client Name</label>
+                <input type="hidden" id="ectimecontactvalue">
+                <input type="text" id="ectimecontact" name="ectimecontact" class="form-control inputFormat" autocomplete="new-text" />
+            </div>
+            <div class="col-md-3">
+                <label class="formLabel colorDark">Matter Name</label>
+                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ecmatter" name="ecmatter">
+                    <option value="" selected="">Select</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="formLabel colorDark">Expense Type</label>
+                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlExpenseType">
+                    <option value="">Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="row" style="padding:10px 0 0 0;">
+            <div class="col-md-3">
+                <label class="formLabel colorDark">Category</label>
+                <select class="form-control selctInputFormat" style="background-color: white !important;" id="ddlCategory">
+                    <option value="">Select</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="formLabel colorDark">Start</label>
+                <input class="form-control inputFormat" id="datefrom" onkeypress="return false;" type="date">
+            </div>
+            <div class="col-md-3">
+                <label class="formLabel colorDark">End</label>
+                <input class="form-control inputFormat" id="dateto" onkeypress="return false;" type="date">
+            </div>
+            <div class="col-md-3">
+                <button type="button" id="searchdatas" class="sbtbtn" style="margin:27px 0 0 0;">Search</button>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="table-panel table-responsive">
+    <div style="">
+        <table class="table" id="cexample1">
+            <thead>
+                <tr>
+                    <th class="eDate" title="Date on which expense incurred"><div class="thbg">Date</div></th>
+                    <th class="eCaseName" width="15%" title="Matter for which expense incurred" onclick="sortTable(1)"><div class="thbg">Matter Name<span class="fa fa-fw fa-sort pull-right"></span></div></th>
+                    <th class="eClientName" title="Client for whom expense incurred" onclick="sortTable(2)"><div class="thbg">Client Name<span class="fa fa-fw fa-sort pull-right"></span></div></th>
+                    <th class="eExpenseType" title="Billable or Non billable expense" onclick="sortTable(3)"><div class="thbg">Expense Type<span class="fa fa-fw fa-sort pull-right"></span></div></th>
+                    <th class="eCategory" title="Expense type" onclick="sortTable(4)"><div class="thbg">Category<span class="fa fa-fw fa-sort pull-right"></span></div></th>
+                    <th class="eDescription" title="Add Narration"><div class="thbg">Description</div></th>
+                    <th class="ePriceRate"><div class="thbg">Price/Rate</div></th>
+                    <th class="eUnit"><div class="thbg">Unit</div></th>
+                    <th class="eTotal" title="Amount of expense"><div class="thbg">Amount</div></th>
+                    <th class="createdby" title="User name"><div class="thbg">Created by</div></th>
+                    <th class="eReceipt" title="Attach supporting if applicable"><div class="thbg">Receipt</div></th>
+                    <th class="createdfor" title="User on whose behalf expense entry made"><div class="thbg">Created for</div></th>
+                </tr>
+            </thead>
+            <tbody id="bindexpense"></tbody>
+        </table>
+        <div style="float:left;width:57%;margin-bottom:5px;">
+            &nbsp;
+        </div>
+        <div style="float:left;width:20%;display:none;border:1px solid #ccc" id="sumdiv">
+            <span style="margin-left:15px;font-weight:bold">Total Amount </span><span style="margin-left:34px;">|</span><span id="totalamount" style="margin-left:20px">0</span>
+        </div>
+    </div>
+    <div class="settingpanel">
+        <div class="col-md-6">
+            <div class="row">
+                <ul>
+                    <li>
+                        <div class="btn-group dropup">
+                            <a href="javascript:void()" class="dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important; margin-top: -3px !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="glyphicon glyphicon-cog" style="font-size:16px;color:#4d95dd;padding:0 5px 0 0 "></span>
+                                Customize Field
+                            </a>
+                            <ul class="dropdown-menu settingshowhide" id="EColli">
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDate" checked><a href="#" class="dropdown-item">Date</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCaseName" checked><a href="#" class="dropdown-item">Matter Name</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eClientName" checked> <a href="#" class="dropdown-item">Client Name</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eExpenseType" checked><a href="#" class="dropdown-item">Expense Type</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eCategory" checked><a href="#" class="dropdown-item">Category</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eDescription"><a href="#" class="dropdown-item">Description</a></li>
+                                <li style="display:none"><input type="checkbox" class="shcheckbox1 chkdhide" name="ePriceRate"><a href="#" class="dropdown-item">Price/Rate</a></li>
+                                <li style="display:none"><input type="checkbox" class="shcheckbox1 chkdhide" name="eUnit"><a href="#" class="dropdown-item">Unit</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eTotal" checked><a href="#" class="dropdown-item">Amount</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="eReceipt"><a href="#" class="dropdown-item">Receipt</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="createdby"><a href="#" class="dropdown-item">Created by</a></li>
+                                <li><input type="checkbox" class="shcheckbox1 chkdhide" name="createdfor" checked><a href="#" class="dropdown-item">Created for</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li style="margin-left:20px;">
+                        <div id="ecfooterexp"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6" @*style="display:none;"*@>
+            <ul class="pull-right" id="ulfooter1">
+                <li>
+                    <div class="btn-group dropup">
+                        <a href="javascript:void()" class=" dropdown-toggle form-control selctInputFormat " style="background-color: #ebebeb !important;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Action Selected
+                        </a>
+                        <ul class="dropdown-menu settingaction">
+                            @if (role.ToString() == "1")
+                            {
+                                <li><a href="javascript:void();" id="oexcel" title="export to excel"> Export to excel</a></li>
+                                <li><a href="javascript:void();" id="opdf" title="export to pdf"> Export to pdf</a></li>
+                            }
+                            else
+                            {
+                                if (Convert.ToInt32(ViewBag.export) == 1)
+                                {
+                                    <li><a href="javascript:void();" id="oexcel" title="export to excel"> Export to excel</a></li>
+                                    <li><a href="javascript:void();" id="opdf" title="export to pdf"> Export to pdf</a></li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade myModal " role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content mymodels" id="mymodels">
+        </div>
+    </div>
+</div>
+<script>
+    function sortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("cexample1");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 1; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function psortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("pexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function osortTable(n, type = null) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("oexample");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 0; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (type == "1") {
+                    if (dir == "asc") {
+                        if (new Date(x.innerHTML.toLowerCase()) > new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (new Date(x.innerHTML.toLowerCase()) < new Date(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else if (type == "2") {
+                    if (dir == "asc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) > parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseFloat(x.innerHTML.toLowerCase()) < parseFloat(y.innerHTML.toLowerCase())) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        $("#ectimecontact").autocomplete({
+            disabled: true
+        });
+    });
+    $("#filterclient").change(function () {
+        var flval = $("#filterclient").val();
+        if (flval != "") {
+            loadmatter1(flval, "filtercasescheduler");
+        }
+    });
+    function loadmatter1(clientid, mtypes) {
+        if (mtypes != "") {
+            $('#' + mtypes).append('<option value="">Select Matter</option>').find('option:first').attr("selected", "selected");
+            getcasebyajax1(clientid, mtypes);
+        }
+    }
+    function getcasebyajax1(clientid, matteridslbl) {
+        try {
+            openload();
+        }
+        catch
+        {
+        }
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/LoadMatterforclient",
+            headers: {
+                "clientid": clientid,
+                "companyids": ""
+            },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                }
+                else {
+                    //alert("not found");
+                }
+                var obj = JSON.parse(response.Data);
+                if (matteridslbl == "filtercasescheduler") {
+                    $("#filtercasescheduler").empty();
+                    var optiontempy = '<option value="" >Matters</option>';
+                    $("#" + matteridslbl).append(optiontempy);
+                }
+                $.each(obj, function (i, a) {
+                    var mattername = a.mname;
+                    var mid = a.Id;
+                    if (mattername == null) {
+                        mattername = "";
+                        mid = "";
+                    }
+                    else {
+                        var option = '<option value="' + mid + '" > ' + mattername + '</option>';
+                        $("#" + matteridslbl).append(option);
+                    }
+                });
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            },
+            failure: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            },
+            error: function (response) {
+                alert(data.responseText);
+                try {
+                    closeload();
+                }
+                catch
+                {
+                }
+            }
+        });
+    }
+    $(function () {
+        $("#taskcontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                $("#member").css("height", "100px !important;")
+                var clientds = map[item].id;
+                if (clientds != "") {
+                    $('#ecmatter').empty();
+                    loadmatter1(clientds, "ecmatter");
+                }
+                return item;
+            }
+        });
+    });
+    $(function () {
+        $("#ectimecontact").typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 3,
+            source: function (request, response) {
+                request = request.replace(/"/g, "").replace(/\\/g, "");
+                $.ajax({
+                    async: true,
+                    url: '/Firm/ClientFilter',
+                    data: "{ 'prefix': '" + request + "'}",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = item.val;
+                            var name = item.label;
+                            var utype = item.utype;
+                            var isclient = item.isclient;
+                            var CompanyID = item.CompanyID;
+                            var ProfileType = item.ProfileType;
+                            var LabelName = item.LabelName;
+                            map[name] = { id: id, name: name, utype: utype, isclient: isclient, CompanyID: CompanyID, ProfileType: ProfileType, LabelName: LabelName };
+                            items.push(name);
+                        });
+                        response(items);
+                        $(".dropdown-menu").css("height", "auto");
+                        $(".typeahead li").removeClass("active");
+                    },
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    failure: function (response) {
+                        alert(response.responseText);
+                    }
+                });
+            },
+            updater: function (item) {
+                var clientds = map[item].id;
+                $("#ectimecontactvalue").val(clientds);
+                if (clientds != "") {
+                    $('#ecmatter').empty();
+                    loadmatter1(clientds, "ecmatter");
+                }
+                return item;
+            }
+        });
+    });
+</script>

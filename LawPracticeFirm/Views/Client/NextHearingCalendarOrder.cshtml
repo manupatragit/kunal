@@ -1,0 +1,367 @@
+﻿@{
+    Layout = null;
+    //var id = Request.Url.Segments[3];
+}
+<script>
+    var hsmklitigation = "@Session["hsmklitigation"]";
+    var dashmatter ="@Session["dashmatter"]";
+</script>
+<!-- DataTables Responsive CSS -->
+<link href="~/panelDesign/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+<link href="~/panelDesign/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+<script>
+    var str1 = "@ViewBag.id";
+    loaddata();
+    function loaddata() {
+        var strheader1 = '';
+        var stritem1 = '';
+        var strtable1 = '';
+        var strid = str1;
+        strtable1 = $('<table /><tr><th>').addClass(' table-panel ');
+        $.ajax(
+            {
+                async: true,
+                url: "/Client/NextHearingcalendarOrderDetail/" + strid, // Controller/View
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.Data == "") {
+                        $(".stsdata").css("display", "block");
+                        $(".loader1").css("display", "none");
+                    }
+                    else {
+                        $(".stsdata").css("display", "none");
+                    }
+                    strheader1 = $('<thead><tr><th class="name" width="15%" ><div class="thbg">Case No.</div></th><th class="name" ><div class="thbg">Matter Name</div></th><th class="desc" width="20%" ><div class="thbg">Advocate Name</div></th><th><div class="thbg">Court/State</div></th><th class="desc" width="20%" ><div class="thbg">Order Date</div></th><th class="desc" width="20%" ><div class="thbg">Notes</div></th><th class="desc" width="20%" ><div class="thbg">Stage</div></th><th class="desc" width="20%" ><div class="thbg">Order</div></th></tr></thead>');
+                    strtable1.append(strheader1);
+                    stritem1 = "<tbody>";
+                    $.each(data, function (i, val) {
+                        var DiaryNo ="";
+                        var Disposeddt = val.Disposeddt;
+                        if (val.Disposeddt == "01 Jan 1900") {
+                            Disposeddt = "";
+                        }
+                        var strcasename = val.Casetype + " " + val.CaseNo + (val.Caseyear ? "/" + val.Caseyear : "");
+                       //var strcasename = val.Casetype + " " + val.CaseNo + "/" + val.Caseyear;
+                        var Notes = val.Notes;
+                        if (Notes =="null" || Notes==null) {
+                            Notes = "";
+                        }
+                        if (val.strfile == "")
+                        {
+                            stritem1 += "<tr>";
+                            stritem1 += "<td>" + strcasename + "</td>";
+                            if (val.UserCaseId != "") {
+                                if (hsmklitigation == "display:unset" && dashmatter == "display:none") {
+                                    stritem1 += "<td><span  data-val=" + val.UserCaseId + ">" + val.Casename + "</td>";
+                                }
+                                else {
+                                    stritem1 += "<td><span style='cursor:pointer;color:#069;' id='viewcasedetails' data-val=" + val.UserCaseId + ">" + val.Casename + "</td>";
+                                }
+                            }
+                            else {
+                                stritem1 += "<td>" + val.Casename + "</td>";
+                            }
+                            stritem1 += "<td>" + val.Advname + "</td>";
+                            stritem1 += "<td>" + val.Court + "</td>";
+                            stritem1 += "<td>" + Disposeddt + "</td>";
+                            stritem1 += "<td>" + Notes + "</td>";
+                            stritem1 += "<td></td>";
+                            stritem1 += "<td></td>";
+                            stritem1 += "</tr>";
+                        }
+                        else {
+                            var filepath = "/DownloadFile.ashx?module=caseorder&ftoken=";
+                            strfile = filepath + val.strfile;
+                            stritem1 += "<tr>";
+                            stritem1 += "<td>" + strcasename + "</td>";
+                            if (val.UserCaseId != "") {
+                                if (hsmklitigation == "display:unset" && dashmatter == "display:none")
+                                {
+                                    stritem1 += "<td><span   data-val=" + val.UserCaseId + ">" + val.Casename + "</td>";
+                                }
+                                else
+                                {
+                                    stritem1 += "<td><span style='cursor:pointer;color:#069;' id='viewcasedetails' data-val=" + val.UserCaseId + ">" + val.Casename + "</td>";
+                                }
+                            }
+                            else {
+                                stritem1 += "<td>" + val.Casename + "</td>";
+                            }
+                            stritem1 += "<td>" + val.Advname + "</td>";
+                            stritem1 += "<td>" + val.Court + "</td>";
+                            stritem1 += "<td>" + Disposeddt + "</td>";
+                            stritem1 += "<td>" + Notes + "</td>";
+                            stritem1 += "<td></td>";
+                            stritem1 += "<td><a href=" + strfile +"  target='_blank' title='Download Order'><img src='/newassets/img/download-icon.png' /></td>";
+                            stritem1 += "</tr>";
+                        }
+                    });
+                    stritem1 += "</tbody>";
+                    strtable1.append(stritem1);
+                    // $(strdivid).html(stritem1);
+                    $(".divdata").html(strtable1);
+                    $(".loader1").css("display", "none");
+                },
+                failure: function (data) {
+                    // alert(data.responseText);
+                },
+                error: function (data) {
+                }
+             });
+    }
+    $(document).ready(function () {
+        $("#Canceldiv").click(function () {
+            $("#emaildiv").hide();
+        });
+        $("#emailPDF").click(function () {
+            //$("#emaildiv").show();
+            $("#emailmodalTracker").modal();
+        });
+        $("#SendPDF").click(function () {
+            var formdata = new FormData();
+            var email = $("#emailNH").val();
+            var name = $("#nameNH").val();
+            if (email == "") {
+                //alert("Please enter email");
+                new PNotify({
+                    title: 'Warning!',
+                    text: 'Please enter email',
+                    type: 'warning',
+                    delay: 3000
+                });
+                $("#emailNH").focus();
+                return false;
+            }
+            if (email != "") {
+            var reg = /^([A-Za-z0-9_\-\.])+\@@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+            if (reg.test(email) == false) {
+                alert('Invalid Email');
+                $("#emailNH").focus();
+                    return false;
+                }
+            }
+            var date = str1;
+            formdata.append("email", EncodeText(email));
+            formdata.append("id", EncodeText(date));
+            formdata.append("name", EncodeText(name));
+            $.ajax({
+                async: true,
+                url: "/CW/OrderSendPDFMail",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    if (String(response) == "True") {
+                        //$("#emaildiv").hide();
+                        $("#emailNH").val("");
+                        $("#nameNH").val("");
+                        //alert("Mail sent successfully.");
+                        $("#emailmodalTracker").modal("hide");
+                        new PNotify({
+                            title: 'Success!',
+                            text: 'Mail sent successfully.',
+                            type: 'success',
+                            delay: 3000
+                        });
+                    }
+                    else {
+                        alert(response);
+                    }
+                },
+                failure: function (response) {
+                    //alert(data.responseText);
+                },
+                error: function (response) {
+                    //alert(data.responseText);
+                }
+            });
+        });
+        $("#DownloadPDF").click(function () {
+            var downloadpath = "/CW/OrderDownloadPDF?id=" + str1;
+            var link = document.createElement('a');
+            link.href = downloadpath;
+            link.target = "_blank";
+            link.click();
+        });
+        //Download Order in Excel
+        $("#DownloadOExcel").click(function () {
+            var downloadpath = "/CW/OrderDownLoadExcel?id=" + str1;
+            var link = document.createElement('a');
+            link.href = downloadpath;
+            link.target = "_blank";
+            link.click();
+        });
+
+        //for redirect to case details
+        var fcode = localStorage.getItem("FirmCode");
+        $(document).on("click", "#viewcasedetails", function () {
+            //  var caseid = $(this).attr("data-val");
+            var usercaseid = $(this).attr("data-val");
+            var formdata = new FormData();
+            formdata.append("usercaseid", usercaseid);
+            $.ajax({
+                async: true,
+                url: "/CW/GetMatterCaseIdMaptoCW",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    if (response != "") {
+                        if (response[0]["MatterID"] == "00000000-0000-0000-0000-000000000000") {
+                            var urls = "/" + fcode + "/Firm/Casedetails";
+                            url_redirect({
+                                url: urls,
+                                method: "post",
+                                data: { "token": usercaseid }
+                            });
+                        }
+                        else {
+                            var urls = "/" + fcode + "/Firm/NewCaseDashboard?type=CW";
+                            url_redirect({
+                                url: urls,
+                                method: "post",
+                                data: { token: response[0]["MatterID"] }
+                            });
+                        }
+                    }
+                    else {
+                        var urls = "/" + fcode + "/Firm/Casedetails";
+                        url_redirect({
+                            url: urls,
+                            method: "post",
+                            data: { "token": usercaseid }
+                        });
+                    }
+                },
+                failure: function (response) {
+                    //alert(data.responseText);
+                },
+                error: function (response) {
+                    //alert(data.responseText);
+                }
+            });
+        });
+    });
+</script>
+<style>
+    .loader1 {
+        border: 5px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 5px solid #3498db;
+        width: 30px;
+        height: 30px;
+        -webkit-animation: spin 6s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+        margin: 0 auto;
+        margin-top: 50px;
+        top: 50%;
+        left: 50%;
+    }
+
+    @@-webkit-keyframes spin {
+        0% {
+            -webkit-transform: rotate(0deg);
+        }
+
+        100% {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .email-pan {
+        box-shadow: 0 5px 30px 0 rgba(82, 63, 105, 0.2);
+        width: 270px;
+        overflow: hidden;
+        position: absolute;
+        z-index: 999;
+        background: #fff;
+        right: 31px;
+        border-radius: 10px;
+        padding: 10px;
+    }
+</style>
+<div class="modal-header btn-primary">
+    <button type="button" id="closemodel" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title">
+        Order Detail
+    </h4>
+    <div class="card-header">
+        <div class="content1" style=" justify-content: flex-end;padding:4px 0;">
+            <div class="table-header">
+                <div class="actions3">
+                    <button class="button9" id="DownloadPDF" title="Download PDF"><img src="/newassets/img/exportpdf-icon.png"></button>
+                    <button class="button9" id="DownloadOExcel" title="Download Excel"><img src="/newassets/img/exportexl-icon.png"></button>
+                    <button class="button13" id="emailPDF" title="Send Email" style="position:relative;"><img src="/newassets/img/mail-01.png"> Send Email</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*<div style="display:none;" id="emaildiv" class="email-pan">
+    <input placeholder="enter email" style="width:100%;" type="text" id="emailNH" class="inputFormat form-control">
+    <input type="text" id="nameNH" placeholder="ener name" class="inputFormat form-control" style="width:100%;display:none;">
+    <div style="padding:10px 0;" class="text-right">
+        <button class="btn btn-primary" id="SendPDF">Send</button>
+        <button class="btn btn-secondary" id="Canceldiv">Cancel</button>
+    </div>
+</div>*@
+<div class="loader1"></div>
+<div class="modal-body" style="clear:both; min-height:350px;">
+    <!-- Main content -->
+    <div id="content">
+        <div class="row">
+            <div id="divdata" class="divdata table-panel" style="overflow:auto"></div>
+        </div>
+        <center><div id="stsdata" class="stsdata" style="display:none">No data found.</div></center>
+    </div>
+</div>
+
+@*Start Send email*@
+<div class="modal fade" id="emailmodalTracker" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog manuModal1" style="width:400px !important;">
+        <div class="modal-content" id="emasexc1" style="background: #fff;">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="editclose"> <span aria-hidden="true" style="font-size:unset !important">×</span></button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/sendnotice-icon.png" style="margin:-24px 0px 0 -25px">
+                </h4>
+               
+            </div>
+            <div class="modaltitle" style="border-bottom: none; margin: -32px 0 0 0;">
+                <h4>Share Via Email</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input placeholder="enter email" style="width:100%;" type="text" id="emailNH" class="inputFormat form-control">
+                        <input type="text" id="nameNH" placeholder="ener name" class="inputFormat form-control" style="width: 100%; display: none;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: none !important">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close" id="Canceldiv" style="width:100%;">Cancel</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button id="SendPDF" class="btn btn-primary" style="width:100%;">Send</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+</div>
+    </div>
+@*End Send email*@

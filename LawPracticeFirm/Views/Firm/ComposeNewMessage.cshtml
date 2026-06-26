@@ -1,0 +1,190 @@
+﻿@{
+    Layout = null;
+    var role = Session["sessionroleid"];
+}
+<script>
+    var filesize =@ViewBag.filesize
+</script>
+<script src="~/Manupanel/validation/jquery.validate.js"></script>
+<script src="~/Manupanel/ckeditor/ckeditor.js"></script>
+<script src="~/Manupanel/ckeditor/samples/js/sample.js"></script>
+<script src="~/Content/multipleselect/selectize.js"></script>
+<script src="~/Content/multipleselect/index.js"></script>
+<link href="~/Content/multipleselect/dist/css/selectize.bootstrap2.css" rel="stylesheet" />
+<link href="~/Content/multipleselect/dist/css/jquery.magicsearch.min.css" rel="stylesheet" />
+<script src="~/Scripts/Firm/Pages/ComposeNewMessage.js?1.5"></script>
+<style>
+    .selectize-control {
+        margin: 0 0 6px 0 !important;
+    }
+
+    .selectize-input {
+        width: 100% !important;
+        MARGIN: 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        box-shadow: none !important;
+    }
+</style>
+<!-- Main content -->
+<div class="row">
+    <div style="width:67%;margin:0 auto;">
+        <form id="savemessageform" enctype="multipart/form-data">
+            <div class="col-md-12">
+                <div class="col-md-2">
+                    <label class="control-label">To: <span class="required" aria-required="true">*</span> </label>
+                </div>
+                <div class="col-md-10">
+                    @Html.DropDownList("select-user", new SelectList(ViewBag.Fruits, "val", "label"), "Select", new { @id = "select-user", @class = "demodefault ", @multiple = "multiple" })
+                </div>
+                @if (role.ToString() == "1" || role.ToString() == "2")
+                {
+                    <div class="col-md-2">
+                        <label class="control-label">Client</label>
+                    </div>
+                    <div class="col-md-10">
+                        <select name="contact" class="form-control" id="contact">
+                            <option value="" selected>Select</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="control-label">Matter: </label>
+                    </div>
+                    <div class="col-md-10">
+                        <select name="mattercom" class="form-control" id="mattercom">
+                            <option value=""> Select </option>
+                        </select>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-10" style="display:none">
+                        <select name="contact" class="form-control" id="contact">
+                            <option value="" selected>Select Client...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-10" style="display:none">
+                        <select name="mattercom" class="form-control" id="mattercom">
+                            <option value=""> Select </option>
+                        </select>
+                    </div>
+                }
+                <div class="col-md-2">
+                    <label class="control-label">Subject: <span class="required" aria-required="true">*</span></label>
+                </div>
+                <div class="col-md-10">
+                    <input class="form-control" name="subject" type="text" id="subject" required />
+                </div>
+                <div class="col-md-2">
+                    <label class="control-label">Message:</label>
+                </div>
+                <div class="col-md-10">
+                    <br>
+                    <textarea ID="details" cols="15"></textarea>
+                    <div class="grid-container" style="display:none">
+                        <div id="editor">
+                        </div>
+                        <script>
+                            initSample();
+                        CKEDITOR.replace('details', {
+                            toolbar:
+                                [
+                                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'justify', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'] },
+                                    { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                                    { name: 'tools', items: ['Maximize'] },
+                                    { name: 'styles', items: ['Styles', 'format', 'Font', 'FontSize'] },
+                                    { name: 'colors', items: ['TextColor', 'BGColor'] }
+                                ],
+                            height: 80,
+                            width: 565
+                        });
+                        </script>
+                    </div>
+                    </br>
+                </div>
+                <div class="col-md-2">
+                    <label class="control-label">Attachment:</label>
+                </div>
+                <div class="col-md-10">
+                    <input class="form-control" name="postedFile" id="postedFile" type="file" multiple placeholder="Add description..." style="margin-top:10px !important; " />
+                </div>
+            </div>
+            <div class="col-md-2">
+                &nbsp;
+            </div>
+            <div class="col-md-10">
+                <br>
+                <button type="submit" id="" class="sbtbtn save" value="Send">Send</button>&nbsp;
+                <button type="button" id="savedraft" class="sbtbtn" value="Send">Save As Draft</button>&nbsp;
+            </div>
+        </form>
+        <div class="col-md-12">
+            <br>
+            @if (role.ToString() == "1" || role.ToString() == "2")
+            {
+                <button class="sbtbtn " id="creategroup" style="margin-top: -47px; float: right;"> Create Group</button>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    $('#select-user').selectize({
+        //maxItems: 3
+    });
+    var $select = $("#select-user").selectize();
+    if (tokenid != "") {
+        setTimeout(function () {
+            var formData = new FormData();
+            formData.append("token", tokenid);
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/api/callApi/SingleDraftMessage", // Controller/View
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Status == true) {
+                            var datas = JSON.stringify(response);
+                            var obj = JSON.parse(response.Data);
+                        }
+                        else {
+                            //alert("not found");
+                        }
+                        $.each(obj, function (i, a) {
+                            var mattername = a.mmatter;
+                            try {
+                                var mid = a.did;
+                                if (mattername == null) {
+                                    mattername = "";
+                                    mid = "";
+                                }
+                                else {
+                                    $("#mattercom option[value='" + mattername + "']").attr("selected", "selected");
+                                }
+                                $("#subject").val(a.msubject);
+                                CKEDITOR.instances['details'].setData(a.mbody);
+                                var selectize = $select[0].selectize;
+                                var selecteduser = a.auser;
+                                var array = selecteduser.split(",");
+                                selectize.setValue(array)
+                            }
+                            catch (er) {
+                                //alert(er.message);
+                            }
+                        });
+                    },
+                    failure: function (response) {
+                        alert(data.responseText);
+                    },
+                    error: function (response) {
+                        alert(data.responseText);
+                    }
+                });
+        }, 1000);
+    }
+    else {
+    }
+</script>

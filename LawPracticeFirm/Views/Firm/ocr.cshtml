@@ -1,0 +1,990 @@
+﻿@{
+    /**/
+    ViewBag.Title = "AddContent";
+    var role = Session["sessionroleid"];
+    if (role.ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartial.cshtml";
+    }
+    else if (role.ToString() == "2")
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialUser.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_ManuPanelPartialClient.cshtml";
+    }
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<script src="~/Scripts/html2pdf.bundle.min.js"></script>
+<script src="~/Scripts/jszip.min.js"></script>
+<script src="~/Scripts/Firm/Pages/ocr.js?2.6"></script>
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script src="~/Scripts/pdf.min.js"></script>
+<script pdfjsLib.GlobalWorkerOptions.workerSrc="~/Scripts/pdf.worker.min.js"></script>
+<script type="text/javascript">
+    //var newfilesize = 20480;
+    var newfilesize = 5120;
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'bn,en,gu,hi,kn,ml,mr,pa,ta,te,ur,ne', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL }, 'google_translate_element');
+    }
+</script>
+<section id="header">
+    <div class="container-main">
+        <div class="text-left">
+            <h2 class="ctitle" style="margin-top:0;">OCR Converter </h2>
+        </div>
+    </div>
+</section>
+<style>
+    .progress-container {
+        width: 100%;
+        height: 10px;
+        background-color: #E9EAEB;
+        border-radius: 6px;
+        margin-top: 5px;
+        position: relative;
+    }
+
+    /* The colored portion of the progress bar */
+    .progress-bar {
+        height: 100%;
+        background-color: #0369A1; /* Adjust color as needed */
+        border-radius: 6px;
+        width: 0; /* Start at 0% width */
+        transition: width 0.3s ease-in-out;
+    }
+
+    /* Optional text styling */
+    #quotaText {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+    }
+
+    .progressbarcontainer {
+        list-style-type: none;
+        border: 1px solid #E9EAEB;
+        border-radius: 8px;
+        padding: 4px;
+        overflow: hidden;
+        width: 450px;
+    }
+
+        .progressbarcontainer li {
+            float: left;
+            width: 100%;
+        }
+
+    .btn-with-progress {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        column-gap: 16px;
+    }
+
+        .btn-with-progress .progressbarcontainer.pull-right {
+            width: 100%;
+        }
+</style>
+<section style="margin:20px 0;">
+    <div class="container-main" style="display: flex; gap: 20px;">
+
+        <!-- LEFT: OCR History Sidebar -->
+        <aside style="width: 220px; border: 1px solid #E9EAEB; background-color: #FAFAFA; height: 100vh; overflow-y: auto; padding: 15px; box-sizing: border-box;">
+            <h4 style="font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; color: #0369A1;">
+                <i class="bi bi-clock-history"></i> OCR History
+            </h4>
+
+            <!-- Search Input -->
+            <input type="text" id="ocrSearch" placeholder="Search by filename..." style="width: 100%; padding: 6px 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;" onkeyup="filterOCRHistory()" />
+
+            <!-- History Items Grouped by Date -->
+            <div id="ocrHistory" style="font-size: 12px;">
+                <!-- JS will populate it -->
+            </div>
+            <p id="noOcrMessage" style="color: #999; font-style: italic; display: none;; font-size: 18px;">No OCR generated...</p>
+        </aside>
+
+        <!-- RIGHT: Upload & OCR Document -->
+        <main style="flex-grow: 1; display: flex; flex-direction: column; gap: 20px;">
+
+            <!-- Upload Controls -->
+            <div class="row align-items-center" style="margin-bottom: 20px;">
+                <h4 style="font-weight: 800; margin-bottom: 15px; margin-left: 25px; display: flex; align-items: center; gap: 8px; color: #0369A1;">
+                    <i class="bi bi-file-earmark-text me-2 fs-5"></i> Upload & OCR Document
+                </h4>
+                <div class="col-md col-lg-6">
+                    <div class="input-group d-flex align-items-center">
+                        <div class="upload-buttons" style="padding-top:7px; display: flex; gap: 10px;">
+                            <label title="No file chosen" class="upload-btn browsetaskfile browsetaskfile1" id="browsefileocrTab1" module="ocr" style="width: 145px; cursor: pointer; border: 1px solid #ccc; padding: 6px 10px; border-radius: 4px;" onclick="onMyKasePickedTab1(event)">
+                                <i class="fa fa-upload me-1"></i> <span> MyKase Drive</span>
+                            </label>
+                            <input type="file" id="attachmentDriveTab1" class="postedFile" accept=".pdf,.jpeg,.jpg,.png,.gif,.bmp,.webp,.tiff,.tif" style="display:none;" onchange="fileValidationTab1()" />
+                        </div>
+
+                        <input type="text" class="form-control" id="selectedFileNameTab1" placeholder="No file chosen" readonly style="width: 520px; border-radius: 4px; margin-left: 10px;" />
+
+                    </div>
+                    <div id="mkFileListTab1" style="margin-top:8px;"></div>
+                </div>
+
+                <div class="col-md col-lg-6">
+                    <div class="btn-with-progress">
+
+                        <div class="btn-group-ocr d-flex justify-content-end" style="gap: 15px;">
+                            <button type="button" class="btn btn-primary" id="savecasefilenew">Convert Document</button>
+                        </div>
+
+
+
+                        <ul class="progressbarcontainer pull-right w-100">
+                            <li><div id="quotaText"></div></li>
+                            <li>
+                                <div class="progress-container">
+                                    <div id="progressBar1" class="progress-bar"></div>
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- Preview Sections side-by-side -->
+            <div class="compareDoc">
+                <div class="col-md-6">
+
+                    <!-- Upload Preview -->
+                    <div class="card-header bg-light fw-semibold border-r" style="padding: 10px 15px; background: lightgrey; font-weight: 800;">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-file-earmark-text me-2 fs-5" style="font-size: 16px;"></i>
+                            <span style="font-size: 16px;">File Preview</span>
+                        </div>
+                    </div>
+
+                    <div class="compare_screen" id="uploadSectionTab1" style="position: relative; height: 636px; border: 1px solid #E9EAEB; background-color: #FAFAFA;">
+                        <div id="uploadUIBlockTab1" style="height:636px; overflow-y:auto;">
+                            <div class="nofound_inner" style="text-align: center; margin: 50px auto 0; margin-top: 247px;">
+                                <img src="/newassets/img/cloud_no.svg" />
+                                <h3 style="font-size: 16px; font-weight: 600; color: #181D27; margin:0;">No Documents Added</h3>
+                                <p style="font-size: 14px; font-weight: 400; color: #535862; margin:0;">
+                                    Upload documents to start the OCR process and<br />extract text.
+                                </p>
+                            </div>
+                        </div>
+
+                        <iframe id="ocrPreviewFrameTab1" style="
+            display: none;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+            background: #fff;
+            z-index: 5;">
+                        </iframe>
+                        <div id="ocrPreviewContainerTab1" class="mt-3"></div>
+                    </div>
+                </div>
+
+                <!-- OCR Result Preview -->
+                <div class="col-md-6">
+                    <div class="card-header d-flex justify-content-between align-items-left" style="padding: 10px 15px; background: #0369A1; font-weight: 800; color: white; flex-wrap: nowrap;">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-robot me-2 fs-5"></i>
+                            <span style="font-size: 16px;">AI Generated OCR</span>
+                            <div class="d-flex align-items-center" style="gap: 15px;">
+                                <i title="Print" id="aiGeneratedOCRPrint" data-bs-toggle="modal" data-bs-target="#printModal" class="bi bi-printer cursor-pointer" style="cursor: pointer; font-size: 16px;"></i>
+                                <i id="aiGeneratedWordFile" class="bi bi-file-word cursor-pointer" aria-hidden="true" style="font-size:16px;cursor: pointer;" title="Download as Word"></i>
+                                <i title="Email" id="aiGeneratedOCREmail" data-bs-toggle="modal" data-bs-target="#emailModal" class="bi bi-envelope cursor-pointer" style="cursor: pointer; font-size: 16px;"></i>
+                                <i title="Download" id="aiGeneratedOCRDownload" class="bi bi-download cursor-pointer" style="cursor: pointer; font-size: 16px;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="compare_screen" style="position: relative; height: 636px; overflow-y: auto;">
+                        <div id="notFoundSectionTab1" style="height:634px; overflow-y:auto;">
+                            <div class="nofound_inner" style="text-align: center; margin: 50px auto 0; margin-top: 247px;">
+                                <img src="~/newassets/img/cloud_no.svg" />
+                                <h3 style="font-size: 16px; font-weight: 600; color: #181D27; margin:0;">No Documents Added</h3>
+                                <p style="font-size: 14px; font-weight: 400; color: #535862; margin:0;">
+                                    Upload documents to start the OCR process and<br />extract text.
+                                </p>
+                            </div>
+                        </div>
+
+                        <iframe id="previewIframeTab1" style="
+                        display: none;
+                        position: absolute;
+                        top: 0; left: 0;
+                        width: 100%; height: 100%;
+                        border: none;
+                        background: #fff;
+                        z-index: 0;">
+                        </iframe>
+
+                    </div>                        <div id="divOCRContentTab1" class="divOCRContent"></div>
+
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+</section>
+
+<!--<section class="" style="margin:20px 0;">
+    <div class="container-main">
+        <form class="assignRight1 assignRight" id="fileupload" enctype="multipart/form-data" style="flex-direction:column;">
+            <div class="ocr_wrapper">-->
+@* main ocr wrapper started *@
+<!--<ul class="snav">
+    <li class="active" style="margin: 0 22px 0 0;"><a data-toggle="tab" href="#tab1">OCR Converter</a></li>
+    <li style="margin: 0 22px 0 0;"><a data-toggle="tab" href="#tab2">Save Document</a></li>-->
+@*<li style="margin: 0 22px 0 0;"><a data-toggle="tab" href="#tab3">OCR History</a></li>*@
+<!--</ul>
+<div class="tab-content" style="clear: both; margin: 48px 0 10px; display: block;">
+    <div id="tab1" class="tab-pane fade in active">
+        <div class="row align-items-center" style="margin-bottom: 20px;">
+            <div class="col-md-6">
+                <div class="input-group d-flex align-items-center">
+                    <div class="upload-buttons" style="padding-top:7px;">
+                        <label for="attachmentTab1" class="upload-btn d-inline-flex align-items-center" style="width: 131px;">
+                            <i class="fa fa-upload me-1"></i>
+                            <span> Local Drive</span>
+                        </label>
+                        <input type="file" id="attachmentTab1" accept=".pdf,.jpeg,.jpg,.png,.gif,.bmp,.webp,.tiff,.tif" multiple style="display:none;" />
+                        <label title="No file chosen" class="upload-btn browsetaskfile browsetaskfile1" id="browsefileocrTab1" module="ocr" style="width: 145px;">
+                            <i class="fa fa-upload me-1"></i> <span> MyKase Drive</span>
+                        </label>
+                        <input type="file" id="attachmentDriveTab1" class="postedFile" accept=".pdf,.jpeg,.jpg,.png,.gif,.bmp,.webp,.tiff,.tif" style="display:none;" onchange="return fileValidationTab1()" />
+                    </div>
+
+                    <input type="text" class="form-control" id="selectedFileNameTab1" placeholder="No file chosen" readonly style="width: 520px; border-radius: 4px;" />
+
+                    <span class="ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Supported formats: PDF files, Image files (JPEG, PNG, GIF, BMP, WEBP, TIFF)">
+                        <i class="fa fa-info-circle text-muted" style="font-size: 18px; cursor: pointer;"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="btn-group-ocr d-flex justify-content-end" style="gap: 15px;margin-top: 5px;">
+                    <button type="button" class="btn btn-primary" id="savecasefilenew">Convert Document</button>-->
+@*<button href="javascript:void()" class="btn btn-secondary" onclick="exportHTML();" style="padding: 7px 29px;">Export to DOC</button>*@
+<!--</div>
+    </div>
+</div>
+
+<div class="compareDoc">
+    <div class="row">-->
+<!-- LEFT SIDE: Upload Section -->
+<!--<div class="col-md-6">-->
+<!-- Left Header OUTSIDE compare_screen -->
+<!--<div class="card-header bg-light fw-semibold border-r" style="padding: 10px 15px; background: lightgrey; font-weight: 800;">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-file-earmark-text me-2 fs-5" style="font-size: 16px;"></i>
+            <span style="font-size: 16px;">File Preview</span>
+        </div>
+    </div>
+
+    <div class="compare_screen" id="uploadSectionTab1" style="position: relative; height: 636px; border: 1px solid #E9EAEB; background-color: #FAFAFA;">
+        <div id="uploadUIBlockTab1" style="height:636px; overflow-y:auto;">
+            <div class="nofound_inner" style="text-align: center; margin: 50px auto 0; margin-top: 247px;">
+                <img src="~/newassets/img/cloud_no.svg" />
+                <h3 style="font-size: 16px; font-weight: 600; color: #181D27; margin:0;">No Documents Added</h3>
+                <p style="font-size: 14px; font-weight: 400; color: #535862; margin:0;">
+                    Upload documents to start the OCR process and<br />extract text.
+                </p>
+            </div>
+        </div>
+
+        <iframe id="ocrPreviewFrameTab1" style="
+            display: none;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+            background: #fff;
+            z-index: 5;">
+        </iframe>
+        <div id="ocrPreviewContainerTab1" class="mt-3"></div>
+    </div>
+</div>-->
+<!-- RIGHT SIDE: OCR Preview Section -->
+<!--<div class="col-md-6">
+                <div class="card-header d-flex justify-content-between align-items-left" style="padding: 10px 15px; background: dodgerblue; font-weight: 800; color: white; flex-wrap: nowrap;">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-robot me-2 fs-5"></i>
+                        <span style="font-size: 16px;">AI Generated OCR</span>
+                        <div class="d-flex align-items-center" style="gap: 15px;">
+                            <i title="Print" id="aiGeneratedOCRPrint" data-bs-toggle="modal" data-bs-target="#printModal" class="bi bi-printer cursor-pointer" style="cursor: pointer; font-size: 16px;"></i>
+                            <i title="Email" id="aiGeneratedOCREmail" data-bs-toggle="modal" data-bs-target="#emailModal" class="bi bi-envelope cursor-pointer" style="cursor: pointer; font-size: 16px;"></i>
+                            <i title="Download" id="aiGeneratedOCRDownload" class="bi bi-download cursor-pointer" style="cursor: pointer; font-size: 16px;"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="compare_screen" style="position: relative; height: 636px; overflow-y: auto;">
+                    <div id="notFoundSectionTab1" style="height:634px; overflow-y:auto;">
+                        <div class="nofound_inner" style="text-align: center; margin: 50px auto 0; margin-top: 247px;">
+                            <img src="~/newassets/img/cloud_no.svg" />
+                            <h3 style="font-size: 16px; font-weight: 600; color: #181D27; margin:0;">No Documents Added</h3>
+                            <p style="font-size: 14px; font-weight: 400; color: #535862; margin:0;">
+                                Upload documents to start the OCR process and<br />extract text.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="divOCRContentTab1" class="divOCRContent"></div>
+
+                    <iframe id="previewIframeTab1" style="
+                        display: none;
+                        position: absolute;
+                        top: 0; left: 0;
+                        width: 100%; height: 100%;
+                        border: none;
+                        background: #fff;
+                        z-index: 10;">
+                    </iframe>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>-->
+@*<div id="tab2" class="tab-pane fade">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Saved Documents</label>
+                    <select class="form-control selctInputFormat" id="ddlOCRList">
+                        <option value="">Select One </option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-top:10px;">
+                    <label>Description</label>
+                    <textarea class="form-control1 form-control inputFormatTextArea" colspan="5" id="desc" maxlength="120" placeholder="Max 120 character allowed." style="background:#fff !important;"></textarea>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Language <span class="required" aria-required="true"><b>*</b> </span></label>
+                    <select class="form-control selctInputFormat" id="ocrlanguage">
+                        <option value="" selected="">Select</option>
+                        <option value="eng">English</option>
+                        <option value="hin">Hindi</option>
+                        <option value="enghin">English + Hindi</option>
+                        <option value="kan">Kannada</option>
+                        <option value="mal">Malyalam</option>
+                        <option value="mar">Marathi</option>
+                        <option value="tam">Tamil</option>
+                        <option value="guj">Gujarati</option>
+                    </select>
+                </div>
+                <div class="quicknote">
+                    <p>OCR converts scanned documents into editable text. myKase does not guarantee accuracy or completeness, especially with handwriting or cursive text.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <div class="btn-group-ocr" style="margin: 24px 0 0 0;">
+                        <button class="btn btn-primary" data-val="" id="removeocrfile" title="Remove file">Delete file</button>
+                        <button href="javascript:void()" class="btn btn-secondary" onclick="exportHTML();" style="margin: 0 0 0 15px;padding: 7px 29px;">Export to DOC</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="compareDoc">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="compare_screen" id="commuattachtitle" title="upload Attachment" style="height: 644px;border: 1px solid #E9EAEB;background-color: #FAFAFA;">
+                        <div class="uploadSizes">
+                            <div class="dragUpload" style=" border:none;margin:50px auto;margin-top: 247px;">
+                                <div class="upload-icon"> <img src="/newassets/img/upload-cloud.svg"> </div>
+                                <div class="upload-buttons" style="padding-top:7px;">
+                                    <label for="attachment" class="upload-btn">Local Drive</label>
+                                    <input type="file" id="attachment" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" />
+                                    <iframe id="frmFileone" style="width:100%; height:400px;" frameborder="0"></iframe>
+                                    <label title="No file chosen" class="upload-btn browsetaskfile browsetaskfile1" id="browsefileocr" module="expense">
+                                        MyKase Drive
+                                    </label>
+                                    <input type="file" id="attachment" class="postedFile" value="AA" accept="application/pdf,image/png,image/jpeg" onchange="return fileValidation()" style="display:none;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="divOriginalContent" class="divOriginalContent" style="display:none;">
+                        <iframe class="OriginalContent" id="iOriginalContent" frameborder="0"></iframe>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="compare_screen" style="height:644px; overflow-y:auto;">
+                        <div id="notFoundSection" style="display:none;">
+                            <div class="nofound_inner" style="text-align: center; margin: 50px auto 0; margin-top: 247px;">
+                                <img src="~/newassets/img/cloud_no.svg" />
+                                <h3 style="font-size: 16px; font-weight: 600; color: #181D27; margin:0;">No Documents Added</h3>
+                                <p style="font-size: 14px; font-weight: 400; color: #535862; margin:0;">Upload documents to start the OCR process and<br />extract text.</p>
+                            </div>
+                        </div>
+                        <div id="divOCRContent" class="divOCRContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+<!--<div id="tab3" class="tab-pane fade">
+    <div class="row">
+        <div class="col-md-12">
+            <h4>OCR History</h4>
+            <table class="table table-bordered" id="ocrHistoryTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>File Name</th>
+                        <th>Preview</th>
+                    </tr>
+                </thead>
+                <tbody>-->
+<!-- Dynamically filled via JavaScript -->
+<!--</tbody>
+            </table>
+        </div>
+    </div>
+</div>-->
+@* main ocr wrapper ended *@
+@*</div>
+                </div>
+
+            </form>
+        </div>
+    </section>*@
+
+<!-- Loader for OCR generation  -->
+<div id="myOverlay" style="
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 360px;
+    height: 180px;
+    background: #fff;
+    z-index: 9999;
+    text-align: center;
+    padding: 30px 20px;
+    font-size: 18px;
+    color: #333;
+    font-family: sans-serif;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 1px solid #ddd;
+">
+    <div class="spinner2" style="margin-bottom: 15px;">
+        <img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150" alt="Loading..." />
+    </div>
+    <strong>Please wait while we upload your file...</strong>
+</div>
+
+<div id="overlayBackdrop" style="
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 9998;
+"></div>
+
+<div id="myOverlayOCR" class="overlay" style="z-index: 9999;">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<!-- Email Modal -->
+<div id="emailModalCustom" style="display: none;">
+    <div id="emailModalOverlay">
+        <div id="emailModalBox">
+
+            <!-- Modal Header -->
+            <div id="emailModalHeader">
+                <h5 id="emailModalTitle" style="font-size: 16px;">
+                    <i class="bi bi-envelope-fill me-2"></i> Send OCR via Email
+                </h5>
+                <button id="emailModalCloseBtn" onclick="closeEmailModal()" aria-label="Close">×</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div id="emailModalBody">
+                <form id="emailFormCustom" novalidate>
+                    <div style="margin-bottom: 15px;">
+                        <label for="recipientEmail" style="font-weight: 600;">Recipient Email <span style="color: red;">*</span></label>
+                        <input type="email" id="recipientEmail" placeholder="example@domain.com" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label for="emailMessage" style="font-weight: 600;">Message</label>
+                        <textarea id="emailMessage" rows="4" placeholder="Add a short message (optional)..." style="height: 100px !important;width: 100%;padding: 8px !important;border: 1px solid #ccc !important;border-radius: 4px !important;"></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div id="emailModalFooter">
+                <button id="emailCancelBtn" onclick="closeEmailModal()">
+                    <i class="bi bi-x-circle me-1"></i> Cancel
+                </button>
+                <button id="emailSendBtn" onclick="sendEmailModal()">
+                    <i class="bi bi-send-fill me-1"></i> Send
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<input type="hidden" id="OCRBaseUrl" value="@ViewBag.OCRUrl" />
+<!-- OCR Result Modal -->
+<div class="modal fade" id="ocrModal" tabindex="-1" role="dialog" aria-labelledby="ocrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ocrModalLabel">OCR Output Preview</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="ocrModalContent" style="max-height:80vh; overflow-y:auto;">
+                <!-- Injected OCR HTML will appear here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myOverlay1" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+        <br>
+        <span style="margin:0 auto; padding-top:30px"><center>Please wait while we are extracting the text from file, estimated time will be approx<span id="esttime"></span> ...</span>
+        <span style="margin:0 auto; padding-top:30px;clear:both"><center>Do not close the window</center></span>
+    </div>
+</div>
+<div id="myOverlay" class="overlay">
+    <div class="overlay-content">
+        <div class="spinner2">
+            <div><img src="~/newassets/images/MyKase_Loader.gif" height="59" width="150"></div>
+        </div>
+    </div>
+</div>
+<style>
+    .overlay {
+        height: 100%;
+        width: 100%;
+        display: none;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.4);
+    }
+
+    .overlay-content {
+        position: relative;
+        top: 46%;
+        width: 80%;
+        text-align: center;
+        margin-top: 30px;
+        margin: auto;
+        color: white;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+        cursor: pointer;
+        color: white;
+    }
+
+        .overlay .closebtn:hover {
+            color: #ccc;
+        }
+
+    #emailModalOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.5);
+        z-index: 9998;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #emailModalBox {
+        background: #fff;
+        border-radius: 8px;
+        width: 500px;
+        max-width: 95%;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #emailModalHeader {
+        background-color: #0d6efd;
+        color: white;
+        padding: 12px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #emailModalCloseBtn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    #emailModalBody {
+        padding: 20px;
+    }
+
+    #emailModalFooter {
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        background: #f5f5f5;
+    }
+
+    #emailCancelBtn {
+        background-color: transparent;
+        border: 1px solid #6c757d;
+        color: #6c757d;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    #emailSendBtn {
+        background-color: #28a745;
+        border: none;
+        color: white;
+        padding: 8px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+</style>
+<script>
+    function exportHTML() {
+        var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+            "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+            "xmlns='https://www.w3.org/TR/REC-html40'>" +
+            "<head><meta charset='utf-8'><title>OCR DOCS</title></head><body>";
+        var footer = "</body></html>";
+        var sourceHTML = header + document.getElementById("divOCRContent").innerHTML + footer;
+        var source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+        var fileDownload = document.createElement("a");
+        document.body.appendChild(fileDownload);
+        fileDownload.href = source;
+        fileDownload.download = 'ocrdocs.doc';
+        fileDownload.click();
+        document.body.removeChild(fileDownload);
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        function openload() {
+            $("#myOverlay").css("display", "block");
+        }
+        function closeload() {
+            $("#myOverlay").css("display", "none");
+        }
+
+        const TOTALLIMIT1 = 5120; // 5MB in KB
+        const TOTALLIMITMSG1 = "Total file size cannot exceed 5 MB.";
+
+        // Simulated extension check (you can customize it)
+        function browsecomparedoc(filename) {
+            const allowedExtensions = ["pdf", "jpg", "jpeg", "png"];
+            const ext = filename.split('.').pop().toLowerCase();
+            return allowedExtensions.includes(ext);
+        }
+
+        $("#attachment").change(function () {
+            var formData = new FormData();
+            var fileInput = document.getElementById("attachment");
+            var files = fileInput.files;
+            if (files.length === 0) {
+                alert("Please select the file to be uploaded.");
+                return false;
+            }
+
+            var totalSizeKB = 0;
+            let filext1 = "";
+            for (let i = 0; i < files.length; i++) {
+                var file = files[i];
+                var filename = file.name;
+                filext1 = filename.split('.').pop();
+
+                if (filename.length > 100) {
+                    alert("The name of the file cannot exceed 100 characters. Please check file: " + filename);
+                    $("#attachment").val("");
+                    return false;
+                }
+
+                if (!browsecomparedoc(filename)) {
+                    alert("Unsupported file extension: " + filext1);
+                    return false;
+                }
+
+                formData.append("FileUpload", file);
+                var sizeKB = file.size / 1024;
+                totalSizeKB += sizeKB;
+            }
+
+            if (totalSizeKB > TOTALLIMIT1) {
+                alert(TOTALLIMITMSG1);
+                $("#attachment").val('');
+                return false;
+            }
+
+            openload();
+
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/Compare/UploadFile1",
+                dataType: 'json',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.Result) {
+                        var path = data.Result;
+                        if (path === "FileAttachExceed") {
+                            alert("You have added more than 1 file. Please remove some file(s).");
+                        } else if (path === "NoFileAttach") {
+                            alert("Please select the file to be uploaded.");
+                        } else {
+                            // Optional: handle different types of file preview
+                            if (filext1.toLowerCase() === "doc" || filext1.toLowerCase() === "docx") {
+                                $('#frmFileone').attr('src', "https://view.officeapps.live.com/op/view.aspx?src=" + path);
+                            } else {
+                                $('#frmFileone').attr('src', path);
+                            }
+                        }
+                    }
+                    closeload();
+                },
+                error: function () {
+                    closeload();
+                    alert("Error uploading file.");
+                }
+            });
+        });
+    });
+
+</script>
+
+<script>
+    document.getElementById("attachmentDriveTab1").addEventListener("change", function (e) {
+        document.getElementById("ocrPreviewContainerTab1").style.display = "block";
+        const files = e.target.files;
+        const fileNameField = document.getElementById("selectedFileNameTab1");
+        const previewContainer = document.getElementById("ocrPreviewContainerTab1");
+        const iframe = document.getElementById("ocrPreviewFrameTab1");
+
+        previewContainer.innerHTML = "";
+
+        if (!files || files.length === 0) {
+            fileNameField.value = "No file chosen";
+            iframe.style.display = "none";
+            iframe.src = "";
+            return;
+        }
+        fileNameField.value = Array.from(files).map(f => f.name).join(", ");
+
+        Array.from(files).forEach((file, index) => {
+            const fileURL = URL.createObjectURL(file);
+
+            if (index === 0 && (file.type === "application/pdf" || file.type.startsWith("image/"))) {
+                iframe.src = fileURL;
+                iframe.style.display = "block";
+                return;
+            }
+
+            let previewElement;
+
+            if (file.type === "application/pdf") {
+                previewElement = document.createElement("iframe");
+                previewElement.src = fileURL;
+                previewElement.width = "100%";
+                previewElement.height = "400px";
+                previewElement.style.border = "1px solid #ccc";
+                previewElement.className = "mb-3";
+            } else if (file.type.startsWith("image/")) {
+                previewElement = document.createElement("img");
+                previewElement.src = fileURL;
+                previewElement.style.maxWidth = "100%";
+                previewElement.style.maxHeight = "300px";
+                previewElement.style.marginBottom = "15px";
+                previewElement.style.display = "block";
+            } else {
+                previewElement = document.createElement("p");
+                previewElement.textContent = "Preview not available for: " + file.name;
+            }
+
+            const wrapper = document.createElement("div");
+            wrapper.className = "file-preview mb-4";
+            wrapper.appendChild(previewElement);
+            previewContainer.appendChild(wrapper);
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            //
+        });
+    });
+</script>
+
+
+
+<script>
+    // Download iframe content
+    document.getElementById("aiGeneratedOCRDownload").addEventListener("click", function () {
+        const iframe = document.getElementById("previewIframeTab1");
+        if (iframe && iframe.contentDocument) {
+            const doc = iframe.contentDocument;
+            const html = doc.documentElement.outerHTML;
+            const blob = new Blob([html], { type: "text/html" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "ocr_preview.html";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } else {
+            alert("Preview content not available for download.");
+        }
+    });
+
+    // Trigger print from iframe
+    document.getElementById("aiGeneratedOCRPrint").addEventListener("click", function () {
+        const iframe = document.getElementById("previewIframeTab1");
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        } else {
+            alert("Preview content not available for printing.");
+        }
+    });
+
+    document.getElementById("aiGeneratedWordFile").addEventListener("click", function () {
+
+        const iframe = document.getElementById("previewIframeTab1");
+
+        // Get iframe HTML content
+        let htmlContent = iframe.contentDocument || iframe.contentWindow.document;
+        htmlContent = htmlContent.documentElement.outerHTML;
+
+        // Word compatible HTML wrapper
+        let wordHTML =
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+            'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+            'xmlns="http://www.w3.org/TR/REC-html40">' +
+            '<head><meta charset="utf-8"></head><body>' +
+            htmlContent +
+            '</body></html>';
+
+        var blob = new Blob(['\ufeff', wordHTML], {
+            type: 'application/msword'
+        });
+
+        var url = URL.createObjectURL(blob);
+
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "OCR.doc";
+        document.body.appendChild(a);
+        a.click();
+
+        document.body.removeChild(a);
+    });
+</script>
+<script>
+    document.getElementById("aiGeneratedOCREmail").addEventListener("click", function () {
+        document.getElementById("emailModalCustom").style.display = "block";
+    });
+    function closeEmailModal() {
+        document.getElementById("emailModalCustom").style.display = "none";
+    }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('.navbar-form');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            console.log("Form submitted without refresh!");
+        });
+    });
+</script>
+
+
+<script>
+    function toggleHistoryGroup(header) {
+        const files = header.nextElementSibling;
+        if (files.style.display === "none") {
+            files.style.display = "block";
+        } else {
+            files.style.display = "none";
+        }
+    }
+
+    function filterOCRHistory() {
+        const input = document.getElementById('ocrSearch');
+        const filter = input.value.toLowerCase();
+        const groups = document.querySelectorAll('#ocrHistory .date-group');
+
+        groups.forEach(group => {
+            let match = false;
+            const files = group.querySelectorAll('.history-item');
+            files.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                const isVisible = text.includes(filter);
+                item.style.display = isVisible ? 'block' : 'none';
+                if (isVisible) match = true;
+            });
+
+            // Show or hide the whole group depending on matches
+            group.style.display = match ? 'block' : 'none';
+        });
+    }
+</script>

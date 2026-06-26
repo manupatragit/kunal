@@ -1,0 +1,2385 @@
+﻿
+@{
+
+
+    Layout = null;
+}
+@using QueryStringEDAES;
+@{
+
+    var firmcode121 = Session["FirmCode"];
+}
+@{
+    Session["dashdocument"] = @ViewBag.hsdocument;
+    Session["dashmatter"] = @ViewBag.hsmatter;
+    Session["dashcontact"] = @ViewBag.hscontact;
+    Session["dashtimeentry"] = @ViewBag.hstimeentry;
+    Session["dashinvoice"] = @ViewBag.hsinvoice;
+    Session["dashchat"] = @ViewBag.hschat;
+    Session["dashtask"] = @ViewBag.hstask;
+    Session["hscfield"] = @ViewBag.hscfield;
+    Session["dashcalendar"] = @ViewBag.hscalendar;
+    Session["dashlimit"] = @ViewBag.hslimit;
+    Session["dashexpense"] = @ViewBag.hsexpense;
+    Session["dashuser"] = @ViewBag.hsuser;
+    Session["dashcw"] = @ViewBag.hscw;
+    Session["hsknowledge"] = @ViewBag.hsknowledge;
+    Session["hsrights"] = @ViewBag.hsrights;
+    Session["hsnotice"] = @ViewBag.hsnotice;
+    Session["IsCWActive"] = @ViewBag.IsCWActive;
+    Session["hsmklitigation"] = @ViewBag.hsmklitigation;
+    Session["ProActiveAlerts"] = @ViewBag.hsprocactivealerts;
+    Session["IPRList"] = @ViewBag.hsipr;
+    Session["IPRtrademark"] = @ViewBag.hsiprtrademark;
+    Session["IPRcopyright"] = @ViewBag.hsiprcopyright;
+    Session["IPRpatent"] = @ViewBag.hsiprpatent;
+    Session["IPRproprietor"] = @ViewBag.hsiprproprietor;
+    Session["IPRdesign"] = @ViewBag.hsiprdesign;
+    Session["IPRgi"] = @ViewBag.hsiprgi;
+    Session["IPRAgent"] = @ViewBag.hsipragent;
+    Session["IPRResources"] = @ViewBag.hsiprresources;
+    Session["DivChartFirmId"] = @ViewBag.divisionChart;
+    Session["BPCLDivChartFirmId"] = @ViewBag.CaseTypesChart;
+    //For Syngenta Client Custmization
+    Session["SyngentaDivChartFirmId"] = @ViewBag.StatesTypesChart;
+    var noticepack = Session["hsnotice"];
+    var notiwithmatter = Session["dashmatter"];
+    //For BOM Client Custmization
+    Session["BOMCustomization"] = @ViewBag.BOMCustomType;
+Session["AIOrdertools"] = @ViewBag.AIOrdertools;
+}
+<script>
+
+    var dashcalendar = "@Session["dashcalendar"]";
+    var dashmatter = "@Session["dashmatter"]";
+    var dashcontact = "@Session["dashcontact"]";
+    var dashtimeentry = "@Session["dashtimeentry"]";
+    var dashinvoice = "@Session["dashinvoice"]";
+    var dashtask = "@Session["dashtask"]";
+    var dashchat = "@Session["dashchat"]";
+    var dashdocument = "@Session["dashdocument"]";
+    var dashlimit = "@Session["dashlimit"]";
+    var hscfield = "@Session["hscfield"]";
+    var dashexpense = "@Session["dashexpense"]";
+    var dashuser = "@Session["dashuser"]";
+    var dashcw = "@Session["dashcw"]";
+    var dashknow = "@Session["hsknowledge"]";
+    var dashrights = "@Session["hsrights"]";
+    var dashnotice= "@Session["hsnotice"]";
+    var IsCWActive = "@Session["IsCWActive"]";
+    var IsMKLitigation = "@Session["hsmklitigation"]";
+    var IsIPRPACK="@Session["IPRList"]";
+    var noticeUserPerms = "@ViewBag.IsViewnoticeRights";
+    var loadsidemenus = localStorage.getItem("loadsidemneuadmin");
+    var pathArray = window.location.pathname.split('/');
+    var segment_1 = pathArray[1];
+     //Transail Custmization.
+    var DivChartFirmId = "@Session["DivChartFirmId"]";
+     //BPCL Custmization
+    var BPCLDivChartFirmId = "@Session["BPCLDivChartFirmId"]";
+    //Syngenta Custmization
+    var SyngentaDivChartFirmId = "@Session["SyngentaDivChartFirmId"]";
+    //var fcodes = localStorage.setItem("FirmCode", segment_1);
+    localStorage.setItem("FirmCode", "@Session["FirmCode"]");
+    //alert(localStorage.getItem("FirmCode"));
+    var fcodes = "@Session["FirmCode"]";
+    var sideclienth = "Prospect/Client";
+    var createchild = "Add Client";
+    var viewchild = "Client List";
+    var clientlable = "Client";
+    //alert( @Session["firmtype"]);
+   // var condt = @Session["firmtype"]!= null ? @Session["firmtype"] :"";
+    @{
+        Session["caclientlable"] = "Client";
+        var caclientlable = "Clients";
+        if (Session["firmtype"] != null)
+        {
+            if (Session["firmtype"].ToString() == "3")
+            {
+
+                Session["caclientlable"] = "Lawyer/LawFirm";
+            }
+            else
+            {
+                Session["caclientlable"] = "Client";
+            }
+        }
+      }
+
+    $(document).ready(function () {
+        var pageindex = 1, pagesize = 10;
+        LogoPath();
+       // notification();
+        function LogoPath() {
+
+
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/api/callApi/LogoPath",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if (response.Data != "") {
+                        $("#firmlogosrc").attr("src", response.Data)
+                        $("#firmlogolink").show();
+                        $("#sidebarnav").css("margin-top", "0px");
+                        $("#navheaderpostion").css("float", "unset");
+                    }
+                    else {
+                        $("#firmlogolink").hide();
+                        $("#sidebarnav").css("margin-top", "38px");
+                        $("#navheaderpostion").css("float", "left");
+                    }
+                    //console.log(response);
+                },
+                failure: function (response) {
+                    alert(data.responseText);
+                },
+                error: function (response) {
+                    if (String(response.responseJSON.Message) == "SessionTimeOut") {
+                        alert("Your session has expired, please log out and then login again");
+                        window.location.href = location.protocol + '//' + location.host;
+                    }
+                    else {
+                        alert(response.responseText);
+                    }
+                }
+            });
+        }
+        $('#notimenu').click(function (e) {
+            e.stopPropagation();
+        });
+         var tatalRecordCount = 1;
+         function notification(pageindex) {
+            var formdata = new FormData();
+            formdata.append("pageindex", pageindex);
+            formdata.append("pagesize", pagesize);
+            $.ajax({
+                async: true,
+                url: "/api/callApi/FirmNotifications",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+
+                    if (response.Status == true) {
+                        var datas = JSON.stringify(response);
+                        // alert(datas);
+
+                    }
+                    else {
+                        //alert("not found");
+                    }
+                    //alert(response.Data.length);
+                    if (response.Data.length > 0) {
+                        $("#not1").hide();
+                        $("#not2").show();
+                    }
+                    else {
+                        $("#not2").hide();
+                        $("#not1").show();
+                    }
+                    var html34 = '';
+                    var length = response.Data.length;
+                    $("#cnotifooter").html("");
+                    $.each(response.Data, function (i, std) {
+                        if (i === 0) {
+                            firstvalue = std.rownum;
+                        }
+                        var totdata = std.totRow;
+                        var totpage = 0;
+                        if (i === (length - 1)) {
+                            totpage = parseInt(totdata) / parseInt(pagesize);
+                            //if (parseInt(totdata) % parseInt(pagesize) != 0) {
+                            //    totpage = parseInt(totpage) + 1;
+                            //}
+                            //if (pageindex == totpage) {
+                            //    $('#next').hide();
+                            //    $('#prev').css("display", "block");
+                            //}
+                            //else {
+                            //    $('#next').css("display", "block");
+                            //}
+                            //if (pageindex == 1) {
+                            //    $('#prev').css("display", "none");
+                            //}
+                            //else {
+                            //    $('#prev').css("display", "block");
+                            //}
+
+                            //if (isRenderPage == false) {
+                            //    tatalRecordCount = totpage;
+                            //    renderPagination(pageindex, totpage);
+                            //}
+                        //  alert(std.ntype);
+                        //if (i === 0) {
+
+                        //    firstvalue = std.rownum;
+
+                        //}
+                        //if (i === (length - 1)) {
+                        //    var pnext = pageindex;
+                        //    var pprev = pageindex;
+                        //    var pageno = pageindex;
+
+                        //    var totdata = std.totRow;
+                        //    var totpage = 0;
+                        //    if (std.totRow > 0) {
+                        //        pnext = parseInt(pnext) + 1;
+                        //        if (pnext == 0) pnext = 1;
+
+                        //        pprev = parseInt(pageno) - 1;
+                        //        if (pprev == 0) pprev = 1;
+                        //        totpage = parseInt(totdata) / parseInt(pagesize);
+
+                        //        if (parseInt(totdata) % parseInt(pagesize) != 0) {
+                        //            totpage = parseInt(totpage) + 1;
+                        //        }
+
+                        //        $("#pagnumvalue").attr("max", totpage);
+
+                        //    }
+
+                        //    var tfot = '';
+                        //    $("#exportrecords").val(std.totRow);
+                        //    tfot += '<ul>'
+                        //    tfot += '<li>results <span>' + std.totRow + '</span>  <span id="psotopage" style="display:none">' + totpage + '</span></li>'
+
+                        //    tfot += '<li><span>|</span></li>'
+                        //    tfot += '<li>pages ' + pageindex + '/ ' + parseInt(totpage) + '</li>'
+                        //    tfot += '<li><span>|</span></li>'
+                        //    tfot += '<li ><input type="number" id="ppagnumvalue" min="1" class="footerInput" style="background:#fff !important;"><a class="gobtn" type="button" id="pgetdatabypagenumnoti" style="margin-left:10px;cursor:pointer">Go</a></button> </li>'
+
+                        //    if (std.totRow <= length) {
+
+                        //    }
+                        //    else if (pageno == 1) {
+
+                        //    }
+                        //    else if (pageno == totpage) {
+                        //        tfot += '<li><span><a id="ppaginatenoti"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png"></a></span>  ' + firstvalue + '-' + std.rownum + '  <span>'
+                        //    }
+
+                        //    else {
+                        //        tfot += '<li><span><a id="ppaginatenoti"  title="Previous Page" href="javascript:void()" index="' + pprev + '"><img src="/newassets/images/arrow_left.png" > </a></span>  ' + firstvalue + '-' + std.rownum + '  <span>'
+                        //    }
+
+                        //    if (pageno < totpage) {
+                        //        tfot += '<a  id="ppaginatenoti" title="Next Page" href="javascript:void()" index="' + pnext + '"  ><img src="/newassets/images/arrow_right.png" style="padding:3px 0 0 0;"></a ></span ></li >'
+                        //    }
+                        //    tfot += '</ul>'
+                        //    $("#cnotifooter").append(tfot);
+                        //    // closeload();
+                        }
+                        var linkpage23 = "";
+                        var recentlabel23 = "";
+                        html34 += '<tr>';
+                        var firm = localStorage.getItem("FirmCode");
+                        if (std.ntype == "Matter") {
+                            linkpage23 = "/" + firm + "/firm/mattersingleview/";
+                        }
+                        else if (std.ntype == "Contact") {
+                            linkpage23 = "/" + firm + "/firm/Contactsingleview/";
+                        }
+                        else if (std.ntype == "File") {
+                            linkpage23 = "/" + firm + "/Employee/AssignUserFileList";
+                        }
+                        else if (std.ntype == "Workflow") {
+                            linkpage23 = "/" + firm + "/firm/WorkFlowNUserActivity";
+                        }
+                        else if (std.ntype == "Call") {
+                            linkpage23 = "/" + firm + "/firm/Callsingleview/";
+                        }
+                        else if (std.ntype == "Note") {
+                            linkpage23 = "/" + firm + "/firm/notesingleview/";
+                        }
+                        else if (std.ntype == "Task") {
+                            linkpage23 = "/" + firm + "/firm/tasksingleview/";
+                        }
+                        else if (std.ntype == "Event") {
+                            linkpage23 = "/" + firm + "/firm/eventsingleview/";
+                        }
+                        else if (std.ntype == "Lead") {
+                            linkpage23 = "/" + firm + "/firm/LeadSingleView/";
+                        }
+                        else if (std.ntype == "User") {
+                            linkpage23 = "/" + firm + "/firm/UserList/";
+                        }
+                        else if (std.ntype == "TimeEntry") {
+                            linkpage23 = "/" + firm + "/firm/ViewTimer/";
+                        }
+                        else if (std.ntype == "CustomForm") {
+                            linkpage23 = "/" + firm + "/firm/ViewCustomForm/";
+                        }
+                        else if (std.ntype == "cactivity") {
+                            linkpage23 = "/" + firm + "/firm/CustomActivitySingleView";
+                        }
+                        else if (std.ntype == "MatterDelete") {
+                            linkpage23 = "/" + firm + "/firm/caselistarchive/";
+                        }
+                        if (std.ntype == "Matter") {
+                            recentlabel23 = "Case";
+                        }
+                        else {
+                            recentlabel23 = std.ntype;
+                        }
+                         if (std.ntype == "Workflow") {
+                            linkpage23 = "/" + firm + "/firm/WorkFlowNUserActivity";
+                        }
+                        else if (std.ntype == "aknow") {
+
+                        }
+                         else {
+                            if (std.status == "1") {
+                                if (String(std.notification).length > 40) {
+                                    var notificationsdata = String(std.notification).substring(0, 40)+"...";
+                                }
+                                else {
+                                    var notificationsdata =std.notification;
+                                }
+                                html34 += '<td><p style="float:left; width:6%;"><span id="bellcolor' + std.Nid + '" ><img src="/newassets/img/noti-green.png" /></span></p><a href="javascript:void()" onclick=loadnotifi("' + linkpage23 + '","' + std.typeid + '","' + std.Nid + '","' + std.ntype + '") id="datalinking" data-link23="' + linkpage23 + '" data-val23="' + std.typeid + '" style="float:left;cursor:pointer; width:90%;" title="' + std.notification + '"><p style="float:left">' + notificationsdata +'</p></a></td>';
+                                html34 += '<td>' + formatDatetoIST(std.date_time) + '</td>';
+                                html34 += '<td><span Id="UnReadnoti" idds="' + std.Nid + '"" style="cursor: pointer;font-size:13px;" title="mark as unread"><img src="/newassets/img/unread-icon.png" /></span></a></a> <span id="deleteNotisingle" style="cursor: pointer;" title="Mark Notification For Deletion" is-delete="' + std.Nid + '""><img src="/newassets/img/deletecasesingle-icon.png" /></span></td>';
+                               // html34 += '<li class="notification"><div style="width:100% !important; margin-left: -11px;"><p style="float:left">&nbsp;&nbsp;&nbsp;<i style="font-size:15px;  color:#85d000 !Important"  id="bellcolor' + std.Nid + '" class="glyphicon glyphicon-bell"></i></p><p style="float:left"><a href="javascript:void()" onclick=loadnotifi("' + linkpage23 + '","' + std.typeid + '","' + std.Nid + '","' + std.ntype +'") id="datalinking" data-link23="' + linkpage23 + '" data-val23="' + std.typeid + '" style="color:black; font-size:10px;padding:0 0 0 6px; width:100%;" title="' + std.notification + '">' + notificationsdata+ '(' + formatDatetoIST(std.date_time) + ')</a></p></div></li>';
+                            }
+                            else {
+
+                              if (std.ntype =="AssignTeamMember") {
+
+                                  html34 += '<td><p style="float:left"><span  id="bellcolor' + std.Nid + '" class=""><img src="/newassets/img/noti-org.png" /></span></p><a href="/@firmcode121/firm/personaldashboard"  style="color:#477970e6; font-size:10px;padding:0 0 0 6px; width:100%;font-weight:bold;cursor:pointer;"><p style="float:left">You have Case assign Request</p></a></td>';
+                                  html34 += '<td>' + formatDatetoIST(std.date_time) + '</td>';
+                                  html34 += '<td><span class="glyphicon glyphicon-check" Id="Readnoti" idds="' + std.Nid + '"" style="color: black; cursor: pointer;font-size:13px;" title="View"></span></a></a>|<span class="glyphicon glyphicon-trash" id="deleteNotisingle" style="color: black; cursor: pointer;" title="Mark Notification For Deletion" is-delete="' + std.Nid + '""></span></td>'
+                                 // html34 += '<li class="notification" ><div style="width:100% !important; margin-left: -11px;"><p style="float:left">&nbsp;&nbsp;&nbsp;<i style="font-size:15px; color:#e39d05" id="bellcolor' + std.Nid +'" class="glyphicon glyphicon-bell"></i></p><p style="float:left"><a href="/@firmcode121/firm/personaldashboard"  style="color:#477970e6; font-size:10px;padding:0 0 0 6px; width:100%;font-weight:bold">You have Case assign Request (' + formatDatetoIST(std.date_time) + ')</a></p></div></li>';
+                                }
+                              else {
+                                  if (String(std.notification).length > 40) {
+                                      var notificationsdata = String(std.notification).substring(0, 40) + "...";
+                                  }
+                                  else {
+                                      var notificationsdata = std.notification;
+                                  }
+                                  html34 += '<td><p style="float:left"><span  id="bellcolor' + std.Nid + '" ><img src="/newassets/img/noti-org.png" /></span></p><a href="javascript:void()" onclick=loadnotifi("' + linkpage23 + '","' + std.typeid + '","' + std.Nid + '","' + std.ntype + '") id="datalinking" data-link23="' + linkpage23 + '" data-val23="' + std.typeid + '" style="cursor:pointer;" title="' + std.notification + '"><p style="float:left">' + notificationsdata +'</a></p></td>';
+                                  html34 += '<td>' + formatDatetoIST(std.date_time) + '</td>';
+                                  html34 += '<td><span Id="Readnoti" idds="' + std.Nid + '"" style="color: black; cursor: pointer; font-size:13px;" title="Mark as read"><img src="/newassets/img/read-icon.png" /></span></a> <span class="" id="deleteNotisingle" style="cursor: pointer;" title="Mark Notification For Deletion" is-delete="' + std.Nid + '""><img src="/newassets/img/deletecasesingle-icon.png" /></span></td>'
+                                //  html34 += '<li class="notification"><div style="width:100% !important; margin-left: -11px;"><p style="float:left">&nbsp;&nbsp;&nbsp;<i style="font-size:15px; color:#e39d05" id="bellcolor' + std.Nid + '" class="glyphicon glyphicon-bell"></i></p><p style="float:left"><a href="javascript:void()" onclick=loadnotifi("' + linkpage23 + '","' + std.typeid + '","' + std.Nid + '","' + std.ntype + '") id="datalinking" data-link23="' + linkpage23 + '" data-val23="' + std.typeid + '" style="color:black; font-size:10px;padding:0 0 0 6px; width:100%;" title="' + std.notification + '">' + notificationsdata + '(' + formatDatetoIST(std.date_time) + ')</a></p></div></li>';
+                                }
+                            }
+                        }
+                    });
+                    $("#bindnotificationdata").html("").html(html34);
+                },
+
+                failure: function (response) {
+                  //  alert(data.responseText);
+                },
+                error: function (response) {
+                   // alert(data.responseText);
+                }
+
+            });
+        }
+        /*Pagination Start*/
+        //var isRenderPage = false;
+        //var totalPageRec = "";
+        //function renderPagination(pageindex, totdata) {
+        //    let totPages = totdata;
+        //    setPageNo = pageindex;
+        //    totalPageRec = totdata;
+        //    let paginationHtml = '';
+        //    let maxVisible = 4; // Visible page numbers before ellipsis
+        //    if (totdata <= maxVisible + 2) {
+        //        for (let i = 1; i <= totPages; i++) {
+        //            paginationHtml += `<button type="button" class="page-btn ${i === pageindex ? 'active' : ''}" data-page="${i}">${i}</button>`;
+        //        }
+        //    } else {
+        //        if (pageindex <= maxVisible) {
+        //            for (let i = 1; i <= maxVisible; i++) {
+        //                paginationHtml += `<button type="button" class="page-btn ${i === pageindex ? 'active' : ''}" data-page="${i}">${i}</button>`;
+        //            }
+        //            paginationHtml += `<span>.......</span>`;
+        //            for (let j = totPages - 3; j <= totPages; j++) {
+        //                paginationHtml += `<button type="button" class="page-btn ${j === pageindex ? 'active' : ''}" data-page="${j}">${j}</button>`;
+        //            }
+        //        }
+        //    }
+        //    $("#pageNumbers").html(paginationHtml);
+        //    $("#prev").toggleClass("disabled", pageindex === 1);
+        //    $("#next").toggleClass("disabled", pageindex === totdata);
+        //    isRenderPage = true;
+        //}
+
+
+        //var setPageNo = 1;
+        //$(document).on("click", ".page-btn", function () {
+        //    let page = $(this).data("page");
+        //    setPageNo = page;
+        //    //if (page) changePage(page);
+        //    loadflag = true;
+        //    isRenderPage = true;
+        //    $("#txtgopage").val("");
+        //    notification(setPageNo);
+        //    $(".page-btn").removeClass("active");
+        //    $(".page-btn[data-page='" + setPageNo + "']").addClass("active");
+        //});
+        //$(document).on("click", "#prev", function () {
+
+        //    if (setPageNo > 1) {
+        //        setPageNo = setPageNo - 1;
+        //    }
+        //    loadflag = true;
+        //    isRenderPage = true;
+        //    $("#txtgopage").val("");
+        //    notification(setPageNo);
+        //    $(".page-btn").removeClass("active");
+        //    $(".page-btn[data-page='" + setPageNo + "']").addClass("active");
+        //});
+        //$(document).on("click", "#next", function () {
+        //    if (setPageNo => 1) {
+        //        setPageNo = setPageNo + 1;
+        //    }
+        //    loadflag = true;
+        //    isRenderPage = true;
+        //    $("#txtgopage").val("");
+        //    notification(setPageNo);
+        //    $(".page-btn").removeClass("active");
+        //    $(".page-btn[data-page='" + setPageNo + "']").addClass("active");
+        //});
+        //$(document).on("click", "#divGo", function () {
+        //    let goToPage = parseInt($("#txtgopage").val());
+        //    if (!isNaN(goToPage)) {
+        //        setPageNo = goToPage;
+        //    }
+        //    if (goToPage > tatalRecordCount) {
+        //        alert("Please enter a valid page number.");
+        //        setPageNo = 1;
+        //        return false;
+        //    }
+        //    loadflag = true;
+        //    isRenderPage = true;
+        //    notification(setPageNo);
+        //    $(".page-btn").removeClass("active");
+        //    $(".page-btn[data-page='" + setPageNo + "']").addClass("active");
+        //});
+
+    /*Pagination End*/
+
+        //$("#loadmorenoti").click(function () {
+
+        //    notification();
+        //})
+
+        //home page reload requirements
+        $("#btnhomereload").click(function () {
+            //Notice Dashboard
+            if (dashnotice == "display:unset" && dashmatter == "display:none") {
+                var urls = "/" + fcodes + "/firm/noticedashboard";
+                window.location.href = urls;
+            }
+            //else if (IsIPRPACK == "display:unset" && dashmatter == "display:none") {
+            //    //IPR Dashbaord
+            //    var urls1 = "/" + fcodes + "/IPR/IPRDashboard";
+            //    window.location.href = urls1;
+            //}
+            else if (IsMKLitigation == "display:unset" && dashmatter == "display:none") {
+                //MKLitigation Dashbaord
+                var urls2 = "/" + fcodes + "/CW/LitigationDashboard";
+                window.location.href = urls2;
+            }
+            else {
+                //MK Dashbord
+                var urls3 = "/" + fcodes + "/firm/Personaldashboard";
+                window.location.href = urls3;
+
+            }
+
+        });
+        //For Binding the Notification Value
+        $("#clkcountnotify").click(function () {
+            notification(pageindex);
+            $("#myModalNotificationdata ").modal('show');
+
+        });
+        //for paging
+        $(document).on('click', '#ppaginatenoti', function () {
+            ppageindex = $(this).attr("index");
+            notification(ppageindex);
+        });
+        $(document).on('click', '#pgetdatabypagenumnoti', function () {
+            ppageindex = $("#ppagnumvalue").val();
+            if (ppageindex != "undefined") {
+                if (Math.sign(ppageindex) == 1) {
+                    var ppageindesx = $("#psotopage").text();
+                    if (ppageindex <= parseInt(ppageindesx)) {
+                        notification(ppageindex);
+                    }
+                    else {
+                        alert("Please enter a valid page number.");
+                        closeload();
+                    }
+                }
+                else {
+                    alert("Please enter a valid page number.");
+                }
+            }
+        });
+
+        //Remove Notifications single
+        //$(document).on('click', '#deleteNotisingle', function () {
+        //    var Notificationid = $(this).attr("is-delete");
+        //    deletenotifications(Notificationid, "");
+        //});
+        $(document).on('click', '#deleteNotisingle', function () {
+            var Notificationid = $(this).attr("is-delete");
+            $("#deleteNotDetails").attr("Notificationid", Notificationid);
+            $("#myModalDelNotConfirm").modal('show');
+        });
+
+        $(document).on('click', '#deleteNotDetails', function () {
+            var NotId = $(this).attr("Notificationid");
+            deletenotifications(NotId, "");
+        });
+
+        //Remove Notifications bulk
+        $(document).on('click', '#clearallnoti', function () {
+            deletenotifications("", "1");
+        });
+        //Notification delete single/bulk
+        function deletenotifications(Notificationid, deleteflag) {
+            var formdata = new FormData();
+            formdata.append("id", Notificationid);
+            formdata.append("deleteflag", deleteflag);
+            $.ajax({
+                async: true,
+                url: "/api/callApi/RemoveNotificationStatus",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    if (response.Data >= 1) {
+                        //alert("Notification deleted successfully.");
+                        new PNotify({
+                            title: 'Success!',
+                            text: 'Notification deleted successfully.',
+                            type: 'success',
+                            delay: 3000
+                        });
+                        $("#myModalDelNotConfirm").modal('hide');
+                        notification(1);
+                    } else {
+                        //alert("Something went wrong please try again later.");
+                        new PNotify({
+                            title: 'Info!',
+                            text: 'Something went wrong please try again later.',
+                            type: 'error',
+                            delay: 3000
+                        });
+                    }
+                },
+
+                failure: function (response) {
+                    //alert(data.responseText);
+                },
+                error: function (response) {
+                    //alert(data.responseText);
+                }
+
+            });
+        }
+        //For Mark  Read Notification single
+        $(document).on('click', '#Readnoti', function () {
+            var ids = $(this).attr("idds");
+            Readnotifi(ids, "");
+        });
+        //For Mark  Read Notification bulk
+        $(document).on('click', '#Allreadnoti', function () {
+            Readnotifi("", "1");
+        });
+
+        //For Mark Notification UnRead
+        $(document).on('click', '#UnReadnoti', function () {
+            var ids = $(this).attr("idds");
+            Readnotifi(ids, "2");
+        });
+
+        //For Read single/bulk Notification
+        function Readnotifi(ids, Isreadflag) {
+            var formdata = new FormData();
+            formdata.append("id", ids);
+            formdata.append("Isreadflag", Isreadflag);
+            $.ajax({
+                async: true,
+                url: "/api/callApi/UpdateNotificationStatus",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    headercount();
+                    notification(1);
+                    //  $("#bellcolor" + c).css("color", "#85d000");
+                },
+
+                failure: function (response) {
+                    //alert(data.responseText);
+                },
+                error: function (response) {
+                    //alert(data.responseText);
+                }
+
+            });
+            // window.location = url1 + enctype(uid1);
+        }
+    });
+    headercount();
+    function headercount() {
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/callApi/FirmHeaderData",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response.Status == true) {
+                    var datas = JSON.stringify(response);
+                    //alert(datas);
+                }
+                else {
+                    //alert("not found");
+                }
+                $.each(response.Data, function (i, a) {
+                    $("#countmessage").text(a.countmessage);
+                    $("#countnotify").text(a.countnotify);
+                });
+                //console.log(response);
+            },
+
+            failure: function (response) {
+                alert(data.responseText);
+            },
+            error: function (response) {
+                if (String(response.responseJSON.Message) == "SessionTimeOut") {
+                    alert("Your session has expired, please log out and then login again");
+
+                    window.location.href = location.protocol + '//' + location.host;
+                }
+                else {
+                    alert(response.responseText);
+                }
+            }
+
+        });
+    }
+
+    function loadnotifi(a, b, c, d) {
+        var url1 = a;
+        var uid1 = b;
+        var formdata = new FormData();
+        formdata.append("id", c);
+        formdata.append("Isreadflag", "");
+        $.ajax({
+            async: true,
+            url: "/api/callApi/UpdateNotificationStatus",
+            data: formdata,
+            processData: false,
+            contentType: false,
+            type: 'POST',
+            success: function (response) {
+                headercount();
+
+                $("#bellcolor" + c).css("color", "#85d000");
+                var fcode = localStorage.getItem("FirmCode");
+                if (d == "DocDelete" || d == "UploadDoc" || d == "FileDescEdit" || d == "DocCheckin" || d == "DocCheckout") {
+                    var urls = "/" + fcode + "/azure/directorylist/0";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+                else if (d == "SharedDoc") {
+                    var urls = "/" + fcode + "/azure/AssignUserFileList";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+                else if (d == "AssignTask" || d == "RejectTask" || d == "ReAssignTask" || d == "TaskDue" || d == "OverdueRejectTask" || d == "AssignTeamMemberTaskCase") {
+                    var urls = "/" + fcode + "/firm/UserTask";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+
+                else if (d == "TaskComplete") {
+                    var urls = "/" + fcode + "/Firm/Personaldashboard";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+
+                else if (d == "MKEnabled" || d == "MKDisabled") {
+                    var urls = "/" + fcode + "/Firm/Personaldashboard";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+                else if (d == "UserCreated" || d == "UserDetailsEdit" || d == "RightsEdit") {
+                    var urls = "/" + fcode + "/Firm/UserProfile";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+                else if (d == "ContactEdit" || d == "ContactsList") {
+                    var urls = "/" + fcode + "/Firm/UserProfile";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+
+                else if (d == "SentCommunication") {
+                    var urls = "/" + fcode + "/Firm/NewCaseDashboard?type=SentCommunication";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: { token: b }
+                    });
+                }
+                else if (d == "AddTeamMember" || d == "AddNewTeamMember") {
+                    var urls = "/" + fcode + "/Firm/NewCaseDashboard?type=AddTeamMember";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: { token: b }
+                    });
+                }
+                else if (d == "UploadDoc") {
+                    var urls = "/" + fcode + "/Firm/NewCaseDashboard?type=UploadDoc";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: { token: b }
+                    });
+                }
+                else if (d == "CreateTimeEntry") {
+                    var urls = "/" + fcode + "/Firm/NewCaseDashboard?type=CreateTimeEntry";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: { token: b }
+                    });
+                }
+                else if (d == "CaseEdit") {
+                    var urls = "/" + fcode + "/Firm/NewCaseDashboard";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: { token: b }
+                    });
+                }
+                else if (d == "DocDelete") {
+                    var urls = "/" + fcode + "/Azure/RemoveFileRequest";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+                else if (d == "ChatNotification") {
+                    var urls = "/" + fcode + "/Chat/InvitedChat";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+                else if (d == "ArchiveMatter") {
+                    var urls = "/" + fcode + "/Firm/ArchiveMatterList";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+                else if (d == "UnArchiveMatter") {
+                    var urls = "/" + fcode + "/Firm/caselist";
+                    url_redirect({
+                        url: urls,
+                        method: "post",
+                        data: {}
+                    });
+                }
+            },
+
+            failure: function (response) {
+                alert(data.responseText);
+            },
+            error: function (response) {
+                alert(data.responseText);
+            }
+        });
+        // window.location = url1 + enctype(uid1);
+    }
+
+</script>
+
+<style>
+    #bindnotificationdata a {
+        color: #1F2937;
+    }
+
+    .dropdown-right > a:after {
+        float: right !important;
+    }
+
+    .right-submenu {
+        right: auto !IMPORTANT;
+    }
+
+    .dropdown-submenu {
+        position: relative;
+    }
+
+        .dropdown-submenu .dropdown-menu {
+            border-radius: 6px 0px 6px 6px;
+            left: auto;
+            margin-left: 10px;
+            right: 98%;
+        }
+
+        .dropdown-submenu > a:after {
+            display: block;
+            content: " ";
+            float: left;
+            width: 0;
+            height: 0;
+            border-color: transparent;
+            border-style: solid;
+            border-width: 5px 5px 5px 0;
+            border-right-color: #cccccc;
+            margin-top: 5px;
+            margin-left: -10px;
+        }
+</style>
+<style>
+    .dropdown-submenu {
+        position: relative;
+    }
+
+        .dropdown-submenu > .dropdown-menu {
+            top: 0;
+            left: 100%;
+            margin-top: -6px;
+            margin-left: -1px;
+            -webkit-border-radius: 0 6px 6px 6px;
+            -moz-border-radius: 0 6px 6px;
+            border-radius: 0 6px 6px 6px;
+        }
+
+        .dropdown-submenu:hover > .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-submenu > a:after {
+            display: block;
+            content: " ";
+            float: right;
+            width: 0;
+            height: 0;
+            border-color: transparent;
+            border-style: solid;
+            border-width: 5px 0 5px 5px;
+            border-left-color: #ccc;
+            margin-top: 5px;
+            margin-right: -10px;
+        }
+
+        .dropdown-submenu:hover > a:after {
+            border-left-color: #fff;
+        }
+
+        .dropdown-submenu.pull-left {
+            float: none;
+        }
+
+            .dropdown-submenu.pull-left > .dropdown-menu {
+                left: -100%;
+                margin-left: 10px;
+                -webkit-border-radius: 6px 0 6px 6px;
+                -moz-border-radius: 6px 0 6px 6px;
+                border-radius: 6px 0 6px 6px;
+            }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+<!-- For Layout -->
+<!--<link href="~/newassets/css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+<link href="~/newassets/css/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+<link href="~/newassets/css/style_new.css" rel="stylesheet" />
+<script src="~/newassets/js/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="~/newassets/js/main_new.js"></script>-->
+<!-- End Layout -->
+
+<link href="~/Manupanel/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="~/newassets/css/style.css?3.6" rel="stylesheet" />
+<link href="~/newassets/css/custom.css?3.2" rel="stylesheet" />
+<link href="~/newassets/css/flipcard.css?1.5" rel="stylesheet" />
+<script src="~/CssJsfiles/js/2.02/jquery.min.js"></script>
+<script src="~/Scripts/AES.js"></script>
+<link href="~/newassets/css/style_new.css" rel="stylesheet" />
+<link href="~/newassets/css/pagination.css" rel="stylesheet" />
+
+<header id="header" class="header fixed-top d-flex align-items-center" style="display:none;">
+
+    <div class="d-flex align-items-center justify-content-between">
+        <a href="#" class="logo d-flex align-items-center" id="btnhomereload">
+            <img src="/newassets/img/logo.png" alt="">
+        </a>
+        @*<i class="bi bi-list toggle-sidebar-btn"></i>*@
+    </div><!-- End Logo -->
+    @if (@ViewBag.hsmatter == "display:unset")
+    {
+        <div class="search-bar">
+            <form class="search-form d-flex align-items-center" method="POST" action="#">
+                <input type="text" name="query" placeholder="Search" title="Enter search keyword">
+                <button type="submit" title="Search"><img src="/newassets/img/search-lg.png" alt=""></button>
+            </form>
+        </div><!-- End Search Bar -->
+    }
+    <nav class="header-nav ms-auto">
+        <ul class="d-flex align-items-center">
+            @if (@ViewBag.hsmatter == "display:unset")
+            {
+                <li class="nav-item d-block d-lg-none">
+                    <a class="nav-link nav-icon search-bar-toggle " href="#">
+                        <img src="/newassets/img/search-lg.png" alt="">
+                    </a>
+                </li><!-- End Search Icon-->
+
+                <li class="nav-item dropdown" style="margin-right:15px;">
+
+                    <a class="dropdown-toggle" data-toggle="dropdown" title="Notifications" id="clkcountnotify" style="cursor: pointer; margin: 12px 0 0 0;">
+                        <img src="/newassets/img/bell-01.png" alt="">
+                        <span class="badge bg-primary badge-number" id="countnotify"></span>
+
+                    </a><!-- End Notification Icon -->
+
+                </li><!-- End Notification Nav -->
+
+                <li class="nav-item">
+
+                    <a href="https://www.manupatra.com/" target="_blank" class="">
+                        <img src="/newassets/img/manu-logo.png" alt="Manupatra" style="width:34px;">
+                    </a>
+                </li>
+                <!-- End Manupatra Nav -->
+                <li class="nav-item" style="@ViewBag.hstimeentry">
+                    <a class="btntop" href="/@firmcode121/Firm/ViewTimer"><img src="/newassets/img/tm-icon.png" alt="">&nbsp;&nbsp;Time Entry</a>
+                </li>
+                <!-- End Time Entry -->
+            }
+            @{
+                var userfullname = @Session["fullusername"];
+            }
+            @{
+                if (userfullname.ToString().Length > 12)
+                {
+                    userfullname = Convert.ToString(userfullname).Replace("&amp;", "&").Substring(0, 12) + "...";
+                }
+                else
+                {
+                    userfullname = Convert.ToString(userfullname).Replace("&amp;", "&");
+                }
+            }
+            <li class="nav-item">
+                <div class="" style="cursor:pointer;display:none;" id="firmlogolink"><img id="firmlogosrc" src="" height="37px" /></div>
+            </li>
+            <li class="nav-item dropdown">
+
+                <a class="dropdown-toggle" data-toggle="dropdown" title="Mykase Admin">
+                    <img src="/newassets/img/profile-img.jpg" alt="Profile" class="rounded-circle" width="38" style="cursor: pointer; ">
+                </a><!-- End Profile Iamge Icon -->
+                <ul class="dropdown-menu" style="left:inherit;right:0;">
+                    <li><a href="javascript:void(0);" title="@Session["fullusername"]" style="color: #075985; font-weight: 500; padding-top: 5px; padding-bottom: 5px; margin-bottom: 8px; background: #f5f5f5;">@userfullname</a></li>
+                    <li><a href="/@firmcode121/Firm/UserProfile" style="@ViewBag.hsothers">Profile</a></li>
+                    <li class="divider"></li>
+                    <li id="caseroleaccess" style="@ViewBag.hsmklitigation"><a href="/@firmcode121/CW/ViewAlert"> Alerts List</a></li>
+                    @*<li id="password1"><a href="javascript:void()">Change Password</a></li>*@
+
+                    @if (Convert.ToInt32(ViewBag.ispartner) == 1)
+                    {
+                        if (ViewBag.IsCreateUserList == "1" || ViewBag.IsViewUserList == "1" || ViewBag.IsEditUserList == "1")
+                        {
+                            <li style="@ViewBag.hsuser"><a href="/@firmcode121/Firm/StandardUserList">Manage Users</a></li>
+
+                        }
+                    }
+                    else
+                    {
+                        if (ViewBag.IsCreateUserList == "1" || ViewBag.IsViewUserList == "1" || ViewBag.IsEditUserList == "1")
+                        {
+                            <li style="@ViewBag.hsuser"><a href="/@firmcode121/Firm/StandardUserList">Manage Users</a></li>
+
+                        }
+                    }
+                    @if (Convert.ToInt32(ViewBag.ispartner) == 1)
+                    {
+                        if (ViewBag.IsCreateAssignRights == "1" || ViewBag.IsViewAssignRights == "1" || ViewBag.IsEditAssignRights == "1" || ViewBag.IsCreateMatterRights == "1" || ViewBag.IsViewMatterRights == "1" || ViewBag.IsEditMatterRights == "1")
+                        {
+                            <li class="dropdown-submenu hideliclass" id="roleaccessparent" style="@ViewBag.hsrights">
+                                <a class="test" tabindex="-1" href="#">Rights </a>
+                                <ul class="dropdown-menu left-submenu" style="z-index: 10000;left: -156px;">
+                                    @if (ViewBag.IsCreateAssignRights == "1" || ViewBag.IsViewAssignRights == "1" || ViewBag.IsEditAssignRights == "1")
+                                    {
+                                        <li id="roleaccess"><a href="/@firmcode121/Role/RoleAccess">Assign Rights</a></li>
+                                    }
+                                    @if (ViewBag.IsCreateMatterRights == "1" || ViewBag.IsViewMatterRights == "1" || ViewBag.IsEditMatterRights == "1")
+                                    {
+                                        <li id="caseroleaccess"><a href="/@firmcode121/Role/CaseRoleAccess">Matter Rights</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        if (ViewBag.IsCreateAssignRights == "1" || ViewBag.IsViewAssignRights == "1" || ViewBag.IsEditAssignRights == "1" || ViewBag.IsCreateMatterRights == "1" || ViewBag.IsViewMatterRights == "1" || ViewBag.IsEditMatterRights == "1")
+                        {
+                            <li class="dropdown-submenu hideliclass" id="roleaccessparent" style="@ViewBag.hsrights">
+                                <a class="test" tabindex="-1" href="#">Rights </a>
+                                <ul class="dropdown-menu left-submenu">
+                                    @if (ViewBag.IsCreateAssignRights == "1" || ViewBag.IsViewAssignRights == "1" || ViewBag.IsEditAssignRights == "1")
+                                    {
+                                        <li id="roleaccess"><a href="/@firmcode121/Role/RoleAccess">Assign Rights</a></li>
+                                    }
+                                    @if (ViewBag.IsCreateMatterRights == "1" || ViewBag.IsViewMatterRights == "1" || ViewBag.IsEditMatterRights == "1")
+                                    {
+                                        <li id="caseroleaccess"><a href="/@firmcode121/Role/CaseRoleAccess">Matter Rights</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                    }
+                    <li class="divider"></li>
+                    <li><a href="javascript:void()" id="signoutconfirm">Sign Out</a></li>
+                </ul>
+                <!-- End Profile Dropdown Items -->
+            </li><!-- End Profile Nav -->
+
+        </ul>
+
+
+
+    </nav><!-- End Icons Navigation -->
+
+</header><!-- End Header -->
+
+<div id="myModalConfirm" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:400px;">
+        <div class="modal-content">
+            <div class="modal-header btn-primary">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="confirmTitle">Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Thank you for using myKase.\r\nAre your sure you want to Sign Off?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirmYes">Yes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ======= Sidebar ======= -->
+<aside id="sidebar" class="sidebar">
+    <ul class="sidebar-nav" id="sidebar-nav">
+        @*<li style="@ViewBag.hsmatter" class="nav-item">
+            <a class="nav-link" href="/@firmcode121/firm/Personaldashboard">
+                <p class="home nav-options" id="home_sidebar">Home</p>
+            </a>
+        </li>*@
+        @*<li class="nav-item" onclick="OpenActive(this,'Home','')">
+            <a class="nav-link" data-bs-target="#dashboard-nav" data-bs-toggle="collapse" href="javascript:void(0)">
+                <p class="home">Home</p>
+            </a>
+            <ul id="dashboard-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                @if (@ViewBag.hsnotice == "display:none")
+                {
+                    if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none" && @ViewBag.hsipr == "display:none")
+                    {
+                        <li id="caseroleaccess" style="@ViewBag.hsmklitigation"><a href="/@firmcode121/CW/LitigationDashboard">Dashboard</a></li>
+                    }
+                    else if (@ViewBag.hsipr == "display:unset" && @ViewBag.hsmatter == "display:none" && @ViewBag.hsmklitigation == "display:none")
+                    {
+                        <li class="hideliclass"><a style="@ViewBag.hsipr" href="/@firmcode121/IPR/IPRDashboard">IPR Dashboard</a></li>
+                    }
+                    else if (@ViewBag.hsipr == "display:unset" && @ViewBag.hsmklitigation == "display:unset")
+                    {
+
+                        <li class="hideliclass"><a style="@ViewBag.hsipr" href="/@firmcode121/IPR/IPRDashboard">IPR Dashboard</a></li>
+                        <li id="caseroleaccess" style="@ViewBag.hsmklitigation"><a href="/@firmcode121/CW/LitigationDashboard">Dashboard</a></li>
+                    }
+                    else if (@ViewBag.hsipr == "display:unset" && @ViewBag.hsmatter == "display:unset")
+                    {
+                        <li id="Personaldashboard" style="@ViewBag.hsdashboard"><a href="/@firmcode121/firm/Personaldashboard">Dashboard</a></li>
+                        <li class="hideliclass"><a style="@ViewBag.hsipr" href="/@firmcode121/IPR/IPRDashboard">IPR Dashboard</a></li>
+                    }
+                    else
+                    {
+                        <li id="Personaldashboard" style="@ViewBag.hsdashboard"><a href="/@firmcode121/firm/Personaldashboard">Dashboard</a></li>
+                    }
+                }
+                else if (noticepack.ToString() == "display:unset" && notiwithmatter.ToString() == "display:none" && ViewBag.hsmklitigation == "display:none")
+                {
+                    <li class="hideliclass" style="@ViewBag.hsnotice"><a href="/@firmcode121/firm/noticedashboard">Dashboard</a></li>
+                }
+                else if (@ViewBag.hsipr == "display:unset" && notiwithmatter.ToString() == "display:none" && ViewBag.hsmklitigation == "display:none")
+                {
+                    <li class="hideliclass"><a style="@ViewBag.hsipr" href="/@firmcode121/IPR/IPRDashboard">IPR Dashboard</a></li>
+                }
+                else
+                {
+                    if (@ViewBag.hsmklitigation == "display:unset")
+                    {
+                        <li id="caseroleaccess" style="@ViewBag.hsmklitigation"><a href="/@firmcode121/CW/LitigationDashboard">My Dashboard</a></li>
+                    }
+                    else
+                    {
+                        <li class="hideliclass" style="@ViewBag.hsdashboard"><a href="/@firmcode121/firm/Personaldashboard">Mykase Dashboard</a></li>
+                    }
+                    <li class="hideliclass" style="@ViewBag.hsnotice"><a href="/@firmcode121/firm/noticedashboard">Notice Management Dashboard</a></li>
+                    <li class="hideliclass" style="@ViewBag.hsipr"><a href="/@firmcode121/IPR/IPRDashboard">IPR Dashboard</a></li>
+                }
+            </ul>
+        </li>*@
+        <!-- End Dashboard Nav -->
+        @if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none")
+        {
+            @*<li style="@ViewBag.hsmklitigation" class="nav-item">
+                <a class="nav-link" href="/@firmcode121/CW/LitigationDashboard">
+                    <p class="home nav-options" id="home_sidebar">Home</p>
+                </a>
+            </li>
+            <li style="@ViewBag.hsmklitigation" class="nav-item">
+                <a class="nav-link" href="/@firmcode121/CW/LitigationCaseList">
+                    <p class="task nav-options" id="matter_sidebar">Matter</p>
+                </a>
+            </li>*@
+            <li class="nav-item" onclick="OpenActive(this,'Home','')">
+                <a class="nav-link" data-bs-target="#matter-nav" data-bs-toggle="collapse" href="javascript:void(0)">
+                    <p class="mattertab nav-options" id="home_sidebar">Matter</p>
+                </a>
+                <ul id="matter-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav" onclick="OpenActive(this,'ProActive','')">
+                    <div class="subtitle_navbar" style=" text-align: left; font-size: 14px; font-weight: 600; color: #075985;"><span>Matter</span></div>
+                    <li style="@ViewBag.hsmklitigation">
+                        <a href="/@firmcode121/CW/LitigationDashboard">
+                            <svg width="16" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5.66667 11.5V13.1667M9 8.16667V13.1667M12.3333 4.83333V13.1667M5.5 16.5H12.5C13.9001 16.5 14.6002 16.5 15.135 16.2275C15.6054 15.9878 15.9878 15.6054 16.2275 15.135C16.5 14.6002 16.5 13.9001 16.5 12.5V5.5C16.5 4.09987 16.5 3.3998 16.2275 2.86502C15.9878 2.39462 15.6054 2.01217 15.135 1.77248C14.6002 1.5 13.9001 1.5 12.5 1.5H5.5C4.09987 1.5 3.3998 1.5 2.86502 1.77248C2.39462 2.01217 2.01217 2.39462 1.77248 2.86502C1.5 3.3998 1.5 4.09987 1.5 5.5V12.5C1.5 13.9001 1.5 14.6002 1.77248 15.135C2.01217 15.6054 2.39462 15.9878 2.86502 16.2275C3.3998 16.5 4.09987 16.5 5.5 16.5Z" stroke="#717680" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg><span>Dashboard</span>
+
+                        </a>
+                        <a href="/@firmcode121/CW/LitigationCaseList">
+                            <svg width="16" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5.66667 11.5V13.1667M9 8.16667V13.1667M12.3333 4.83333V13.1667M5.5 16.5H12.5C13.9001 16.5 14.6002 16.5 15.135 16.2275C15.6054 15.9878 15.9878 15.6054 16.2275 15.135C16.5 14.6002 16.5 13.9001 16.5 12.5V5.5C16.5 4.09987 16.5 3.3998 16.2275 2.86502C15.9878 2.39462 15.6054 2.01217 15.135 1.77248C14.6002 1.5 13.9001 1.5 12.5 1.5H5.5C4.09987 1.5 3.3998 1.5 2.86502 1.77248C2.39462 2.01217 2.01217 2.39462 1.77248 2.86502C1.5 3.3998 1.5 4.09987 1.5 5.5V12.5C1.5 13.9001 1.5 14.6002 1.77248 15.135C2.01217 15.6054 2.39462 15.9878 2.86502 16.2275C3.3998 16.5 4.09987 16.5 5.5 16.5Z" stroke="#717680" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg><span>Matter List</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item" onclick="OpenActive(this,'Matter','')">
+                <a class="nav-link" data-bs-target="#matter-nav" data-bs-toggle="collapse" href="javascript:void(0)">
+                    <p class="mattertab nav-options" id="home_sidebar">Matter</p>
+                </a>
+                <ul id="matter-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav" onclick="OpenActive(this,'ProActive','')">
+                    <div class="subtitle_navbar" style=" text-align: left; font-size: 14px; font-weight: 600; color: #075985;"><span>Matter</span></div>
+                    @if (@ViewBag.hsmatter == "display:unset")
+                    {
+                        <li style="@ViewBag.hsmatter" id="home_sidebar">
+                            <a href="/@firmcode121/firm/Personaldashboard">
+                                <svg width="16" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.66667 11.5V13.1667M9 8.16667V13.1667M12.3333 4.83333V13.1667M5.5 16.5H12.5C13.9001 16.5 14.6002 16.5 15.135 16.2275C15.6054 15.9878 15.9878 15.6054 16.2275 15.135C16.5 14.6002 16.5 13.9001 16.5 12.5V5.5C16.5 4.09987 16.5 3.3998 16.2275 2.86502C15.9878 2.39462 15.6054 2.01217 15.135 1.77248C14.6002 1.5 13.9001 1.5 12.5 1.5H5.5C4.09987 1.5 3.3998 1.5 2.86502 1.77248C2.39462 2.01217 2.01217 2.39462 1.77248 2.86502C1.5 3.3998 1.5 4.09987 1.5 5.5V12.5C1.5 13.9001 1.5 14.6002 1.77248 15.135C2.01217 15.6054 2.39462 15.9878 2.86502 16.2275C3.3998 16.5 4.09987 16.5 5.5 16.5Z" stroke="#717680" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg><span>Dashboard</span>
+
+                            </a>
+                            <a href="/@firmcode121/firm/StandardCaseList">
+                                <svg width="16" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.66667 11.5V13.1667M9 8.16667V13.1667M12.3333 4.83333V13.1667M5.5 16.5H12.5C13.9001 16.5 14.6002 16.5 15.135 16.2275C15.6054 15.9878 15.9878 15.6054 16.2275 15.135C16.5 14.6002 16.5 13.9001 16.5 12.5V5.5C16.5 4.09987 16.5 3.3998 16.2275 2.86502C15.9878 2.39462 15.6054 2.01217 15.135 1.77248C14.6002 1.5 13.9001 1.5 12.5 1.5H5.5C4.09987 1.5 3.3998 1.5 2.86502 1.77248C2.39462 2.01217 2.01217 2.39462 1.77248 2.86502C1.5 3.3998 1.5 4.09987 1.5 5.5V12.5C1.5 13.9001 1.5 14.6002 1.77248 15.135C2.01217 15.6054 2.39462 15.9878 2.86502 16.2275C3.3998 16.5 4.09987 16.5 5.5 16.5Z" stroke="#717680" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg><span>Matter List</span>
+
+                            </a>
+                            @if (@ViewBag.BOMCustomType == "BOMCustomtype")
+                            {
+                                <a href="/@firmcode121/CW/CustomDashboard">
+                                    <svg width="16" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5.66667 11.5V13.1667M9 8.16667V13.1667M12.3333 4.83333V13.1667M5.5 16.5H12.5C13.9001 16.5 14.6002 16.5 15.135 16.2275C15.6054 15.9878 15.9878 15.6054 16.2275 15.135C16.5 14.6002 16.5 13.9001 16.5 12.5V5.5C16.5 4.09987 16.5 3.3998 16.2275 2.86502C15.9878 2.39462 15.6054 2.01217 15.135 1.77248C14.6002 1.5 13.9001 1.5 12.5 1.5H5.5C4.09987 1.5 3.3998 1.5 2.86502 1.77248C2.39462 2.01217 2.01217 2.39462 1.77248 2.86502C1.5 3.3998 1.5 4.09987 1.5 5.5V12.5C1.5 13.9001 1.5 14.6002 1.77248 15.135C2.01217 15.6054 2.39462 15.9878 2.86502 16.2275C3.3998 16.5 4.09987 16.5 5.5 16.5Z" stroke="#717680" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg><span>BOM Dashboard</span>
+
+                                </a>
+                            }
+
+                        </li>
+                    }
+                    else
+                    {
+                        <li style="@ViewBag.hsmatter">
+                            <a href="/@firmcode121/firm/StandardCaseList">
+                                <svg width="16" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.66667 11.5V13.1667M9 8.16667V13.1667M12.3333 4.83333V13.1667M5.5 16.5H12.5C13.9001 16.5 14.6002 16.5 15.135 16.2275C15.6054 15.9878 15.9878 15.6054 16.2275 15.135C16.5 14.6002 16.5 13.9001 16.5 12.5V5.5C16.5 4.09987 16.5 3.3998 16.2275 2.86502C15.9878 2.39462 15.6054 2.01217 15.135 1.77248C14.6002 1.5 13.9001 1.5 12.5 1.5H5.5C4.09987 1.5 3.3998 1.5 2.86502 1.77248C2.39462 2.01217 2.01217 2.39462 1.77248 2.86502C1.5 3.3998 1.5 4.09987 1.5 5.5V12.5C1.5 13.9001 1.5 14.6002 1.77248 15.135C2.01217 15.6054 2.39462 15.9878 2.86502 16.2275C3.3998 16.5 4.09987 16.5 5.5 16.5Z" stroke="#717680" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg><span>Matter List</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </li>
+            <!-- End Matter Nav -->
+        }
+
+        @*<li class="nav-item" onclick="OpenActive(this,'Matter','')">
+            <a class="nav-link" data-bs-target="#matter-nav" data-bs-toggle="collapse" href="javascript:void(0)">
+                <p class="mattertab">Matter</p>
+            </a>
+            <ul id="matter-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                @if (@ViewBag.hsmatter == "display:unset")
+                {
+                    <li style="@ViewBag.hsmatter">
+                        <a href="/@firmcode121/firm/StandardCaseList">
+                            <svg width="16" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5.66667 11.5V13.1667M9 8.16667V13.1667M12.3333 4.83333V13.1667M5.5 16.5H12.5C13.9001 16.5 14.6002 16.5 15.135 16.2275C15.6054 15.9878 15.9878 15.6054 16.2275 15.135C16.5 14.6002 16.5 13.9001 16.5 12.5V5.5C16.5 4.09987 16.5 3.3998 16.2275 2.86502C15.9878 2.39462 15.6054 2.01217 15.135 1.77248C14.6002 1.5 13.9001 1.5 12.5 1.5H5.5C4.09987 1.5 3.3998 1.5 2.86502 1.77248C2.39462 2.01217 2.01217 2.39462 1.77248 2.86502C1.5 3.3998 1.5 4.09987 1.5 5.5V12.5C1.5 13.9001 1.5 14.6002 1.77248 15.135C2.01217 15.6054 2.39462 15.9878 2.86502 16.2275C3.3998 16.5 4.09987 16.5 5.5 16.5Z" stroke="#717680" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg><span>Matter List</span>
+
+                        </a>
+                        @if (@ViewBag.BOMCustomType == "BOMCustomtype")
+                        {
+
+                            <a href="/@firmcode121/CW/CustomDashboard">
+                                <svg width="16" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.66667 11.5V13.1667M9 8.16667V13.1667M12.3333 4.83333V13.1667M5.5 16.5H12.5C13.9001 16.5 14.6002 16.5 15.135 16.2275C15.6054 15.9878 15.9878 15.6054 16.2275 15.135C16.5 14.6002 16.5 13.9001 16.5 12.5V5.5C16.5 4.09987 16.5 3.3998 16.2275 2.86502C15.9878 2.39462 15.6054 2.01217 15.135 1.77248C14.6002 1.5 13.9001 1.5 12.5 1.5H5.5C4.09987 1.5 3.3998 1.5 2.86502 1.77248C2.39462 2.01217 2.01217 2.39462 1.77248 2.86502C1.5 3.3998 1.5 4.09987 1.5 5.5V12.5C1.5 13.9001 1.5 14.6002 1.77248 15.135C2.01217 15.6054 2.39462 15.9878 2.86502 16.2275C3.3998 16.5 4.09987 16.5 5.5 16.5Z" stroke="#717680" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg><span>BOM Dashboard</span>
+
+                            </a>
+
+                        }
+
+                    </li>
+                }
+                else if (@ViewBag.hsmklitigation == "display:unset")
+                {
+                    if (@ViewBag.IsCWActive == "1")
+                    {
+                        <li style="@ViewBag.hsmklitigation">
+                            <a href="/@firmcode121/CW/LitigationCaseList">
+                                <svg width="16" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.66667 11.5V13.1667M9 8.16667V13.1667M12.3333 4.83333V13.1667M5.5 16.5H12.5C13.9001 16.5 14.6002 16.5 15.135 16.2275C15.6054 15.9878 15.9878 15.6054 16.2275 15.135C16.5 14.6002 16.5 13.9001 16.5 12.5V5.5C16.5 4.09987 16.5 3.3998 16.2275 2.86502C15.9878 2.39462 15.6054 2.01217 15.135 1.77248C14.6002 1.5 13.9001 1.5 12.5 1.5H5.5C4.09987 1.5 3.3998 1.5 2.86502 1.77248C2.39462 2.01217 2.01217 2.39462 1.77248 2.86502C1.5 3.3998 1.5 4.09987 1.5 5.5V12.5C1.5 13.9001 1.5 14.6002 1.77248 15.135C2.01217 15.6054 2.39462 15.9878 2.86502 16.2275C3.3998 16.5 4.09987 16.5 5.5 16.5Z" stroke="#717680" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg><span>Matter List</span>
+
+                            </a>
+
+                        </li>
+                    }
+                }
+                else if (@ViewBag.hsmatter == "display:unset" && @ViewBag.hsmklitigation == "display:unset")
+                {
+                    <li style="@ViewBag.hsmatter">
+                        <a href="/@firmcode121/firm/StandardCaseList">
+                            <svg width="16" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5.66667 11.5V13.1667M9 8.16667V13.1667M12.3333 4.83333V13.1667M5.5 16.5H12.5C13.9001 16.5 14.6002 16.5 15.135 16.2275C15.6054 15.9878 15.9878 15.6054 16.2275 15.135C16.5 14.6002 16.5 13.9001 16.5 12.5V5.5C16.5 4.09987 16.5 3.3998 16.2275 2.86502C15.9878 2.39462 15.6054 2.01217 15.135 1.77248C14.6002 1.5 13.9001 1.5 12.5 1.5H5.5C4.09987 1.5 3.3998 1.5 2.86502 1.77248C2.39462 2.01217 2.01217 2.39462 1.77248 2.86502C1.5 3.3998 1.5 4.09987 1.5 5.5V12.5C1.5 13.9001 1.5 14.6002 1.77248 15.135C2.01217 15.6054 2.39462 15.9878 2.86502 16.2275C3.3998 16.5 4.09987 16.5 5.5 16.5Z" stroke="#717680" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg><span>Matter List</span>
+
+                        </a>
+                    </li>
+                }
+            </ul>
+        </li>*@
+        <!-- End Matter Nav -->
+        @if ((ViewBag.IsCreateDocumentRights == "1" || ViewBag.IsViewDocumentRights == "1" || ViewBag.IsEditDocumentRights == "1") && ViewBag.hsdocument == "display:unset")
+        {
+            <li style="@ViewBag.hsdocument" class="nav-item" onclick="OpenActive(this,'Docs','')">
+                <a href="/@firmcode121/azure/directorylist/0">
+                    <p class="task nav-options" id="document_sidebar">Docs</p>
+                </a>
+            </li>
+        }
+        else if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none")
+        {
+            <li style="@ViewBag.hsdocument" class="nav-item" onclick="OpenActive(this,'Docs','')">
+                <a href="/@firmcode121/azure/directorylist/0">
+                    <p class="task nav-options" id="document_sidebar">Docs</p>
+                </a>
+            </li>
+        }
+        else { }
+
+        @if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none")
+        {
+            <li class="nav-item" style="@ViewBag.hsipr" onclick="OpenActive(this,'IPR','@ViewBag.hsipr')">
+                <a class="nav-link" data-bs-target="#ipr-nav" data-bs-toggle="collapse" href="javascript:void(0)">
+                    <p class="ipr nav-options" id="ipr_sidebar">IPR</p>
+                </a>
+                <ul id="ipr-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <div class="subtitle_navbar" style=" text-align: left; font-size: 14px; font-weight: 600; color: #075985;"><span>IPR</span></div>
+                    <li style="@ViewBag.hsipr">
+                        <a href="/@firmcode121/IPR/IPRDashboard">
+                            <span>Dashboard</span>
+                        </a>
+
+                    </li>
+                    @if (ViewBag.hsiprtrademark == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=1">
+                                <span>Trademark</span>
+                            </a>
+
+                        </li>
+                    }
+                    @if (ViewBag.hsiprcopyright == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=2">
+                                <span>Copyright</span>
+                            </a>
+
+                        </li>
+                    }
+                    @if (ViewBag.hsiprpatent == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=3">
+                                <span>Patent</span>
+                            </a>
+
+                        </li>
+                    }
+                    @if (ViewBag.hsiprgi == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=4">
+                                <span>GI</span>
+                            </a>
+
+                        </li>
+                    }
+                    @if (ViewBag.hsiprdesign == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=5">
+                                <span>Design</span>
+                            </a>
+
+                        </li>
+                    }
+                    @if (ViewBag.hsiprresources == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/Resources">
+                                <span>Resources</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </li><!-- End IPR Nav -->
+        }
+        else
+        {
+            <li class="nav-item" onclick="OpenActive(this,'IPR','@ViewBag.hsipr')">
+                <a class="nav-link" data-bs-target="#ipr-nav" data-bs-toggle="collapse" href="javascript:void(0)">
+                    <p class="ipr nav-options" id="ipr_sidebar">IPR</p>
+                </a>
+                <ul id="ipr-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <div class="subtitle_navbar" style=" text-align: left; font-size: 14px; font-weight: 600; color: #075985;"><span>IPR</span></div>
+                    <li style="@ViewBag.hsipr">
+                        <a href="/@firmcode121/IPR/IPRDashboard">
+                            <span>Dashboard</span>
+                        </a>
+
+                    </li>
+                    @if (ViewBag.hsiprtrademark == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=1">
+                                <span>Trademark</span>
+                            </a>
+
+                        </li>
+                    }
+                    @if (ViewBag.hsiprcopyright == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=2">
+                                <span>Copyright</span>
+                            </a>
+
+                        </li>
+                    }
+                    @if (ViewBag.hsiprpatent == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=3">
+                                <span>Patent</span>
+                            </a>
+
+                        </li>
+                    }
+                    @if (ViewBag.hsiprgi == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=4">
+                                <span>GI</span>
+                            </a>
+
+                        </li>
+                    }
+                    @if (ViewBag.hsiprdesign == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=5">
+                                <span>Design</span>
+                            </a>
+
+                        </li>
+                    }
+                    @if (ViewBag.hsiprresources == "display:unset")
+                    {
+                        <li>
+                            <a href="/@firmcode121/IPR/Resources">
+                                <span>Resources</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </li><!-- End IPR Nav -->
+        }
+
+        <li style="@ViewBag.hstask" class="nav-item" onclick="OpenActive(this)">
+            <a class="nav-link" href="/@firmcode121/firm/UserTask">
+                <p class="task nav-options" id="task_sidebar">Task</p>
+            </a>
+        </li><!-- End Task Nav -->
+        @if ((ViewBag.IsCreatenoticeRights == "1" || ViewBag.IsEditnoticeRights == "1" || ViewBag.IsViewnoticeRights == "1") && ViewBag.hsnotice == "display:unset")
+        {
+            <li class="nav-item" onclick="OpenActive(this,'Notice','@ViewBag.hsnotice')">
+                <a class="nav-link" data-bs-target="#notice-nav" data-bs-toggle="collapse" href="javascript:void(0)">
+                    <p class="notice nav-options" id="notice_sidebar">Notice</p>
+                </a>
+                <ul id="notice-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li style="@ViewBag.hsnotice">
+                        <a href="/@firmcode121/firm/noticedashboard">
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li style="@ViewBag.hsnotice">
+                        <a href="/@firmcode121/NoticeNew/NewNoticeList">
+                            <span>Notice List</span>
+                        </a>
+                    </li>
+                    <li style="@ViewBag.hsnotice">
+                        <a href="/@firmcode121/NoticeTemplate/BulkNotice">
+                            @*<span>Bulk Notices</span>*@
+                            <span>Send Bulk Notices</span>
+                        </a>
+                    </li>
+                </ul>
+            </li><!-- End Notice Nav -->
+        }
+        @{
+            var billingtab = "";
+            if (@ViewBag.hsinvoice == "display:none" && @ViewBag.hsexpense == "display:none" && @ViewBag.hstimeentry == "display:none")
+            {
+                billingtab = "display:none";
+            }
+            else
+            {
+
+            }
+        }
+        @if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none")
+        {
+
+        }
+        else
+        {
+            <li class="nav-item" onclick="OpenActive(this,'Billing','@billingtab')">
+                <a class="nav-link" data-bs-target="#billing-nav" data-bs-toggle="collapse" href="javascript:void(0)">
+                    <p class="billing nav-options" id="billing_sidebar">Billing</p>
+                </a>
+                <ul id="billing-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    @if (Convert.ToInt32(ViewBag.ispartner) == 1)
+                    {
+                        <li style="@ViewBag.hsinvoice">
+                            <a href="/@firmcode121/Bill/ViewInvoice">
+                                <span>Invoice</span>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        if (ViewBag.IsCreateinvRights == "1" || ViewBag.IsViewinvRights == "1" || ViewBag.IsEditinvRights == "1")
+                        {
+                            <li style="@ViewBag.hsinvoice">
+                                <a href="/@firmcode121/Bill/ViewInvoice">
+                                    <span>Invoice</span>
+                                </a>
+                            </li>
+                        }
+                    }
+                    <li style="@ViewBag.hsexpense">
+                        <a href="/@firmcode121/Expense/ExpenseReport">
+                            <span>Expense</span>
+                        </a>
+                    </li>
+                    <li style="@ViewBag.hstimeentry">
+                        <a href="/@firmcode121/Firm/ViewTimer">
+                            <span>Time Entry</span>
+                        </a>
+                    </li>
+                </ul>
+            </li><!-- End Billing Nav -->
+        }
+        @if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none")
+        {
+            <li style="@ViewBag.hsmklitigation" class="nav-item">
+                <a class="nav-link" href="/@firmcode121/CW/DailyCauseList">
+                    <p class="task nav-options" id="causeList_sidebar">Cause List</p>
+                </a>
+            </li>
+        }
+        @if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none")
+        {
+
+        }
+        else
+        {
+            <li class="nav-item" onclick="OpenActive(this,'Hub','')">
+                <a class="nav-link" data-bs-target="#hub-nav" data-bs-toggle="collapse" href="javascript:void(0)">
+                    <p class="hub nav-options" id="hub_sidebar">Hub</p>
+                </a>
+                <ul id="hub-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li style="@ViewBag.hsmatter">
+                        <a href="/@firmcode121/Firm/CommunicationList">
+                            <span>Communication</span>
+                        </a>
+                    </li>
+                    <li id="ContactsList" style="@ViewBag.hscontact">
+                        <a href="/@firmcode121/Firm/ContactsList">
+                            <span>Contacts</span>
+                        </a>
+                    </li>
+                    @if (Convert.ToInt32(ViewBag.ispartner) == 1)
+                    {
+                        <li id="ViewKnowledge" style="@ViewBag.hsknowledge">
+                            <a href="/@firmcode121/Firm/ViewKnowledge/0">
+                                <span>Knowledge</span>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        if (ViewBag.IsCreateknowRights == "1" || ViewBag.IsEditknowRights == "1" || ViewBag.IsViewknowRights == "1")
+                        {
+                            <li id="ViewKnowledge" style="@ViewBag.hsknowledge">
+                                <a href="/@firmcode121/Firm/ViewKnowledge/0">
+                                    <span>Knowledge</span>
+                                </a>
+                            </li>
+                        }
+                    }
+                </ul>
+            </li><!-- End Hub Nav -->
+        }
+        @if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none")
+        {
+            @*<li style="@ViewBag.AIOrdertools" class="nav-item" onclick="OpenActive(this,'AI',@ViewBag.AIOrdertools)">
+                <a class="nav-link" data-bs-target="#hub-nav" data-bs-toggle="collapse" href="/@firmcode121/Firm/AIOrderSummary">
+                    <p class="ai nav-options" id="ai_sidebar" style="cursor: pointer;">AI Tools</p>
+                </a>
+
+            </li>*@
+        }
+        else
+        {
+            @*<li style="@ViewBag.AIOrdertools" class="nav-item" onclick="OpenActive(this,'AI',@ViewBag.AIOrdertools)">
+                <a class="nav-link" data-bs-target="#hub-nav" data-bs-toggle="collapse" href="/@firmcode121/Firm/AIOrderSummary">
+                    <p class="ai nav-options" id="ai_sidebar" style="cursor: pointer;">AI Tools</p>
+                </a>
+
+            </li>*@
+            <!-- End AI Tools Nav -->
+        }
+        @if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none")
+        {
+            <li style="@ViewBag.hsprocactivealerts" class="nav-item">
+                <a class="nav-link" href="/@firmcode121/Keyword/Proactivealert">
+                    <p class="task nav-options" id="proactive_sidebar">ProActive</p>
+                </a>
+            </li>
+        }
+
+
+    </ul>
+
+</aside><!-- End Sidebar-->
+@*<nav class="navbar navbar-default fixed-top" style="background-color: white !important;" role="navigation">
+        <div class="container-main" style="position:relative">
+
+            <div class="accessbility nav-item dropdown">
+                <a href="#" id="accessbility" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><img src="~/newassets/images/accessibility_icon.png" style="position: relative; right: 10px;"></a>
+                <ul class="dropdown-menu a-accessbility">
+                    <li>
+                        <a href="javascript:void(0);" id="incfont" class="button buttonfont">+</a>
+                    </li>
+                    <li><a href="javascript:void(0);" id="decfont" class="button buttonfont">-</a></li>
+                    <li style="float:right;"><p id="resetfont" class="button buttonfont">Reset</p></li>
+                </ul>
+            </div>
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header" id="navheaderpostion">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+                <a class="navbar-brand" href="#" id="btnhomereload"><img src="~/newassets/images/logo.png" /></a>
+                <div class="navbar-brand pull-right" style="cursor:pointer;display:none; margin-top:10px;margin-right:20px; " id="firmlogolink"><img id="firmlogosrc" src="" height="37px" /></div>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right ml-auto" id="sidebarnav">
+
+                    @if (@ViewBag.hsnotice == "display:none")
+                    {
+                        if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none" && @ViewBag.hsipr == "display:none")
+                        {
+                            <li id="caseroleaccess" style="@ViewBag.hsmklitigation"><a href="/@firmcode121/CW/LitigationDashboard">Dashboard</a></li>
+                        }
+                        else if (@ViewBag.hsipr == "display:unset" && @ViewBag.hsmatter == "display:none" && @ViewBag.hsmklitigation == "display:none")
+                        {
+                            <li class="hideliclass"><a style="@ViewBag.hsipr" href="/@firmcode121/IPR/IPRDashboard">IPR Dashboard</a></li>
+                        }
+                        else if (@ViewBag.hsipr == "display:unset" && @ViewBag.hsmklitigation == "display:unset")
+                        {
+                            <li class="dropdown hideliclass" id="Personaldashboard">
+                                <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Dashboard <b class="caret" style="margin-top:-2px;"></b></a>
+                                <ul class="dropdown-menu">
+
+                                    <li class="hideliclass"><a style="@ViewBag.hsipr" href="/@firmcode121/IPR/IPRDashboard">IPR Dashboard</a></li>
+                                    <li id="caseroleaccess" style="@ViewBag.hsmklitigation"><a href="/@firmcode121/CW/LitigationDashboard">Dashboard</a></li>
+                                </ul>
+                            </li>
+
+                        }
+                        else if (@ViewBag.hsipr == "display:unset" && @ViewBag.hsmatter == "display:unset")
+                        {
+                            <li class="dropdown hideliclass" id="Personaldashboard">
+                                <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Dashboard <b class="caret" style="margin-top:-2px;"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li id="Personaldashboard" style="@ViewBag.hsdashboard"><a href="/@firmcode121/firm/Personaldashboard">Dashboard</a></li>
+                                    <li class="hideliclass"><a style="@ViewBag.hsipr" href="/@firmcode121/IPR/IPRDashboard">IPR Dashboard</a></li>
+                                </ul>
+                            </li>
+
+                        }
+                        else
+                        {
+                            <li id="Personaldashboard" style="@ViewBag.hsdashboard"><a href="/@firmcode121/firm/Personaldashboard">Dashboard</a></li>
+                        }
+                    }
+                    else if (noticepack.ToString() == "display:unset" && notiwithmatter.ToString() == "display:none" && ViewBag.hsmklitigation == "display:none")
+                    {
+                        <li class="hideliclass" style="@ViewBag.hsnotice"><a href="/@firmcode121/firm/noticedashboard">Dashboard</a></li>
+                    }
+                    else if (@ViewBag.hsipr == "display:unset" && notiwithmatter.ToString() == "display:none" && ViewBag.hsmklitigation == "display:none")
+                    {
+                        <li class="hideliclass"><a style="@ViewBag.hsipr" href="/@firmcode121/IPR/IPRDashboard">IPR Dashboard</a></li>
+                    }
+                    else
+                    {
+                        <li class="dropdown hideliclass" id="Personaldashboard" style="@ViewBag.hsdashboard">
+                            <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Dashboard <b class="caret" style="margin-top:-2px;"></b></a>
+                            <ul class="dropdown-menu">
+                                @if (@ViewBag.hsmklitigation == "display:unset")
+                                {
+                                    <li id="caseroleaccess" style="@ViewBag.hsmklitigation"><a href="/@firmcode121/CW/LitigationDashboard">My Dashboard</a></li>
+                                }
+                                else
+                                {
+                                    <li class="hideliclass" style="@ViewBag.hsdashboard"><a href="/@firmcode121/firm/Personaldashboard">Mykase Dashboard</a></li>
+                                }
+                                <li class="hideliclass" style="@ViewBag.hsnotice"><a href="/@firmcode121/firm/noticedashboard">Notice Management Dashboard</a></li>
+                                <li class="hideliclass" style="@ViewBag.hsipr"><a href="/@firmcode121/IPR/IPRDashboard">IPR Dashboard</a></li>
+                            </ul>
+                        </li>
+                    }
+
+                    @if (@ViewBag.hsmatter == "display:unset")
+                    {
+                        <li class="dropdown hideliclass" id="caselist" style="@ViewBag.hsmatter">
+                            <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Matters <b class="caret" style="margin-top:-2px;"></b></a>
+                            <ul class="dropdown-menu">
+
+                                <li class="hideliclass" style="@ViewBag.hsmatter"><a href="/@firmcode121/firm/StandardCaseList">My Matters</a></li>
+                                @if (@ViewBag.BOMCustomType == "BOMCustomtype")
+                                {
+                                    <li class="hideliclass"><a href="/@firmcode121/CW/CustomDashboard">BOM Dashboard</a></li>
+                                }
+                                @if (@ViewBag.IsCWActive == "1")
+                                {
+                                    <li id="caseroleaccess" style="@ViewBag.hscw"><a href="/@firmcode121/CW/SearchByPartyName">Search by Party Name</a></li>
+                                    <li id="caseroleaccess" style="@ViewBag.hscw"><a href="/@firmcode121/CW/DailyCauseList">Cause List</a></li>
+                                    <li id="caseroleaccess" style="@ViewBag.hscw"><a href="/@firmcode121/Revenue/RevenueCaseList">Revenue Case List</a></li>
+                                    <li id="caseroleaccess" style="@ViewBag.hscw"><a href="/@firmcode121/Rera/ReraCaseList">Rera Case List</a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                    else if (@ViewBag.hsmklitigation == "display:unset")
+                    {
+                        if (@ViewBag.IsCWActive == "1")
+                        {
+                            <li class="dropdown hideliclass" id="caselist" style="@ViewBag.hsmklitigation">
+                                <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Matters <b class="caret" style="margin-top:-2px;"></b></a>
+                                <ul class="dropdown-menu">
+
+                                    <li id="caseroleaccess" style="@ViewBag.hsmklitigation"><a href="/@firmcode121/CW/LitigationCaseList">Matter List</a></li>
+                                    <li id="caseroleaccess" style="@ViewBag.hscw"><a href="/@firmcode121/CW/DailyCauseList">Cause List</a></li>
+                                    <li class="dropdown-submenu hideliclass dropdown-right" id="roleaccessparent">
+                                        <a class="test" tabindex="-1" href="#">Rera/Revenue List </a>
+                                        <ul class="dropdown-menu right-submenu">
+                                            <li id="caseroleaccess" style="@ViewBag.hscw"><a href="/@firmcode121/Revenue/RevenueCaseList">Revenue Case List</a></li>
+                                            <li id="caseroleaccess" style="@ViewBag.hscw"><a href="/@firmcode121/Rera/ReraCaseList">Rera Case List</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="dropdown hideliclass" id="roleaccessparent" style="@ViewBag.hsmklitigation">
+                                <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Add Case <b class="caret" style="margin-top:-2px;"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li id="caseroleaccess" style="@ViewBag.hscw;"><a href="/@firmcode121/CW/SearchByPartyName">Search by Party Name</a></li>
+                                    <li id="Addcaseliveupdate" style="@ViewBag.hscw"><a href="/@firmcode121/CW/LitigationAddLiveUpdate?type=1">With CNR Number</a></li>
+                                    <li id="Addcaseliveupdate" style="@ViewBag.hscw"><a href="/@firmcode121/CW/LitigationAddLiveUpdate?type=0">With Court Details</a></li>
+                                </ul>
+                            </li>
+                            <li id="caseroleaccess" style="@ViewBag.hsprocactivealerts"><a href="/@firmcode121/Keyword/Proactivealert">ProActive Alerts</a></li>
+                        }
+                    }
+                    else if (@ViewBag.hsmatter == "display:unset" && @ViewBag.hsmklitigation == "display:unset")
+                    {
+                        <li class="dropdown hideliclass" id="caselist" style="@ViewBag.hsmatter">
+                            <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Matters <b class="caret" style="margin-top:-2px;"></b></a>
+                            <ul class="dropdown-menu">
+
+                                <li class="hideliclass" style="@ViewBag.hsmatter"><a href="/@firmcode121/firm/StandardCaseList">My Matters</a></li>
+                                @if (@ViewBag.IsCWActive == "1")
+                                {
+                                    <li id="caseroleaccess" style="@ViewBag.hscw;"><a href="/@firmcode121/CW/SearchByPartyName">Search by Party Name</a></li>
+                                    <li id="caseroleaccess" style="@ViewBag.hscw"><a href="/@firmcode121/CW/DailyCauseList">Cause List</a></li>
+                                    <li id="caseroleaccess" style="@ViewBag.hscw"><a href="/@firmcode121/Revenue/RevenueCaseList">Revenue Case List</a></li>
+                                    <li id="caseroleaccess" style="@ViewBag.hscw"><a href="/@firmcode121/Rera/ReraCaseList">Rera Case List</a></li>
+
+                                }
+
+                            </ul>
+                        </li>
+                    }
+                    @if ((ViewBag.IsCreateDocumentRights == "1" || ViewBag.IsViewDocumentRights == "1" || ViewBag.IsEditDocumentRights == "1") && ViewBag.hsdocument == "display:unset")
+                    {
+                        <li style="@ViewBag.hsdocument" id="directorylist"><a href="/@firmcode121/azure/directorylist/0">Documents</a></li>
+                    }
+                    else if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none")
+                    {
+                        <li style="@ViewBag.hsdocument" id="directorylist"><a href="/@firmcode121/azure/directorylist/0">Documents</a></li>
+                    }
+                    else { }
+
+                    @if ((ViewBag.IsCreatenoticeRights == "1" || ViewBag.IsEditnoticeRights == "1" || ViewBag.IsViewnoticeRights == "1") && ViewBag.hsnotice == "display:unset")
+                    {
+
+                        <li class="dropdown hideliclass" style="@ViewBag.hsnotice" id="noticelist">
+                            <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Notice <b class="caret" style="margin-top:-2px;"></b></a>
+                            <ul class="dropdown-menu">
+                                <li id="ViewTimer" class="hideliclass" style=""><a href="/@firmcode121/NoticeNew/CreateNewNotice">Create Notice</a></li>
+                                <li class="dropdown-submenu hideliclass dropdown-right" id="roleaccessparent" style="@ViewBag.hsnotice">
+                                    <a class="test" tabindex="-1" href="#">Sent </a>
+                                    <ul class="dropdown-menu right-submenu">
+                                        <li id="ViewInvoice" class="hideliclass" style=""><a href="/@firmcode121/NoticeNew/NewNoticeList">Notice List</a></li>
+                                        <li id="ViewTimer" class="hideliclass" style="@ViewBag.hsnotice"><a href="/@firmcode121/NoticeNew/DraftNotice">Notice Shared with Me</a></li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu   hideliclass dropdown-right" id="roleaccessparent" style="@ViewBag.hsnotice">
+                                    <a class="test" tabindex="-1" href="#">Received </a>
+                                    <ul class="dropdown-menu right-submenu ">
+
+                                        <li id="ExpenseReport" class="hideliclass" style=""><a href="/@firmcode121/NoticeReceived/ReceivedNoticeList">Notice List</a></li>
+                                        <li id="ViewTimer" class="hideliclass" style=""><a href="/@firmcode121/NoticeReceived/ReceivedDraftNotice">Notice Shared with Me</a></li>
+                                    </ul>
+                                </li>
+                                <li id="ViewTimer" class="hideliclass" style=""><a href="/@firmcode121/NoticeNew/NoticeReminder">Reminder Notice</a></li>
+                                <li class="dropdown-submenu hideliclass dropdown-right" id="roleaccessparent" style="@ViewBag.hsnotice">
+                                    <a class="test" tabindex="-1" href="#">Bulk Notice </a>
+                                    <ul class="dropdown-menu right-submenu">
+                                        <li id="ViewTimer" class="hideliclass" style=""><a href="/@firmcode121/NoticeTemplate/CreateTemplate">Manage Template</a></li>
+                                        <li id="ViewTimer" class="hideliclass" style=""><a href="/@firmcode121/NoticeTemplate/BulkNotice">Bulk Notice</a></li>
+                                        <li id="ViewTimer" class="hideliclass" style=""><a href="/@firmcode121/NoticeTemplate/NoticeBulkSharedToMe">Bulk Notice Share to me</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    <li style="@ViewBag.hstask" id="UserTask"><a href="/@firmcode121/firm/UserTask">Tasks</a></li>
+                    <li></li>
+                    @{
+                        var billingtab = "";
+                        if (@ViewBag.hsinvoice == "display:none" && @ViewBag.hsexpense == "display:none" && @ViewBag.hstimeentry == "display:none")
+                        {
+                            billingtab = "display:none";
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    <li class="dropdown hideliclass" id="caselist" style="@billingtab">
+                        <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Billing <b class="caret" style="margin-top:-2px;"></b></a>
+                        <ul class="dropdown-menu">
+                            @if (Convert.ToInt32(ViewBag.ispartner) == 1)
+                            {
+                                <li style="@ViewBag.hsinvoice" id="ViewInvoice"><a href="/@firmcode121/Bill/ViewInvoice">Invoice</a></li>
+                            }
+                            else
+                            {
+                                if (ViewBag.IsCreateinvRights == "1" || ViewBag.IsViewinvRights == "1" || ViewBag.IsEditinvRights == "1")
+                                {
+                                    <li style="@ViewBag.hsinvoice" id="ViewInvoice"><a href="/@firmcode121/Bill/ViewInvoice">Invoice</a></li>
+                                }
+                            }
+                            <li style="@ViewBag.hsexpense" id="expese"><a href="/@firmcode121/Expense/ExpenseReport">Expense</a></li>
+                            <li style="@ViewBag.hstimeentry"><a href="/@firmcode121/Firm/ViewTimer">Time Entry</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown hideliclass" id="ContactsList" style="@ViewBag.hscontact">
+                        <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">Contacts <b class="caret" style="margin-top:-2px;"></b></a>
+                        <ul class="dropdown-menu">
+
+                            <li id="ContactsList"><a href="/@firmcode121/Firm/StandardContactsList?c=1" id="ContactsListchild" value="1">Company</a></li>
+                            <li id="ContactsList"><a href="/@firmcode121/Firm/StandardContactsList?c=0" id="ContactsListchild1" value="0">Individual</a></li>
+                        </ul>
+                    </li>
+                    <li id="ViewKnowledge" style="@ViewBag.hsmanupatra"><a href="https://www.manupatrafast.com/" target="_blank">Manupatra</a></li>
+                    @{
+                        if (@ViewBag.hsipr == "display:unset")
+                        {
+                            <li class="dropdown" id="IPR" style="@ViewBag.hsipr">
+                                <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">IPR <b class="caret" style="margin-top:-2px;"></b></a>
+                                <ul class="dropdown-menu">
+                                    @if (ViewBag.hsiprtrademark == "display:unset")
+                                    {
+                                        <li id="Trademark" class="dropdown-submenu">
+                                            <a href="#">Trademark</a>
+                                            <ul class="dropdown-menu right-submenu">
+                                                <li><a href="/@firmcode121/IPR/IPRSearch?IP=1" id="IPR_Search" value="TdSearch">Search</a></li>
+                                                <li><a href="/@firmcode121/IPR/PhoneticSearch?IP=1" id="IPR_PhoneticSearch" value="TdPhoneticSearch">Phonetic Search</a></li>
+                                                <li><a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=1" id="IPR_Added" value="TdTracking">Tracker</a> </li>
+                                                <li><a href="/@firmcode121/IPR/ViewSharedTrademark?IP=1" id="IPR_Shared" value="TdTracking">Tracker-Shared</a> </li>
+                                                <li><a href="/@firmcode121/IPR/TrademarkArchive?IP=1" id="IPR_Archive" value="TdArchives">Archive</a></li>
+                                                <li><a href="/@firmcode121/IPR/ViewIPRCase?IP=1" id="ViewIPRCase" value="TdMyList">My List</a></li>
+                                                <li><a href="/@firmcode121/IPR/ProprietorSearch?IP=1" id="ProprietorSearch" value="ProprietorSearch">Proprietor</a></li>
+                                                <li><a href="/@firmcode121/IPR/AgentSearch?IP=1" id="AgentSearch" value="AgentSearch">Agent Search</a></li>
+                                            </ul>
+
+                                        </li>
+                                    }
+                                    @if (ViewBag.hsiprcopyright == "display:unset")
+                                    {
+                                        <li id="Copyright" class="dropdown-submenu">
+                                            <a href="#">Copyright</a>
+                                            <ul class="dropdown-menu right-submenu">
+                                                <li><a href="/@firmcode121/IPR/IPRSearch?IP=2" id="Copyright_Search" value="CrSearch">Search</a></li>
+                                                <li><a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=2" id="Copyright_ViewAdded" value="CrTracking">Tracker</a></li>
+                                                <li><a href="/@firmcode121/IPR/TrademarkArchive?IP=2" id="Copyright_ViewArchived" value="CrArchives">Archive</a></li>
+                                                <li><a href="/@firmcode121/IPR/ViewIPRCase?IP=2" id="Copyright_ViewNewPatent" value="CrMyList">My List</a></li>
+                                                <li><a href="/@firmcode121/IPR/ProprietorSearch?IP=2" id="ProprietorSearch" value="ProprietorSearch">Applicant</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @if (ViewBag.hsiprpatent == "display:unset")
+                                    {
+                                        <li id="Patent" class="dropdown-submenu">
+                                            <a href="#">Patent</a>
+                                            <ul class="dropdown-menu right-submenu">
+                                                <li><a href="/@firmcode121/IPR/IPRSearch?IP=3" id="Patent_Search" value="1">Search</a></li>
+                                                <li><a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=3" id="Patent_ViewAdded" value="0">Tracker</a></li>
+                                                <li><a href="/@firmcode121/IPR/TrademarkArchive?IP=3" id="Patent_ViewArchived">Archive</a></li>
+                                                <li><a href="/@firmcode121/IPR/ViewIPRCase?IP=3" id="Patent_ViewNewPatent" value="0">My List</a></li>
+                                                <li><a href="/@firmcode121/IPR/ProprietorSearch?IP=3" id="ProprietorSearch" value="ProprietorSearch">Applicant</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+                                    @if (ViewBag.hsiprgi == "display:unset")
+                                    {
+                                        <li id="GI" class="dropdown-submenu">
+                                            <a href="#">GI</a>
+                                            <ul class="dropdown-menu right-submenu">
+                                                <li><a href="/@firmcode121/IPR/IPRSearch?IP=4" id="GI_Search" value="1">Search</a></li>
+                                                <li><a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=4" id="GI_ViewAdded" value="0">Tracker</a></li>
+                                                <li><a href="/@firmcode121/IPR/TrademarkArchive?IP=4" id="GI_ViewArchived">Archive</a></li>
+                                                <li><a href="/@firmcode121/IPR/ViewIPRCase?IP=4" id="GI_ViewNewGIt" value="0">My List</a></li>
+                                                <li><a href="/@firmcode121/IPR/ProprietorSearch?IP=4" id="ProprietorSearch" value="ProprietorSearch">Applicant</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @if (ViewBag.hsiprdesign == "display:unset")
+                                    {
+                                        <li id="Design" class="dropdown-submenu">
+                                            <a href="#">Design</a>
+                                            <ul class="dropdown-menu right-submenu">
+                                                <li><a href="/@firmcode121/IPR/IPRSearch?IP=5" id="Design_Search" value="1">Search</a></li>
+                                                <li><a href="/@firmcode121/IPR/ViewAddedTrademarks?IP=5" id="Design_ViewAdded" value="0">Tracker</a></li>
+                                                <li><a href="/@firmcode121/IPR/TrademarkArchive?IP=5" id="Design_ViewArchived">Archive</a></li>
+                                                <li><a href="/@firmcode121/IPR/ViewIPRCase?IP=5" id="Design_ViewNewDesign" value="0">My List</a></li>
+                                                <li><a href="/@firmcode121/IPR/ProprietorSearch?IP=5" id="ProprietorSearch" value="ProprietorSearch">Applicant</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+                                    @if (ViewBag.hsiprresources == "display:unset")
+                                    {
+                                        <li id="Resources">
+                                            <a href="/@firmcode121/IPR/Resources">Resources</a>
+                                        </li>
+                                    }
+
+
+                                </ul>
+                            </li>
+                        }
+
+                    }
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Tool Box"> <img src="~/newassets/images/setting_icon_2.png" style="width:16px" /></a>
+                        <ul class="dropdown-menu">
+                            <li style="@ViewBag.hscompare" id="CompareDocList" class="hideliclass"><a href="/@firmcode121/Compare/CompareDocList" title="Compare Documents">Compare Documents</a></li>
+                            <li style="@ViewBag.hsconflict"><a href="/@firmcode121/report/ConflictSearch" title="Conflict Search">Conflict Search</a></li>
+                            <li style="@ViewBag.hsemailsync"><a href="/@firmcode121/Firm/Mailbox" title="Email Sync">Email Sync</a></li>
+                            <li style="@ViewBag.hsglobal"><a href="/@firmcode121/Global/Search" title="Global Search">Global Search</a></li>
+                            <li style="@ViewBag.hsocr"><a href="/@firmcode121/Firm/ocr" title="OCR">OCR</a></li>
+                            <li style="@ViewBag.hsvcgooglemeet"><a href="https://apps.google.com/meet/" target="_blank" title="VC Google Meet "><img src="~/newassets/images/google_meet.png" />VC Google Meet </a></li>
+                            <li style="@ViewBag.hscoludint" id="DropBox" class="hideliclass"><a href="/@firmcode121/dropbox/index" title="DropBox Integration">DropBox Integration</a></li>
+                            <li style="@ViewBag.hscoludint" id="OneDrive" class="hideliclass"><a href="/@firmcode121/OneDrive/index" title="OneDrive Integration">OneDrive Integration</a></li>
+                            <li id="GoogleDrive" class="hideliclass" style="@ViewBag.hscoludint"><a href="/@firmcode121/GoogleDrive/index" title="GoogleDrive Integration">GoogleDrive Integration</a></li>
+                            <li id="PdfDocConverter" class="hideliclass" style="display:unset"><a href="/@firmcode121/Firm/PdfDocConverter" title="PDF to Doc Converter">PDF to Doc Converter</a></li>
+                            <li id="DigitalSignature" class="hideliclass" style="@ViewBag.hsdsign"><a href="/@firmcode121/Azure/DigitalSignature" title="Digital Signature">Digital Signature</a></li>
+                        </ul>
+                    </li>
+                    @if (@ViewBag.hsmklitigation == "display:unset" && @ViewBag.hsmatter == "display:none" && @ViewBag.hsnotice == "display:none")
+                    {
+                    }
+                    else
+                    {
+                        <li class="dropdown">
+                            <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown" title="Notifications"> <img src="~/newassets/images/notification_icon1.png" style="padding-top: 5px;"> <span class="badge badge-light" id="countnotify" style="margin: -2px 0px 0px -15px;position:absolute;background-color: #8bd00b !important;"></span>  </a>
+
+                        </li>
+                    }
+                    @{
+                        var userfullname = @Session["fullusername"];
+                    }
+                    @{
+                        if (userfullname.ToString().Length > 12)
+                        {
+                            userfullname = Convert.ToString(userfullname).Replace("&amp;", "&").Substring(0, 12) + "...";
+                        }
+                        else
+                        {
+                            userfullname = Convert.ToString(userfullname).Replace("&amp;", "&");
+                        }
+                    }
+                    <li class="dropdown" style="padding-left:10px;">
+                        <a style="cursor:pointer; margin-left: 10px" class="dropdown-toggle userprofile" data-toggle="dropdown"> @userfullname <span><b class="caret"></b></span></a>
+                        <ul class="dropdown-menu">
+                            @if (Convert.ToInt32(ViewBag.ispartner) == 1)
+                            {
+                                <li style="@ViewBag.hsknowledge" id="ViewKnowledge"><a href="/@firmcode121/firm/ViewKnowledge/0">Knowledge</a></li>
+                            }
+                            else
+                            {
+                                if (ViewBag.IsCreateknowRights == "1" || ViewBag.IsEditknowRights == "1" || ViewBag.IsViewknowRights == "1")
+                                {
+                                    <li style="@ViewBag.hsknowledge" id="ViewKnowledge"><a href="/@firmcode121/firm/ViewKnowledge/0">Knowledge</a></li>
+                                }
+                            }
+                            <li style="@ViewBag.hscalendar" id="MergeCalendar"><a href="/@firmcode121/firm/MergeCalendar">Calendar</a></li>
+                            <li class="divider" style="@ViewBag.hslegal"></li>
+                            <li><a href="/@firmcode121/Firm/UserProfile" style="@ViewBag.hsothers">Profile</a></li>
+                            <li id="caseroleaccess" style="@ViewBag.hsmklitigation"><a href="/@firmcode121/CW/LitigationCalendar">Calendar</a></li>
+                            <li id="caseroleaccess" style="@ViewBag.hsmklitigation"><a href="/@firmcode121/CW/ViewAlert"> Alerts List</a></li>
+                            <li id="password1"><a href="javascript:void()">Change Password</a></li>
+                            <li style="@ViewBag.hsmatter"><a href="/@firmcode121/Firm/CommunicationList">Communication</a></li>
+                            <li class="divider"></li>
+                            @if (Convert.ToInt32(ViewBag.ispartner) == 1)
+                            {
+                                if (ViewBag.IsCreateUserList == "1" || ViewBag.IsViewUserList == "1" || ViewBag.IsEditUserList == "1")
+                                {
+                                    <li style="@ViewBag.hsuser"><a href="/@firmcode121/Firm/StandardUserList">Manage Users</a></li>
+                                    <li class="divider"></li>
+                                }
+                            }
+                            else
+                            {
+                                if (ViewBag.IsCreateUserList == "1" || ViewBag.IsViewUserList == "1" || ViewBag.IsEditUserList == "1")
+                                {
+                                    <li style="@ViewBag.hsuser"><a href="/@firmcode121/Firm/StandardUserList">Manage Users</a></li>
+                                    <li class="divider"></li>
+                                }
+                            }
+                            @if (Convert.ToInt32(ViewBag.ispartner) == 1)
+                            {
+                                if (ViewBag.IsCreateAssignRights == "1" || ViewBag.IsViewAssignRights == "1" || ViewBag.IsEditAssignRights == "1" || ViewBag.IsCreateMatterRights == "1" || ViewBag.IsViewMatterRights == "1" || ViewBag.IsEditMatterRights == "1")
+                                {
+                                    <li class="dropdown-submenu hideliclass" id="roleaccessparent" style="@ViewBag.hsrights">
+                                        <a class="test" tabindex="-1" href="#">Rights </a>
+                                        <ul class="dropdown-menu left-submenu" style="z-index: 10000;left: -156px;">
+                                            @if (ViewBag.IsCreateAssignRights == "1" || ViewBag.IsViewAssignRights == "1" || ViewBag.IsEditAssignRights == "1")
+                                            {
+                                                <li id="roleaccess"><a href="/@firmcode121/Role/RoleAccess">Assign Rights</a></li>
+                                            }
+                                            @if (ViewBag.IsCreateMatterRights == "1" || ViewBag.IsViewMatterRights == "1" || ViewBag.IsEditMatterRights == "1")
+                                            {
+                                                <li id="caseroleaccess"><a href="/@firmcode121/Role/CaseRoleAccess">Matter Rights</a></li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                if (ViewBag.IsCreateAssignRights == "1" || ViewBag.IsViewAssignRights == "1" || ViewBag.IsEditAssignRights == "1" || ViewBag.IsCreateMatterRights == "1" || ViewBag.IsViewMatterRights == "1" || ViewBag.IsEditMatterRights == "1")
+                                {
+                                    <li class="dropdown-submenu hideliclass" id="roleaccessparent" style="@ViewBag.hsrights">
+                                        <a class="test" tabindex="-1" href="#">Rights </a>
+                                        <ul class="dropdown-menu left-submenu">
+                                            @if (ViewBag.IsCreateAssignRights == "1" || ViewBag.IsViewAssignRights == "1" || ViewBag.IsEditAssignRights == "1")
+                                            {
+                                                <li id="roleaccess"><a href="/@firmcode121/Role/RoleAccess">Assign Rights</a></li>
+                                            }
+                                            @if (ViewBag.IsCreateMatterRights == "1" || ViewBag.IsViewMatterRights == "1" || ViewBag.IsEditMatterRights == "1")
+                                            {
+                                                <li id="caseroleaccess"><a href="/@firmcode121/Role/CaseRoleAccess">Matter Rights</a></li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                            }
+
+                            <li><a href="javascript:void()" id="signoutconfirm">Sign Out</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- /.navbar-collapse -->
+        </div>
+    </nav>*@
+<div class="modal fade" id="myModalNotificationdata" role="dialog">
+    <div class="modal-dialog" style="width:56%">
+        <div class="modal-content shadow">
+            <form id="fileupload" name="fileupload">
+                <div class="modal-header" style="background-color: transparent !important;">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="button9 pull-right" id="Allreadnoti" type="button" data-type="" title="Mark all as Read" style="margin:0 10px;">
+                        <img class="plus-icon" alt="" src="/newassets/img/mark-read-icon.png">
+                    </div>
+                    <div class="button9 pull-right" id="clearallnoti" type="button" data-type="" title="Clear notification">
+                        Clear All
+                    </div>
+                    <h4 class="modal-title">Notification</h4>
+                </div>
+                <div class="modal-body" style="margin:15px 0 0 0;">
+                    <div style="overflow-y:auto; height:375px;">
+                        <table class="table-panel">
+                            <thead>
+                                <tr>
+                                    <th><div class="thbg">Notifications</div></th>
+                                    <th width="115px"><div class="thbg">Date</div></th>
+                                    <th width="100px"><div class="thbg">Action</div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="bindnotificationdata"></tbody>
+                            <tr></tr>
+                        </table>
+                    </div>
+                    @*<div class="pagination">
+                            <div class="pagination-button-group">
+                                <div id="prev" class="pagination-button-group-base">
+                                    <img class="arrow-left-icon" alt="" src="/newassets/img/pre-arrow.png" style="width:16px; height:16px;">
+                                    <div class="text" style="float:right; padding:0 0 0 8px;">Previous</div>
+                                </div>
+                                <div id="pageNumbers" class="pagination-button-group-base1">
+                                </div>
+                                <div id="next" class="pagination-button-group-base8">
+                                    <div class="text" style="float: left;padding: 0 8px 0 0px;">Next</div>
+                                    <img style="float: right; width: 16px; height: 16px;" class="arrow-left-icon" alt="" src="/newassets/img/next-arrow.png" />
+
+                                </div>
+                            </div>
+                            <div class="text-and-supporting-text-parent">
+                                <div class="input">
+                                    <div class="content">
+                                        <input type="text" id="txtgopage" name="query" placeholder="Page No.">
+                                    </div>
+                                    <div class="help-icon">
+                                    </div>
+                                </div>
+                                <div class="text-and-supporting-text-group">
+                                    <div class="text-and-supporting-text">
+                                        <div id="divGo" class="text9">Go</div>
+                                    </div>
+                                    <img class="chevron-down-icon" alt="" src="~/newassets/img/next-arrow.png" style="width:16px; height:16px;">
+                                </div>
+                            </div>
+                        </div>*@
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="myModalDelNotConfirm" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog" style="width:400px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header btn-success">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">
+                    <img src="/newassets/img/delete-notice.png" style="margin:-10px 0px 0 -13px">
+                </h4>
+            </div>
+            <div class="modalNotitle" style="margin: -33px 0 0 0; border-bottom: none;">
+                <h4 id="ids_deleteRequesr">Delete Notification Request</h4>
+            </div>
+            <div class="modal-body">
+                <p id="msgRUSureD">Are you sure you want to delete this notification?</p>
+            </div>
+            <div class="footer_buttons modal-footer">
+                <button class="btn btn-secondary" id="" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="deleteNotDetails">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Navigation by Navin-->
+@*<script>
+        function OpenActive(obj) {
+            if (!$(obj).find(".nav-content").hasClass("collapse")) {
+                $(obj).find(".nav-content").addClass("collapse");
+                $(obj).find("p").removeClass("active");
+            } else {
+                $("#sidebar .nav-content").addClass("collapse")
+                $(".nav-link p").removeClass("active")
+                $(obj).find(".nav-content").removeClass("collapse");
+                $(obj).find("p").addClass("active");
+            }
+        }
+    </script>*@
+<!--End Navigation-->
+<script>
+    $(document).ready(function () {
+        $('.dropdown-submenu a.test').on("click", function (e) {
+            $(".right-submenu").hide();
+            $(this).next('ul').toggle();
+            e.stopPropagation();
+            e.preventDefault();
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+
+        $("#signoutconfirm").click(function () {
+            /* if (confirm('Thank you for using myKase.\r\nAre your sure you want to Sign Off?'))*/
+            /* if (showAlert('Thank you for using myKase.','\r\nAre your sure you want to Sign Off?'))*/
+
+            showConfirm("Thank you for using myKase.", "Are you sure you want to Sign Off?")
+                .then(function (result) {
+                    if (result) {
+                        {
+
+                            localStorage.removeItem("causemodal");
+
+                            location.href = "/@firmcode121/Account/LogOut";
+                        }
+                    }
+
+      });
+    
+        function openload3() {
+            $('#myOverlay').css("display", "block");
+        }
+
+        function closeload3() {
+            $('#myOverlay').css("display", "none");
+        }
+
+        $("#password1").click(function (e) {
+
+            try {
+
+
+
+                openload3();
+                var url = "/Client/ChangePassword";
+                $('.mymodelscpd').load(url, function (result) {
+                    closeload3();
+                    $('#myModalcpd').modal({ show: true });
+                });
+                //window.location = "/" + fcode + url;
+            }
+            catch (err) {
+                alert(err.message);
+            }
+        });
+        });
+    });
+</script>
+<script>
+
+    var pagename;
+    $(document).ready(function () {
+
+        var pagename1 = location.pathname.split('/');
+        var pagename = pagename1[3];
+
+        $("#" + pagename).addClass("active");
+
+
+
+    });
+    $('div .a-accessbility').on('click', function (event) {
+        // The event won't be propagated up to the document NODE and
+        // therefore delegated events won't be fired
+        event.stopPropagation();
+    });
+     $("#chaticon").click(function () {
+         var fcode678 = localStorage.getItem("FirmCode");
+         window.location.href ="/"+ fcode678+"/Chat/InvitedChat";
+        });
+       // InvitedChatList();
+        //setTimeout(function () { InvitedChatList(); }, 3000);
+        function InvitedChatList() {
+            $("#bindinvitedchatlist").empty();
+            var formData = new FormData();
+            formData.append("firmid", "@Session["sessionfirmid"].ToString()");
+            formData.append("userid", "@Session["sessionuserid"].ToString()");
+            $.ajax({
+                async: true,
+                url: '/api/ChatApi/InvitedChatList',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    var html3 = '';
+
+                    if (response.Data == "") {
+                        $("#chaticon").hide();
+						$("#chatnoti").hide();
+                    }
+                    else {
+					try{
+					$("#countnotify").text(parseInt($("#countnotify").text())+1);
+					}
+					catch
+					{
+					}
+                        $("#chaticon").show();
+						$("#chatnoti").show();
+                    }
+
+                    $.each(response.Data, function (i, val) {
+                        if (val.iChatType == 2) {
+                            html3 += '<tr><td>You have private chat invitation by <b>' + val.SenderName + '</b></td><td><a href="#" id="Channelid" data-val=' + val.ChannelGuid + '>JOIN</a></td></tr>';
+                        }
+                        else {
+                            html3 += '<tr><td>You have group chat invitation by <b>' + val.SenderName + '</b></td><td><a href="#" id="ChannelidGroup" data-val=' + val.ChannelGuid + '>JOIN</a></td></tr>';
+                        }
+                    });
+                    $("#bindinvitedchatlist").append(html3);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+        });
+    }
+    // Sidebar navigation active tile logic
+    $('.nav-options').on('click', function () {
+        var id = $(this).attr('id');  // Wrap 'this' with $()
+        localStorage.setItem('active_id', id);
+    });
+
+    // On page load, set active class
+    $(document).ready(function () {
+        var activeId = localStorage.getItem('active_id');
+        if (activeId) {
+            $('#' + activeId).addClass('active');
+        }
+    });
+</script>
+<script>
+    if (!localStorage.getItem('active_id')) {
+        localStorage.setItem('active_id', 'home_sidebar');
+    }
+</script>
+
+
+
+
+
+
+<script>
+
+    function showConfirm(title, message) {
+        return new Promise((resolve) => {
+            $("#confirmTitle").text(title || "Confirmation");
+            $("#confirmMessage").text(message || "Are you sure?");
+
+            // remove old handlers
+            $("#confirmYes").off("click");
+            $("#myModalConfirm").off("hidden.bs.modal");
+
+            // confirm clicked
+            $("#confirmYes").on("click", function () {
+                $("#myModalConfirm").modal("hide");
+                resolve(true);
+            });
+
+            // closed without confirm
+            $("#myModalConfirm").on("hidden.bs.modal", function () {
+                resolve(false);
+            });
+
+            // show modal
+            $("#myModalConfirm").modal("show");
+        });
+    }
+</script>
+
+
