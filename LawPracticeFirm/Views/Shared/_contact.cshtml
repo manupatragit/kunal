@@ -4275,10 +4275,20 @@
     }
     function openload() {
         $("#myOverlay").css("display", "block");
+        $("#myOverlay").data("lastShown", Date.now());
     }
     function closeload() {
         $("#myOverlay").css("display", "none");
+        $("#myOverlay").removeData("lastShown");
     }
+    // Safety: auto-close loader if stuck > 10 seconds
+    setInterval(function () {
+        var last = $("#myOverlay").data("lastShown");
+        if (last && Date.now() - last > 10000) {
+            $("#myOverlay").css("display", "none");
+            $("#myOverlay").removeData("lastShown");
+        }
+    }, 3000);
 </script>
 <script src="~/Manupanel/validation/jquery.validate.js"></script>
 <script src="~/newassets/Scripts/jquery.timepicker.min.js"></script>

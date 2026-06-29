@@ -9706,6 +9706,8 @@ namespace LawPracticeFirm.Controllers
                                 addfClient.Headers.Add(HttpRequestHeader.ContentType, "application/json");
                                 string builders = JsonConvert.SerializeObject(rawfile);
                                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                                addfClient.Encoding = Encoding.UTF8;
+
                                 string resid = addfClient.UploadString(new Uri(apiUrl + "/API/Search/SearchDataByCNRNo"), "POST", builders);
                                 dynamic jObject = JObject.Parse(resid);
                                 dynamic data1 = jObject["data"];

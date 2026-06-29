@@ -471,6 +471,11 @@ namespace NJDGDetail.Models
                 refNo = value;
             }
         }
+        //MP COURT
+        public string RevenueCaseR { get; set; }
+        public string RevenueCaseNo { get; set; }
+        public string RevenuetxtnoREMP { get; set; }
+        public string RevenueCourtNameDREMP { get; set; }
 
         //for Rera Court
         public string ReraCourt

@@ -21386,6 +21386,193 @@ namespace LawPracticeFirm.API
                 return Ok(0);
             }
         }
+        // ===== AI Order Notes — Batch endpoint for LitigationCaseList Notes column =====
+        /// <summary>
+        /// Get AI-generated notes for multiple cases at once.
+        /// Sends all uncached PDF URLs to AI API in ONE request (max 10 at a time per page).
+        /// Results are cached in CaseOrderNotes table.
+        /// ONLY active for hierarchy firm — gated by firmId check.
+        /// </summary>
+        [System.Web.Mvc.HttpGet]
+        [FirmApiAuthorization()]
+        public IHttpActionResult GetOrderNotesBatch(string caseIds)
+        {
+            var db = new LawPracticeEntities();
+            try
+            {
+                // ===== Gate: Hierarchy firm ONLY =====
+                string hierarchyFirmId = ConfigurationManager.AppSettings["HierarchyFirmId"] ?? "";
+                if (string.IsNullOrEmpty(hierarchyFirmId) ||
+                    LoggedInUser.FirmId.ToString().ToUpper() != hierarchyFirmId.ToUpper())
+                {
+                    return Ok(new { success = true, data = new object[0] });
+                }
+
+                if (string.IsNullOrEmpty(caseIds))
+                    return Ok(new { success = true, data = new object[0] });
+
+                var idList = caseIds.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToList();
+                if (idList.Count == 0)
+                    return Ok(new { success = true, data = new object[0] });
+
+                var results = new List<object>();
+                var uncachedUrls = new Dictionary<string, string>();
+                string firmId = LoggedInUser.FirmId.ToString();
+
+                // 1. Check DB cache
+                foreach (var cid in idList)
+                {
+                    try
+                    {
+                        var cached = db.Database.SqlQuery<string>(
+                            "SELECT TOP 1 Notes FROM dbo.CaseOrderNotes WHERE CaseId = @p0 AND FirmId = @p1",
+                            cid, firmId).FirstOrDefault();
+                        if (!string.IsNullOrEmpty(cached))
+                            results.Add(new { caseId = cid, notes = cached, cached = true });
+                        else
+                            uncachedUrls[cid] = null;
+                    }
+                    catch { uncachedUrls[cid] = null; }
+                }
+
+                // 2. Get PDF URLs for uncached cases (inline — LoggedInUser from CallApiController)
+                if (uncachedUrls.Count > 0)
+                {
+                    var apiUrl = ConfigurationManager.AppSettings["savetocasewatchurl"];
+                    string AccessToken = LoggedInUser.IsCaseWatchUser == 1 ? "internal" : "mykase123456789abcdef";
+                    string username = ConfigurationManager.AppSettings["matteridname"] + LoggedInUser.UserId;
+                    string userIdDetail = LoggedInUser.IsCaseWatchUser == 1 ? LoggedInUser.UserName : username;
+
+                    var tempList = new List<string>(uncachedUrls.Keys);
+                    foreach (var cid in tempList)
+                    {
+                        try
+                        {
+                            var rawPayload = new
+                            {
+                                accesstoken = AccessToken,
+                                userid = userIdDetail,
+                                caseid = cid
+                            };
+                            var cwClient = new WebClient();
+                            cwClient.Encoding = Encoding.UTF8;
+                            cwClient.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+                            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                            string resid = cwClient.UploadString(apiUrl + "/API/Search/ShowMykaseDetailsById", "POST",
+                                JsonConvert.SerializeObject(rawPayload));
+
+                            dynamic jObj = JObject.Parse(resid);
+                            dynamic orders = jObj["data"];
+                            string pdfUrl = null;
+                            if (orders != null && orders.Count > 0)
+                            {
+                                for (int k = 0; k < orders.Count; k++)
+                                {
+                                    string fp = orders[k]["Filepath"]?.ToString();
+                                    if (!string.IsNullOrEmpty(fp) && fp != "File Not Found")
+                                    {
+                                        pdfUrl = fp;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(pdfUrl))
+                                uncachedUrls[cid] = pdfUrl;
+                            else
+                            {
+                                uncachedUrls.Remove(cid);
+                                results.Add(new { caseId = cid, notes = "", cached = false });
+                            }
+                        }
+                        catch (Exception cwEx)
+                        {
+                            uncachedUrls.Remove(cid);
+                            results.Add(new { caseId = cid, notes = "", cached = false, error = "CW:" + cwEx.Message });
+                        }
+                    }
+                }
+
+                // 3. Call AI API ONCE with all uncached PDF URLs (max 10 per page)
+                if (uncachedUrls.Count > 0)
+                {
+                    try
+                    {
+                        // Build ordered lists to preserve mapping: caseId ↔ pdfUrl
+                        var orderedCaseIds = new List<string>();
+                        var orderedPdfUrls = new List<string>();
+                        foreach (var kvp in uncachedUrls)
+                        {
+                            if (!string.IsNullOrEmpty(kvp.Value))
+                            {
+                                orderedCaseIds.Add(kvp.Key);
+                                orderedPdfUrls.Add(kvp.Value);
+                            }
+                        }
+                        var urlList = orderedPdfUrls.Take(10).ToList();
+                        var caseIdList = orderedCaseIds.Take(10).ToList();
+
+                        if (urlList.Count > 0)
+                        {
+                            var aiClient = new WebClient();
+                            aiClient.Encoding = Encoding.UTF8;
+                            aiClient.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+                            aiClient.Headers.Add("x-api-key", ConfigurationManager.AppSettings["AIApiKey"] ?? "841174fec9d21d47a0364fa008e630f9");
+
+                            var aiPayload = new
+                            {
+                                request_id = Guid.NewGuid().ToString("N"),
+                                results = urlList.Select(url => new { cached = true, outcome = "", url = url }).ToList(),
+                                successful = urlList.Count,
+                                total = urlList.Count
+                            };
+                            var aiApiUrl = ConfigurationManager.AppSettings["ApiBaseUrlForAINotes"] ?? "https://dp.mykase.in/predict";
+                            string aiResponse = aiClient.UploadString(aiApiUrl, "POST",
+                                JsonConvert.SerializeObject(aiPayload));
+
+                            dynamic aiResult = JObject.Parse(aiResponse);
+                            var predictions = aiResult["results"];
+
+                            // Map predictions back using ordered list (same order as urlList)
+                            for (int i = 0; i < caseIdList.Count && i < urlList.Count; i++)
+                            {
+                                string cid = caseIdList[i];
+                                string notes = "";
+                                try { notes = predictions[i]?.outcome?.ToString() ?? ""; }
+                                catch { notes = ""; }
+
+                                // Cache in DB
+                                try
+                                {
+                                    db.Database.ExecuteSqlCommand(
+                                        "INSERT INTO dbo.CaseOrderNotes (CaseId, FirmId, Notes) VALUES (@p0, @p1, @p2)",
+                                        cid, firmId, notes);
+                                }
+                                catch { }
+
+                                results.Add(new { caseId = cid, notes = notes, cached = false });
+                            }
+                        }
+                    }
+                    catch (Exception aiEx)
+                    {
+                        // AI API failed — return empty notes with error info
+                        foreach (var kvp in uncachedUrls)
+                            results.Add(new { caseId = kvp.Key, notes = "", cached = false, error = "AI:" + aiEx.Message });
+                    }
+                }
+
+                return Ok(new { success = true, data = results });
+            }
+            catch (Exception ex)
+            {
+                db.usp_AddAuditError(Convert.ToInt32(EventType.Case), Convert.ToInt32(Severity.High),
+                    Convert.ToInt32(REQUEST_TYPE.API), "GetOrderNotesBatch", ex.Message,
+                    "", null, "Message=" + ex.Message, myIP(), GetMacAddress().ToString(), 1, "");
+                return Ok(new { success = false, error = ex.Message });
+            }
+        }
+
         /// <summary>
         /// Calendar Event List For To DO
         /// </summary>
